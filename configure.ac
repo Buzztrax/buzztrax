@@ -492,7 +492,7 @@ AC_SUBST(PACKAGE_ORIGIN)
 
 dnl Check for gtk-doc.
 m4_ifdef([GTK_DOC_CHECK], [
-GTK_DOC_CHECK([1.29],[--flavour no-xslt])
+GTK_DOC_CHECK([1.20],[--flavour no-tmpl])
 ],[
 AM_CONDITIONAL([ENABLE_GTK_DOC], false)
 ])
