@@ -297,15 +297,14 @@ on_grid_draw (ClutterCanvas * canvas, cairo_t * cr, gint width, gint height,
   GST_INFO ("redrawing grid: density=%lu  canvas: %4d,%4d",
       p->grid_density, width, height);
 
+  /* clear the contents of the canvas, to not paint over the previous frame */
+  // FIXME: see https://gitlab.gnome.org/GNOME/gtk/issues/532
+  // this should be self->priv->canvas_widget, but then we get weird colors
+  gtk_render_background (gtk_widget_get_style_context (self->priv->toolbar), cr,
+      0, 0, width, height);
+
   if (!p->grid_density)
     return TRUE;
-
-  /* clear the contents of the canvas, to not paint over the previous frame */
-  cairo_save (cr);
-  cairo_set_operator (cr, CAIRO_OPERATOR_CLEAR);
-  cairo_paint (cr);
-  cairo_restore (cr);
-  cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
 
   /* center the grid */
   rx = width / 2.0;
@@ -1572,20 +1571,13 @@ static void
 on_canvas_style_updated (GtkStyleContext * style_ctx, gconstpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  GdkRGBA c;
-
-  // BUG(744517): this is deprecated and there is no obvious quick fix
-  gtk_style_context_get_background_color (style_ctx, GTK_STATE_FLAG_NORMAL, &c);
-  ClutterColor stage_color = {
-    CLAMP (c.red * 255, 0, 255), CLAMP (c.green * 255, 0, 255),
-    CLAMP (c.blue * 255, 0, 255), 255
-  };
-  clutter_actor_set_background_color (self->priv->stage, &stage_color);
 
   gtk_style_context_lookup_color (style_ctx, "new_wire_good",
       &self->priv->wire_good_color);
   gtk_style_context_lookup_color (style_ctx, "new_wire_bad",
       &self->priv->wire_bad_color);
+
+  clutter_content_invalidate (self->priv->grid_canvas);
 }
 
 //-- helper methods
