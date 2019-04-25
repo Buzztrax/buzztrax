@@ -941,7 +941,7 @@ plugin_init (GstPlugin * plugin)
       bt_dec_type_find, exts, GST_CAPS_ANY, NULL, NULL);
   g_free (exts);
 
-  return gst_element_register (plugin, "buzztrax-dec", GST_RANK_MARGINAL,
+  return gst_element_register (plugin, "bt_dec", GST_RANK_MARGINAL,
       BT_TYPE_DEC);
 }
 
