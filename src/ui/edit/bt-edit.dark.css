@@ -9,7 +9,7 @@
 @define-color endline_color #FF4C33;
 
 @define-color cursor_color #C4C433;
-@define-color selection1_color #FFFF99;
+@define-color selection1_color #AAAA66;
 @define-color selection2_color shade (@selection1_color, 0.9);
 
 @define-color spectrum_cross_hair_color #FFBF00;

@@ -165,7 +165,7 @@ struct _BtPatternEditor {
   /* position of playing pointer from 0.0 ... 1.0 */
   gdouble play_pos;
   /* own colors */
-  GdkRGBA play_pos_color, text_color, sel_color, cursor_color;
+  GdkRGBA play_pos_color, text_color, sel_color[2], cursor_color;
   GdkRGBA bg_shade_color[2], value_color[2];
 
   /* scroll adjustments */
@@ -190,7 +190,7 @@ void bt_pattern_editor_set_pattern (BtPatternEditor *self,
 gboolean bt_pattern_editor_get_selection (BtPatternEditor *self,
     gint *start, gint *end, gint *group, gint *param);
 
-gboolean bt_pattern_editor_position_to_coords (BtPatternEditor * self, 
+gboolean bt_pattern_editor_position_to_coords (BtPatternEditor * self,
     gint x, gint y, gint * row, gint * group, gint * parameter, gint * digit);
 
 GtkWidget *bt_pattern_editor_new (void);

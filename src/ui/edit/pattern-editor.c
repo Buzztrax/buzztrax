@@ -319,7 +319,7 @@ bt_pattern_editor_draw_column (BtPatternEditor * self, cairo_t * cr,
       }
       /* draw selected column+continuation (unless last column, then don't draw
          continuation) */
-      gdk_cairo_set_source_rgba (cr, &self->sel_color);
+      gdk_cairo_set_source_rgba (cr, &self->sel_color[row & 0x1]);
     }
     cairo_rectangle (cr, x, y, col_w3, ch);
     cairo_fill (cr);
@@ -558,21 +558,14 @@ bt_pattern_editor_configure_style (BtPatternEditor * self,
   gtk_style_context_get_color (style_ctx, GTK_STATE_FLAG_NORMAL,
       &self->text_color);
 
-  gtk_style_context_get_background_color (style_ctx, GTK_STATE_FLAG_SELECTED,
-      &self->sel_color);
-  self->cursor_color.red = self->sel_color.red * 1.2;
-  self->cursor_color.green = self->sel_color.green * 1.2;
-  self->cursor_color.blue = self->sel_color.blue * 1.2;
-  self->cursor_color.alpha = self->sel_color.alpha;
+  gtk_style_context_lookup_color (style_ctx, "selection1_color",
+      &self->sel_color[0]);
+  gtk_style_context_lookup_color (style_ctx, "selection2_color",
+      &self->sel_color[1]);
 
-  /*
-     gtk_style_context_get_background_color (style_ctx, GTK_STATE_FLAG_ACTIVE,
-     &self->value_color[0]);
-     self->value_color[1].red = self->value_color[0].red * 0.8;
-     self->value_color[1].green = self->value_color[0].green * 0.8;
-     self->value_color[1].blue = self->value_color[0].blue * 0.8;
-     self->value_color[1].alpha = self->value_color[0].alpha;
-   */
+  gtk_style_context_lookup_color (style_ctx, "cursor_color",
+      &self->cursor_color);
+
   self->value_color[0].red = self->bg_shade_color[0].red * 0.8;
   self->value_color[0].green = self->bg_shade_color[0].green * 0.8;
   self->value_color[0].blue = self->bg_shade_color[0].blue * 0.8;

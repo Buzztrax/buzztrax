@@ -47,25 +47,6 @@ G_DEFINE_TYPE (BtPianoKeys, bt_piano_keys, GTK_TYPE_WIDGET);
 
 
 static void
-bt_piano_keys_configure_style (BtPianoKeys * self)
-{
-  GdkRGBA sel_color;
-
-  GtkStyleContext *style_ctx = gtk_widget_get_style_context (GTK_WIDGET (self));
-
-  gtk_style_context_get_background_color (style_ctx, GTK_STATE_FLAG_SELECTED,
-      &sel_color);
-  self->white_key_sel_color.red = sel_color.red * 2.5;
-  self->white_key_sel_color.green = sel_color.green * 2.5;
-  self->white_key_sel_color.blue = sel_color.blue * 2.5;
-  self->white_key_sel_color.alpha = sel_color.alpha;
-  self->black_key_sel_color.red = sel_color.red * 0.5;
-  self->black_key_sel_color.green = sel_color.green * 0.5;
-  self->black_key_sel_color.blue = sel_color.blue * 0.5;
-  self->black_key_sel_color.alpha = sel_color.alpha;
-}
-
-static void
 bt_piano_keys_realize (GtkWidget * widget)
 {
   BtPianoKeys *self = BT_PIANO_KEYS (widget);
@@ -100,8 +81,6 @@ bt_piano_keys_realize (GtkWidget * widget)
 #else
   gdk_window_set_user_data (self->window, widget);
 #endif
-
-  bt_piano_keys_configure_style (self);
 }
 
 static void
@@ -194,7 +173,7 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
   // render selected white key
   if (pressed_key != -1 && bwk[pressed_key] > 0) {
     x = left + (pressed_oct * 7 + (bwk[pressed_key] - 1)) * KEY_WIDTH;
-    gdk_cairo_set_source_rgba (cr, &self->white_key_sel_color);
+    cairo_set_source_rgb (cr, 0.7, 0.7, 0.7);
     cairo_rectangle (cr, x, top, KEY_WIDTH, WHITE_KEY_HEIGHT);
     cairo_fill_preserve (cr);
     cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
@@ -213,7 +192,7 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
   if (pressed_key != -1 && bwk[pressed_key] < 0) {
     x = left + KEY_WIDTH / 2 +
         (pressed_oct * 7 + (-bwk[pressed_key] - 1)) * KEY_WIDTH;
-    gdk_cairo_set_source_rgba (cr, &self->black_key_sel_color);
+    cairo_set_source_rgb (cr, 0.3, 0.3, 0.3);
     cairo_rectangle (cr, x + 1, top, KEY_WIDTH - 2, BLACK_KEY_HEIGHT);
     cairo_fill (cr);
   }
@@ -225,7 +204,7 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
   }
   y = top + (WHITE_KEY_HEIGHT - 2);
   for (x = left; x < right; x += (7 * KEY_WIDTH)) {
-    sprintf (oct, "%u", (guint8)((x - left) / (7 * KEY_WIDTH)));
+    sprintf (oct, "%u", (guint8) ((x - left) / (7 * KEY_WIDTH)));
     cairo_text_extents (cr, oct, &ext);
     k = x + ((KEY_WIDTH / 2) - (ext.width / 2));
     if (k + ext.width < right) {
@@ -242,14 +221,6 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
   return TRUE;
 }
 
-
-static void
-bt_piano_keys_style_updated (GtkWidget * widget)
-{
-  bt_piano_keys_configure_style (BT_PIANO_KEYS (widget));
-
-  GTK_WIDGET_CLASS (bt_piano_keys_parent_class)->style_updated (widget);
-}
 
 static void
 bt_piano_keys_get_preferred_width (GtkWidget * widget,
@@ -406,7 +377,6 @@ bt_piano_keys_class_init (BtPianoKeysClass * klass)
   widget_class->map = bt_piano_keys_map;
   widget_class->unmap = bt_piano_keys_unmap;
   widget_class->draw = bt_piano_keys_draw;
-  widget_class->style_updated = bt_piano_keys_style_updated;
   widget_class->get_preferred_width = bt_piano_keys_get_preferred_width;
   widget_class->get_preferred_height = bt_piano_keys_get_preferred_height;
   widget_class->size_allocate = bt_piano_keys_size_allocate;

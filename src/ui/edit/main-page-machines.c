@@ -298,10 +298,8 @@ on_grid_draw (ClutterCanvas * canvas, cairo_t * cr, gint width, gint height,
       p->grid_density, width, height);
 
   /* clear the contents of the canvas, to not paint over the previous frame */
-  // FIXME: see https://gitlab.gnome.org/GNOME/gtk/issues/532
-  // this should be self->priv->canvas_widget, but then we get weird colors
-  gtk_render_background (gtk_widget_get_style_context (self->priv->toolbar), cr,
-      0, 0, width, height);
+  gtk_render_background (gtk_widget_get_style_context (self->
+          priv->canvas_widget), cr, 0, 0, width, height);
 
   if (!p->grid_density)
     return TRUE;

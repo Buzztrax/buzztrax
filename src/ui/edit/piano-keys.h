@@ -44,8 +44,6 @@ struct _BtPianoKeys {
   GstBtNote key;
   GdkWindow *window;
   GtkBorder border;
-
-  GdkRGBA white_key_sel_color, black_key_sel_color;
 };
 
 struct _BtPianoKeysClass {
