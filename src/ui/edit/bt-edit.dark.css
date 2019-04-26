@@ -1,7 +1,7 @@
 /* custom styles for buzztrax-edit */
 
-/* row shading for treeview */
-@define-color row_even_color #333333;
+/* row shading for sequence and pattern editor */
+@define-color row_even_color @theme_base_color;
 @define-color row_odd_color shade (@row_even_color, 0.9);
 
 @define-color playline_color #0000FF;
@@ -38,4 +38,4 @@
 @define-color new_wire_bad #AA0000;
 @define-color wire_line #AAAAAA;
 
-@define-color machine_view_bg_color #333333;
+@define-color machine_view_bg_color @theme_base_color;
