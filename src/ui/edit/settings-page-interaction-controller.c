@@ -186,7 +186,7 @@ on_device_menu_changed (GtkComboBox * combo_box, gpointer user_data)
     g_list_free (list);
 
     // activate the new one
-    self->priv->device = g_object_ref (device);
+    self->priv->device = g_object_ref ((gpointer) device);
     start_device (self);
   }
   GST_INFO ("control list refreshed");

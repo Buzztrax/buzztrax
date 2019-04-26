@@ -935,7 +935,7 @@ bt_edit_application_constructor (GType type, guint n_construct_params,
         G_OBJECT_LOG_REF_COUNT (singleton));
     //GST_DEBUG(">>>");
   } else {
-    object = g_object_ref (singleton);
+    object = g_object_ref ((gpointer) singleton);
   }
   return object;
 }

@@ -429,7 +429,7 @@ bt_ui_resources_constructor (GType type, guint n_construct_params,
     g_object_unref (settings);
     g_object_unref (app);
   } else {
-    object = g_object_ref (singleton);
+    object = g_object_ref ((gpointer) singleton);
   }
   return object;
 }

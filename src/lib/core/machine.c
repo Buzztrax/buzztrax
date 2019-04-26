@@ -1967,7 +1967,7 @@ bt_machine_get_pattern_by_id (const BtMachine * const self,
     pattern = (GObject *) node->data;
     if (!g_strcmp0 (g_object_get_data (pattern, "BtPattern::id"), id)) {
       GST_INFO ("legacy pattern lookup for '%s' = %p", id, pattern);
-      return g_object_ref (pattern);
+      return g_object_ref ((gpointer) pattern);
     }
   }
   return NULL;

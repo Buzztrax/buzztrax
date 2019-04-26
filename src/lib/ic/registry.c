@@ -274,7 +274,7 @@ btic_registry_constructor (GType type, guint n_construct_params,
 
     GST_INFO ("new device registry created");
   } else {
-    object = g_object_ref (singleton);
+    object = g_object_ref ((gpointer) singleton);
   }
   return object;
 }

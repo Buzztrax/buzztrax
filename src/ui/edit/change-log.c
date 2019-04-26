@@ -1161,7 +1161,7 @@ bt_change_log_constructor (GType type, guint n_construct_params,
     singleton = BT_CHANGE_LOG (object);
     g_object_add_weak_pointer (object, (gpointer *) (gpointer) & singleton);
   } else {
-    object = g_object_ref (singleton);
+    object = g_object_ref ((gpointer) singleton);
   }
   return object;
 }

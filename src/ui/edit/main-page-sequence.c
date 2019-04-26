@@ -655,7 +655,7 @@ pattern_list_model_get_pattern_by_key (GtkTreeModel * store, gchar that_key)
     gtk_tree_model_get (store, &iter, BT_PATTERN_LIST_MODEL_SHORTCUT, &this_key,
         -1);
     if (this_key[0] == that_key) {
-      pattern =
+      pattern = (BtCmdPattern *)
           g_object_ref (bt_pattern_list_model_get_object ((BtPatternListModel *)
               store, &iter));
       GST_INFO ("found pattern for key : %" G_OBJECT_REF_COUNT_FMT,
