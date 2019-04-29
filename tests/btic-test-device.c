@@ -26,6 +26,12 @@
 #include "ic/ic_private.h"
 #include "btic-test-device.h"
 
+enum
+{
+  DEVICE_CONTROLCHANGE = 1,
+};
+
+
 struct _BtIcTestDevicePrivate
 {
   /* used to validate if dispose has run */
@@ -143,6 +149,37 @@ btic_test_device_interface_init (gpointer const g_iface,
 //-- class internals
 
 static void
+btic_test_device_get_property (GObject * const object, const guint property_id,
+    GValue * const value, GParamSpec * const pspec)
+{
+  const BtIcTestDevice *const self = BTIC_TEST_DEVICE (object);
+  return_if_disposed ();
+  switch (property_id) {
+    case DEVICE_CONTROLCHANGE:
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+  }
+}
+
+static void
+btic_test_device_set_property (GObject * const object, const guint property_id,
+    const GValue * const value, GParamSpec * const pspec)
+{
+  const BtIcTestDevice *const self = BTIC_TEST_DEVICE (object);
+  return_if_disposed ();
+  switch (property_id) {
+    case DEVICE_CONTROLCHANGE:
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+  }
+}
+
+
+static void
 btic_test_device_dispose (GObject * const object)
 {
   const BtIcTestDevice *const self = BTIC_TEST_DEVICE (object);
@@ -182,8 +219,14 @@ btic_test_device_class_init (BtIcTestDeviceClass * const klass)
 
   g_type_class_add_private (klass, sizeof (BtIcTestDevicePrivate));
 
+  gobject_class->set_property = btic_test_device_set_property;
+  gobject_class->get_property = btic_test_device_get_property;
   gobject_class->dispose = btic_test_device_dispose;
 
   bticdevice_class->start = btic_test_device_start;
   bticdevice_class->stop = btic_test_device_stop;
+
+  // override learn interface
+  g_object_class_override_property (gobject_class, DEVICE_CONTROLCHANGE,
+      "device-controlchange");
 }
