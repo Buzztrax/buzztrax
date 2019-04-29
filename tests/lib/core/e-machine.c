@@ -506,7 +506,7 @@ test_bt_machine_bind_parameter_control (BT_TEST_ARGS)
   g_object_set (control, "value", 0, NULL);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (element, "g-uint", 0);
+  ck_assert_gobject_guint_eq (element, "g-uint", 0);
 
   GST_INFO ("-- cleanup --");
   gst_object_unref (element);
@@ -534,7 +534,7 @@ test_bt_machine_unbind_parameter_control (BT_TEST_ARGS)
   g_object_set (control, "value", 100, NULL);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (element, "g-uint", 0);
+  ck_assert_gobject_guint_eq (element, "g-uint", 0);
 
   GST_INFO ("-- cleanup --");
   gst_object_unref (element);
@@ -562,7 +562,7 @@ test_bt_machine_unbind_parameter_controls (BT_TEST_ARGS)
   g_object_set (control, "value", 100, NULL);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (element, "g-uint", 0);
+  ck_assert_gobject_guint_eq (element, "g-uint", 0);
 
   GST_INFO ("-- cleanup --");
   gst_object_unref (element);
