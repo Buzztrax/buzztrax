@@ -1330,9 +1330,10 @@ check_plot_data_int16 (gint16 * d, guint size, const gchar * base,
 {
   gint ret;
   gchar *base_name = check_plot_get_basename (base, name);
+  // meh, gnuplot 5.2 does not have 'ftsize 6' anymore, but 'fontscale <multiplier'
   gchar *cmd =
       g_strdup_printf
-      ("/bin/sh -c \"echo \\\"set terminal svg size 200,160 fsize 6;set output '%s.svg';"
+      ("/bin/sh -c \"echo \\\"set terminal svg size 200,160 fontscale 0.5;set output '%s.svg';"
       "set yrange [-33000:32999];set grid xtics;set grid ytics;"
       "set key outside below;"
       "plot '%s.raw' binary format='%%int16' using 0:1 with lines title '%s'\\\" | gnuplot\"",
@@ -1352,9 +1353,10 @@ check_plot_data_double (gdouble * d, guint size, const gchar * base,
 {
   gint ret;
   gchar *base_name = check_plot_get_basename (base, name);
+  // meh, gnuplot 5.2 does not have 'ftsize 6' anymore, but 'fontscale <multiplier'
   gchar *cmd =
       g_strdup_printf
-      ("/bin/sh -c \"echo \\\"set terminal svg size 200,160 fsize 6;set output '%s.svg';"
+      ("/bin/sh -c \"echo \\\"set terminal svg size 200,160 fontscale 0.5;set output '%s.svg';"
       "set grid xtics;set grid ytics;"
       "set key outside below;%s"
       "plot '%s.raw' binary format='%%float64' using 0:1 with lines title '%s'\\\" | gnuplot\"",
