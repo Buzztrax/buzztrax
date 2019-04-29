@@ -329,18 +329,21 @@ bt_deinit (void)
 static gboolean
 ensure_path (const gchar * env, const gchar * segment)
 {
-  gboolean modified = FALSE;
   const gchar *cur_var = g_getenv (env);
-  gchar **path = g_strsplit (cur_var, ":", -1);
-
-  if (!g_strv_contains ((const gchar * const *) path, segment)) {
-    gchar *new_var = g_strconcat (segment, ":", cur_var, NULL);
-    g_setenv (env, new_var, TRUE);
-    g_free (new_var);
-    modified = TRUE;
+  if (!cur_var) {
+    return FALSE;
+  } else {
+    gboolean modified = FALSE;
+    gchar **path = g_strsplit (cur_var, ":", -1);
+    if (!g_strv_contains ((const gchar * const *) path, segment)) {
+      gchar *new_var = g_strconcat (segment, ":", cur_var, NULL);
+      g_setenv (env, new_var, TRUE);
+      g_free (new_var);
+      modified = TRUE;
+    }
+    g_strfreev (path);
+    return modified;
   }
-  g_strfreev (path);
-  return modified;
 }
 
 
