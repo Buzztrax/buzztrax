@@ -1568,7 +1568,8 @@ on_box_realize (GtkWidget * widget, gpointer user_data)
   max_heigth -= tb_alloc.height;
 
   GST_DEBUG ("#### box size req %d x %d (toolbar-height %d, max %d x %d)",
-      requisition.width, requisition.height, tb_alloc.height, max_width, max_heigth);
+      requisition.width, requisition.height, tb_alloc.height, max_width,
+      max_heigth);
 
   // constrain the size by screen size minus some space for panels, deco and toolbar
   height = MIN (requisition.height, max_heigth);
@@ -2430,6 +2431,10 @@ make_trigger_control (const BtMachinePropertiesDialog * self, GObject * object,
         scrolled_window = gtk_scrolled_window_new (NULL, NULL);
         gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
             GTK_POLICY_ALWAYS, GTK_POLICY_NEVER);
+#if GTK_CHECK_VERSION (3, 16, 0)
+        gtk_scrolled_window_set_overlay_scrolling (GTK_SCROLLED_WINDOW
+            (scrolled_window), FALSE);
+#endif
         // keyboard
         widget = bt_piano_keys_new ();
         g_object_set (widget, "hexpand", TRUE, NULL);
