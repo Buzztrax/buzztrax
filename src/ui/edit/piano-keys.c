@@ -25,10 +25,10 @@
 #include <string.h>
 #include "piano-keys.h"
 
-#define KEY_HEIGHT 30
+#define KEY_HEIGHT 35
 #define KEY_WIDTH 14
 #define WHITE_KEY_HEIGHT KEY_HEIGHT
-#define BLACK_KEY_HEIGHT 19
+#define BLACK_KEY_HEIGHT 24
 
 //-- signal ids
 
@@ -185,7 +185,19 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
       k = 0;
     if (k == 2 || k == 6)
       continue;
-    cairo_rectangle (cr, x + 1, top, KEY_WIDTH - 2, BLACK_KEY_HEIGHT);
+    if (sensitive) {
+      cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
+    } else {
+      cairo_set_source_rgb (cr, 0.4, 0.4, 0.4);
+    }
+    cairo_rectangle (cr, x + 1, top, KEY_WIDTH - 2, BLACK_KEY_HEIGHT - 3);
+    cairo_fill (cr);
+    if (sensitive) {
+      cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
+    } else {
+      cairo_set_source_rgb (cr, 0.3, 0.3, 0.3);
+    }
+    cairo_rectangle (cr, x + 1, top + (BLACK_KEY_HEIGHT - 3), KEY_WIDTH - 2, 3);
     cairo_fill (cr);
   }
   // render selected black key
