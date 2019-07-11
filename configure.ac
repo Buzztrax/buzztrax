@@ -695,7 +695,7 @@ AC_CONFIG_FILES(Makefile \
   src/lib/buzztrax.xml \
   src/lib/bml/libbml.pc \
   src/lib/core/libbuzztrax-core.pc \
-  src/lib/core/version.h \
+  src/lib/core/version_buzztrax_core.h \
   src/lib/gst/libbuzztrax-gst.pc \
   src/lib/ic/libbuzztrax-ic.pc \
   src/lib/ic/version.h \

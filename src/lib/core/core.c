@@ -24,6 +24,7 @@
 #define BT_CORE
 #define BT_CORE_C
 
+#include "version_buzztrax.h"
 #include "core_private.h"
 #include <glib/gprintf.h>
 #include <gst/audio/audio.h>
