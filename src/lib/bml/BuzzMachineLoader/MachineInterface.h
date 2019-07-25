@@ -28,7 +28,7 @@
 
 #include <string.h>
 
-typedef unsigned long dword;
+typedef uint32_t dword;
 
 enum CMPType { };
 

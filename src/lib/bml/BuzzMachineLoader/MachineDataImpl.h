@@ -25,10 +25,11 @@
 #endif
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
-typedef unsigned char byte;
-typedef unsigned short word;
-typedef unsigned long dword;
+typedef uint8_t byte;
+typedef uint16_t word;
+typedef uint32_t dword;
 
 class CMachineDataInput
 {
