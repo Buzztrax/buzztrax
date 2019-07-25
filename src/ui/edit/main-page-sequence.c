@@ -2091,7 +2091,7 @@ update_bars_menu (const BtMainPageSequence * self, gulong bars)
   }
   if (bars / 2 > 1) {
     // half bars
-    sprintf (str, "%lu", bars / 2);
+    snprintf (str, sizeof(str), "%lu", bars / 2);
     gtk_list_store_append (store, &iter);
     gtk_list_store_set (store, &iter, 0, str, -1);
     if (self->priv->bars == (bars / 2))
@@ -2102,7 +2102,7 @@ update_bars_menu (const BtMainPageSequence * self, gulong bars)
   }
   // add bars and 3 times the double of bars
   for (j = 0, i = bars; j < 4; i *= 2, j++) {
-    sprintf (str, "%lu", i);
+    snprintf (str, sizeof(str), "%lu", i);
     gtk_list_store_append (store, &iter);
     gtk_list_store_set (store, &iter, 0, str, -1);
     if (self->priv->bars == i)
@@ -2411,8 +2411,7 @@ on_toolbar_menu_clicked (GtkButton * button, gpointer user_data)
 {
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE (user_data);
 
-  gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
-      GDK_BUTTON_PRIMARY, gtk_get_current_event_time ());
+  gtk_menu_popup_at_pointer (self->priv->context_menu, NULL);
 }
 
 static void
@@ -2720,8 +2719,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
         res = TRUE;
       }
     } else if (event->keyval == GDK_KEY_Menu) {
-      gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
-          GDK_BUTTON_SECONDARY, gtk_get_current_event_time ());
+      gtk_menu_popup_at_pointer (self->priv->context_menu, NULL);
     } else if (event->keyval == GDK_KEY_Up || event->keyval == GDK_KEY_Down
         || event->keyval == GDK_KEY_Left || event->keyval == GDK_KEY_Right) {
       if (modifier == GDK_SHIFT_MASK) {
@@ -3064,8 +3062,7 @@ on_sequence_header_button_press_event (GtkWidget * widget,
   GST_WARNING ("sequence_header button_press : button 0x%x, type 0x%d",
       event->button, event->type);
   if (event->button == GDK_BUTTON_SECONDARY) {
-    gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
-        GDK_BUTTON_SECONDARY, gtk_get_current_event_time ());
+    gtk_menu_popup_at_pointer (self->priv->context_menu, NULL);
     res = TRUE;
   }
   return res;
@@ -3143,8 +3140,7 @@ on_sequence_table_button_press_event (GtkWidget * widget,
         gtk_tree_path_free (path);
     }
   } else if (event->button == GDK_BUTTON_SECONDARY) {
-    gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
-        GDK_BUTTON_SECONDARY, gtk_get_current_event_time ());
+    gtk_menu_popup_at_pointer (self->priv->context_menu, NULL);
     res = TRUE;
   }
   return res;

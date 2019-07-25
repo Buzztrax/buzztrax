@@ -407,7 +407,24 @@ start_connect (BtMainPageMachines * self)
 //-- event handler helper
 
 static void
-clutter_event_get_cursor_pos (BtMainPageMachines * self, ClutterEvent * event)
+store_cursor_pos (BtMainPageMachines * self)
+{
+  GdkSeat* seat = gdk_display_get_default_seat (gdk_display_get_default ());
+  GdkDevice* mouse_device = gdk_seat_get_pointer (seat);
+  GdkWindow* window = gdk_display_get_default_group (gdk_display_get_default ());
+  gdouble x, y;
+  gdk_window_get_device_position_double (window, mouse_device, &x, &y, NULL);
+  widget_to_canvas_pos (self, x, y, &self->priv->mouse_x, &self->priv->mouse_y);
+}
+
+static void
+event_store_cursor_pos (BtMainPageMachines * self, GdkEventButton * event)
+{
+  widget_to_canvas_pos (self, event->x, event->y, &self->priv->mouse_x, &self->priv->mouse_y);
+}
+
+static void
+clutter_event_store_cursor_pos (BtMainPageMachines * self, ClutterEvent * event)
 {
   gfloat x, y;
 
@@ -1172,8 +1189,7 @@ on_toolbar_grid_clicked (GtkButton * button, gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
 
-  gtk_menu_popup (self->priv->grid_density_menu, NULL, NULL, NULL, NULL,
-      GDK_BUTTON_PRIMARY, gtk_get_current_event_time ());
+  gtk_menu_popup_at_pointer (self->priv->grid_density_menu, NULL);
 }
 
 static void
@@ -1238,8 +1254,7 @@ on_toolbar_menu_clicked (GtkButton * button, gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
 
-  gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
-      GDK_BUTTON_PRIMARY, gtk_get_current_event_time ());
+  gtk_menu_popup_at_pointer (self->priv->context_menu, NULL);
 }
 
 static void
@@ -1385,47 +1400,20 @@ on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
   prev_page_num = page_num;
 }
 
-typedef struct
-{
-  BtMainPageMachines *self;
-  guint32 activate_time;
-} BtEventIdleData;
-
-#define MAKE_EVENT_IDLE_DATA(data,self,event) G_STMT_START { \
-  data=g_slice_new(BtEventIdleData); \
-  data->self=self; \
-  data->activate_time=clutter_event_get_time (event); \
-} G_STMT_END
-
-#define FREE_EVENT_IDLE_DATA(data) G_STMT_START { \
-  g_slice_free(BtEventIdleData,data); \
-} G_STMT_END
-
 static gboolean
-popup_helper (gpointer user_data)
+on_canvas_widget_button_press (GtkWidget * widget, GdkEvent* event, gpointer user_data)
 {
-  BtEventIdleData *data = (BtEventIdleData *) user_data;
-  BtMainPageMachines *self = data->self;
-  guint32 activate_time = data->activate_time;
-  FREE_EVENT_IDLE_DATA (data);
-
-  gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
-      GDK_BUTTON_SECONDARY, activate_time);
-  return FALSE;
-}
-
-static gboolean
-on_canvas_button_press (ClutterActor * actor, ClutterEvent * event,
-    gpointer user_data)
-{
+  // The latest version of Gtk requires a GdkEvent to pop up a context menu, so process
+  // button presses here instead of via the Clutter canvas. Is there a better way?
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
   gboolean res = FALSE;
   BtMachineCanvasItem *ci;
-  guint32 button = clutter_event_get_button (event);
+  GdkEventButton *event_btn = (GdkEventButton *)event;
+  guint32 button = event_btn->button;
 
-  GST_DEBUG ("button-press: %d", event->button.button);
+  GST_DEBUG ("button-press: %d", button);
   // store mouse coordinates, so that we can later place a newly added machine there
-  clutter_event_get_cursor_pos (self, event);
+  event_store_cursor_pos (self, event_btn);
 
   if (self->priv->connecting) {
     return TRUE;
@@ -1436,14 +1424,12 @@ on_canvas_button_press (ClutterActor * actor, ClutterEvent * event,
       // start dragging the canvas
       self->priv->dragging = TRUE;
     } else if (button == 3) {
-      BtEventIdleData *data;
-      MAKE_EVENT_IDLE_DATA (data, self, event);
-      g_idle_add (popup_helper, data);
+      gtk_menu_popup_at_pointer (self->priv->context_menu, event);
       res = TRUE;
     }
   } else {
     if (button == 1) {
-      if (clutter_event_get_state (event) & CLUTTER_SHIFT_MASK) {
+      if (event_btn->state & GDK_SHIFT_MASK) {
         BtMachine *machine;
         self->priv->new_wire_src = BT_MACHINE_CANVAS_ITEM (g_object_ref (ci));
         g_object_get (ci, "machine", &machine, NULL);
@@ -1462,15 +1448,14 @@ on_canvas_button_press (ClutterActor * actor, ClutterEvent * event,
 }
 
 static gboolean
-on_canvas_button_release (ClutterActor * actor, ClutterEvent * event,
-    gpointer user_data)
+on_canvas_widget_button_release  (GtkWidget * widget, GdkEventButton * event, gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
   gboolean res = FALSE;
 
-  GST_DEBUG ("button-release: %d", event->button.button);
+  GST_DEBUG ("button-release: %d", event->button);
   if (self->priv->connecting) {
-    clutter_event_get_cursor_pos (self, event);
+    event_store_cursor_pos (self, event);
     g_object_try_unref (self->priv->new_wire_dst);
     self->priv->new_wire_dst = get_machine_canvas_item_under_cursor (self);
     if (self->priv->new_wire_dst) {
@@ -1502,7 +1487,7 @@ on_canvas_motion (ClutterActor * actor, ClutterEvent * event,
   //GST_DEBUG("motion: %f,%f",event->button.x,event->button.y);
   if (p->connecting) {
     // update the connection line
-    clutter_event_get_cursor_pos (self, event);
+    clutter_event_store_cursor_pos (self, event);
     g_object_try_unref (p->new_wire_dst);
     p->new_wire_dst = get_machine_canvas_item_under_cursor (self);
     update_connect (self);
@@ -1512,7 +1497,7 @@ on_canvas_motion (ClutterActor * actor, ClutterEvent * event,
     gdouble ox = gtk_adjustment_get_value (p->hadjustment);
     gdouble oy = gtk_adjustment_get_value (p->vadjustment);
     // snapshot current mousepos and calculate delta
-    clutter_event_get_cursor_pos (self, event);
+    clutter_event_store_cursor_pos (self, event);
     gfloat dx = x - p->mouse_x;
     gfloat dy = y - p->mouse_y;
     // scroll canvas
@@ -1526,20 +1511,18 @@ on_canvas_motion (ClutterActor * actor, ClutterEvent * event,
 }
 
 static gboolean
-on_canvas_key_release (ClutterActor * actor, ClutterEvent * event,
-    gpointer user_data)
+on_canvas_widget_key_release (GtkWidget * widget, GdkEvent * event, gpointer user_data)
 {
+  GdkEventKey *event_key = (GdkEventKey *)event;
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  ClutterKeyEvent *key_event = (ClutterKeyEvent *) event;
   gboolean res = FALSE;
 
-  clutter_event_get_cursor_pos (self, event);
-  GST_DEBUG ("GDK_KEY_RELEASE: %d", key_event->keyval);
-  switch (key_event->keyval) {
+  GST_DEBUG ("GDK_KEY_RELEASE: %d", event_key->keyval);
+  switch (event_key->keyval) {
     case GDK_KEY_Menu:
       // show context menu
-      gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
-          GDK_BUTTON_SECONDARY, gtk_get_current_event_time ());
+	  store_cursor_pos (self);
+      gtk_menu_popup_at_pointer (self->priv->context_menu, event);
       res = TRUE;
       break;
     default:
@@ -1769,6 +1752,12 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   gtk_widget_set_name (self->priv->canvas_widget, "machine-and-wire-editor");
   g_object_set (self->priv->canvas_widget, "can-focus", TRUE, "has-tooltip",
       TRUE, NULL);
+  g_signal_connect (self->priv->canvas_widget, "button-press-event",
+      G_CALLBACK (on_canvas_widget_button_press), (gpointer) self);
+  g_signal_connect (self->priv->canvas_widget, "button-release-event",
+      G_CALLBACK (on_canvas_widget_button_release), (gpointer) self);
+  g_signal_connect (self->priv->canvas_widget, "key-release-event",
+      G_CALLBACK (on_canvas_widget_key_release), (gpointer) self);
   g_signal_connect (self->priv->canvas_widget, "query-tooltip",
       G_CALLBACK (on_canvas_query_tooltip), (gpointer) self);
   g_signal_connect (self->priv->canvas_widget, "size-allocate",
@@ -1821,14 +1810,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   // register event handlers
   g_signal_connect_object (self->priv->app, "notify::song",
       G_CALLBACK (on_song_changed), (gpointer) self, 0);
-  g_signal_connect (self->priv->canvas, "button-press-event",
-      G_CALLBACK (on_canvas_button_press), (gpointer) self);
-  g_signal_connect (self->priv->canvas, "button-release-event",
-      G_CALLBACK (on_canvas_button_release), (gpointer) self);
   g_signal_connect (self->priv->canvas, "motion-event",
       G_CALLBACK (on_canvas_motion), (gpointer) self);
-  g_signal_connect (self->priv->canvas, "key-release-event",
-      G_CALLBACK (on_canvas_key_release), (gpointer) self);
 
   // listen to page changes
   g_signal_connect ((gpointer) pages, "notify::page",
@@ -2647,4 +2630,9 @@ bt_main_page_machines_class_init (BtMainPageMachinesClass * klass)
       MAIN_PAGE_MACHINES_CANVAS, g_param_spec_object ("canvas",
           "canvas prop", "Get the machine canvas", CLUTTER_TYPE_ACTOR,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+}
+
+GtkWidget*
+bt_main_page_machines_get_canvas_widget(const BtMainPageMachines * self) {
+  return self->priv->canvas_widget;
 }

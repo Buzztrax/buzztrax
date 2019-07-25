@@ -271,7 +271,7 @@ bt_wave_list_model_tree_model_get_value (GtkTreeModel * tree_model,
     case BT_WAVE_LIST_MODEL_HEX_ID:{
       gchar hstr[3];
 
-      sprintf (hstr, "%02x", pos + 1);
+      snprintf (hstr, sizeof(hstr), "%02x", pos + 1);
       g_value_set_string (value, hstr);
       break;
     }

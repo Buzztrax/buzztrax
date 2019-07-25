@@ -394,11 +394,9 @@ popup_helper (gpointer user_data)
 {
   BtEventIdleData *data = (BtEventIdleData *) user_data;
   BtWireCanvasItem *self = data->self;
-  guint32 activate_time = data->activate_time;
   FREE_EVENT_IDLE_DATA (data);
 
-  gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
-      GDK_BUTTON_SECONDARY, activate_time);
+  gtk_menu_popup_at_pointer (self->priv->context_menu, NULL);
   return FALSE;
 }
 
@@ -449,8 +447,7 @@ on_wire_pad_key_release (ClutterActor * citem, ClutterEvent * event,
   switch (key_event->keyval) {
     case GDK_KEY_Menu:
       // show context menu
-      gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
-          GDK_BUTTON_SECONDARY, gtk_get_current_event_time ());
+      gtk_menu_popup_at_pointer (self->priv->context_menu, NULL);
       res = TRUE;
       break;
     default:

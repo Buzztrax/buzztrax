@@ -90,7 +90,7 @@ G_DEFINE_TYPE_WITH_CODE (BtPatternEditor, bt_pattern_editor, GTK_TYPE_WIDGET,
 typedef struct _ParamType
 {
   gint chars, columns;
-  gchar *(*to_string_func) (gchar * dest, gfloat value, gint def);
+  gchar *(*to_string_func) (gchar * dest, gint bufsize, gfloat value, gint def);
   guint column_pos[4];
   gfloat scale;
 } ParamType;
@@ -98,69 +98,74 @@ typedef struct _ParamType
 //-- helper methods
 
 static gchar *
-to_string_note (gchar * buf, gfloat value, gint def)
+to_string_note (gchar * buf, gint bufsize, gfloat value, gint def)
 {
   static gchar note_names[] = "C-C#D-D#E-F-F#G-G#A-A#B-????????";
   gint note = ((gint) value) & 255, octave;
 
-  if (note == def || note == 0)
-    return "...";
-  if (note == 255)
-    return "off";
+  if (bufsize >= 4) {
+	if (note == def || note == 0)
+	  return "...";
+	if (note == 255)
+	  return "off";
 
-  note--;
-  octave = note >> 4;
-  buf[0] = note_names[2 * (note & 15)];
-  buf[1] = note_names[1 + 2 * (note & 15)];
-  buf[2] = '0' + octave;
-  buf[3] = '\0';
+	note--;
+	octave = note >> 4;
+	buf[0] = note_names[2 * (note & 15)];
+	buf[1] = note_names[1 + 2 * (note & 15)];
+	buf[2] = '0' + octave;
+	buf[3] = '\0';
+  } else {
+	g_assert(FALSE);
+	g_strlcpy(buf, "ERR", bufsize);
+  }
   return buf;
 }
 
 static gchar *
-to_string_trigger (gchar * buf, gfloat value, gint def)
+to_string_trigger (gchar * buf, gint bufsize, gfloat value, gint def)
 {
   gint v = (gint) value;
 
   if (v == def)
     return ".";
 
-  sprintf (buf, "%01X", v != 0 ? 1 : 0);
+  snprintf (buf, bufsize, "%01X", v != 0 ? 1 : 0);
   return buf;
 }
 
 static gchar *
-to_string_byte (gchar * buf, gfloat value, gint def)
+to_string_byte (gchar * buf, gint bufsize, gfloat value, gint def)
 {
   gint v = (gint) (value + 0.5);
 
   if (v == def)
     return "..";
 
-  sprintf (buf, "%02X", v & 255);
+  snprintf (buf, bufsize, "%02X", v & 255);
   return buf;
 }
 
 static gchar *
-to_string_word (gchar * buf, gfloat value, gint def)
+to_string_word (gchar * buf, gint bufsize, gfloat value, gint def)
 {
   gint v = (gint) (value + 0.5);
 
   if (v == def)
     return "....";
 
-  sprintf (buf, "%04X", v & 65535);
+  snprintf (buf, bufsize, "%04X", v & 65535);
   return buf;
 }
 
 static gchar *
-to_string_float (gchar * buf, gfloat value, gint def)
+to_string_float (gchar * buf, gint bufsize, gfloat value, gint def)
 {
   gint v = (gint) value;
   if (fabs (v - def) < 0.00001)
     return "........";
 
-  sprintf (buf, "%-8f", value);
+  snprintf (buf, bufsize, "%-8f", value);
   return buf;
 }
 
@@ -195,7 +200,7 @@ bt_pattern_editor_draw_rownum (BtPatternEditor * self, cairo_t * cr,
     cairo_fill (cr);
 
     gdk_cairo_set_source_rgba (cr, &self->text_color);
-    sprintf (buf, "%04X", row);
+    snprintf (buf, sizeof(buf), "%04X", row);
     cairo_move_to (cr, x, y);
     pango_layout_set_text (pl, buf, 4);
     pango_cairo_show_layout (cr, pl);
@@ -301,7 +306,7 @@ bt_pattern_editor_draw_column (BtPatternEditor * self, cairo_t * cr,
     gfloat pval = get_data_func (self->pattern_data, col->user_data, row, group,
         param);
     gboolean sel = (is_selection_column && in_selection_row (self, row));
-    str = pt->to_string_func (buf, pval, col->def);
+    str = pt->to_string_func (buf, sizeof(buf), pval, col->def);
 
     /* draw background */
     gdk_cairo_set_source_rgba (cr, &self->bg_shade_color[row & 0x1]);

@@ -108,7 +108,7 @@ bt_song_io_scan_dir (const gchar * libdir)
     // skip names starting with a dot
     if (*entry_name == '.')
       continue;
-    g_sprintf (plugin_name, "%s" G_DIR_SEPARATOR_S "%s", libdir, entry_name);
+    g_snprintf (plugin_name, sizeof(plugin_name), "%s" G_DIR_SEPARATOR_S "%s", libdir, entry_name);
     // skip symlinks and directories
     if (g_file_test (plugin_name, G_FILE_TEST_IS_SYMLINK | G_FILE_TEST_IS_DIR))
       continue;
@@ -414,12 +414,14 @@ bt_song_io_load (BtSongIO const *self, const BtSong * const song, GError ** err)
 
   const gchar *const msg = _("Loading file '%s'");
   if (self->priv->file_name) {
-    status = g_alloca (1 + strlen (msg) + strlen (self->priv->file_name));
-    g_sprintf (status, msg, self->priv->file_name);
+	int len = 1 + strlen (msg) + strlen (self->priv->file_name);
+    status = g_alloca (len);
+    g_snprintf (status, len, msg, self->priv->file_name);
     GST_INFO ("loading song [%s]", self->priv->file_name);
   } else {
-    status = g_alloca (1 + strlen (msg) + 4);
-    g_sprintf (status, msg, "data");
+	int len = 1 + strlen (msg) + 4;
+    status = g_alloca (len);
+    g_snprintf (status, len, msg, "data");
     GST_INFO ("loading song [<data>]");
   }
   g_object_set ((gpointer) self, "status", status, NULL);
@@ -487,12 +489,14 @@ bt_song_io_save (BtSongIO const *self, const BtSong * const song, GError ** err)
 
   const gchar *const msg = _("Saving file '%s'");
   if (self->priv->file_name) {
-    status = g_alloca (1 + strlen (msg) + strlen (self->priv->file_name));
-    g_sprintf (status, msg, self->priv->file_name);
+	int len = 1 + strlen (msg) + strlen (self->priv->file_name);
+    status = g_alloca (len);
+    g_snprintf (status, len, msg, self->priv->file_name);
     GST_INFO ("saving song [%s]", self->priv->file_name);
   } else {
-    status = g_alloca (1 + strlen (msg) + 4);
-    g_sprintf (status, msg, "data");
+	int len = 1 + strlen (msg) + 4;
+    status = g_alloca (len);
+    g_snprintf (status, len, msg, "data");
     GST_INFO ("saving song [<data>]");
   }
   g_object_set ((gpointer) self, "status", status, NULL);

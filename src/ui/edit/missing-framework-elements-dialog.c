@@ -89,9 +89,12 @@ make_listview (GtkWidget * vbox, GList * missing_elements, const gchar * msg)
   for (node = missing_elements; node; node = g_list_next (node)) {
     length += 2 + strlen ((gchar *) (node->data));
   }
+  gint length_total = 0;
   ptr = missing_text = g_malloc (length);
   for (node = missing_elements; node; node = g_list_next (node)) {
     length = g_sprintf (ptr, "%s\n", (gchar *) (node->data));
+	length_total -= length;
+	g_assert(length_total >= 0);
     ptr = &ptr[length];
   }
   ptr[-1] = '\0';               // remove last '\n'
@@ -299,10 +302,13 @@ bt_missing_framework_elements_dialog_apply (const
       GST_INFO ("enlarging to %d bytes", length);
       machine_ignore_list = g_realloc (machine_ignore_list, length);
     }
+	gint length_total = length;
     if (machine_ignore_list) {
       ptr = &machine_ignore_list[offset];
       for (node = edit_elements; node; node = g_list_next (node)) {
         length = g_sprintf (ptr, "%s,", (gchar *) (node->data));
+		length_total -= length;
+		g_assert(length_total >= 0);
         ptr = &ptr[length];
       }
     }

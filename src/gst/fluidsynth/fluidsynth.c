@@ -587,7 +587,7 @@ gstbt_fluid_synth_get_property (GObject * object, guint prop_id,
           g_value_set_double (value, d);
         break;
       case G_TYPE_STRING:
-        retval = fluid_settings_getstr (src->settings, name, &s);
+        retval = fluid_settings_dupstr (src->settings, name, &s);
         if (retval)
           g_value_set_string (value, s);
         break;
@@ -671,6 +671,8 @@ gstbt_fluid_synth_dispose (GObject * object)
     delete_fluid_midi_driver (gstsynth->midi);
   if (gstsynth->midi_router)
     delete_fluid_midi_router (gstsynth->midi_router);
+  if (gstsynth->cmd_handler)
+    delete_fluid_cmd_handler (gstsynth->cmd_handler);
   if (gstsynth->fluid)
     delete_fluid_synth (gstsynth->fluid);
 
@@ -719,12 +721,16 @@ gstbt_fluid_synth_init (GstBtFluidSynth * src)
   /* create MIDI router to send MIDI to FluidSynth */
   src->midi_router =
       new_fluid_midi_router (src->settings,
-      fluid_synth_handle_midi_event, (void *) src);
+      fluid_synth_handle_midi_event, src->fluid);
   if (src->midi_router) {
-    fluid_synth_set_midi_router (src->fluid, src->midi_router);
-    src->midi =
-        new_fluid_midi_driver (src->settings,
-        fluid_midi_router_handle_midi_event, (void *) (src->midi_router));
+			src->cmd_handler = new_fluid_cmd_handler(src->fluid);
+			if (src->cmd_handler) {
+					src->midi = new_fluid_midi_driver (src->settings,
+																						 fluid_midi_router_handle_midi_event,
+																						 (void *) (src->midi_router));
+			} else {
+					g_warning ("Failed to create FluidSynth MIDI cmd handler");
+			}
     if (!src->midi)
       g_warning ("Failed to create FluidSynth MIDI input driver");
   } else

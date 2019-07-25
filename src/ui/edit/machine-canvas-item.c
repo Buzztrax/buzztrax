@@ -70,6 +70,7 @@
 #define BT_MACHINE_CANVAS_ITEM_C
 
 #include "bt-edit.h"
+#include <clutter/gdk/clutter-gdk.h>
 
 #define LOW_VUMETER_VAL -60.0
 
@@ -1326,28 +1327,41 @@ typedef struct
 {
   BtMachineCanvasItem *self;
   guint32 activate_time;
+  gfloat mouse_x;
+  gfloat mouse_y;
 } BtEventIdleData;
 
-#define MAKE_EVENT_IDLE_DATA(data,self,event) G_STMT_START { \
-  data=g_slice_new(BtEventIdleData); \
-  data->self=self; \
-  data->activate_time=clutter_event_get_time (event); \
-} G_STMT_END
+static BtEventIdleData*
+new_event_idle_data(BtMachineCanvasItem * self, ClutterEvent * event) {
+  BtEventIdleData *data = g_slice_new(BtEventIdleData);
+  data->self = self;
+  data->activate_time = clutter_event_get_time (event);
+  clutter_event_get_coords(event, &data->mouse_x, &data->mouse_y);
+  return data;
+}
 
-#define FREE_EVENT_IDLE_DATA(data) G_STMT_START { \
-  g_slice_free(BtEventIdleData,data); \
-} G_STMT_END
+void
+free_event_idle_data(BtEventIdleData * data) {
+  g_slice_free(BtEventIdleData,data);
+}
 
 static gboolean
 popup_helper (gpointer user_data)
 {
   BtEventIdleData *data = (BtEventIdleData *) user_data;
   BtMachineCanvasItem *self = data->self;
-  guint32 activate_time = data->activate_time;
-  FREE_EVENT_IDLE_DATA (data);
 
-  gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
-      GDK_BUTTON_SECONDARY, activate_time);
+  GdkRectangle rect;
+  rect.x = (gint)data->mouse_x;
+  rect.y = (gint)data->mouse_y;
+  rect.width = 0;
+  rect.height = 0;
+
+  free_event_idle_data(data);
+								   
+  GdkWindow* window = gtk_widget_get_window(bt_main_page_machines_get_canvas_widget(self->priv->main_page_machines));
+  gtk_menu_popup_at_rect(self->priv->context_menu, window,
+						 &rect, GDK_GRAVITY_SOUTH_EAST, GDK_GRAVITY_NORTH_WEST, NULL);
   return FALSE;
 }
 
@@ -1395,9 +1409,7 @@ bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
           }
           break;
         case 3:{
-          BtEventIdleData *data;
-          MAKE_EVENT_IDLE_DATA (data, self, event);
-          g_idle_add (popup_helper, data);
+          g_idle_add (popup_helper, new_event_idle_data (self, event));
           res = TRUE;
           break;
         }
@@ -1504,9 +1516,7 @@ bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
       GST_DEBUG ("CLUTTER_KEY_RELEASE: %d", key_event->keyval);
       switch (key_event->keyval) {
         case GDK_KEY_Menu:{
-          BtEventIdleData *data;
-          MAKE_EVENT_IDLE_DATA (data, self, event);
-          g_idle_add (popup_helper, data);
+          g_idle_add (popup_helper, new_event_idle_data (self, event));
           res = TRUE;
           break;
         }

@@ -64,23 +64,9 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
    * the "about" box. Example: Stefan 'ensonic' Sauer <ensonic@users.sf.net> */
   gchar *translators = _("translator-credits");
 
-  gchar *copyright =
-      g_alloca (strlen (_("Copyright \xc2\xa9 2003-%d Buzztrax developer team"))
-      + 3);
-  sprintf (copyright, _("Copyright \xc2\xa9 2003-%d Buzztrax developer team"),
-      BT_RELEASE_YEAR);
-
-  /* we can get logo via icon name, so this here is just for educational purpose
-     GdkPixbuf *logo;
-     GError *error = NULL;
-     logo=gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),"buzztrax",48,0,&error);
-     //logo = gdk_pixbuf_new_from_file(DATADIR""G_DIR_SEPARATOR_S"icons"G_DIR_SEPARATOR_S"hicolor"G_DIR_SEPARATOR_S"48x48"G_DIR_SEPARATOR_S"apps"G_DIR_SEPARATOR_S""PACKAGE".png",&error);
-     if(!logo) {
-     GST_WARNING("Couldn't load icon: %s", error->message);
-     g_error_free(error);
-     }
-   */
-
+  gchar *copyright = g_strdup_printf (_("Copyright \xc2\xa9 2003-%d Buzztrax developer team"),
+									  BT_RELEASE_YEAR);
+  
   g_object_set ((gpointer) self,
       "artists", artists,
       "authors", authors,
@@ -106,6 +92,9 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
       PACKAGE_VERSION, "website", "http://www.buzztrax.org", "wrap-license",
       TRUE, NULL);
 
+  g_free(copyright);
+  copyright = NULL;
+  
   // add the NEWS directly below copyright
   news = gtk_text_view_new ();
   gtk_text_view_set_cursor_visible (GTK_TEXT_VIEW (news), FALSE);

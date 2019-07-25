@@ -580,7 +580,7 @@ bt_change_log_crash_check (BtChangeLog * self)
       // skip names starting with a dot
       if (*log_name == '.')
         continue;
-      g_sprintf (log_path, "%s" G_DIR_SEPARATOR_S "%s", self->priv->cache_dir,
+      g_snprintf (log_path, sizeof(log_path), "%s" G_DIR_SEPARATOR_S "%s", self->priv->cache_dir,
           log_name);
       // skip symlinks
       if (g_file_test (log_path, G_FILE_TEST_IS_SYMLINK))

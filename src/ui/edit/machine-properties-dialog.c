@@ -531,11 +531,11 @@ on_int_range_property_format_value (GtkScale * scale, gdouble value,
   g_value_init (&int_value, G_TYPE_INT);
   g_value_set_int (&int_value, (gint) value);
   if (!(str = bt_parameter_group_describe_param_value (pg, index, &int_value))) {
-    g_sprintf (_str, "%d", (gint) value);
+    g_snprintf (_str, sizeof(_str), "%d", (gint) value);
     str = _str;
   } else {
-    strncpy (_str, str, 20);
-    _str[19] = '\0';
+    strncpy (_str, str, sizeof(_str));
+    _str[sizeof(_str)-1] = '\0';
     g_free (str);
     str = _str;
   }
@@ -556,11 +556,11 @@ on_uint_range_property_format_value (GtkScale * scale, gdouble value,
   g_value_init (&uint_value, G_TYPE_UINT);
   g_value_set_uint (&uint_value, (guint) value);
   if (!(str = bt_parameter_group_describe_param_value (pg, index, &uint_value))) {
-    g_sprintf (_str, "%u", (guint) value);
+    g_snprintf (_str, sizeof(_str), "%u", (guint) value);
     str = _str;
   } else {
-    strncpy (_str, str, 20);
-    _str[19] = '\0';
+    strncpy (_str, str, sizeof(_str));
+    _str[sizeof(_str)-1] = '\0';
     g_free (str);
     str = _str;
   }
@@ -582,11 +582,11 @@ on_uint64_range_property_format_value (GtkScale * scale, gdouble value,
   g_value_set_uint64 (&uint64_value, (guint64) value);
   if (!(str =
           bt_parameter_group_describe_param_value (pg, index, &uint64_value))) {
-    g_sprintf (_str, "%" G_GUINT64_FORMAT, (guint64) value);
+    g_snprintf (_str, sizeof(_str), "%" G_GUINT64_FORMAT, (guint64) value);
     str = _str;
   } else {
-    strncpy (_str, str, 30);
-    _str[29] = '\0';
+    strncpy (_str, str, sizeof(_str));
+    _str[sizeof(_str)-1] = '\0';
     g_free (str);
     str = _str;
   }
@@ -682,8 +682,7 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
           "selected-parameter-group", pg, "selected-property-name",
           property_name, NULL);
 
-      gtk_menu_popup (GTK_MENU (m), NULL, NULL, NULL, NULL,
-          GDK_BUTTON_SECONDARY, gtk_get_current_event_time ());
+      gtk_menu_popup_at_pointer (GTK_MENU (m), NULL);
       res = TRUE;
     } else if (event->button == GDK_BUTTON_PRIMARY) {
       gst_object_set_control_binding_disabled (param_parent, property_name,
@@ -788,8 +787,7 @@ on_group_button_press_event (GtkWidget * widget, GdkEventButton * event,
           (gpointer) pg);
       g_object_set_qdata (G_OBJECT (menu), widget_param_num_quark,
           GINT_TO_POINTER (-1));
-      gtk_menu_popup (menu, NULL, NULL, NULL, NULL, GDK_BUTTON_SECONDARY,
-          gtk_get_current_event_time ());
+      gtk_menu_popup_at_pointer (menu, NULL);
       res = TRUE;
     }
   }
@@ -802,7 +800,7 @@ update_double_range_label (GtkLabel * label, gdouble value)
 {
   gchar str[100];
 
-  g_sprintf (str, "%lf", value);
+  g_snprintf (str, sizeof(str), "%lf", value);
   gtk_label_set_text (label, str);
 }
 
@@ -867,7 +865,7 @@ update_float_range_label (GtkLabel * label, gfloat value)
 {
   gchar str[100];
 
-  g_sprintf (str, "%f", value);
+  g_snprintf (str, sizeof(str), "%f", value);
   gtk_label_set_text (label, str);
 }
 
@@ -1609,8 +1607,9 @@ make_int_range_widget (const BtMachinePropertiesDialog * self,
   gtk_range_set_value (GTK_RANGE (widget), value);
   // TODO(ensonic): add numerical entry as well ?
 
-  signal_name = g_alloca (9 + strlen (property->name));
-  g_sprintf (signal_name, "notify::%s", property->name);
+  const gint len = 9 + strlen (property->name);
+  signal_name = g_alloca (len);
+  g_snprintf (signal_name, len, "notify::%s", property->name);
   g_signal_connect (machine, signal_name,
       G_CALLBACK (on_int_range_property_notify), (gpointer) widget);
   g_signal_connect (widget, "value-changed",
@@ -1641,8 +1640,9 @@ make_uint_range_widget (const BtMachinePropertiesDialog * self,
   gtk_range_set_value (GTK_RANGE (widget), value);
   // TODO(ensonic): add numerical entry as well ?
 
-  signal_name = g_alloca (9 + strlen (property->name));
-  g_sprintf (signal_name, "notify::%s", property->name);
+  const gint len = 9 + strlen (property->name);
+  signal_name = g_alloca (len);
+  g_snprintf (signal_name, len, "notify::%s", property->name);
   g_signal_connect (machine, signal_name,
       G_CALLBACK (on_uint_range_property_notify), (gpointer) widget);
   g_signal_connect (widget, "value-changed",
@@ -1673,8 +1673,9 @@ make_uint64_range_widget (const BtMachinePropertiesDialog * self,
   gtk_scale_set_draw_value (GTK_SCALE (widget), /*TRUE*/ FALSE);
   gtk_range_set_value (GTK_RANGE (widget), (gdouble) value);
 
-  signal_name = g_alloca (9 + strlen (property->name));
-  g_sprintf (signal_name, "notify::%s", property->name);
+  const gint len = 9 + strlen (property->name);
+  signal_name = g_alloca (len);
+  g_snprintf (signal_name, len, "notify::%s", property->name);
   g_signal_connect (machine, signal_name,
       G_CALLBACK (on_uint64_range_property_notify), (gpointer) widget);
   g_signal_connect (widget, "value-changed",
@@ -1710,8 +1711,9 @@ make_float_range_widget (const BtMachinePropertiesDialog * self,
   gtk_range_set_value (GTK_RANGE (widget), value);
   // TODO(ensonic): add numerical entry as well ?
 
-  signal_name = g_alloca (9 + strlen (property->name));
-  g_sprintf (signal_name, "notify::%s", property->name);
+  const gint len = 9 + strlen (property->name);
+  signal_name = g_alloca (len);
+  g_snprintf (signal_name, len, "notify::%s", property->name);
   g_signal_connect (machine, signal_name,
       G_CALLBACK (on_float_range_property_notify), (gpointer) widget);
   g_signal_connect (widget, "value-changed",
@@ -1745,8 +1747,9 @@ make_double_range_widget (const BtMachinePropertiesDialog * self,
   gtk_range_set_value (GTK_RANGE (widget), value);
   // TODO(ensonic): add numerical entry as well ?
 
-  signal_name = g_alloca (9 + strlen (property->name));
-  g_sprintf (signal_name, "notify::%s", property->name);
+  const gint len = 9 + strlen (property->name);
+  signal_name = g_alloca (len);
+  g_snprintf (signal_name, len, "notify::%s", property->name);
   g_signal_connect (machine, signal_name,
       G_CALLBACK (on_double_range_property_notify), (gpointer) widget);
   g_signal_connect (widget, "value-changed",
@@ -1814,8 +1817,9 @@ make_combobox_widget (const BtMachinePropertiesDialog * self, GObject * machine,
         value, property->name);
   }
 
-  signal_name = g_alloca (9 + strlen (property->name));
-  g_sprintf (signal_name, "notify::%s", property->name);
+  const gint len = 9 + strlen (property->name);
+  signal_name = g_alloca (len);
+  g_snprintf (signal_name, len, "notify::%s", property->name);
   g_signal_connect (machine, signal_name,
       G_CALLBACK (on_combobox_property_notify), (gpointer) widget);
   g_signal_connect (widget, "changed",
@@ -1842,8 +1846,9 @@ make_checkbox_widget (const BtMachinePropertiesDialog * self, GObject * machine,
   widget = gtk_check_button_new ();
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
 
-  signal_name = g_alloca (9 + strlen (property->name));
-  g_sprintf (signal_name, "notify::%s", property->name);
+  const gint len = 9 + strlen (property->name);
+  signal_name = g_alloca (len);
+  g_snprintf (signal_name, len, "notify::%s", property->name);
   g_signal_connect (machine, signal_name,
       G_CALLBACK (on_checkbox_property_notify), (gpointer) widget);
   g_signal_connect (widget, "toggled",

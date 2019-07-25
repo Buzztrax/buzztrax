@@ -77,8 +77,11 @@ make_listview (GtkWidget * vbox, GList * missing_elements, const gchar * msg)
     length += 2 + strlen ((gchar *) (node->data));
   }
   ptr = missing_text = g_malloc (length);
+  gint length_total = length;
   for (node = missing_elements; node; node = g_list_next (node)) {
     length = g_sprintf (ptr, "%s\n", (gchar *) (node->data));
+	length_total -= length;
+	g_assert(length_total >= 0);
     ptr = &ptr[length];
   }
   ptr[-1] = '\0';               // remove last '\n'

@@ -63,7 +63,7 @@ struct _GtkScrolledSyncWindowPrivate
   /* Kinetic scrolling */
   GdkEvent *button_press_event;
   GdkWindow *overshoot_window;
-  GdkDevice *drag_device;
+  GdkSeat *drag_seat;
   guint kinetic_scrolling:1;
   guint capture_button_press:1;
   guint in_drag:1;
@@ -1257,9 +1257,9 @@ gtk_scrolled_sync_window_release_captured_event (GtkScrolledSyncWindow * self)
   if (!priv->button_press_event)
     return FALSE;
 
-  if (priv->drag_device) {
-    gtk_device_grab_remove (GTK_WIDGET (self), priv->drag_device);
-    priv->drag_device = NULL;
+  if (priv->drag_seat) {
+    gdk_seat_ungrab (priv->drag_seat);
+    priv->drag_seat = NULL;
   }
 
   if (priv->capture_button_press) {
@@ -1336,8 +1336,8 @@ gtk_scrolled_sync_window_captured_button_release (GtkWidget * widget,
   if (!child)
     return FALSE;
 
-  gtk_device_grab_remove (widget, priv->drag_device);
-  priv->drag_device = NULL;
+  gdk_seat_ungrab (priv->drag_seat);
+  priv->drag_seat = NULL;
 
   if (priv->release_timeout_id) {
     g_source_remove (priv->release_timeout_id);
@@ -1347,8 +1347,7 @@ gtk_scrolled_sync_window_captured_button_release (GtkWidget * widget,
   overshoot = _gtk_scrolled_sync_window_get_overshoot (self, NULL, NULL);
 
   if (priv->in_drag)
-    gdk_device_ungrab (gdk_event_get_device (event),
-        gdk_event_get_time (event));
+    gdk_seat_ungrab (gdk_event_get_seat (event));
   else {
     /* There hasn't been scrolling at all, so just let the
      * child widget handle the button press normally
@@ -1422,12 +1421,14 @@ gtk_scrolled_sync_window_captured_motion_notify (GtkWidget * widget,
       return TRUE;
   }
 
-  gdk_device_grab (priv->drag_device,
-      gtk_widget_get_window (widget),
-      GDK_OWNERSHIP_WINDOW,
-      TRUE,
-      GDK_BUTTON_RELEASE_MASK | GDK_BUTTON1_MOTION_MASK,
-      NULL, gdk_event_get_time (event));
+  gdk_seat_grab (priv->drag_seat,
+				 gtk_widget_get_window (widget),
+				 GDK_SEAT_CAPABILITY_ALL_POINTING,
+				 TRUE,
+				 NULL,			 
+				 NULL,
+				 NULL,
+				 NULL);
 
   priv->last_button_event_valid = FALSE;
 
@@ -1525,8 +1526,9 @@ gtk_scrolled_sync_window_captured_button_press (GtkWidget * widget,
   if (!child)
     return FALSE;
 
-  priv->drag_device = gdk_event_get_device (event);
-  gtk_device_grab_add (widget, priv->drag_device, TRUE);
+  priv->drag_seat = gdk_event_get_seat (event);
+  // dbeswick: fix
+  //  gdk_seat_grab(priv->drag_seat, widget, GDK_SEAT_CAPABILITY_ALL_POINTING, TRUE, NULL, event, NULL, NULL);
 
   gtk_scrolled_sync_window_cancel_deceleration (self);
 
@@ -1564,7 +1566,7 @@ gtk_scrolled_sync_window_captured_event (GtkWidget * widget, GdkEvent * event)
       break;
     case GDK_TOUCH_END:
     case GDK_BUTTON_RELEASE:
-      if (priv->drag_device)
+      if (priv->drag_seat)
         retval =
             gtk_scrolled_sync_window_captured_button_release (widget, event);
       else
@@ -1572,7 +1574,7 @@ gtk_scrolled_sync_window_captured_event (GtkWidget * widget, GdkEvent * event)
       break;
     case GDK_TOUCH_UPDATE:
     case GDK_MOTION_NOTIFY:
-      if (priv->drag_device)
+      if (priv->drag_seat)
         retval =
             gtk_scrolled_sync_window_captured_motion_notify (widget, event);
       break;
@@ -1628,7 +1630,7 @@ gtk_scrolled_sync_window_adjustment_value_changed (GtkAdjustment * adjustment,
   GtkScrolledSyncWindowPrivate *priv = self->priv;
 
   /* Allow overshooting for kinetic scrolling operations */
-  if (priv->drag_device || priv->deceleration_id)
+  if (priv->drag_seat || priv->deceleration_id)
     return;
 
   /* Ensure GtkAdjustment and unclamped values are in sync */
@@ -1910,10 +1912,9 @@ gtk_scrolled_sync_window_grab_notify (GtkWidget * widget, gboolean was_grabbed)
   GtkScrolledSyncWindow *self = GTK_SCROLLED_SYNC_WINDOW (widget);
   GtkScrolledSyncWindowPrivate *priv = self->priv;
 
-  if (priv->drag_device &&
-      gtk_widget_device_is_shadowed (widget, priv->drag_device)) {
-    gdk_device_ungrab (priv->drag_device, gtk_get_current_event_time ());
-    priv->drag_device = NULL;
+  if (priv->drag_seat) {
+    gdk_seat_ungrab (priv->drag_seat);
+    priv->drag_seat = NULL;
     priv->in_drag = FALSE;
 
     if (priv->release_timeout_id) {
