@@ -348,28 +348,31 @@ typedef struct
 {
   BtWireCanvasItem *self;
   guint32 activate_time;
-  guint x, y;
+  gfloat mouse_x;
+  gfloat mouse_y;
 } BtEventIdleData;
 
-#define MAKE_EVENT_IDLE_DATA(data,self,event) G_STMT_START { \
-  data=g_slice_new(BtEventIdleData); \
-  data->self=self; \
-  data->activate_time=clutter_event_get_time (event); \
-  data->x=((ClutterButtonEvent *) event)->x; \
-  data->y=((ClutterButtonEvent *) event)->y; \
-} G_STMT_END
+static BtEventIdleData*
+new_event_idle_data(BtWireCanvasItem * self, ClutterEvent * event) {
+  BtEventIdleData *data = g_slice_new(BtEventIdleData);
+  data->self = self;
+  data->activate_time = clutter_event_get_time (event);
+  clutter_event_get_coords(event, &data->mouse_x, &data->mouse_y);
+  return data;
+}
 
-#define FREE_EVENT_IDLE_DATA(data) G_STMT_START { \
-  g_slice_free(BtEventIdleData,data); \
-} G_STMT_END
+static void
+free_event_idle_data(BtEventIdleData * data) {
+  g_slice_free(BtEventIdleData,data);
+}
 
 static gboolean
 volume_popup_helper (gpointer user_data)
 {
   BtEventIdleData *data = (BtEventIdleData *) user_data;
   BtWireCanvasItem *self = data->self;
-  guint x = data->x, y = data->y;
-  FREE_EVENT_IDLE_DATA (data);
+  guint x = data->mouse_x, y = data->mouse_y;
+  free_event_idle_data (data);
 
   bt_main_page_machines_wire_volume_popup (self->priv->main_page_machines,
       self->priv->wire, x, y);
@@ -381,8 +384,8 @@ wire_popup_helper (gpointer user_data)
 {
   BtEventIdleData *data = (BtEventIdleData *) user_data;
   BtWireCanvasItem *self = data->self;
-  guint x = data->x, y = data->y;
-  FREE_EVENT_IDLE_DATA (data);
+  guint x = data->mouse_x, y = data->mouse_y;
+  free_event_idle_data (data);
 
   bt_main_page_machines_wire_panorama_popup (self->priv->main_page_machines,
       self->priv->wire, x, y);
@@ -394,9 +397,18 @@ popup_helper (gpointer user_data)
 {
   BtEventIdleData *data = (BtEventIdleData *) user_data;
   BtWireCanvasItem *self = data->self;
-  FREE_EVENT_IDLE_DATA (data);
 
-  gtk_menu_popup_at_pointer (self->priv->context_menu, NULL);
+  GdkRectangle rect;
+  rect.x = (gint)data->mouse_x;
+  rect.y = (gint)data->mouse_y;
+  rect.width = 0;
+  rect.height = 0;
+
+  free_event_idle_data (data);
+								   
+  GdkWindow* window = gtk_widget_get_window(bt_main_page_machines_get_canvas_widget(self->priv->main_page_machines));
+  gtk_menu_popup_at_rect(self->priv->context_menu, window,
+						 &rect, GDK_GRAVITY_SOUTH_EAST, GDK_GRAVITY_NORTH_WEST, NULL);
   return FALSE;
 }
 
@@ -411,8 +423,7 @@ on_wire_pad_button_press (ClutterActor * citem, ClutterEvent * event,
   GST_DEBUG ("CLUTTER_BUTTON_PRESS: %d", button_event->button);
   switch (button_event->button) {
     case 1:{
-      BtEventIdleData *data;
-      MAKE_EVENT_IDLE_DATA (data, self, event);
+      BtEventIdleData *data = new_event_idle_data (self, event);
       GST_WARNING ("showing popup at %f,%f", button_event->x, button_event->y);
       if (!(button_event->modifier_state & CLUTTER_SHIFT_MASK)) {
         g_idle_add (volume_popup_helper, data);
@@ -423,9 +434,7 @@ on_wire_pad_button_press (ClutterActor * citem, ClutterEvent * event,
       break;
     }
     case 3:{
-      BtEventIdleData *data;
-      MAKE_EVENT_IDLE_DATA (data, self, event);
-      g_idle_add (popup_helper, data);
+      g_idle_add (popup_helper, new_event_idle_data (self, event));
       res = TRUE;
       break;
     }

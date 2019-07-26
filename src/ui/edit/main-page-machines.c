@@ -108,7 +108,7 @@ struct _BtMainPageMachinesPrivate
 
   /* canvas for machine view, owner of the clutter stage */
   GtkWidget *canvas_widget;
-  ClutterActor *stage;
+  ClutterStage *stage;
   /* child actor, gets moved by adjustemnts */
   ClutterActor *canvas;
   GtkAdjustment *hadjustment, *vadjustment;
@@ -312,25 +312,6 @@ on_grid_draw (ClutterCanvas * canvas, cairo_t * cr, gint width, gint height,
 
   cairo_set_line_cap (cr, CAIRO_LINE_CAP_ROUND);
   cairo_set_line_width (cr, 1.0 / p->zoom);     // make relative to zoom
-
-#if 0
-  {                             // DEBUG
-    cairo_set_source_rgba (cr, 1.0, 0.0, 0.0, 1.0);
-    cairo_move_to (cr, -rx, -ry);
-    cairo_line_to (cr, rx, -ry);
-    cairo_line_to (cr, rx, ry);
-    cairo_line_to (cr, -rx, ry);
-    cairo_line_to (cr, -rx, -ry);
-    cairo_stroke (cr);
-
-    cairo_move_to (cr, -rx, -ry);
-    cairo_line_to (cr, rx, ry);
-    cairo_stroke (cr);
-    cairo_move_to (cr, -rx, ry);
-    cairo_line_to (cr, rx, -ry);
-    cairo_stroke (cr);
-  }                             // DEBUG
-#endif
 
   r1 = MAX (rx, ry);
   r2 = MAX (MACHINE_VIEW_W, MACHINE_VIEW_H);
@@ -826,23 +807,27 @@ bt_main_page_machines_add_wire (const BtMainPageMachines * self)
   g_object_unref (song);
 }
 
-static BtMachineCanvasItem *
-get_machine_canvas_item_under_cursor (const BtMainPageMachines * self)
+static ClutterActor *
+get_clutter_actor_under_cursor (const BtMainPageMachines * self)
 {
-  ClutterActor *ci;
   gfloat x, y;
 
   canvas_to_widget_pos (self, self->priv->mouse_x, self->priv->mouse_y, &x, &y);
 
-  //GST_DEBUG ("is there a machine at pos?");
-  if ((ci = clutter_stage_get_actor_at_pos ((ClutterStage *) self->priv->stage,
-              CLUTTER_PICK_REACTIVE, x, y))) {
-    if (BT_IS_MACHINE_CANVAS_ITEM (ci)) {
-      //GST_DEBUG("  yes!");
-      return BT_MACHINE_CANVAS_ITEM (g_object_ref (ci));
-    }
+  return (ClutterActor*)clutter_stage_get_actor_at_pos (self->priv->stage, CLUTTER_PICK_REACTIVE, x, y);
+}
+
+static BtMachineCanvasItem *
+get_machine_canvas_item_under_cursor (const BtMainPageMachines * self)
+{
+  ClutterActor *ci;
+  
+  ci = get_clutter_actor_under_cursor(self);
+  if (BT_IS_MACHINE_CANVAS_ITEM (ci)) {
+	return (BtMachineCanvasItem*)ci;
+  } else {
+	return NULL;
   }
-  return NULL;
 }
 
 static gboolean
@@ -1288,7 +1273,6 @@ on_canvas_query_tooltip (GtkWidget * widget, gint x, gint y,
   bt_child_proxy_get (ci, "machine::pretty_name", &name, NULL);
   gtk_tooltip_set_text (tooltip, name);
   g_free (name);
-  g_object_unref (ci);
   return TRUE;
 }
 
@@ -1407,7 +1391,7 @@ on_canvas_widget_button_press (GtkWidget * widget, GdkEvent* event, gpointer use
   // button presses here instead of via the Clutter canvas. Is there a better way?
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
   gboolean res = FALSE;
-  BtMachineCanvasItem *ci;
+  ClutterActor *ci;
   GdkEventButton *event_btn = (GdkEventButton *)event;
   guint32 button = event_btn->button;
 
@@ -1419,19 +1403,21 @@ on_canvas_widget_button_press (GtkWidget * widget, GdkEvent* event, gpointer use
     return TRUE;
   }
 
-  if (!(ci = get_machine_canvas_item_under_cursor (self))) {
+  ci = get_clutter_actor_under_cursor (self);
+  
+  if (ci == self->priv->canvas) {
     if (button == 1) {
       // start dragging the canvas
       self->priv->dragging = TRUE;
     } else if (button == 3) {
       gtk_menu_popup_at_pointer (self->priv->context_menu, event);
-      res = TRUE;
     }
-  } else {
+	res = TRUE;
+  } else if (BT_IS_MACHINE_CANVAS_ITEM(ci)) {
     if (button == 1) {
       if (event_btn->state & GDK_SHIFT_MASK) {
         BtMachine *machine;
-        self->priv->new_wire_src = BT_MACHINE_CANVAS_ITEM (g_object_ref (ci));
+        self->priv->new_wire_src = BT_MACHINE_CANVAS_ITEM (g_object_ref(ci));
         g_object_get (ci, "machine", &machine, NULL);
         // if the citem->machine is a source/processor-machine
         if (BT_IS_SOURCE_MACHINE (machine)
@@ -1442,7 +1428,6 @@ on_canvas_widget_button_press (GtkWidget * widget, GdkEvent* event, gpointer use
         g_object_unref (machine);
       }
     }
-    g_object_unref (ci);
   }
   return res;
 }
@@ -1459,6 +1444,7 @@ on_canvas_widget_button_release  (GtkWidget * widget, GdkEventButton * event, gp
     g_object_try_unref (self->priv->new_wire_dst);
     self->priv->new_wire_dst = get_machine_canvas_item_under_cursor (self);
     if (self->priv->new_wire_dst) {
+	  g_object_ref(self->priv->new_wire_dst);
       if (bt_main_page_machines_check_wire (self)) {
         bt_main_page_machines_add_wire (self);
       }
@@ -1490,6 +1476,9 @@ on_canvas_motion (ClutterActor * actor, ClutterEvent * event,
     clutter_event_store_cursor_pos (self, event);
     g_object_try_unref (p->new_wire_dst);
     p->new_wire_dst = get_machine_canvas_item_under_cursor (self);
+	if (p->new_wire_dst) {
+	  g_object_ref(p->new_wire_dst);
+	}
     update_connect (self);
     res = TRUE;
   } else if (self->priv->dragging) {
@@ -1763,9 +1752,9 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   g_signal_connect (self->priv->canvas_widget, "size-allocate",
       G_CALLBACK (on_canvas_size_changed), (gpointer) self);
   self->priv->stage =
-      gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->
-          priv->canvas_widget));
-  clutter_stage_set_use_alpha (CLUTTER_STAGE (self->priv->stage), TRUE);
+	CLUTTER_STAGE(gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->
+											  priv->canvas_widget)));
+  clutter_stage_set_use_alpha (self->priv->stage, TRUE);
   style = gtk_widget_get_style_context (self->priv->canvas_widget);
   on_canvas_style_updated (style, (gpointer) self);
   g_signal_connect_after (style, "changed",
@@ -1774,7 +1763,7 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->canvas = clutter_actor_new ();
   clutter_actor_set_reactive (self->priv->canvas, TRUE);
   clutter_actor_set_size (self->priv->canvas, MACHINE_VIEW_W, MACHINE_VIEW_H);
-  clutter_actor_add_child (self->priv->stage, self->priv->canvas);
+  clutter_actor_add_child (CLUTTER_ACTOR(self->priv->stage), self->priv->canvas);
 
   self->priv->grid_canvas = clutter_canvas_new ();
   clutter_canvas_set_size (CLUTTER_CANVAS (self->priv->grid_canvas),

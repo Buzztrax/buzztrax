@@ -724,35 +724,6 @@ on_context_menu_about_activate (GtkMenuItem * menuitem, gpointer user_data)
 
 //-- helper methods
 
-#if 0
-static gboolean
-bt_machine_canvas_item_is_over_state_switch (const BtMachineCanvasItem * self,
-    GdkEvent * event)
-{
-  GnomeCanvas *canvas;
-  ClutterActor *ci, *pci;
-  gboolean res = FALSE;
-
-  g_object_get (self->priv->main_page_machines, "canvas", &canvas, NULL);
-  if ((ci =
-          gnome_canvas_get_item_at (canvas, event->button.x,
-              event->button.y))) {
-    g_object_get (ci, "parent", &pci, NULL);
-    //GST_DEBUG("ci=%p : self=%p, self->box=%p, self->state_switch=%p",ci,self,self->priv->box,self->priv->state_switch);
-    if ((ci == self->priv->state_switch)
-        || (ci == self->priv->state_mute) || (pci == self->priv->state_mute)
-        || (ci == self->priv->state_solo)
-        || (ci == self->priv->state_bypass)
-        || (pci == self->priv->state_bypass)) {
-      res = TRUE;
-    }
-    g_object_unref (pci);
-  }
-  g_object_unref (canvas);
-  return res;
-}
-#endif
-
 // interaction control helper
 
 static gboolean
@@ -1103,20 +1074,19 @@ bt_machine_canvas_item_constructed (GObject * object)
 
   // the meters
   meter_bg = clutter_color_new (0x5f, 0x5f, 0x5f, 0xff);
-  //if(!BT_IS_SOURCE_MACHINE(self->priv->machine)) {
+  
   self->priv->input_meter = g_object_new (CLUTTER_TYPE_ACTOR,
       "background-color", meter_bg,
       "x", MACHINE_METER_LEFT, "y", MACHINE_METER_BASE,
       "width", MACHINE_METER_WIDTH, "height", 0.0, NULL);
   clutter_actor_add_child ((ClutterActor *) self, self->priv->input_meter);
-  //}
-  //if(!BT_IS_SINK_MACHINE(self->priv->machine)) {
+  
   self->priv->output_meter = g_object_new (CLUTTER_TYPE_ACTOR,
       "background-color", meter_bg,
       "x", MACHINE_METER_RIGHT, "y", MACHINE_METER_BASE,
       "width", MACHINE_METER_WIDTH, "height", 0.0, NULL);
   clutter_actor_add_child ((ClutterActor *) self, self->priv->output_meter);
-  //}
+
   clutter_color_free (meter_bg);
 
   g_free (id);
@@ -1340,7 +1310,7 @@ new_event_idle_data(BtMachineCanvasItem * self, ClutterEvent * event) {
   return data;
 }
 
-void
+static void
 free_event_idle_data(BtEventIdleData * data) {
   g_slice_free(BtEventIdleData,data);
 }
@@ -1373,8 +1343,6 @@ bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
 {
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (citem);
   gboolean res = FALSE;
-
-  //GST_INFO("event for machine occurred");
 
   switch (clutter_event_type (event)) {
     case CLUTTER_BUTTON_PRESS:{
@@ -1419,7 +1387,6 @@ bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
       break;
     }
     case CLUTTER_MOTION:
-      //GST_DEBUG("CLUTTER_MOTION: %f,%f",event->button.x,event->button.y);
       if (self->priv->dragging) {
         ClutterMotionEvent *motion_event = (ClutterMotionEvent *) event;
         gfloat dx, dy;
@@ -1474,41 +1441,6 @@ bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
         }
         // if not moved, let event fall through to make
         // [context menu > connect] work
-      } else {
-#if 0
-        if (self->priv->switching) {
-          self->priv->switching = FALSE;
-          // still over mode switch
-          if (bt_machine_canvas_item_is_over_state_switch (self, event)) {
-            guint modifier =
-                (gulong) event->
-                button.state & gtk_accelerator_get_default_mod_mask ();
-            //gulong modifier=(gulong)event->button.state&(GDK_CONTROL_MASK|GDK_MOD4_MASK);
-            GST_DEBUG
-                ("  mode quad state switch, key_modifier is: 0x%x + mask: 0x%x -> 0x%x",
-                event->button.state, (GDK_CONTROL_MASK | GDK_MOD4_MASK),
-                modifier);
-            switch (modifier) {
-              case 0:
-                g_object_set (self->priv->machine, "state",
-                    BT_MACHINE_STATE_NORMAL, NULL);
-                break;
-              case GDK_CONTROL_MASK:
-                g_object_set (self->priv->machine, "state",
-                    BT_MACHINE_STATE_MUTE, NULL);
-                break;
-              case GDK_MOD4_MASK:
-                g_object_set (self->priv->machine, "state",
-                    BT_MACHINE_STATE_SOLO, NULL);
-                break;
-              case GDK_CONTROL_MASK | GDK_MOD4_MASK:
-                g_object_set (self->priv->machine, "state",
-                    BT_MACHINE_STATE_BYPASS, NULL);
-                break;
-            }
-          }
-        }
-#endif
       }
       break;
     case CLUTTER_KEY_RELEASE:{
