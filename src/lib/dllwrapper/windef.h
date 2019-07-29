@@ -154,13 +154,15 @@ extern "C" {
 
 /* Standard data types. These are the same for emulator and library. */
 
+#include <stdint.h>
+  
 typedef void            VOID;
 typedef int             INT;
 typedef unsigned int    UINT;
-typedef unsigned short  WORD;
-typedef unsigned long   DWORD;
-typedef unsigned long   ULONG;
-typedef unsigned char   BYTE;
+typedef uint16_t        WORD;
+typedef uint32_t        DWORD;
+typedef uint64_t        ULONG;
+typedef uint8_t         BYTE;
 typedef long            LONG;
 typedef short           SHORT;
 typedef unsigned short  USHORT;

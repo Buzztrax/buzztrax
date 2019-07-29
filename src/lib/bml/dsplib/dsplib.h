@@ -42,7 +42,8 @@
 
 */
 
-typedef unsigned long dword;
+#include <stdint.h>
+typedef uint32_t dword;
 
 #if defined(_MSC_VER) || defined(_MINGW_VER)
 #define DI __declspec(dllimport)

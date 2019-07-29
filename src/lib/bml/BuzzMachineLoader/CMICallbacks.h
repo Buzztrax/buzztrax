@@ -20,8 +20,10 @@
 #ifndef MI_CALLBACKS_H
 #define MI_CALLBACKS_H
 
-typedef unsigned short word;
-typedef unsigned long dword;
+#include <stdint.h>
+
+typedef uint16_t word;
+typedef uint32_t dword;
 
 struct CWaveInfo
 {

@@ -13,9 +13,10 @@
 #ifndef __BUZZ_DSPLIB_RESAMPLE_H
 #define __BUZZ_DSPLIB_RESAMPLE_H
 
-typedef unsigned char byte;
-typedef unsigned short word;
-typedef unsigned long dword;
+#include <stdint.h>
+typedef uint8_t byte;
+typedef uint16_t word;
+typedef uint32_t dword;
 
 // interpolation modes
 #define RSI_NONE		0		// nearest sample (no interpolation) [fast, poor quality]

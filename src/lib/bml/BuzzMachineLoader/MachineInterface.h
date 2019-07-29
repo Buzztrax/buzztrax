@@ -26,9 +26,10 @@
 #ifndef MACHINE_INTERFACE_H
 #define MACHINE_INTERFACE_H     
 
+#include <stdint.h>
 #include <string.h>
 
-typedef unsigned long dword;
+typedef uint32_t dword;
 
 enum CMPType { };
 
