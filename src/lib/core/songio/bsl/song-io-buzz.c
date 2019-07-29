@@ -940,7 +940,7 @@ read_mach_section (const BtSongIOBuzz * self, const BtSong * song)
       if (!(elem_name = find_machine_factory_by_name (mach->dllname))) {
         gchar *ptr1, *ptr2;
 
-        sprintf (plugin_name, "bml-%s", mach->dllname);
+        snprintf (plugin_name, sizeof(plugin_name), "bml-%s", mach->dllname);
         g_strcanon (plugin_name, G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-+",
             '-');
 
@@ -1584,7 +1584,7 @@ read_patt_section (const BtSongIOBuzz * self, const BtSong * song)
           if (vg && p < number_of_global_params) {
             if (mach->type) {
               if (!valuestr) {
-                sprintf (value, "%d", par);
+                snprintf (value, sizeof(value), "%d", par);
                 valuestr = value;
               }
             } else {
@@ -1668,7 +1668,7 @@ read_patt_section (const BtSongIOBuzz * self, const BtSong * song)
             }
             if (vg && p < number_of_track_params) {
               if (!valuestr) {
-                sprintf (value, "%d", par);
+                snprintf (value, sizeof(value), "%d", par);
                 valuestr = value;
               }
               //GST_DEBUG("setting voice parameter %d,%d,%d: %s",k,l,p,valuestr);

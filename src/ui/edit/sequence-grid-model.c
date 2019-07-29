@@ -125,7 +125,7 @@ format_position (const BtSequenceGridModel * model, gulong pos)
       gulong msec, sec, min;
       bt_song_info_tick_to_m_s_ms (model->priv->song_info, pos, &min, &sec,
           &msec);
-      g_sprintf (pos_str, "%02lu:%02lu.%03lu", min, sec, msec);
+      g_snprintf (pos_str, sizeof(pos_str), "%02lu:%02lu.%03lu", min, sec, msec);
     }
       break;
     case BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS:{
@@ -140,7 +140,7 @@ format_position (const BtSequenceGridModel * model, gulong pos)
         tick_chars = 2;
       else
         tick_chars = 1;
-      g_sprintf (pos_str, "%lu.%0*lu", beat, tick_chars, tick);
+      g_snprintf (pos_str, sizeof(pos_str), "%lu.%0*lu", beat, tick_chars, tick);
     }
       break;
     default:

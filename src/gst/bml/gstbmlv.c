@@ -54,7 +54,7 @@ bml (v_property_meta_describe_property (gpointer bmh, guint prop_id,
       if (!(str =
               bml (describe_track_value (bmh, prop_id,
                       g_value_get_int (value)))) || !*str) {
-        sprintf (def, "%d", g_value_get_int (value));
+        snprintf (def, sizeof(def), "%d", g_value_get_int (value));
         str = def;
       }
       break;
@@ -62,7 +62,7 @@ bml (v_property_meta_describe_property (gpointer bmh, guint prop_id,
       if (!(str =
               bml (describe_track_value (bmh, prop_id,
                       (gint) g_value_get_uint (value)))) || !*str) {
-        sprintf (def, "%u", g_value_get_uint (value));
+        snprintf (def, sizeof(def), "%u", g_value_get_uint (value));
         str = def;
       }
       break;
@@ -71,7 +71,7 @@ bml (v_property_meta_describe_property (gpointer bmh, guint prop_id,
               bml (describe_track_value (bmh, prop_id,
                       g_value_get_enum (value)))) || !*str) {
         // TODO(ensonic): get blurb for enum value
-        sprintf (def, "%d", g_value_get_enum (value));
+        snprintf (def, sizeof(def), "%d", g_value_get_enum (value));
         str = def;
       }
       break;

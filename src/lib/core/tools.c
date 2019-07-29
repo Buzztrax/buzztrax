@@ -554,7 +554,7 @@ bt_gst_debug_pad_link_return (GstPadLinkReturn link_res, GstPad * src_pad,
       case GST_PAD_LINK_WRONG_HIERARCHY:{
         GstObject *src_parent = GST_OBJECT_PARENT (src_pad);
         GstObject *sink_parent = GST_OBJECT_PARENT (sink_pad);
-        g_sprintf (msg2, " : parent(src) = %s, parent(sink) = %s",
+        g_snprintf (msg2, sizeof(msg2), " : parent(src) = %s, parent(sink) = %s",
             (src_parent ? GST_OBJECT_NAME (src_parent) : "(NULL)"),
             (sink_parent ? GST_OBJECT_NAME (sink_parent) : "(NULL)"));
         break;
@@ -562,13 +562,13 @@ bt_gst_debug_pad_link_return (GstPadLinkReturn link_res, GstPad * src_pad,
       case GST_PAD_LINK_WAS_LINKED:{
         GstPad *src_peer = src_pad->peer;
         GstPad *sink_peer = sink_pad->peer;
-        g_sprintf (msg2, " : peer(src) = %s:%s, peer(sink) = %s:%s",
+        g_snprintf (msg2, sizeof(msg2), " : peer(src) = %s:%s, peer(sink) = %s:%s",
             GST_DEBUG_PAD_NAME (src_peer), GST_DEBUG_PAD_NAME (sink_peer));
         break;
       }
       case GST_PAD_LINK_WRONG_DIRECTION:{
         static gchar *dir_name[] = { "unknown", "src", "sink" };
-        g_sprintf (msg2, " : direction(src) = %s, direction(sink) = %s",
+        g_snprintf (msg2, sizeof(msg2), " : direction(src) = %s, direction(sink) = %s",
             ((src_pad->direction <
                     3) ? dir_name[src_pad->direction] : "invalid"),
             ((sink_pad->direction <
@@ -580,7 +580,7 @@ bt_gst_debug_pad_link_return (GstPadLinkReturn link_res, GstPad * src_pad,
         GstCaps *sinkc = gst_pad_query_caps (sink_pad, NULL);
         gchar *src_caps = gst_caps_to_string (srcc);
         gchar *sink_caps = gst_caps_to_string (sinkc);
-        g_sprintf (msg2, " : caps(src) = %s, caps(sink) = %s", src_caps,
+        g_snprintf (msg2, sizeof(msg2), " : caps(src) = %s, caps(sink) = %s", src_caps,
             sink_caps);
         g_free (src_caps);
         g_free (sink_caps);
@@ -597,7 +597,7 @@ bt_gst_debug_pad_link_return (GstPadLinkReturn link_res, GstPad * src_pad,
     }
   }
 
-  g_sprintf (msg1, "%s:%s -> %s:%s : %s%s",
+  g_snprintf (msg1, sizeof(msg1), "%s:%s -> %s:%s : %s%s",
       GST_DEBUG_PAD_NAME (src_pad), GST_DEBUG_PAD_NAME (sink_pad),
       gst_pad_link_get_name (link_res), msg2);
 
@@ -942,7 +942,7 @@ bt_str_format_uchar (const guchar val)
 {
   static gchar str[20];
 
-  g_sprintf (str, "%u", val);
+  g_snprintf (str, sizeof(str), "%u", val);
   return str;
 }
 
@@ -960,7 +960,7 @@ bt_str_format_long (const glong val)
 {
   static gchar str[20];
 
-  g_sprintf (str, "%ld", val);
+  g_snprintf (str, sizeof(str), "%ld", val);
   return str;
 }
 
@@ -978,7 +978,7 @@ bt_str_format_ulong (const gulong val)
 {
   static gchar str[20];
 
-  g_sprintf (str, "%lu", val);
+  g_snprintf (str, sizeof(str), "%lu", val);
   return str;
 }
 

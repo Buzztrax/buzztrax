@@ -531,11 +531,11 @@ on_int_range_property_format_value (GtkScale * scale, gdouble value,
   g_value_init (&int_value, G_TYPE_INT);
   g_value_set_int (&int_value, (gint) value);
   if (!(str = bt_parameter_group_describe_param_value (pg, index, &int_value))) {
-    g_sprintf (_str, "%d", (gint) value);
+    g_snprintf (_str, sizeof(_str), "%d", (gint) value);
     str = _str;
   } else {
-    strncpy (_str, str, 20);
-    _str[19] = '\0';
+    strncpy (_str, str, sizeof(_str));
+    _str[sizeof(_str)-1] = '\0';
     g_free (str);
     str = _str;
   }
@@ -556,11 +556,11 @@ on_uint_range_property_format_value (GtkScale * scale, gdouble value,
   g_value_init (&uint_value, G_TYPE_UINT);
   g_value_set_uint (&uint_value, (guint) value);
   if (!(str = bt_parameter_group_describe_param_value (pg, index, &uint_value))) {
-    g_sprintf (_str, "%u", (guint) value);
+    g_snprintf (_str, sizeof(_str), "%u", (guint) value);
     str = _str;
   } else {
-    strncpy (_str, str, 20);
-    _str[19] = '\0';
+    strncpy (_str, str, sizeof(_str));
+    _str[sizeof(_str)-1] = '\0';
     g_free (str);
     str = _str;
   }
@@ -582,11 +582,11 @@ on_uint64_range_property_format_value (GtkScale * scale, gdouble value,
   g_value_set_uint64 (&uint64_value, (guint64) value);
   if (!(str =
           bt_parameter_group_describe_param_value (pg, index, &uint64_value))) {
-    g_sprintf (_str, "%" G_GUINT64_FORMAT, (guint64) value);
+    g_snprintf (_str, sizeof(_str), "%" G_GUINT64_FORMAT, (guint64) value);
     str = _str;
   } else {
-    strncpy (_str, str, 30);
-    _str[29] = '\0';
+    strncpy (_str, str, sizeof(_str));
+    _str[sizeof(_str)-1] = '\0';
     g_free (str);
     str = _str;
   }
@@ -802,7 +802,7 @@ update_double_range_label (GtkLabel * label, gdouble value)
 {
   gchar str[100];
 
-  g_sprintf (str, "%lf", value);
+  g_snprintf (str, sizeof(str), "%lf", value);
   gtk_label_set_text (label, str);
 }
 
@@ -867,7 +867,7 @@ update_float_range_label (GtkLabel * label, gfloat value)
 {
   gchar str[100];
 
-  g_sprintf (str, "%f", value);
+  g_snprintf (str, sizeof(str), "%f", value);
   gtk_label_set_text (label, str);
 }
 

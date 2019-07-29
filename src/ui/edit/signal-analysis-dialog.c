@@ -427,7 +427,7 @@ layout_hlabel (GtkStyleContext * sc, cairo_t * cr, PangoLayout * l,
   for (i = 1; i < st; i++) {
     v2 = v1 + ((gdouble) i * vs);
     x2 = x1 + ((gdouble) i * xs);
-    sprintf (str, "<small>%d</small>", abs (v2));
+    snprintf (str, sizeof(str), "<small>%d</small>", abs (v2));
     pango_layout_set_markup (l, str, -1);
     pango_layout_get_pixel_extents (l, NULL, &lr);
     w2 = lr.width / 2;
@@ -474,7 +474,7 @@ layout_vlabel (GtkStyleContext * sc, cairo_t * cr, PangoLayout * l,
   for (i = 1; i < st; i++) {
     v2 = v1 + ((gdouble) i * vs);
     y2 = y1 + ((gdouble) i * ys);
-    sprintf (str, "<small>%d</small>", abs (v2));
+    snprintf (str, sizeof(str), "<small>%d</small>", abs (v2));
     pango_layout_set_markup (l, str, -1);
     pango_layout_get_pixel_extents (l, NULL, &lr);
     h2 = lr.height / 2;
@@ -543,12 +543,12 @@ on_spectrum_freq_axis_draw (GtkWidget * widget, cairo_t * cr,
   //GST_WARNING("draw freq axis: %d..%d x %d..%d",x1,x3,y1,y3);
 
   // draw beg,end
-  sprintf (str, "<small>0</small>");
+  snprintf (str, sizeof(str), "<small>0</small>");
   pango_layout_set_markup (layout, str, -1);
   pango_layout_get_pixel_extents (layout, NULL, &lr);
   draw_hlabel (sc, cr, layout, x1, y1, x1, y2, y3);
 
-  sprintf (str, "<small>%d</small>", m);
+  snprintf (str, sizeof(str), "<small>%d</small>", m);
   pango_layout_set_markup (layout, str, -1);
   pango_layout_get_pixel_extents (layout, NULL, &lr);
   w1 = lr.width;
@@ -567,7 +567,7 @@ on_spectrum_freq_axis_draw (GtkWidget * widget, cairo_t * cr,
       x2 = 0.5 + v * grid_log10[i++];
       f += inc;
       if (f >= end) {
-        sprintf (str, "<small>%d</small>", (gint) end);
+        snprintf (str, sizeof(str), "<small>%d</small>", (gint) end);
         pango_layout_set_markup (layout, str, -1);
         pango_layout_get_pixel_extents (layout, NULL, &lr);
         w2 = lr.width / 2;
@@ -630,12 +630,12 @@ on_level_axis_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   //GST_DEBUG("draw level axis: %d..%d x %d..%d",x1,x3,y1,y3);
 
   // draw beg,end
-  sprintf (str, "<small>100</small>");
+  snprintf (str, sizeof(str), "<small>100</small>");
   pango_layout_set_markup (layout, str, -1);
   pango_layout_get_pixel_extents (layout, NULL, &lr);
   draw_vlabel (sc, cr, layout, /*text */ x2, y1, /*line */ x1, x2, y1);
 
-  sprintf (str, "<small>0</small>");
+  snprintf (str, sizeof(str), "<small>0</small>");
   pango_layout_set_markup (layout, str, -1);
   pango_layout_get_pixel_extents (layout, NULL, &lr);
   h1 = lr.height;
@@ -938,8 +938,9 @@ bt_signal_analysis_dialog_make_element (const BtSignalAnalysisDialog * self,
   gchar *name;
 
   // add analyzer element
-  name = g_alloca (strlen ("analyzer_") + strlen (factory_name) + 16);
-  g_sprintf (name, "analyzer_%s_%p", factory_name, self->priv->element);
+  const gint len = strlen ("analyzer_") + strlen (factory_name) + 16;
+  name = g_alloca (len);
+  g_snprintf (name, len, "analyzer_%s_%p", factory_name, self->priv->element);
   if (!(self->priv->analyzers[part] =
           gst_element_factory_make (factory_name, name))) {
     GST_ERROR ("failed to create %s", factory_name);

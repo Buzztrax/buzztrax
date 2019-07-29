@@ -216,7 +216,7 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
   }
   y = top + (WHITE_KEY_HEIGHT - 2);
   for (x = left; x < right; x += (7 * KEY_WIDTH)) {
-    sprintf (oct, "%u", (guint8) ((x - left) / (7 * KEY_WIDTH)));
+    snprintf (oct, sizeof(oct), "%u", (guint8) ((x - left) / (7 * KEY_WIDTH)));
     cairo_text_extents (cr, oct, &ext);
     k = x + ((KEY_WIDTH / 2) - (ext.width / 2));
     if (k + ext.width < right) {

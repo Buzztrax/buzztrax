@@ -2091,7 +2091,7 @@ update_bars_menu (const BtMainPageSequence * self, gulong bars)
   }
   if (bars / 2 > 1) {
     // half bars
-    sprintf (str, "%lu", bars / 2);
+    snprintf (str, sizeof(str), "%lu", bars / 2);
     gtk_list_store_append (store, &iter);
     gtk_list_store_set (store, &iter, 0, str, -1);
     if (self->priv->bars == (bars / 2))
@@ -2102,7 +2102,7 @@ update_bars_menu (const BtMainPageSequence * self, gulong bars)
   }
   // add bars and 3 times the double of bars
   for (j = 0, i = bars; j < 4; i *= 2, j++) {
-    sprintf (str, "%lu", i);
+    snprintf (str, sizeof(str), "%lu", i);
     gtk_list_store_append (store, &iter);
     gtk_list_store_set (store, &iter, 0, str, -1);
     if (self->priv->bars == i)
