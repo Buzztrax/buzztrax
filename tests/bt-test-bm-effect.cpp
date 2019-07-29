@@ -17,10 +17,6 @@
 
 #include "MachineInterface.h"
 
-typedef unsigned char byte;
-typedef unsigned short word;
-typedef unsigned long dword;
-
 #define pt_word (CMPType)3
 #define MPF_STATE				2	// is continuously changing (not used for notes and triggers)
 

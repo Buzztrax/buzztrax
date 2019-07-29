@@ -16,10 +16,9 @@
  */
 
 #include "MachineInterface.h"
+#include <stdint.h>
 
-typedef unsigned char byte;
-typedef unsigned short word;
-typedef unsigned long dword;
+typedef uint8_t byte;
 
 #define pt_note (CMPType)0
 #define pt_word (CMPType)3
