@@ -381,7 +381,7 @@ gstbt_tone_conversion_note_number_2_string (guint note)
     return "off";
 
   if (note_number_to_values (note, &tone, &octave)) {
-    sprintf (str, "%2s%1d", key[tone], octave);
+    snprintf (str, sizeof(str), "%2s%1d", key[tone], octave);
     return str;
   } else
     return "";

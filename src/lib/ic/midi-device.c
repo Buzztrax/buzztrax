@@ -259,7 +259,7 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
             } else if (G_UNLIKELY (self->priv->learn_mode)) {
               static gchar name[20];
 
-              sprintf (name, "control-change %u", key);
+              snprintf (name, sizeof(name), "control-change %u", key);
               update_learn_info (self, name, key, 7);
             }
             prev_cmd = midi_event[0];

@@ -40,7 +40,7 @@ cb_scale_changed (GtkRange * range, gpointer user_data)
   gchar str[6];
 
   // FIXME(ensonic): workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
-  g_sprintf (str, "%3d %%", 400 - (gint) (gtk_range_get_value (range)));
+  g_snprintf (str, sizeof(str), "%3d %%", 400 - (gint) (gtk_range_get_value (range)));
   gtk_label_set_text (label, str);
 }
 

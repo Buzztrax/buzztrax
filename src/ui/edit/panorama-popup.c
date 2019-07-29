@@ -44,7 +44,7 @@ cb_scale_changed (GtkRange * range, gpointer user_data)
   GtkLabel *label = GTK_LABEL (user_data);
   gchar str[6];
 
-  g_sprintf (str, "%3d %%", (gint) (gtk_range_get_value (range)));
+  g_snprintf (str, sizeof(str), "%3d %%", (gint) (gtk_range_get_value (range)));
   gtk_label_set_text (label, str);
 }
 

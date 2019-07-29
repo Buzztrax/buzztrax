@@ -155,7 +155,7 @@ bt_render_dialog_make_file_name (const BtRenderDialog * self, gint track)
   GEnumValue *enum_value;
 
   if (self->priv->mode == BT_RENDER_MODE_SINGLE_TRACKS) {
-    g_sprintf (track_str, ".%03u", track);
+    g_snprintf (track_str, sizeof(track_str), ".%03u", track);
   } else {
     track_str[0] = '\0';
   }
@@ -513,7 +513,7 @@ on_song_play_pos_notify (const BtSong * song, GParamSpec * arg,
   bt_song_info_tick_to_m_s_ms (song_info, length, &tmin, &tsec, &tmsec);
   bt_song_info_tick_to_m_s_ms (song_info, pos, &cmin, &csec, &cmsec);
   // format
-  g_sprintf (str, "%02lu:%02lu.%03lu / %02lu:%02lu.%03lu", cmin, csec, cmsec,
+  g_snprintf (str, sizeof(str), "%02lu:%02lu.%03lu / %02lu:%02lu.%03lu", cmin, csec, cmsec,
       tmin, tsec, tmsec);
 
   g_object_set (self->priv->track_progress, "fraction", progress, "text", str,

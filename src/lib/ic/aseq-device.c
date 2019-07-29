@@ -166,7 +166,7 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
           } else if (G_UNLIKELY (self->priv->learn_mode)) {
             static gchar name[30];
 
-            sprintf (name, "control-change-7bit %u", key);
+            snprintf (name, sizeof(name), "control-change-7bit %u", key);
             update_learn_info (self, name, key, 7);
           }
           break;
@@ -180,7 +180,7 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
           } else if (G_UNLIKELY (self->priv->learn_mode)) {
             static gchar name[30];
 
-            sprintf (name, "control-change-14bit %u", key);
+            snprintf (name, sizeof(name), "control-change-14bit %u", key);
             update_learn_info (self, name, key, 14);
           }
           break;

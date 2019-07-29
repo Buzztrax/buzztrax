@@ -291,10 +291,11 @@ bt_tip_dialog_dispose (GObject * object)
 
   // update tip-status in settings
   shown = G_N_ELEMENTS (tips) - self->priv->n_pending_tips;
-  str = g_malloc (6 * shown);
+  gint len = 6 * shown;
+  str = g_malloc (len);
   for (i = j = 0; i < G_N_ELEMENTS (tips); i++) {
     if (self->priv->tip_status[i] == -1) {
-      j += g_sprintf (&str[j], "%d,", i);
+      j += g_snprintf (&str[j], len - j, "%d,", i);
     }
   }
   if (j) {

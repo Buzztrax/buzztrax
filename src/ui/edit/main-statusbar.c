@@ -89,7 +89,7 @@ bt_main_statusbar_update_length (const BtMainStatusbar * self,
   // get new song length
   bt_song_info_tick_to_m_s_ms (song_info,
       bt_sequence_get_loop_length (sequence), &min, &sec, &msec);
-  g_sprintf (str, "%02lu:%02lu.%03lu", min, sec, msec);
+  g_snprintf (str, sizeof(str), "%02lu:%02lu.%03lu", min, sec, msec);
   // update statusbar fields
   gtk_label_set_text (self->priv->loop, str);
 }
@@ -103,8 +103,7 @@ on_song_play_pos_notify (const BtSong * song, GParamSpec * arg,
   BtMainStatusbar *self = BT_MAIN_STATUSBAR (user_data);
   BtSequence *sequence;
   BtSongInfo *song_info;
-  // the +4 is not really needed, but I get a stack smashing error on ubuntu without
-  gchar str[2 + 2 + 3 + 3 + 4];
+  gchar str[32];
   gulong pos, msec, sec, min;
 
   GST_DEBUG ("tick update");
@@ -118,7 +117,7 @@ on_song_play_pos_notify (const BtSong * song, GParamSpec * arg,
   // update current statusbar
   bt_song_info_tick_to_m_s_ms (song_info, pos, &min, &sec, &msec);
   // format
-  g_sprintf (str, "%02lu:%02lu.%03lu", min, sec, msec);
+  g_snprintf (str, sizeof(str), "%02lu:%02lu.%03lu", min, sec, msec);
   // update statusbar fields
   gtk_label_set_text (self->priv->current, str);
 
@@ -131,7 +130,7 @@ on_song_play_pos_notify (const BtSong * song, GParamSpec * arg,
   bt_song_info_tick_to_m_s_ms (song_info, pos + self->priv->total_ticks,
       &min, &sec, &msec);
   // format
-  g_sprintf (str, "%02lu:%02lu.%03lu", min, sec, msec);
+  g_snprintf (str, sizeof(str), "%02lu:%02lu.%03lu", min, sec, msec);
   // update statusbar fields
   gtk_label_set_text (self->priv->elapsed, str);
 
@@ -239,11 +238,11 @@ on_cpu_load_update (gpointer user_data)
   guint ml_lag = GST_TIME_AS_MSECONDS (self->priv->ml_tavg);
   gchar str[strlen ("CPU: 000 %, ML: 00000 ms") + 3];
 
-  g_sprintf (str, "CPU: %d %%, ML: %d ms", cpu_load, ml_lag);
+  g_snprintf (str, sizeof(str), "CPU: %d %%, ML: %d ms", cpu_load, ml_lag);
 #else
   gchar str[strlen ("CPU: 000 %") + 3];
 
-  g_sprintf (str, "CPU: %d %%", cpu_load);
+  g_snprintf (str, sizeof(str), "CPU: %d %%", cpu_load);
 #endif
   gtk_progress_bar_set_fraction (self->priv->cpu_load,
       (gdouble) cpu_load / 100.0);

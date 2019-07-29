@@ -64,10 +64,9 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
    * the "about" box. Example: Stefan 'ensonic' Sauer <ensonic@users.sf.net> */
   gchar *translators = _("translator-credits");
 
-  gchar *copyright =
-      g_alloca (strlen (_("Copyright \xc2\xa9 2003-%d Buzztrax developer team"))
-      + 3);
-  sprintf (copyright, _("Copyright \xc2\xa9 2003-%d Buzztrax developer team"),
+  gint len = strlen (_("Copyright \xc2\xa9 2003-%d Buzztrax developer team")) + 3;
+  gchar *copyright = g_alloca (len);
+  snprintf (copyright, len, _("Copyright \xc2\xa9 2003-%d Buzztrax developer team"),
       BT_RELEASE_YEAR);
 
   /* we can get logo via icon name, so this here is just for educational purpose

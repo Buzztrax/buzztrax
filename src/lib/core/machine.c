@@ -779,8 +779,9 @@ bt_machine_make_internal_element (const BtMachine * const self,
   GstElement *m;
   GstElementFactory *f;
   const gchar *const parent_name = GST_OBJECT_NAME (self);
+  gint len_name = strlen (parent_name) + 2 + strlen (element_name);
   gchar *const name =
-      g_alloca (strlen (parent_name) + 2 + strlen (element_name));
+      g_alloca (len_name);
   GValue item = { 0, };
 
   g_return_val_if_fail ((self->priv->machines[part] == NULL), TRUE);
@@ -803,8 +804,7 @@ bt_machine_make_internal_element (const BtMachine * const self,
   }
 
   // create internal element
-  //strcat(name,parent_name);strcat(name,":");strcat(name,element_name);
-  g_sprintf (name, "%s:%s", parent_name, element_name);
+  g_snprintf (name, len_name, "%s:%s", parent_name, element_name);
   if (!(self->priv->machines[part] = gst_element_factory_create (f, name))) {
     GST_WARNING_OBJECT (self, "failed to create %s from factory %s",
         element_name, factory_name);

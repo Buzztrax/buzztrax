@@ -1251,8 +1251,9 @@ bt_song_write_to_highlevel_dot_file (const BtSong * const self)
   g_return_if_fail (BT_IS_SONG (self));
 
   g_object_get (self->priv->song_info, "name", &song_name, NULL);
-  gchar *const file_name = g_alloca (strlen (song_name) + 10);
-  g_sprintf (file_name, "/tmp/%s_highlevel.dot", song_name);
+  const gint len = strlen (song_name) + 10;
+  gchar *const file_name = g_alloca (len);
+  g_snprintf (file_name, len, "/tmp/%s_highlevel.dot", song_name);
 
   if ((out = fopen (file_name, "wb"))) {
     GList *const list, *node, *sublist, *subnode;
@@ -1445,22 +1446,18 @@ bt_song_persistence_load (const GType type,
   for (node = node->children; node; node = node->next) {
     if (!xmlNodeIsText (node)) {
       if (!strncmp ((gchar *) node->name, "meta\0", 5)) {
-        //g_sprintf(status,msg,"metadata");g_object_set(G_OBJECT(self->priv->song_io),"status",status,NULL);
         if (!bt_persistence_load (BT_TYPE_SONG_INFO,
                 BT_PERSISTENCE (self->priv->song_info), node, NULL, NULL))
           goto Error;
       } else if (!strncmp ((gchar *) node->name, "setup\0", 6)) {
-        //g_sprintf(status,msg,"setup");g_object_set(G_OBJECT(self->priv->song_io),"status",status,NULL);
         if (!bt_persistence_load (BT_TYPE_SETUP,
                 BT_PERSISTENCE (self->priv->setup), node, NULL, NULL))
           goto Error;
       } else if (!strncmp ((gchar *) node->name, "sequence\0", 9)) {
-        //g_sprintf(status,msg,"sequence");g_object_set(G_OBJECT(self->priv->song_io),"status",status,NULL);
         if (!bt_persistence_load (BT_TYPE_SEQUENCE,
                 BT_PERSISTENCE (self->priv->sequence), node, NULL, NULL))
           goto Error;
       } else if (!strncmp ((gchar *) node->name, "wavetable\0", 10)) {
-        //g_sprintf(status,msg,"wavetable");g_object_set(G_OBJECT(self->priv->song_io),"status",status,NULL);
         if (!bt_persistence_load (BT_TYPE_WAVETABLE,
                 BT_PERSISTENCE (self->priv->wavetable), node, NULL, NULL))
           goto Error;

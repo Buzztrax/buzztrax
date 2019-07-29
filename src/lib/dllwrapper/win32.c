@@ -1016,7 +1016,7 @@ expGetSystemInfo (SYSTEM_INFO * si)
           }
         }
         /* set the CPU type of the current processor */
-        sprintf (buf, "CPU %ld", cachedsi.dwProcessorType);
+        snprintf (buf, sizeof(buf), "CPU %ld", cachedsi.dwProcessorType);
         continue;
       }
       /* old 2.0 method */
@@ -1047,7 +1047,7 @@ expGetSystemInfo (SYSTEM_INFO * si)
           }
         }
         /* set the CPU type of the current processor */
-        sprintf (buf, "CPU %ld", cachedsi.dwProcessorType);
+        sprintf (buf, sizeof(buf), "CPU %ld", cachedsi.dwProcessorType);
         continue;
       }
       if (!lstrncmpiA (line, "fdiv_bug", strlen ("fdiv_bug"))) {
@@ -1073,7 +1073,7 @@ expGetSystemInfo (SYSTEM_INFO * si)
         /* Create a new processor subkey on a multiprocessor
          * system
          */
-        sprintf (buf, "%d", x);
+        sprintf (buf, sizeof(buf), "%d", x);
       }
       if (!lstrncmpiA (line, "stepping", strlen ("stepping"))) {
         int x;
@@ -3647,7 +3647,6 @@ expFindNextFileA (HANDLE h, LPWIN32_FIND_DATAA lpfd)
       if (strcmp (x, ".qtx"))
         continue;
       strcpy (lpfd->cFileName, d->d_name);
-//          sprintf(lpfd->cAlternateFileName,"%-8s.qtx",d->d_name);
       strcpy (lpfd->cAlternateFileName, "foobar.qtx");
       TRACE ("### FindNext: %s\n", lpfd->cFileName);
       return 1;
@@ -3822,7 +3821,8 @@ expCreateFileA (LPCSTR cs1, DWORD i1, DWORD i2,
 #ifdef QTX
   if (strstr (cs1, "QuickTime.qts")) {
     int result;
-    char *tmp = (char *) malloc (strlen (win32_def_path) + 50);
+	int len = strlen (win32_def_path) + 50;
+    char *tmp = (char *) malloc (len);
     strcpy (tmp, win32_def_path);
     strcat (tmp, "/");
     strcat (tmp, "QuickTime.qts");
@@ -3834,7 +3834,7 @@ expCreateFileA (LPCSTR cs1, DWORD i1, DWORD i2,
     int result;
     char *tmp = (char *) malloc (strlen (win32_def_path) + 250);
     char *x = strrchr (cs1, '\\');
-    sprintf (tmp, "%s/%s", win32_def_path, x ? (x + 1) : cs1);
+    snprintf (tmp, len, "%s/%s", win32_def_path, x ? (x + 1) : cs1);
 //      TRACE("### Open: %s -> %s\n",cs1,tmp);
     result = open (tmp, O_RDONLY);
     free (tmp);
@@ -6084,7 +6084,7 @@ LookupExternal (const char *library, int ordinal)
      if(pos>NUM_STUB_ENTRIES)return 0;
    */
   /* real names can be checked from corresponding .DEF file */
-  sprintf (export_names[pos], "%s:%d", library, ordinal);
+  snprintf (export_names[pos], sizeof(export_names[pos]), "%s:%d", library, ordinal);
   return add_stub ();
 }
 
