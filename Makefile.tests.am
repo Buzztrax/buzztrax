@@ -122,7 +122,10 @@ libbt_check_ui_la_SOURCES = \
 # - https://lists.gnu.org/archive/html/automake/2005-10/msg00107.html
 libTestBmGenerator_la_SOURCES = tests/bt-test-bm-generator.cpp \
 	src/lib/bml/BuzzMachineLoader/MachineInterface.h
-libTestBmGenerator_la_CXXFLAGS = -I$(top_srcdir)/src/lib/bml/BuzzMachineLoader $(BT_CFLAGS)
+libTestBmGenerator_la_CPPFLAGS = \
+  -I$(top_srcdir)/src/lib/bml/BuzzMachineLoader \
+  $(AM_CPPFLAGS)
+libTestBmGenerator_la_CXXFLAGS = $(BT_CFLAGS)
 libTestBmGenerator_la_LDFLAGS = -avoid-version -module -shared -export-dynamic \
   -rpath /nowhere
 libTestBmGenerator_la_LIBADD = $(BT_LIBS)
@@ -130,7 +133,10 @@ libTestBmGenerator_la_LIBTOOLFLAGS = --tag=disable-static
 
 libTestBmEffect_la_SOURCES = tests/bt-test-bm-effect.cpp \
 	src/lib/bml/BuzzMachineLoader/MachineInterface.h
-libTestBmEffect_la_CXXFLAGS = -I$(top_srcdir)/src/lib/bml/BuzzMachineLoader $(BT_CFLAGS)
+libTestBmEffect_la_CPPFLAGS = \
+  -I$(top_srcdir)/src/lib/bml/BuzzMachineLoader \
+  $(AM_CPPFLAGS)
+libTestBmEffect_la_CXXFLAGS = $(BT_CFLAGS)
 libTestBmEffect_la_LDFLAGS = -avoid-version -module -shared -export-dynamic \
   -rpath /nowhere
 libTestBmEffect_la_LIBADD = $(BT_LIBS)

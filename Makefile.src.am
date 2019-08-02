@@ -64,7 +64,8 @@ libloader_la_CCASFLAGS = $(BMLHOST_CCASFLAGS)
 libloader_la_CPPFLAGS =  \
   -D__WINE__ \
   -DWIN32_PATH=\"/usr/lib/win32\" \
-  -DWIN32_LIB_PATH=\"$(libdir)/win32\"
+  -DWIN32_LIB_PATH=\"$(libdir)/win32\" \
+  $(AM_CPPFLAGS)
 libloader_la_LIBADD = $(LIBM) $(PTHREAD_LIBS) -ldl
 
 noinst_HEADERS += \
@@ -110,11 +111,12 @@ endif
 libbmldir = $(includedir)/libbml
 libbml_HEADERS = src/lib/bml/bml.h src/lib/bml/BuzzMachineLoader/BuzzMachineLoader.h
 libbml_la_SOURCES = src/lib/bml/bml.c src/lib/bml/bmllog.c $(DLLWRAPPER_SRC)
-libbml_la_CFLAGS = \
+libbml_la_CPPFLAGS = \
   -I$(srcdir) -I$(top_srcdir)/src/lib \
   -I$(top_srcdir)/src/lib/dllwrapper \
-  $(PTHREAD_CFLAGS) $(BML_CFLAGS)
-libbml_la_CPPFLAGS = -DNATIVE_BML_DIR="\"$(pkglibdir)\""
+  -DNATIVE_BML_DIR="\"$(pkglibdir)\"" \
+  $(AM_CPPFLAGS)
+libbml_la_CFLAGS = $(PTHREAD_CFLAGS) $(BML_CFLAGS)
 libbml_la_LIBADD = $(LIBM) $(PTHREAD_LIBS) $(BML_LIBS) $(DLLWRAPPER_LIB)
 libbml_la_LDFLAGS = \
   -export-symbols-regex ^_?\(bml_\|bmlw_\|bmln_\).* \
@@ -135,10 +137,11 @@ bmlhost_SOURCES = \
   src/lib/bml/bmlw.c \
   src/lib/bml/bmlipc.c \
   src/lib/bml/strpool.c
-bmlhost_CFLAGS = \
+bmlhost_CPPFLAGS = \
   -I$(srcdir) -I$(top_srcdir)/src/lib \
   -I$(top_srcdir)/src/lib/dllwrapper \
-  $(BML_CFLAGS) $(BMLHOST_CFLAGS)
+  $(AM_CPPFLAGS)
+bmlhost_CFLAGS = $(BML_CFLAGS) $(BMLHOST_CFLAGS)
 bmlhost_LDADD = $(PTHREAD_LIBS) $(BML_LIBS) libloader.la
 else
 bin_PROGRAMS =
@@ -168,9 +171,11 @@ noinst_HEADERS += \
   src/lib/bml/BuzzMachineLoader/mdkimp.h \
   src/lib/bml/BuzzMachineLoader/debug.h
 
-libbuzzmachineloader_la_CXXFLAGS = $(PTHREAD_CFLAGS) $(BML_CXXFLAGS) \
+libbuzzmachineloader_la_CPPFLAGS = \
   -I$(top_srcdir)/src/lib/dllwrapper \
-  -I$(top_srcdir)/src/lib/bml/BuzzMachineLoader
+  -I$(top_srcdir)/src/lib/bml/BuzzMachineLoader \
+  $(AM_CPPFLAGS)
+libbuzzmachineloader_la_CXXFLAGS = $(PTHREAD_CFLAGS) $(BML_CXXFLAGS)
 libbuzzmachineloader_la_LIBADD = $(LIBM) $(PTHREAD_LIBS) $(BML_LIBS) -lstdc++
 libbuzzmachineloader_la_LDFLAGS = -module -avoid-version
 libbuzzmachineloader_la_LIBTOOLFLAGS = --tag=disable-static
@@ -288,7 +293,9 @@ libbuzztrax_core_la_LIBADD = \
   libbuzztrax-gst.la \
   $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
   -lgstaudio-@GST_MAJORMINOR@ -lgstpbutils-@GST_MAJORMINOR@
-libbuzztrax_core_la_CFLAGS = -I$(top_builddir)/src/lib/core
+libbuzztrax_core_la_CPPFLAGS = \
+  -I$(top_builddir)/src/lib/core \
+  $(AM_CPPFLAGS)
 libbuzztrax_core_la_LDFLAGS = \
   -export-symbols-regex ^_?\(bt_\|Bt\|BT_\).* \
   -version-info @BT_VERSION_INFO@
@@ -415,7 +422,10 @@ buzztrax_edit_LDADD = \
   libbuzztrax-ic.la \
   libbtedit.la \
   $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS)
-buzztrax_edit_CFLAGS = -I$(top_builddir)/src/ui/edit $(GUI_DEPS_CFLAGS)
+buzztrax_edit_CPPFLAGS = \
+  -I$(top_builddir)/src/ui/edit \
+  $(AM_CPPFLAGS)
+buzztrax_edit_CFLAGS = $(GUI_DEPS_CFLAGS)
 buzztrax_edit_SOURCES= \
   src/ui/edit/bt-edit.c src/ui/edit/bt-edit.h
 
@@ -427,7 +437,10 @@ libbtedit_la_LIBADD = \
   libbuzztrax-core.la \
   libbuzztrax-ic.la \
   $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM)
-libbtedit_la_CFLAGS = -I$(top_builddir)/src/ui/edit $(GUI_DEPS_CFLAGS)
+libbtedit_la_CPPFLAGS = \
+  -I$(top_builddir)/src/ui/edit \
+  $(AM_CPPFLAGS)
+libbtedit_la_CFLAGS = $(GUI_DEPS_CFLAGS)
 libbtedit_la_SOURCES = \
   src/ui/edit/about-dialog.c src/ui/edit/about-dialog.h \
   src/ui/edit/change-log.c src/ui/edit/change-log.h \
@@ -561,8 +574,10 @@ noinst_HEADERS += \
 libgstbmln_la_SOURCES = \
   src/gst/bml/gstbml.c src/gst/bml/gstbmlsrc.c src/gst/bml/gstbmltransform.c \
   src/gst/bml/gstbmlv.c
-libgstbmln_la_CFLAGS = -DBML_NATIVE \
+libgstbmln_la_CPPFLAGS = -DBML_NATIVE \
   -I$(srcdir) -I$(builddir) -I$(builddir)/src/gst/bml \
+  $(AM_CPPFLAGS)
+libgstbmln_la_CFLAGS = \
   $(GST_PLUGIN_CFLAGS) \
   $(BASE_DEPS_CFLAGS) \
   $(ORC_CFLAGS)
@@ -571,9 +586,11 @@ libgstbmln_la_CFLAGS = -DBML_NATIVE \
 libgstbmlw_la_SOURCES = \
   src/gst/bml/gstbml.c src/gst/bml/gstbmlsrc.c src/gst/bml/gstbmltransform.c \
   src/gst/bml/gstbmlv.c
-libgstbmlw_la_CFLAGS = -DBML_WRAPPED \
+libgstbmlw_la_CPPFLAGS = -DBML_WRAPPED \
   -I$(srcdir) -I$(builddir) \
   -I$(builddir)/src/gst/bml -I$(top_srcdir)/src/lib/dllwrapper \
+  $(AM_CPPFLAGS)
+libgstbmlw_la_CFLAGS = \
   $(GST_PLUGIN_CFLAGS) \
   $(BASE_DEPS_CFLAGS) \
   $(ORC_CFLAGS)
@@ -588,9 +605,10 @@ noinst_LTLIBRARIES += libgstbmln.la $(BMLW_LA)
 
 libgstbml_la_SOURCES = src/gst/bml/plugin.c src/gst/bml/common.c
 nodist_libgstbml_la_SOURCES = $(ORC_NODIST_SOURCES)
-libgstbml_la_CFLAGS = \
+libgstbml_la_CPPFLAGS = \
   -I$(srcdir) -I$(builddir) -I$(builddir)/src/gst/bml \
-  -DLIBDIR=\"\${libdir}\" \
+  $(AM_CPPFLAGS)
+libgstbml_la_CFLAGS = \
   $(GST_PLUGIN_CFLAGS) \
   $(BASE_DEPS_CFLAGS) \
   $(ORC_CFLAGS)
@@ -618,9 +636,10 @@ plugin_LTLIBRARIES += libgstfluidsynth.la
 noinst_HEADERS += src/gst/fluidsynth/fluidsynth.h
 
 libgstfluidsynth_la_SOURCES = src/gst/fluidsynth/fluidsynth.c
-libgstfluidsynth_la_CFLAGS = \
+libgstfluidsynth_la_CPPFLAGS = \
   -I$(srcdir) -I$(top_srcdir) \
-  -DDATADIR=\"$(datadir)\" \
+  $(AM_CPPFLAGS)
+libgstfluidsynth_la_CFLAGS = \
   $(GST_PLUGIN_CFLAGS) \
   $(BASE_DEPS_CFLAGS) \
   $(FLUIDSYNTH_CFLAGS)
@@ -650,9 +669,10 @@ libgstsidsyn_la_SOURCES = \
   src/gst/sidsyn/wave8580_PS_.cc \
   src/gst/sidsyn/wave8580_P_T.cc \
   src/gst/sidsyn/wave8580__ST.cc
-libgstsidsyn_la_CXXFLAGS = \
+libgstsidsyn_la_CPPFLAGS = \
   -I$(srcdir) -I$(top_srcdir) \
-  -DDATADIR=\"$(datadir)\" \
+  $(AM_CPPFLAGS)
+libgstsidsyn_la_CXXFLAGS = \
   $(GST_PLUGIN_CFLAGS) \
   $(BASE_DEPS_CFLAGS)
 libgstsidsyn_la_LIBADD = \
@@ -669,9 +689,10 @@ libbuzztraxaudio_la_SOURCES = \
   src/gst/audio/simsyn.c \
   src/gst/audio/wavereplay.c \
   src/gst/audio/wavetabsyn.c
+libbuzztraxaudio_la_CPPFLAGS = \
+  -I$(srcdir) -I$(top_srcdir)  \
+  $(AM_CPPFLAGS)
 libbuzztraxaudio_la_CFLAGS = \
-  -I$(srcdir) -I$(top_srcdir) \
-  -DDATADIR=\"$(datadir)\" \
   $(GST_PLUGIN_CFLAGS) \
   $(BASE_DEPS_CFLAGS)
 libbuzztraxaudio_la_LIBADD = \
