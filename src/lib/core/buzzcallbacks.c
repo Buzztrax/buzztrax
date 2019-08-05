@@ -19,9 +19,8 @@
 #define BT_BUZZCALLBACKS_C
 
 #include "core_private.h"
-#ifdef USE_BML
 // for CHostCallbacks
-#include <libbml/bml.h>
+#include "bml/bml.h"
 
 /*
  * we could use some static hashtables to cache the returned structs
@@ -216,8 +215,6 @@ static CHostCallbacks callbacks = {
   GetNearestWaveLevel
 };
 
-#endif
-
 /**
  * bt_buzz_callbacks_get:
  * @song: the song for the callback context
@@ -229,10 +226,6 @@ static CHostCallbacks callbacks = {
 gpointer
 bt_buzz_callbacks_get (BtSong * song)
 {
-#ifdef USE_BML
   callbacks.user_data = (gpointer) song;
   return &callbacks;
-#else
-  return NULL;
-#endif
 }
