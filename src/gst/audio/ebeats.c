@@ -42,6 +42,11 @@
  * </refsect2>
  */
 /* TODO: add a delay line for metalic effects */
+/* TODO: add a boolean 'reverse 'parameter
+ * - can be a pattern only trigger param to set time to max and time-inc * -1
+ * - for that the envelopes need a 'reverse' param too, or we need to check if
+ *   we can count 'ct' backwards
+ */
 /* TODO: have presets for:
  * kick
  * snare
