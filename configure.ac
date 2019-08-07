@@ -473,7 +473,7 @@ dnl check for oil runtime compiler
 ORC_CHECK([0.4.6])
 
 dnl check for FluidSynth
-PKG_CHECK_MODULES(FLUIDSYNTH, fluidsynth >= 1.0,
+PKG_CHECK_MODULES(FLUIDSYNTH, fluidsynth >= 1.1.0,
     [
         AC_DEFINE(HAVE_FLUIDSYNTH, [1], [defined when we have a fluidsynth element])
         have_fluidsynth=yes

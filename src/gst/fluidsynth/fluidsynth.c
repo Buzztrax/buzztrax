@@ -587,9 +587,9 @@ gstbt_fluid_synth_get_property (GObject * object, guint prop_id,
           g_value_set_double (value, d);
         break;
       case G_TYPE_STRING:
-        retval = fluid_settings_getstr (src->settings, name, &s);
+        retval = fluid_settings_dupstr (src->settings, name, &s);
         if (retval)
-          g_value_set_string (value, s);
+          g_value_take_string (value, s);
         break;
       default:
         g_critical ("Unexpected FluidSynth dynamic property type");
