@@ -573,3 +573,25 @@
     * if we upload to wordpress, we'd need to do OAuth2 to avoid storing the
       password in the settings
   * maybe do something similar for presets
+
+* preview in generator meachines
+  * feature
+    * we'd like to have a preview for what the generator would output
+    * we'd like this preview to e updated when editing the parameters from the UI
+  * ways to do this:
+    * preview interface where one sets a preview buffer
+      - need to make sure that calling create() does not modify machine state
+    * run a shadow machine in a preview pipeline connected to a memorysink/fakesink
+      - need to clone the parameters
+      + if polyphonic, can force to one voice
+      + does not interfere with normal playback
+      + would work for *all* machines
+  * open questions
+    * how can we figure how long to make the preview buffer ?
+      * we have a target size (from the window width)
+      * we could let the preview pipeline run and store result buffers in a list
+        until the level drops below a threshold or we reach 1 sec? We then
+        resample the buffer into the preview array
+      * we should use a low sampling rate and trigger the first trigger param
+        (max volume, C-0)
+
