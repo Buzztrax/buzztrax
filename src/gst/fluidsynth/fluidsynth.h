@@ -93,6 +93,7 @@ struct _GstBtFluidSynth {
   fluid_settings_t *settings;       /* to free on close */
   fluid_midi_driver_t *midi;		    /* FluidSynth MIDI driver */
   fluid_midi_router_t *midi_router; /* FluidSynth MIDI router */
+  fluid_cmd_handler_t *cmd_handler;
 
   gchar *instrument_patch_path;
   gint instrument_patch;
