@@ -679,7 +679,7 @@ check_run_main_loop_until_msg_or_error (BtSong * song, const gchar * msg)
 {
   GstStateChangeReturn sret;
   GstState state, pending;
-
+  // we run the main loop if the state-change of the pipeline was sucessful
   GMainLoop *main_loop = g_main_loop_new (NULL, FALSE);
   GstElement *bin =
       (GstElement *) check_gobject_get_object_property (song, "bin");
