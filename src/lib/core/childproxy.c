@@ -74,8 +74,9 @@ bt_child_proxy_lookup (GObject * object, const gchar * name, GObject ** target,
   while (current[1]) {
     GObject *next;
 
-    GST_LOG ("trying object %p:%s for %s", object, G_OBJECT_TYPE_NAME (object),
-        current[0]);
+    GST_LOG ("trying %s %p:%s for %s",
+        (GST_IS_CHILD_PROXY (object) ? "child-proxy" : "plain-object"),
+        object, G_OBJECT_TYPE_NAME (object), current[0]);
 
     if (!GST_IS_CHILD_PROXY (object)) {
       // what if we just do a find by object class property?
