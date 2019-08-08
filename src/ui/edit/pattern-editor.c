@@ -103,11 +103,11 @@ to_string_note (gchar * buf, gint bufsize, gfloat value, gint def)
   static gchar note_names[] = "C-C#D-D#E-F-F#G-G#A-A#B-????????";
   gint note = ((gint) value) & 255, octave;
 
-  g_return_val_if_fail(bufsize >= 4, "ERR");
+  g_return_val_if_fail (bufsize >= 4, "ERR");
   if (note == def || note == 0)
-	return "...";
+    return "...";
   if (note == 255)
-	return "off";
+    return "off";
 
   note--;
   octave = note >> 4;
@@ -196,7 +196,7 @@ bt_pattern_editor_draw_rownum (BtPatternEditor * self, cairo_t * cr,
     cairo_fill (cr);
 
     gdk_cairo_set_source_rgba (cr, &self->text_color);
-    snprintf (buf, sizeof(buf), "%04X", row);
+    snprintf (buf, sizeof (buf), "%04X", row);
     cairo_move_to (cr, x, y);
     pango_layout_set_text (pl, buf, 4);
     pango_cairo_show_layout (cr, pl);
@@ -302,7 +302,7 @@ bt_pattern_editor_draw_column (BtPatternEditor * self, cairo_t * cr,
     gfloat pval = get_data_func (self->pattern_data, col->user_data, row, group,
         param);
     gboolean sel = (is_selection_column && in_selection_row (self, row));
-    str = pt->to_string_func (buf, sizeof(buf), pval, col->def);
+    str = pt->to_string_func (buf, sizeof (buf), pval, col->def);
 
     /* draw background */
     gdk_cairo_set_source_rgba (cr, &self->bg_shade_color[row & 0x1]);
