@@ -1,0 +1,986 @@
+commit 01b4e9e6cb598df6eb8b558f2aa31a47176008f1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: remove tip that we have on the wiki already
+
+
+commit 3516cd285579d91aed90171a11aff0c9d16f37e2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: make distcheck fixes
+
+
+commit e0102a31132b0511b5b2bcc6d7eb5d830293b9f6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: dist new test
+
+
+commit 91530eb16199b1df61790ffdfd8dffd31203d39e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: remove non-existing doc file
+
+
+commit 8e1d0ac3da4eaf738de29f132308e09d61759e5c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: add images for envelope-ad
+
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_envelope-ad_attack=0.25.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_envelope-ad_attack=0.50.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_envelope-ad_attack=0.75.svg
+
+commit 50bf6a52627bf7342477e546339bb47ccc2fe97b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add test suite for envelope-ad
+
+ create mode 100644 tests/lib/gst/e-envelope-ad.c
+
+commit 4c9ec86da9ca36a4f094fec866a508fc0ae55cf8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    plugins: fix doc path
+
+
+commit 72138395ed151db60152cd063ef2bc2ef8b90497
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    audiodelay: planning update
+
+
+commit 046f65f9e6b2c813317cba269f60fd8204fbb251
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: add new docs for ebeats
+
+
+commit 9bf18d362a019d2f9444a79e6b9c52a0ae8f42a1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bt-dec: add simple gst-launch tests
+
+ create mode 100755 tests/bt-dec-launch.sh
+
+commit a9af686f1d6f8ac4e73563e04b173a4808b666ff
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bt-dec: unbreak the element
+
+
+commit f57a9ec39990670765c03700dae62be28e52fd3e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: planning update
+
+
+commit 5fd9d70c71c363631ec96024f2e97f32ada68f2a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: dist the preset files
+
+
+commit c5ca83aaca269261f76abee54f5b80cdc50539f7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ebeats: update the presets
+
+
+commit 16e166128b4e3b1a35a5f5019b689df7cf7f97c3
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ebeats: add filter routing
+
+
+commit 16f9be0e8b8ee06241f761d909b36dd776323703
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    combine: remove random insertion from comment
+
+
+commit 7ae5566140058f832ec9a36a24a5682c0df3859b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    render-dialog: make enum strings translatable
+
+
+commit 7bd71394f6b2d2f74da7e12fbe70cfe5b1fcb787
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    combine: add 3 logical combine modes
+
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_combine_and__a_b.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_combine_or__a_b.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_combine_xor__a_b.svg
+
+commit ede3a83ffa3893e5d7bc21f2b60f1b45ac0ddbe1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine-properties-dialog: fix tooltips
+
+
+commit 7acff229cb893227804abaa3883a636e79cf9f01
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: fix the path's
+
+
+commit 1d4c126b0773d2e321a4087a0e3f182b6646258a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: add a 2nd row of images to the filter docs for resonance
+
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_bandpass_cut-off=0.5_resonance=10.0.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_bandpass_cut-off=0.5_resonance=5.0.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_bandstop_cut-off=0.5_resonance=10.0.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_bandstop_cut-off=0.5_resonance=5.0.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_hipass_cut-off=0.5_resonance=10.0.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_hipass_cut-off=0.5_resonance=5.0.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_lowpass_cut-off=0.5_resonance=10.0.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_lowpass_cut-off=0.5_resonance=5.0.svg
+
+commit f70e855ffc951625adfe0a0eabf202ad0852a3c4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: add images for the combine module
+
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_combine_max__max_a,b_.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_combine_min__min_a,b_.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_combine_mix__a+b.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_combine_mul__a*b.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_combine_sub__a-b.svg
+
+commit 9691442f5ba92f2f44f42d0dedcf575d73fd6a7d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add commands for updating the images for the docs
+
+
+commit e9de473d4ee60705e50f0b5cc3402a64568db725
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add tests for the combine module
+
+ create mode 100644 tests/lib/gst/e-combine.c
+
+commit 764549fa1f644161c97fafe70ede9ad12b78b089
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: planning update
+
+
+commit 1fd4b922eb91016a84e24911032d3bc3dae789ad
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: add missing doc blobs
+
+
+commit 8cffbb0a6cba45b687187d6d79de880eb3e61e9e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: add gtk helper
+
+
+commit 4109d8ea4b5d39e589556444819e434994847fd2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: make gtkdoc-cehck happy
+
+
+commit 5f3e4e8354ecc0664ae92d0a31e9e59d90d61814
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: xref GstBtWaveIndex
+
+
+commit 9661d8f859de1a1a6ca2af70cf7d7dfce2b54a66
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wave: the wave index starts a 1, 0 is for no wave
+
+
+commit 48158fb6343ccc3b69a017e4a4b795755d5f5499
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: add bt-doc to master doc
+
+
+commit 706227d26abe2fcf85fd220dc430f17590b48322
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: hide gobject param spec hack helpers
+
+
+commit 6b760f3bc9a387e35f6a732ad716b41ffb70d932
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: xref osc-synth wave subsets
+
+
+commit d220da3c78b9cf7c90d3325b77bf90db5da7beb6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: more xrefs for sidsyn
+
+
+commit 5e3da265bada374b1a8bddc810c28fd3bb8aef9f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: re-add the plugins to the docs
+
+
+commit 7212910a731b1d4257dea217b917d8a500b2d167
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: update plugin docs
+
+
+commit 861ae08d5cfad150e4599feb89abfdaeca6ae4ec
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    news: prepare release
+
+
+commit dad5d6829d6f5d2e24c60d4d9eca2e0ea068d76b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    README: provide background on the copyright situation
+
+ create mode 100644 src/lib/bml/BuzzMachineLoader/README
+
+commit 592ff800708bea4fac777eabc6fc918a68465b72
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: tell that te mode-counts can change with new releases
+
+
+commit 6a239a461ec2d14ad58b4603b6633d361ebb4786
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    filter-svf: add better quality images and add full params to image title
+
+ delete mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_bandpass_0.50.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_bandpass_cut-off=0.5_resonance=0.7.svg
+ delete mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_bandstop_0.50.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_bandstop_cut-off=0.5_resonance=0.7.svg
+ delete mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_hipass_0.50.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_hipass_cut-off=0.5_resonance=0.7.svg
+ delete mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_lowpass_0.50.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_lowpass_cut-off=0.5_resonance=0.7.svg
+
+commit 78ce7a263a6159052d11f12ff39e3f767980f3e7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: use a double precission fft to get a smooth filter response
+
+
+commit 4ba22de99cea3772510fa8ec58a76d5cef14a647
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: update images
+
+
+commit bb79e90d81bc21d129a8c5124613580de4d52ce2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add a test for the filter and plot the frequency response
+
+ create mode 100644 tests/lib/gst/e-filter-svf.c
+
+commit c36a3bed96c93c2a16920af0ff32e894ef2a2ae6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    filter-svf: add images to docs
+
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_bandpass_0.50.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_bandstop_0.50.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_hipass_0.50.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_filter-svf_lowpass_0.50.svg
+
+commit 6e969e74f55b9bb4fc49931c1d18a0cff560ff47
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: prefix images with component name
+
+ delete mode 100644 docs/reference/bt-gst/images/lt-bt_gst_blue_noise.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_osc-synth_blue_noise.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_osc-synth_pink_noise.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_osc-synth_red__brownian__noise.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_osc-synth_sample_and_hold.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_osc-synth_saw.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_osc-synth_silence.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_osc-synth_sine.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_osc-synth_square.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_osc-synth_triangle.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_osc-synth_violet_noise.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_osc-synth_white_gaussian_noise.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_osc-synth_white_noise.svg
+ delete mode 100644 docs/reference/bt-gst/images/lt-bt_gst_pink_noise.svg
+ delete mode 100644 docs/reference/bt-gst/images/lt-bt_gst_red__brownian__noise.svg
+ delete mode 100644 docs/reference/bt-gst/images/lt-bt_gst_sample_and_hold.svg
+ delete mode 100644 docs/reference/bt-gst/images/lt-bt_gst_saw.svg
+ delete mode 100644 docs/reference/bt-gst/images/lt-bt_gst_silence.svg
+ delete mode 100644 docs/reference/bt-gst/images/lt-bt_gst_sine.svg
+ delete mode 100644 docs/reference/bt-gst/images/lt-bt_gst_square.svg
+ delete mode 100644 docs/reference/bt-gst/images/lt-bt_gst_triangle.svg
+ delete mode 100644 docs/reference/bt-gst/images/lt-bt_gst_violet_noise.svg
+ delete mode 100644 docs/reference/bt-gst/images/lt-bt_gst_white_gaussian_noise.svg
+ delete mode 100644 docs/reference/bt-gst/images/lt-bt_gst_white_noise.svg
+
+commit cd08e7bb2c30675a8b6f858d0581e634f22e8e87
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-window: add main accel group to make menu keys work everywhere
+
+
+commit 665b4791d8dd4599d0d6fb892b98f987f7593480
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    help: fix typo in manual
+
+
+commit 0d197fb3c37ccc23ce7f3aeece3ea9586755eeba
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    menu: add menu accelerator keys
+
+
+commit a072bc7f68c587cdb70e1d8d2043e2e83586d84a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    rendering: add more error handling and logging
+
+
+commit d750dc02d898e8ea2b2a3e509136da244e8b42c2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine-properties: add border spacing
+
+
+commit f0b36969ea57deff192e11b101fbe4cf16e127e5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bml: add info on init ordering
+
+
+commit 7b01e4189fcbc7dbaea8ea7b05e041be82a76d5f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    osc-wave: fix buffer overrun in s&h wave
+
+
+commit b970ca5d10dbd0cefd00d5bb6f363df68681f190
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add ref-check check macros for gst_object
+
+
+commit 88d89aabf8a119dea4c4f79e3361368ad805656e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    test: improve valgrind rules
+
+
+commit 2301746b3908bfe68f027ae4c2a08d8fa2d23745
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bt-dec: don't push eos if pad is NULL
+
+
+commit 773b48894ed7d0fdac9f6221dd95f6588b030798
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    presets: dist presets for our own audio elements
+
+ create mode 100644 src/gst/audio/GstBtEBeats.prs
+ create mode 100644 src/gst/audio/GstBtSimSyn.prs
+
+commit c6dae0e3ee8c95bb89c9811bf48b6f2be8014071
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ebeats: add a new synthesizer element for drum sounds
+
+ create mode 100644 src/gst/audio/ebeats.c
+ create mode 100644 src/gst/audio/ebeats.h
+
+commit 02a33b17793dde97b217c7cf01b90d2f5d739009
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: update planning for the plugins
+
+
+commit 48228d285042af761eb65e356bde8d4c2759c44c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    combine: add a mixing module
+
+ create mode 100644 src/lib/gst/combine.c
+ create mode 100644 src/lib/gst/combine.h
+
+commit e3585ffdb413d0eef609d495e0086a0dadc28dca
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    envelope: use the envelopes through a controlbinding
+
+ create mode 100644 src/lib/gst/gstdirectcontrolbinding.c
+ create mode 100644 src/lib/gst/gstdirectcontrolbinding.h
+
+commit b4c7cd903731c4e9fe86b6b8ae0aee42e6bfce20
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    osc-synth: add a volume property
+
+
+commit b491b3f08938a0d1fa94dea3a13e618fa863fb7f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    envelope: make envelopes control-sources
+
+
+commit 0388e7b1c8446955612621fb724f6ad84ebd74bc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    envelope: rework them to be closer to how the controller works
+
+
+commit 519990c47748733ead1c155acffee797e061321d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: use local image paths
+
+
+commit a76cdc48ec0d692509b2ad2c7bca39dc56bfca2a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: planning
+
+
+commit 41eab4f5ff36519f2b36dfde22506055cc6689c7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: remove the '_' from the plot title
+
+
+commit 4319c0f63087f65b604851077ae4b9f73eecb123
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    plugins: also allow overriding nick/blurb
+
+
+commit 8e60e534dc7005190bb210eb06e7482b1576e488
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: remove obsolete file
+
+ delete mode 100644 docs/reference/bt-gst/gst-buzztrax-sections.txt
+
+commit d4e5dbdcbfa9239f36581f25a94ed9ad486adcfe
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    envelope: add envelope-ad to the docs and images fro envelope-d
+
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_envelope-d_0.00.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_envelope-d_0.25.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_envelope-d_0.50.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_envelope-d_0.75.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_envelope-d_1.00.svg
+
+commit bc430bb633cf7ccabe921d99864c2d9b5e505c8d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add a test for envelop_d
+
+ create mode 100644 tests/lib/gst/e-envelope-d.c
+
+commit 8a84ae484cb42450c0177ac4c87e90453659f2a0
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    envelope-d: first reset and then change the mode
+
+
+commit 50f3cce5b80e7a67c7dfbf9d54071eee0170fbae
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    envelope: expand range for 'value'
+
+
+commit f6eda970eaa9706a2ad9c03ce1f8c5ab63f0ff24
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    osc-synth: add images to the docs
+
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_blue_noise.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_pink_noise.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_red__brownian__noise.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_sample_and_hold.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_saw.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_silence.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_sine.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_square.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_triangle.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_violet_noise.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_white_gaussian_noise.svg
+ create mode 100644 docs/reference/bt-gst/images/lt-bt_gst_white_noise.svg
+
+commit 91125f3ab1452784698e13d4ae103d5dd0a966fb
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    osc-synth: fix broken oscillatiors
+
+
+commit 5fd8f93f3886ea7aa2b1d5fa8b26558df86daa94
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add a testsuite for the osc-synth component
+
+ create mode 100644 tests/lib/gst/e-osc-synth.c
+
+commit 8df65210f556b3fba5bd28e2febfc8681da61f3e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: use local headers
+
+
+commit 725be968de4ab3c54b7324bf6521cc6bdf311618
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: rename test module
+
+ delete mode 100644 tests/lib/gst/e-gst-note2frequency.c
+ create mode 100644 tests/lib/gst/e-toneconversion.c
+ delete mode 100644 tests/lib/gst/t-gst-note2frequency.c
+ create mode 100644 tests/lib/gst/t-toneconversion.c
+
+commit 060fbfaba782c972def1b6ea77906cbf8d541147
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sink-bin: add more error handling
+
+
+commit 94ac544bd6bafff7caed0b0b88ce6d4692c64158
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    osc-synth: add a sample-and-hold waveform
+
+
+commit 5712442479adc2685a738993f2bdeacc1dd58d93
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    osc-synth: optimize inner osc loops
+
+
+commit e0f8d9ba1a8546695958de49b15012039ffe71ce
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    envelope_d: add a curve property for non-linear fades
+
+
+commit d717a6295762c578fc703a78fe55f15a4ed5da9a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    osc-synth: enable silence for tonal waves as well
+
+
+commit aeab37434ae1714df84297c138e9a2683a517072
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    plugin: sync the param hack further with glib code
+
+
+commit de355543e5484e2611781a1f7893a2146f09e6e9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    simsyn: add a attack-decay envelope and use in simsyn
+
+ create mode 100644 src/lib/gst/envelope-ad.c
+ create mode 100644 src/lib/gst/envelope-ad.h
+
+commit 1f3021d8d5041462a25d6a89ad7e4144b4b9ab4e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    enveloper: don't hardcode the level-range
+
+
+commit 130536472df266bbc42941a58afefe4c2be26709
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine-prperties-dialog: add more logging
+
+
+commit 5f0024d72485f552772f3cf36a628b78651e61ad
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    envelope: make envelopes more generic
+
+
+commit e1315ffdcf532065ea718ac393f29ab5cdc75e3d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    osc: use new glib functions to setup properties
+
+
+commit d0afa5531c6f04fc411ef18b1683c4574b0c1f80
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    osc-synth: add two more enums with separate tonal and noise waves
+
+
+commit f64c24e830ee1f17518341520cbc53900540f56e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    osc-synth: move the ampf param out of the helper
+
+
+commit 789f3a7cb62f252c14bb9807fd01850952425bfb
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    plugins: drop the flags param in the helper
+
+
+commit b527c293d8523e1a23301b699e93bcb54992398e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    osc-wave: fix copy'n'paste of debug category
+
+
+commit 6056af7190a9feb2c1476895312d9889e252766f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    plugins: use gst-launch-1.0
+
+
+commit 3bb8d54085b5880467cba9806da6cf7ed3c47fcd
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    audiosynth: ensure generate_samples_per_buffer is updated
+
+
+commit 3195858127ffcaea905432fdb0d005e1a139b7cc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tools: remove obsolete comment
+
+
+commit be0d8403a09067276e7addac9f5a53c10d86dc86
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    toolbar: fix button type
+
+
+commit 09e40153b2dfcea404228e2cf798bf918cea44aa
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    clutter-items: use pivot_point instead of the anchor_point
+
+
+commit 0ca1b1d8b4e41fa89600f2b85c02dfe94abe8e25
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    clutter-items: drop clutter_actor_show_all()
+
+
+commit d5d23354e4a48a0808b931948e197a3f2939243e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-machines: introduce a new css color for the machine bg
+
+
+commit e43d05bf077379a4ae93783bf4fa7d15a5485d35
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ui: avoid the deprecated g_value_array_get_nth
+
+
+commit b9387081f00aa6d6e0d366022038b59bda8117fe
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-machines: use the define instead of a literal string
+
+
+commit 3eb14defe6b2f030186ac7319075207c811bfd81
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern-editor: use gtk_style_context_get instead of the deprecated api
+
+
+commit 2c417801e3020a6ed5487e126792cef380882910
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ui: conditionally use gtk_container_add() for scrolled_windows
+
+
+commit 1c7f1a9fa8f015d2e60f02b3d09339bd3fd7e7b4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ui: replace deprecated stock api api for toolbars
+
+
+commit c620cef4239d29837d0ecb346e27261004b21439
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ui: remove usage of stock defines in gtk_dialog_new_with_buttons()
+
+
+commit 18263543ee0f844ea295d440763cdacb3fcbdcbd
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ui: strip all icons from menus
+
+
+commit 376168521b2c20c98b7c791fdb5ca58760953d4f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ui: remove usage of stock defines in gtk_file_chooser_dialog_new()
+
+
+commit 95a31f2de84a755b66291aa4c8835586accbe123
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ui: remove usage of stock defines in gtk_dialog_add_button{,s}()
+
+
+commit ef2bf2d2752441367c5086f01387bd0c3f073e56
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ui: migrate from gtk_button_new_from_stock()
+
+
+commit 69cbca685d566a62fb2ca9594b39ab6222b5a1ba
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: add bml gdb tips
+
+
+commit dce5a73ebe54500cccc51ff5e4b9326672252aac
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    edit-application: add todo
+
+
+commit 4177c196094d1485fd23a149e123b7359506a313
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    dllwrapper: use the existing log handler
+
+
+commit bbf5423e7eb5b509ffd7e629dae4f73c2223b3d0
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    dllwrapper: use USE_DEBUG to enable extra logging
+
+
+commit b03f3beca1a65098cc5e29bf2fddb36ce2f0caa6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    BuzzMachineLoader: add a win console app to test our code on windows
+
+ create mode 100644 src/lib/bml/BuzzMachineLoader/BuzzMachineTester.cpp
+ create mode 100644 src/lib/bml/BuzzMachineLoader/BuzzMachineTester.vcproj
+
+commit 6f7ce9ee256b9aa175f22435afb1fa3bb0eb5c59
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    testmachine.sh: use ulimit to sandbox the tests a bit
+
+
+commit ee8484277e1f90274b4938b08beea62ad58ba18d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    BuzzMachineLoader: don't call Init() on mdk
+
+
+commit e077d828fc5aa9ac974f9560b31143bd7f9553fc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    BuzzMachineLoader: .suo files are user settings
+
+ delete mode 100644 src/lib/bml/BuzzMachineLoader/BuzzMachineLoader.suo
+
+commit c2f52a9b9b5de60579358aeb0873bac6e469393f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    BuzzMachineLoader: add more logging
+
+
+commit 47a629cce4fd3757771d2e0504b5d75b36258f27
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    README: update requirements section and sync with wiki
+
+
+commit e09cf85a83cd28326313d646098446315360d37e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    cofigure.ac: fix the gtk prefix check for doc xrefs
+
+
+commit 094a0d86f2a59d1f52c8bf918c655f448960387b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    configure: quote the test
+
+
+commit df97b933540d113d8f8eeaa2ac1a145a2f79c83d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    BuzzmachineLoader: fix compiler warning and update the win32 build
+
+
+commit 4e05d31d7c56eccc13954eec5d57d2c7086960cd
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    buzzmachienloader: code cleanup
+
+ delete mode 100644 src/lib/bml/BuzzMachineLoader/BuzzMDKHelper.cpp
+ delete mode 100644 src/lib/bml/BuzzMachineLoader/BuzzMDKHelper.h
+ delete mode 100644 src/lib/bml/BuzzMachineLoader/BuzzMachine.h
+ delete mode 100644 src/lib/bml/BuzzMachineLoader/BuzzMachineVirtualCallbacks.cpp
+ create mode 100644 src/lib/bml/BuzzMachineLoader/CLibInterface.h
+ create mode 100644 src/lib/bml/BuzzMachineLoader/CMICallbacks.h
+ delete mode 100644 src/lib/bml/BuzzMachineLoader/bw.h
+ delete mode 100644 src/lib/bml/BuzzMachineLoader/dsplib.h
+ delete mode 100644 src/lib/bml/BuzzMachineLoader/mdk.h
+ delete mode 100644 src/lib/bml/BuzzMachineLoader/resample.h
+ create mode 100644 src/lib/bml/dsplib/bw.h
+ create mode 100644 src/lib/bml/dsplib/dsplib.h
+ create mode 100644 src/lib/bml/dsplib/resample.h
+
+commit 8d18d44916f17f10157cc5c7171c89037f2874ac
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    BuzzMachineLoader: initialize more fields in CMachine
+
+
+commit c4c91fe96bd8667cd582176eee60b9ecd7fee9e0
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    BuzzMachineLoader: use 0x%p in loggging
+
+
+commit d770529d982e3ca8f5a076193ce5dc7095fa503c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    BuzzMachineLoader: move some initialisation up
+
+
+commit c526b567024857ad2095e2d6c3fa3331bca20406
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bml: formatting
+
+
+commit 80cdc942f63fd09a6fadf9d82a408ab4813eb37c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    BuzzMachineLoader: remove the ncb file
+
+ delete mode 100755 src/lib/bml/BuzzMachineLoader/BuzzMachineLoader.ncb
+
+commit 8c4a390bf96c375697ad6d8b32fe9b5e36c89682
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    BuzzMachineLoader: more logging and comments
+
+
+commit 35ad285b2d394ba64d647dc8ec7203c1d002398e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    testmachine.sh: add another example for log post processing
+
+
+commit 645b48224fde461b1d711c13ce9d39fe31ab9720
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    BuzzMachineLoader: increase compatibility
+
+
+commit 50cb4db71c40d7b0d87b80c06b9a257895f2e706
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    change-log: planning update
+
+
+commit 437de07502a1d1565611777f89bdc8260392ec32
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    testmachine.sh: check for bad glob
+
+
+commit 456871b80b2bc63784ce350eaf52cef90b36d936
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    stat: there is no need to zero the stat buffer
+
+
+commit 270522c5b77c9c4f9ca28197f4a56ec2a0299a69
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bmlhost: don't hardcode the backlog size
+
+
+commit 52a6b0ba77f70e2149363484b5acacf319d3ea24
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bmlhost: bump the connection backlog size
+
+
+commit f1050db55f685a2c579a378caf6f0583c6d97287
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bmlipc: add logging for error cases
+
+
+commit bfe306281a39d8a35e5ac974cb02cc73fec64cef
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bmlhost: clear the outputbuffer
+
+
+commit 22fcf7d67fae9833d7d003e6cf5f29288ceb0d96
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bml: remove left over comment
+
+
+commit 710420b9f7b3bf7de342161405c5e8d7be0410e6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bmlipc: use the abstract namespace instead of a filesystem entry
+
+
+commit 708b3a18139ccff8ebab8b31909c0ff844e5f92d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    i18n: add translator hint
+
+
+commit f7f439efd38055810b946996f14eda94f4b1f380
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    edit-application: show errors from loading songs passed via cmdline
+
+
+commit 210dba9cd76473f136c7df3b77d7070853249f16
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    song-io: move the status message code into the base class
+
+
+commit 6f436c764b54616ded1043046987ac2b783aa346
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    value-group: fix doc link
+
+
+commit 98f34e504eb6ce74161ddcb1dbeaec97b361c0aa
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern-editor: use queue_resize when setting the pattern size
+
+
+commit ae7c563743ef24c09f53f744fe09b39d1456f4dc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    release: back to development
+
