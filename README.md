@@ -67,11 +67,6 @@ environment variables. To use the apps these variables are enough:
     export XDG_DATA_DIRS="$XDG_DATA_DIRS:$HOME/buzztrax/share"
     update-mime-database $HOME/buzztrax/share/mime/
 
-to see the manual in yelp, you can skip this if reading the help
-from buzztrax-edit's help menu is good enough for you:
-
-    export OMF_DIR="$OMF_DIR:$HOME/buzztrax/share/omf"
-
 Likewise for the man-pages to be found:
 
     export MANPATH=\$MANPATH:$prefix/share/man

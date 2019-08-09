@@ -15,8 +15,7 @@ DISTCHECK_CONFIGURE_FLAGS = \
   --enable-debug \
 	--disable-update-desktop \
 	--disable-update-mime \
-	--disable-update-icon-cache \
-  --disable-scrollkeeper
+	--disable-update-icon-cache
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
@@ -43,8 +42,6 @@ EXTRA_DIST = \
 	intltool-merge.in \
 	intltool-update.in \
 	COPYING-DOCS \
-	omf.make \
-	xmldocs.make \
 	README.md TODO \
 	docs/version.entities.in \
 	docs/buzztrax.xsd \
@@ -150,8 +147,6 @@ uninstall-hook: update-icon-cache update-desktop-db update-mime-db
 ## We get warnings for left-over files when doing 'make distuninstallcheck'
 distuninstallcheck_listfiles = find . -type f -print
 
-## Workaround for scrollkeeper bug
-distuninstallcheck_listfiles += | grep -v '/var/scrollkeeper'
 ## Workaround for installing files in own prefix
 distuninstallcheck_listfiles += | grep -v '/share/mime'
 ## Workaround for installing icon theme in own prefix

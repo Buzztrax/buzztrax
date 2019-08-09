@@ -543,8 +543,8 @@ on_menu_help_activate (GtkMenuItem * menuitem, gpointer user_data)
   //BtMainMenu *self=BT_MAIN_MENU(user_data);
   GST_INFO ("menu help event occurred");
 
-  // use "ghelp:buzztrax-edit?topic" for context specific help
-  gtk_show_uri_simple (GTK_WIDGET (menuitem), "ghelp:buzztrax-edit");
+  // use "help:buzztrax-edit?topic" for context specific help
+  gtk_show_uri_simple (GTK_WIDGET (menuitem), "help:buzztrax-edit");
 }
 
 static void

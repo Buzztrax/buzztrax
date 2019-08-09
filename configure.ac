@@ -505,26 +505,12 @@ AC_ARG_ENABLE(man,
 AC_PATH_PROG([XSLTPROC], [xsltproc])
 AM_CONDITIONAL(ENABLE_MAN, test x$enable_man != xno)
 
-dnl Check for scrollkeeper
-AC_PATH_PROG(scrollkeeper_config, scrollkeeper-config, no)
-if test x$scrollkeeper_config = xno; then
-  have_scrollkeeper=no
-  AC_MSG_WARN([Couldn't find scrollkeeper-config, please install the scrollkeeper package])
-dnl  if test x$xsltproc = xno; then
-dnl    AC_MSG_WARN([Couldn't find xsltproc, please install the libxml/libxslt package])
-dnl  fi
-else
-  have_scrollkeeper=yes
-fi
-AM_CONDITIONAL(ENABLE_SCROLLKEEPER, test x$scrollkeeper_config != xno)
-SCROLLKEEPER_BUILD_REQUIRED=0.3.5
-AC_SUBST(SCROLLKEEPER_BUILD_REQUIRED)
-
+dnl User Documentation
+YELP_HELP_INIT
 
 dnl Check for aspell (spellcheck the docs)
 AC_CHECK_PROGS(ASPELL,[aspell],[])
 AM_CONDITIONAL(WITH_ASPELL,[test "x$ASPELL" != "x"])
-
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -682,7 +668,6 @@ AC_CONFIG_FILES(Makefile \
   docs/version.entities \
   docs/help/bt-edit/Makefile \
   docs/help/bt-edit/C/Makefile \
-  docs/help/bt-edit/C/buzztrax-edit-C.omf \
   docs/reference/bt-cmd/Makefile \
   docs/reference/bt-core/Makefile \
   docs/reference/bt-core/buzztrax-core.types \
@@ -717,7 +702,6 @@ Configuration
 
 	Documentation (API)             : ${enable_gtk_doc}
 	Documentation (Man)             : ${enable_man}
-	Documentation (User)            : ${have_scrollkeeper}
 	Bindings Metadata (GIR)         : ${enable_gir}
 
 	Alsa seq. for interaction ctrl. : ${use_alsa}

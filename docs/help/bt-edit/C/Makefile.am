@@ -1,52 +1,18 @@
-figdir = figures
-docname = buzztrax-edit
-lang = C
-omffile = buzztrax-edit-C.omf
-entities = legal.xml version.entities
-
-all-local:
-	@-chmod -R u+w $(srcdir)
-	@cp $(top_builddir)/docs/version.entities $(srcdir)/version.entities
-
-clean-local:
-	-@rm -f version.entities
-
-# FIXME: only do this if ENABLE_SCROLLKEEPER ?
-include $(top_srcdir)/xmldocs.make
-dist-hook: app-dist-hook
-
 # make a pdf using dblatex
 # - it seems unneccesarily hard to get our logo onto the titlepage
 # - we tried all sort of customizations (	 -p dblatex_pdf.xsl )
-buzztrax-edit.pdf: buzztrax-edit.xml dblatex_pdf.xsl
+buzztrax-edit.pdf: index.docbook dblatex_pdf.xsl
 	dblatex \
 	  -o buzztrax-edit.pdf \
 	  -I figures \
-	  buzztrax-edit.xml
+	  index.docbook
 
-buzztrax-edit.txt: buzztrax-edit.xml
+buzztrax-edit.txt: index.docbook
 	xmlto txt buzztrax-edit.xml
-
-buzztrax-edit2.pdf: buzztrax-edit.xml
-	xsltproc \
-	  --stringparam paper.type A4 \
-	  --stringparam fop.extentions 1 \
-	  --stringparam fop1.extentions 1 \
-	  --stringparam admon.graphics 1 \
-		http://docbook.sourceforge.net/release/xsl/current/fo/fo.xsl \
-		buzztrax-edit.xml >buzztrax-edit.fo; \
-	fop -fo buzztrax-edit.fo -pdf buzztrax-edit.pdf
 
 # statistics for index building:
 # sed -e 's/[[:space:]]\+/\n/g' buzztrax-edit.txt | sed 's/[,.\(\)"]//g' | egrep -v '^ *$' | sort -f | uniq -ic | sort -n
 # sed -e 's/[[:space:]]\+/\n/g' buzztrax-edit.txt | sed 's/[,.\(\)"]//g' | egrep -v '^ *$' | egrep -v '^..?$' | sort -f | uniq -ic | sort -n
-
-
-# here we should
-# a) invoke xslproc, if available
-# stylesheet=/opt/gnome/share/sgml/docbook/yelp/docbook/html/docbook.xsl
-# xsltproc --nonet $(stylesheet) $(docname).xml
-# b) simple install pregenerated html (pdf)
 
 # this relies on particular names in the tests
 # it would be nicer to fix the names in the tests and apply some rule:
@@ -131,8 +97,5 @@ update_figures:
 	if [ -e "$$base/buzztrax_settings_ui.png" ]; then \
 	  pngtopnm "$$base/buzztrax_settings_ui.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-ui.png; \
 	fi;
-
-## add shadows (now integrated above)
-## for PNG in *.png; do pngtopnm "$PNG" | ../../../mk-shadow.sh | pnmtopng > "${PNG//.png}"-with-shadow.png
 
 .PHONY: update-figures
