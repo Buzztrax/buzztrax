@@ -6,9 +6,7 @@ HELP_FILES = \
 	legal.xml \
 	version.entities
 
-# TODO(ensonic): not complete list, see update_figures
-HELP_MEDIA = \
-  figures/main-window.png
+HELP_MEDIA = $(patsubst C/%,%,$(wildcard C/figures/*.png))
 
 # We have no translation for the manual
 HELP_LINUAGS =
