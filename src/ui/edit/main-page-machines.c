@@ -1575,7 +1575,9 @@ on_canvas_style_updated (GtkStyleContext * style_ctx, gconstpointer user_data)
   gtk_style_context_lookup_color (style_ctx, "new_wire_bad",
       &self->priv->wire_bad_color);
 
-  clutter_content_invalidate (self->priv->grid_canvas);
+  if (self->priv->grid_canvas) {
+    clutter_content_invalidate (self->priv->grid_canvas);
+  }
 }
 
 //-- helper methods
