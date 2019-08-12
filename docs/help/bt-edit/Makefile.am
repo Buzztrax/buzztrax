@@ -3,22 +3,24 @@ HELP_ID = buzztrax-edit
 
 HELP_FILES = \
 	index.docbook \
-	legal.xml \
-	version.entities
+	legal.xml
 
 HELP_MEDIA = $(patsubst C/%,%,$(wildcard C/figures/*.png))
+HELP_MEDIA += \
+	version.entities
 
 # We have no translation for the manual
 HELP_LINUAGS =
 
+C/version.entities: $(abs_top_srcdir)/docs/version.entities
+	@cp $< $@
+
+CLEANFILES = C/version.entities
+
+
 SUBDIRS = C
 
 EXTRA_DIST = C/aspell.pws
-
-version.entities: $(abs_top_srcdir)/docs/version.entities
-	@cp $< $@
-
-CLEANFILES = version.entities
 
 if WITH_ASPELL
 check-local:
