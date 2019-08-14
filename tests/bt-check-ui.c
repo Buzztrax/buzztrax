@@ -352,9 +352,26 @@ make_screenshot (GtkWidget * widget)
   gtk_widget_queue_draw (widget);
   flush_main_loop ();
 
-  // TODO: cairo_surface_flush()
-
   gdk_window_get_geometry (window, NULL, NULL, &ww, &wh);
+
+  const cairo_rectangle_int_t c_rect = { 0, 0, ww, wh };
+  cairo_region_t *c_region = cairo_region_create_rectangle (&c_rect);
+  if (c_region) {
+    GdkDrawingContext *dc = gdk_window_begin_draw_frame (window, c_region);
+    if (dc) {
+      cairo_t *cr = gdk_drawing_context_get_cairo_context (dc);
+      cairo_surface_t *surface = cairo_get_target (cr);
+      cairo_surface_flush (surface);
+
+      gdk_window_end_draw_frame (window, dc);
+    } else {
+      GST_WARNING ("failed to begin_draw_frame");
+    }
+    cairo_region_destroy (c_region);
+  } else {
+    GST_WARNING ("failed to create cairo region");
+  }
+
   return gdk_pixbuf_get_from_window (window, 0, 0, ww, wh);
 }
 
