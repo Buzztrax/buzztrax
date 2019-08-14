@@ -58,11 +58,11 @@ fi
 echo -n " docs-valid"
 checks=$(($checks+1))
 # test the docs
-xmllint $XML_OPTS --xinclude --postvalid $srcdir/docs/help/bt-edit/C/buzztrax-edit.xml
+xmllint $XML_OPTS --xinclude --postvalid $srcdir/docs/help/bt-edit/C/index.docbook
 if [ $? -ne 0 ]; then
   # this can fail it the dtd is not install, fallback to simple validity check
   # I/O error : Attempt to load network entity http://www.oasis-open.org/docbook/xml/4.7/docbookx.dtd
-  xmllint $XML_OPTS --xinclude $srcdir/docs/help/bt-edit/C/buzztrax-edit.xml
+  xmllint $XML_OPTS --xinclude $srcdir/docs/help/bt-edit/C/index.docbook
   if [ $? -ne 0 ]; then
     res=1
     fails=$(($fails+1))
