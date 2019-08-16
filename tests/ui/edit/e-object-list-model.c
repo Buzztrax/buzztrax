@@ -71,7 +71,7 @@ test_bt_object_list_model_create (BT_TEST_ARGS)
   fail_unless (model != NULL, NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_unref (model);
+  g_object_unref (g_object_ref_sink (model));
   BT_TEST_END;
 }
 
@@ -95,7 +95,7 @@ test_bt_object_list_model_add_entry (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   g_object_unref (l1);
-  g_object_unref (model);
+  g_object_unref (g_object_ref_sink (model));
   BT_TEST_END;
 }
 
