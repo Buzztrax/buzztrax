@@ -72,4 +72,7 @@ void bt_notify_idle_dispatch (GObject *object, GParamSpec *pspec, gpointer user_
 /* gtk compat helper */
 void bt_gtk_workarea_size (gint * max_width, gint * max_height);
 
+
+char *bt_strjoin_list (GList *list);
+
 #endif // BT_EDIT_TOOLS_H

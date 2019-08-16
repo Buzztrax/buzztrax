@@ -78,23 +78,13 @@ static void
 make_listview (GtkWidget * vbox, GList * missing_elements, const gchar * msg)
 {
   GtkWidget *label, *missing_list, *missing_list_view;
-  GList *node;
-  gchar *missing_text, *ptr;
-  gint length = 0;
+  gchar *missing_text;
 
   label = gtk_label_new (msg);
   g_object_set (label, "xalign", 0.0, NULL);
   gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
 
-  for (node = missing_elements; node; node = g_list_next (node)) {
-    length += 2 + strlen ((gchar *) (node->data));
-  }
-  ptr = missing_text = g_malloc (length);
-  for (node = missing_elements; node; node = g_list_next (node)) {
-    length = g_sprintf (ptr, "%s\n", (gchar *) (node->data));
-    ptr = &ptr[length];
-  }
-  ptr[-1] = '\0';               // remove last '\n'
+  missing_text = bt_strjoin_list (missing_elements);
 
   missing_list = gtk_text_view_new ();
   gtk_text_view_set_cursor_visible (GTK_TEXT_VIEW (missing_list), FALSE);
@@ -300,6 +290,7 @@ bt_missing_framework_elements_dialog_apply (const
       machine_ignore_list = g_realloc (machine_ignore_list, length);
     }
     if (machine_ignore_list) {
+      // TODO(ensonic):: refactor to reuse code in tools/bt_strjoin_list()
       ptr = &machine_ignore_list[offset];
       for (node = edit_elements; node; node = g_list_next (node)) {
         length = g_sprintf (ptr, "%s,", (gchar *) (node->data));

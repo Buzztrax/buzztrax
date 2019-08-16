@@ -1143,6 +1143,7 @@ gtk_toggle_tool_button_new_from_icon_name
 BtNotifyFunc
 bt_notify_idle_dispatch
 bt_gtk_workarea_size
+bt_strjoin_list
 <SUBSECTION Private>
 BOX_BORDER
 LABEL_PADDING

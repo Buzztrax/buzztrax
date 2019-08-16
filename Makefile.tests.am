@@ -116,7 +116,7 @@ libbt_check_ui_la_CFLAGS = $(GUI_DEPS_CFLAGS) $(CHECK_CFLAGS)
 libbt_check_ui_la_SOURCES = \
 	tests/bt-check-ui.c tests/bt-check-ui.h
 
-# Oh dear, litool. We need to add the -rpath in LDFLAGS to force it to build
+# Oh dear, libtool. We need to add the -rpath in LDFLAGS to force it to build
 # a .so instead of only the .la (deficiency of check_LTLIBRARIES instead of
 # lib_LTLIBRARIES)
 # - https://lists.gnu.org/archive/html/automake/2005-10/msg00107.html
@@ -308,6 +308,7 @@ libbt_edit_check_la_SOURCES = tests/ui/edit/m-bt-edit.h \
 	tests/ui/edit/e-settings-dialog.c \
 	tests/ui/edit/e-signal-analysis-dialog.c \
 	tests/ui/edit/e-tip-dialog.c \
+	tests/ui/edit/e-tools.c \
 	tests/ui/edit/e-ui-resources.c \
 	tests/ui/edit/e-wave-list-model.c \
 	tests/ui/edit/e-wavelevel-list-model.c \

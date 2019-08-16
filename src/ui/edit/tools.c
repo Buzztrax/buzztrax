@@ -28,6 +28,7 @@
 #define BT_TOOLS_C
 
 #include "bt-edit.h"
+#include <glib/gprintf.h>
 
 /**
  * gdk_pixbuf_new_from_theme:
@@ -55,13 +56,7 @@ gdk_pixbuf_new_from_theme (const gchar * name, gint size)
     GST_WARNING ("Couldn't load %s %dx%d icon: %s", name, size, size,
         error->message);
     g_error_free (error);
-    /* TODO(ensonic): machine icons are in 'gnome' theme, how can we use this as a
-     * fallback
-     * gtk_icon_theme_set_custom_theme(it,"gnome");
-     * is a bit brutal
-     */
     return gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, size, size);
-    //return NULL;
   } else {
     GdkPixbuf *result = gdk_pixbuf_copy (pixbuf);
     g_object_unref (pixbuf);
@@ -177,13 +172,14 @@ gtk_show_uri_simple (GtkWidget * widget, const gchar * uri)
   g_return_if_fail (uri);
 
 #if GTK_CHECK_VERSION (3, 22, 0)
-    GtkWidget *toplevel = gtk_widget_get_toplevel (widget);
-    if (!gtk_widget_is_toplevel (toplevel)) {
-      GST_WARNING ("Failed lookup widgets window\n");
-    }
-    GtkWindow *window = GTK_WINDOW(toplevel);
+  GtkWidget *toplevel = gtk_widget_get_toplevel (widget);
+  if (!gtk_widget_is_toplevel (toplevel)) {
+    GST_WARNING ("Failed lookup widgets window\n");
+  }
+  GtkWindow *window = GTK_WINDOW (toplevel);
 
-  if (!gtk_show_uri_on_window (window, uri,gtk_get_current_event_time (), &error)) {
+  if (!gtk_show_uri_on_window (window, uri, gtk_get_current_event_time (),
+          &error)) {
     GST_WARNING ("Failed to display help: %s\n", error->message);
     g_error_free (error);
   }
@@ -407,9 +403,8 @@ bt_gtk_workarea_size (gint * max_width, gint * max_height)
 {
 #if GTK_CHECK_VERSION (3, 22, 0)
   GdkRectangle area;
-  gdk_monitor_get_workarea (
-      gdk_display_get_primary_monitor (gdk_display_get_default ()),
-      &area);
+  gdk_monitor_get_workarea (gdk_display_get_primary_monitor
+      (gdk_display_get_default ()), &area);
   if (max_width)
     *max_width = area.width;
   if (max_height)
@@ -425,4 +420,36 @@ bt_gtk_workarea_size (gint * max_width, gint * max_height)
   if (max_height)
     *max_height = gdk_screen_get_height (screen) - 80;
 #endif
+}
+
+/**
+ * bt_strjoin_list:
+ * @list: a list of test nodes
+ *
+ * Concatenates the strings using a newline. There is no final newline.
+ *
+ * Returns: a new string, Free after use.
+ */
+gchar *
+bt_strjoin_list (GList * list)
+{
+  GList *node;
+  gchar *str, *ptr;
+  gint length = 0;
+
+  if (!list) {
+    return NULL;
+  }
+
+  for (node = list; node; node = g_list_next (node)) {
+    length += 2 + strlen ((gchar *) (node->data));
+  }
+  ptr = str = g_malloc (length);
+  for (node = list; node; node = g_list_next (node)) {
+    length = g_sprintf (ptr, "%s\n", (gchar *) (node->data));
+    ptr = &ptr[length];
+  }
+  ptr[-1] = '\0';               // remove last '\n'
+
+  return str;
 }

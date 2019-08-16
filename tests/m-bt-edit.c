@@ -72,6 +72,7 @@ BT_TEST_SUITE_E ("BtSequenceGridModel", bt_sequence_grid_model);
 BT_TEST_SUITE_E ("BtSettingsDialog", bt_settings_dialog);
 BT_TEST_SUITE_E ("BtSignalAnalysisDialog", bt_signal_analysis_dialog);
 BT_TEST_SUITE_E ("BtTipDialog", bt_tip_dialog);
+BT_TEST_SUITE_E ("BtTools", bt_tools);
 BT_TEST_SUITE_E ("BtUIResources", bt_ui_resources);
 BT_TEST_SUITE_E ("BtWaveListModel", bt_wave_list_model);
 BT_TEST_SUITE_E ("BtWavelevelListModel", bt_wavelevel_list_model);
@@ -210,6 +211,7 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, bt_settings_dialog_suite ());
   srunner_add_suite (sr, bt_signal_analysis_dialog_suite ());
   srunner_add_suite (sr, bt_tip_dialog_suite ());
+  srunner_add_suite (sr, bt_tools_suite ());
   srunner_add_suite (sr, bt_ui_resources_suite ());
   srunner_add_suite (sr, bt_wave_list_model_suite ());
   srunner_add_suite (sr, bt_wavelevel_list_model_suite ());
