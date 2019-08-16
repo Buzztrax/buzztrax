@@ -17,7 +17,6 @@ C/version.entities: $(abs_top_srcdir)/docs/version.entities
 
 CLEANFILES = C/version.entities
 
-
 SUBDIRS = C
 
 EXTRA_DIST = C/aspell.pws
