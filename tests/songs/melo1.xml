@@ -15,7 +15,7 @@
     <tpb>4</tpb>
     <bars>16</bars>
   </meta>
-  
+
   <setup>
     <machines>
       <machine type="sink" id="audio_sink">
@@ -24,7 +24,7 @@
           <property key="ypos" value="0.0"/>
         </properties>
       </machine>
-            
+
       <machine type="source" id="beep1" plugin-name="simsyn" voices="0">
         <globaldata name="volume" value="1.0"/>
         <properties>
@@ -67,14 +67,14 @@
         </patterns>
       </machine>
     </machines>
-    
+
     <wires>
       <wire src="beep1" dst="audio_sink" gain="1.0"/>
       <wire src="beep2" dst="audio_sink" gain="1.0" panorama="-0.5"/>
     </wires>
   </setup>
-  
-  <sequence loop="off" length="64" tracks="2">
+
+  <sequence loop="off" length="64" tracks="3">
     <labels>
       <label time="0" name="start"/>
       <label time="63" name="end"/>
