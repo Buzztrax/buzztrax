@@ -84,6 +84,7 @@
 #include "core_private.h"
 #include "sink-bin.h"
 #include <gst/audio/audio.h>
+#include <gst/audio/gstaudiobasesink.h>
 #include <gst/base/gstbasesink.h>
 #include <gst/pbutils/encoding-profile.h>
 #include <gst/pbutils/missing-plugins.h>
@@ -386,22 +387,27 @@ bt_sink_bin_set_audio_sink (const BtSinkBin * const self, GstElement * sink)
       "enable-last-sample", FALSE,
       /* try to avoid any gaps, see design/gst/underrun.c */
       "max-lateness", G_GUINT64_CONSTANT (0),
-      "discont-wait", G_GUINT64_CONSTANT (0),
       /* if we do this, live pipelines go playing, but:
        * - non-live sources don't start
        * - scrubbing on timeline and fast seeking is broken
        */
       //"async", FALSE,
-      /* default is 1: skew, this should not be required if the audio sink
-       * provides the clock
-       * trying 2: none, this helps trickplay and scrubbing, but this should be
-       * auto-selected by audiobasesink anyway since clock==provided_clock
-       */
-      "slave-method", 2,
-      //"provide-clock", FALSE,  // default is TRUE
       /* this does not lockup anymore, but does not give us better latencies */
       //"can-activate-pull",TRUE,  // default is FALSE
       NULL);
+  if (GST_IS_AUDIO_BASE_SINK (sink)) {
+    g_object_set (sink,
+        /* try to avoid any gaps, see design/gst/underrun.c */
+        "discont-wait", G_GUINT64_CONSTANT (0),
+        /* default is 1: skew, this should not be required if the audio sink
+         * provides the clock
+         * trying 2: none, this helps trickplay and scrubbing, but this should be
+         * auto-selected by audiobasesink anyway since clock==provided_clock
+         */
+        "slave-method", 2,
+        //"provide-clock", FALSE,  // default is TRUE
+        NULL);
+  }
   self->priv->audio_sink = sink;
   bt_sink_bin_configure_latency (self);
 }
