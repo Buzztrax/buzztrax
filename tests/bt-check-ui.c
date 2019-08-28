@@ -31,6 +31,8 @@
 #include <stdlib.h>
 //-- glib
 #include <glib/gstdio.h>
+//-- gdk
+#include <gdk/gdkx.h>
 //-- gstreamer
 #include <gst/gst.h>
 
@@ -215,59 +217,27 @@ check_setup_test_display (void)
     if ((display_manager = gdk_display_manager_get ())) {
       GdkScreen *default_screen;
       GtkSettings *default_settings;
-      gchar *theme_name;
 
       default_display =
           gdk_display_manager_get_default_display (display_manager);
       if ((default_screen = gdk_display_get_default_screen (default_display))) {
-        /* this block when protected by gdk_threads_enter() and crashes if not :( */
-        //gdk_threads_enter();
-        if ((default_settings = gtk_settings_get_for_screen (default_screen))) {
-          g_object_get (default_settings, "gtk-theme-name", &theme_name, NULL);
-          GST_INFO ("current theme is \"%s\"", theme_name);
-          //g_object_unref(default_settings);
-        } else
-          GST_WARNING ("can't get default_settings");
-        //gdk_threads_leave();
+
+        // TODO(ensonic): machine icons are in 'gnome' theme
+        // try to convice gtk+ to load uninstalled icons
+
+        // we already tweak the settings in bt_ui_resources_init_icons()
+
         //g_object_unref(default_screen);
       } else
         GST_WARNING ("can't get default_screen");
 
       if ((test_display = gdk_display_open (display_name))) {
-#if 0
-        GdkScreen *test_screen;
-
-        if ((test_screen = gdk_display_get_default_screen (test_display))) {
-          GtkSettings *test_settings;
-
-          if ((test_settings = gtk_settings_get_for_screen (test_screen))) {
-            // this just switches to the default theme
-            //g_object_set(test_settings,"gtk-theme-name",NULL,NULL);
-            /* Is there a bug in gtk+? None of this reliable creates a working
-             * theme setup
-             */
-            //g_object_set(test_settings,"gtk-theme-name",theme_name,NULL);
-            /* Again this shows no effect */
-            //g_object_set(test_settings,"gtk-toolbar-style",GTK_TOOLBAR_ICONS,NULL);
-            //gtk_rc_reparse_all_for_settings(test_settings,TRUE);
-            //gtk_rc_reset_styles(test_settings);
-            GST_INFO ("theme switched ");
-            //g_object_unref(test_settings);
-          } else
-            GST_WARNING ("can't get test_settings on display: \"%s\"",
-                display_name);
-          //g_object_unref(test_screen);
-        } else
-          GST_WARNING ("can't get test_screen on display: \"%s\"",
-              display_name);
-#endif
         gdk_display_manager_set_default_display (display_manager, test_display);
         GST_INFO ("display %p,\"%s\" is active", test_display,
             gdk_display_get_name (test_display));
       } else {
         GST_WARNING ("failed to open display: \"%s\"", display_name);
       }
-      //g_free(theme_name);
     } else {
       GST_WARNING ("can't get display-manager");
     }
@@ -338,22 +308,38 @@ check_shutdown_test_server (void)
 static GdkPixbuf *
 make_screenshot (GtkWidget * widget)
 {
+#if 0
+  // see gtk/docs/tools/shooter.c
+  GdkWindow *widget_window = gtk_widget_get_window (widget);
+  GdkWindow *window =
+      gdk_x11_window_foreign_new_for_display (gdk_display_get_default (),
+      gdk_x11_window_get_xid (widget_window));
+#else
   GdkWindow *window = gtk_widget_get_window (widget);
+#endif
   gint ww, wh;
 
   // make sure the window gets drawn
   if (!gtk_widget_get_visible (widget)) {
     gtk_widget_show_all (widget);
+    //gtk_widget_show_now (widget);
   }
   if (GTK_IS_WINDOW (widget)) {
     gtk_window_present (GTK_WINDOW (widget));
     //gtk_window_move(GTK_WINDOW(widget),30,30);
   }
+  //gdk_window_raise (window);
+
   gtk_widget_queue_draw (widget);
   flush_main_loop ();
 
+#if 0
+  /* This causes black windows, but fixes
+   * src/cairo-surface.c:1734: cairo_surface_mark_dirty_rectangle: Assertion `! _cairo_surface_has_mime_data (surface)' failed.
+   *
+   * doing the queue_draw() afterwards gets us the exception again.
+   */
   gdk_window_get_geometry (window, NULL, NULL, &ww, &wh);
-
   const cairo_rectangle_int_t c_rect = { 0, 0, ww, wh };
   cairo_region_t *c_region = cairo_region_create_rectangle (&c_rect);
   if (c_region) {
@@ -371,8 +357,14 @@ make_screenshot (GtkWidget * widget)
   } else {
     GST_WARNING ("failed to create cairo region");
   }
+#endif
 
-  return gdk_pixbuf_get_from_window (window, 0, 0, ww, wh);
+  GdkPixbuf *pixbuf = gdk_pixbuf_get_from_window (window, 0, 0, ww, wh);
+  if (!pixbuf) {
+    GST_WARNING ("failed to take a screenshot for \"%s\"",
+        gtk_widget_get_name (widget));
+  }
+  return pixbuf;
 }
 
 // creates files names under the test data dir
