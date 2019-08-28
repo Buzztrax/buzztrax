@@ -333,13 +333,13 @@ make_screenshot (GtkWidget * widget)
   gtk_widget_queue_draw (widget);
   flush_main_loop ();
 
+  gdk_window_get_geometry (window, NULL, NULL, &ww, &wh);
 #if 0
   /* This causes black windows, but fixes
    * src/cairo-surface.c:1734: cairo_surface_mark_dirty_rectangle: Assertion `! _cairo_surface_has_mime_data (surface)' failed.
    *
    * doing the queue_draw() afterwards gets us the exception again.
    */
-  gdk_window_get_geometry (window, NULL, NULL, &ww, &wh);
   const cairo_rectangle_int_t c_rect = { 0, 0, ww, wh };
   cairo_region_t *c_region = cairo_region_create_rectangle (&c_rect);
   if (c_region) {
@@ -361,8 +361,8 @@ make_screenshot (GtkWidget * widget)
 
   GdkPixbuf *pixbuf = gdk_pixbuf_get_from_window (window, 0, 0, ww, wh);
   if (!pixbuf) {
-    GST_WARNING ("failed to take a screenshot for \"%s\"",
-        gtk_widget_get_name (widget));
+    GST_WARNING ("failed to take a screenshot for \"%s\" (%dx%d)",
+        gtk_widget_get_name (widget), ww, wh);
   }
   return pixbuf;
 }
