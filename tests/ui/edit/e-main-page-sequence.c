@@ -117,15 +117,16 @@ test_bt_main_page_sequence_active_machine (BT_TEST_ARGS)
   // could be releated to how key bindings work, using the action signal works
 
   //check_send_key ((GtkWidget *) sequence_page, 0, GDK_Left, 0x71);
+  gboolean sig_res;
   g_signal_emit_by_name (sequence_view, "move-cursor",
-      GTK_MOVEMENT_VISUAL_POSITIONS, -1, NULL);
+      GTK_MOVEMENT_VISUAL_POSITIONS, -1, &sig_res);
 
   // make screenshot, focus on track=gen
   check_make_widget_screenshot ((GtkWidget *) sequence_page, "1");
 
   //check_send_key ((GtkWidget *) sequence_page, 0, GDK_Left, 0x71);
   g_signal_emit_by_name (sequence_view, "move-cursor",
-      GTK_MOVEMENT_VISUAL_POSITIONS, -1, NULL);
+      GTK_MOVEMENT_VISUAL_POSITIONS, -1, &sig_res);
 
   // make screenshot, focus on track=labels
   check_make_widget_screenshot ((GtkWidget *) sequence_page, "2");
