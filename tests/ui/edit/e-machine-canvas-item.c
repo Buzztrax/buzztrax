@@ -104,8 +104,9 @@ test_bt_machine_canvas_item_show_analyzer (BT_TEST_ARGS)
   GtkWidget *dialog;
 
   g_object_get (pages, "machines-page", &machines_page, NULL);
-  bt_main_page_machines_add_source_machine (machines_page, "beep1", "simsyn");
-  BtMachine *machine = bt_setup_get_machine_by_id (setup, "beep1");
+
+  // only the master (sink-bin) has analyzers
+  BtMachine *machine = bt_setup_get_machine_by_id (setup, "master");
   BtMachineCanvasItem *item =
       bt_machine_canvas_item_new (machines_page, machine, 100.0, 100.0, 1.0);
 
