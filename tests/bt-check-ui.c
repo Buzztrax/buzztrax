@@ -333,12 +333,22 @@ make_screenshot (GtkWidget * widget)
   gtk_widget_queue_draw (widget);
   flush_main_loop ();
 
+  // This is in order of how things are done:
+  GST_INFO ("realized: %d", gtk_widget_get_realized (widget));
+  GST_INFO ("  mapped: %d", gtk_widget_get_mapped (widget));
+  GST_INFO (" visible: %d, %d", gtk_widget_is_visible (widget),
+      gtk_widget_get_visible (widget));
+
   gdk_window_get_geometry (window, NULL, NULL, &ww, &wh);
+  GST_INFO ("window size (%d,%d)", ww, wh);
 #if 0
   /* This causes black windows, but fixes
    * src/cairo-surface.c:1734: cairo_surface_mark_dirty_rectangle: Assertion `! _cairo_surface_has_mime_data (surface)' failed.
+   * in gdk_pixbuf_get_from_window()
+   * If we run just the test (with BT_CHECKS) it works more often. Adding sleeps
+   * or another flush_main_loop() below does not help.
    *
-   * doing the queue_draw() afterwards gets us the exception again.
+   * Doing the queue_draw() afterwards gets us the exception again.
    */
   const cairo_rectangle_int_t c_rect = { 0, 0, ww, wh };
   cairo_region_t *c_region = cairo_region_create_rectangle (&c_rect);
@@ -361,7 +371,7 @@ make_screenshot (GtkWidget * widget)
 
   GdkPixbuf *pixbuf = gdk_pixbuf_get_from_window (window, 0, 0, ww, wh);
   if (!pixbuf) {
-    GST_WARNING ("failed to take a screenshot for \"%s\" (%dx%d)",
+    GST_WARNING ("failed to take a screenshot for \"%s\" (%d,%d)",
         gtk_widget_get_name (widget), ww, wh);
   }
   return pixbuf;
@@ -462,26 +472,33 @@ check_make_widget_screenshot (GtkWidget * widget, const gchar * name)
 
   g_return_if_fail (GTK_IS_WIDGET (widget));
 
+  if (!(pixbuf = make_screenshot (widget))) {
+    return;
+  }
+
   filename = make_filename (widget, name);
 
-  pixbuf = make_screenshot (widget);
   iw = gdk_pixbuf_get_width (pixbuf) * 0.75;
   ih = gdk_pixbuf_get_height (pixbuf) * 0.75;
+  GST_INFO ("scaling to (%d,%d)", iw, ih);
   scaled_pixbuf = gdk_pixbuf_scale_simple (pixbuf, iw, ih, GDK_INTERP_HYPER);
   //gdk_pixbuf_save(scaled_pixbuf,filename,"png",NULL,NULL);
+  g_object_unref (pixbuf);
+  GST_INFO ("scaled pixbuf");
 
   // create a image surface with screenshot
   surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, iw, ih);
   cr = cairo_create (surface);
   gdk_cairo_set_source_pixbuf (cr, scaled_pixbuf, 0, 0);
   cairo_paint (cr);
+  GST_INFO ("made surface for shadow image");
 
   add_shadow_and_save (surface, filename, iw, ih);
+  GST_INFO ("made screenshot (%d,%d) for %s", iw, ih, filename);
 
   // cleanup
   cairo_destroy (cr);
   cairo_surface_destroy (surface);
-  g_object_unref (pixbuf);
   g_object_unref (scaled_pixbuf);
   g_free (filename);
 }
@@ -803,9 +820,12 @@ void
 flush_main_loop (void)
 {
   GMainContext *ctx = g_main_context_default ();
+  gint num = 0;
 
-  GST_INFO ("flushing pending events ...");
-  while (g_main_context_pending (ctx))
+  GST_INFO ("flushing pending events (main-depth=%d) ...", g_main_depth ());
+  while (g_main_context_pending (ctx)) {
     g_main_context_iteration (ctx, FALSE);
-  GST_INFO ("... done");
+    num++;
+  }
+  GST_INFO ("... done  (main-depth=%d, iterations=%d)", g_main_depth (), num);
 }
