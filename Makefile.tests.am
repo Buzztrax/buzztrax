@@ -517,7 +517,7 @@ VALPREFIX = \
 	G_SLICE=always-malloc G_DEBUG=gc-friendly \
 	GLIBCPP_FORCE_NEW=1 GLIBCXX_FORCE_NEW=1
 VALDEFAULT = @VALGRIND@/bin/valgrind
-VALSUPP = @VALGRIND@/lib/valgrind
+VALSUPP = @VALGRIND@/lib/x86_64-linux-gnu/valgrind
 VALSUPPRESSIONDEF = --suppressions=$(VALSUPP)/default.supp
 VALSUPPRESSIONOWN = --suppressions=$(top_builddir)/buzztrax.supp \
 	--suppressions=$(top_builddir)/gst.supp \
