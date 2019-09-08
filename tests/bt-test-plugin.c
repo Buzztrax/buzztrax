@@ -99,13 +99,11 @@ static GObject *
 bt_test_child_proxy_get_child_by_index (GstChildProxy * child_proxy,
     guint index)
 {
-  GST_INFO ("machine %p, getting child %u of %lu", child_proxy, index,
-      BT_TEST_POLY_SOURCE (child_proxy)->num_voices);
-  g_return_val_if_fail (index < BT_TEST_POLY_SOURCE (child_proxy)->num_voices,
-      NULL);
+  BtTestPolySource *self = BT_TEST_POLY_SOURCE (child_proxy);
+  GST_INFO_OBJECT (self, "getting child %u of %lu", index, self->num_voices);
+  g_return_val_if_fail (index < self->num_voices, NULL);
 
-  return (g_object_ref (g_list_nth_data (BT_TEST_POLY_SOURCE
-              (child_proxy)->voices, index)));
+  return g_object_ref (g_list_nth_data (self->voices, index));
 }
 
 static guint
