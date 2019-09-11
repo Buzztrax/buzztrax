@@ -305,76 +305,72 @@ check_shutdown_test_server (void)
 
 // gtk+ gui screenshooter
 
-static GdkPixbuf *
-make_screenshot (GtkWidget * widget)
+// https://gitlab.gnome.org/GNOME/gtk/blob/gtk-3-24/testsuite/reftests/reftest-snapshot.c#L96
+
+static gboolean
+quit_when_idle (gpointer loop)
 {
-#if 0
-  // see gtk/docs/tools/shooter.c
-  GdkWindow *widget_window = gtk_widget_get_window (widget);
-  GdkWindow *window =
-      gdk_x11_window_foreign_new_for_display (gdk_display_get_default (),
-      gdk_x11_window_get_xid (widget_window));
-#else
+  g_main_loop_quit (loop);
+  return G_SOURCE_REMOVE;
+}
+
+static void
+check_for_draw (GdkEvent * event, gpointer data)
+{
+  if (event->type == GDK_EXPOSE) {
+    g_idle_add (quit_when_idle, (GMainLoop *) data);
+    gdk_event_handler_set ((GdkEventFunc) gtk_main_do_event, NULL, NULL);
+  }
+  gtk_main_do_event (event);
+}
+
+static cairo_surface_t *
+make_screenshot (GtkWidget * widget, gint * iw, gint * ih)
+{
   GdkWindow *window = gtk_widget_get_window (widget);
-#endif
-  gint ww, wh;
+  GMainLoop *loop;
+  gint w, h;
+  cairo_surface_t *surface;
+  cairo_t *cr;
 
-  // make sure the window gets drawn
-  if (!gtk_widget_get_visible (widget)) {
-    gtk_widget_show_all (widget);
-    //gtk_widget_show_now (widget);
-  }
-  if (GTK_IS_WINDOW (widget)) {
-    gtk_window_present (GTK_WINDOW (widget));
-    //gtk_window_move(GTK_WINDOW(widget),30,30);
-  }
-  //gdk_window_raise (window);
+  g_assert (gtk_widget_get_realized (widget));
+  g_assert (iw);
+  g_assert (ih);
 
-  gtk_widget_queue_draw (widget);
-  flush_main_loop ();
+  loop = g_main_loop_new (NULL, FALSE);
 
-  // This is in order of how things are done:
-  GST_INFO ("realized: %d", gtk_widget_get_realized (widget));
-  GST_INFO ("  mapped: %d", gtk_widget_get_mapped (widget));
-  GST_INFO (" visible: %d, %d", gtk_widget_is_visible (widget),
-      gtk_widget_get_visible (widget));
-
-  gdk_window_get_geometry (window, NULL, NULL, &ww, &wh);
-  GST_INFO ("window size (%d,%d)", ww, wh);
-#if 0
-  /* This causes black windows, but fixes
-   * src/cairo-surface.c:1734: cairo_surface_mark_dirty_rectangle: Assertion `! _cairo_surface_has_mime_data (surface)' failed.
-   * in gdk_pixbuf_get_from_window()
-   * If we run just the test (with BT_CHECKS) it works more often. Adding sleeps
-   * or another flush_main_loop() below does not help.
-   *
-   * Doing the queue_draw() afterwards gets us the exception again.
+  /* We wait until the widget is drawn for the first time.
+   * We can not wait for a GtkWidget::draw event, because that might not
+   * happen if the window is fully obscured by windowed child widgets.
+   * Alternatively, we could wait for an expose event on widget's window.
+   * Both of these are rather hairy, not sure what's best.
    */
-  const cairo_rectangle_int_t c_rect = { 0, 0, ww, wh };
-  cairo_region_t *c_region = cairo_region_create_rectangle (&c_rect);
-  if (c_region) {
-    GdkDrawingContext *dc = gdk_window_begin_draw_frame (window, c_region);
-    if (dc) {
-      cairo_t *cr = gdk_drawing_context_get_cairo_context (dc);
-      cairo_surface_t *surface = cairo_get_target (cr);
-      cairo_surface_flush (surface);
+  gdk_event_handler_set (check_for_draw, loop, NULL);
+  g_main_loop_run (loop);
 
-      gdk_window_end_draw_frame (window, dc);
-    } else {
-      GST_WARNING ("failed to begin_draw_frame");
-    }
-    cairo_region_destroy (c_region);
-  } else {
-    GST_WARNING ("failed to create cairo region");
-  }
-#endif
+  w = gtk_widget_get_allocated_width (widget);
+  h = gtk_widget_get_allocated_height (widget);
+  surface = gdk_window_create_similar_surface (window,
+      CAIRO_CONTENT_COLOR, w, h);
 
-  GdkPixbuf *pixbuf = gdk_pixbuf_get_from_window (window, 0, 0, ww, wh);
-  if (!pixbuf) {
-    GST_WARNING ("failed to take a screenshot for \"%s\" (%d,%d)",
-        gtk_widget_get_name (widget), ww, wh);
+  cr = cairo_create (surface);
+
+  if (gdk_window_get_window_type (window) == GDK_WINDOW_TOPLEVEL ||
+      gdk_window_get_window_type (window) == GDK_WINDOW_FOREIGN) {
+    // give the WM/server some time to sync. They need it.
+    gdk_display_sync (gdk_window_get_display (window));
+    g_timeout_add (500, quit_when_idle, loop);
+    g_main_loop_run (loop);
   }
-  return pixbuf;
+  gdk_cairo_set_source_window (cr, window, 0, 0);
+  cairo_paint (cr);
+
+  cairo_destroy (cr);
+  g_main_loop_unref (loop);
+
+  *iw = w;
+  *ih = h;
+  return surface;
 }
 
 // creates files names under the test data dir
@@ -464,42 +460,33 @@ add_shadow_and_save (cairo_surface_t * image, gchar * filename, gint iw,
 void
 check_make_widget_screenshot (GtkWidget * widget, const gchar * name)
 {
-  GdkPixbuf *pixbuf, *scaled_pixbuf;
-  gint iw, ih;
   gchar *filename;
+  gint iw, ih;
   cairo_surface_t *surface;
   cairo_t *cr;
 
   g_return_if_fail (GTK_IS_WIDGET (widget));
 
-  if (!(pixbuf = make_screenshot (widget))) {
-    return;
-  }
-
-  filename = make_filename (widget, name);
-
-  iw = gdk_pixbuf_get_width (pixbuf) * 0.75;
-  ih = gdk_pixbuf_get_height (pixbuf) * 0.75;
-  GST_INFO ("scaling to (%d,%d)", iw, ih);
-  scaled_pixbuf = gdk_pixbuf_scale_simple (pixbuf, iw, ih, GDK_INTERP_HYPER);
-  //gdk_pixbuf_save(scaled_pixbuf,filename,"png",NULL,NULL);
-  g_object_unref (pixbuf);
-  GST_INFO ("scaled pixbuf");
+  cairo_surface_t *gtk_win_surface = make_screenshot (widget, &iw, &ih);
+  iw *= 0.75;
+  ih *= 0.75;
 
   // create a image surface with screenshot
   surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, iw, ih);
   cr = cairo_create (surface);
-  gdk_cairo_set_source_pixbuf (cr, scaled_pixbuf, 0, 0);
+  cairo_scale (cr, 0.75, 0.75);
+  cairo_set_source_surface (cr, gtk_win_surface, 0, 0);
   cairo_paint (cr);
   GST_INFO ("made surface for shadow image");
+  cairo_surface_destroy (gtk_win_surface);
 
+  filename = make_filename (widget, name);
   add_shadow_and_save (surface, filename, iw, ih);
   GST_INFO ("made screenshot (%d,%d) for %s", iw, ih, filename);
 
   // cleanup
   cairo_destroy (cr);
   cairo_surface_destroy (surface);
-  g_object_unref (scaled_pixbuf);
   g_free (filename);
 }
 
@@ -572,7 +559,6 @@ void
 check_make_widget_screenshot_with_highlight (GtkWidget * widget,
     const gchar * name, BtCheckWidgetScreenshotRegions * regions)
 {
-  GdkPixbuf *pixbuf, *scaled_pixbuf;
   GtkWidget *child, *parent;
   GtkAllocation a;
   gint iw, ih;
@@ -593,12 +579,9 @@ check_make_widget_screenshot_with_highlight (GtkWidget * widget,
 
   g_return_if_fail (GTK_IS_WIDGET (widget));
 
-  filename = make_filename (widget, name);
-
-  pixbuf = make_screenshot (widget);
-  iw = gdk_pixbuf_get_width (pixbuf) * f;
-  ih = gdk_pixbuf_get_height (pixbuf) * f;
-  scaled_pixbuf = gdk_pixbuf_scale_simple (pixbuf, iw, ih, GDK_INTERP_HYPER);
+  cairo_surface_t *gtk_win_surface = make_screenshot (widget, &iw, &ih);
+  iw *= f;
+  ih *= f;
 
   // check borders
   r = regions;
@@ -625,8 +608,12 @@ check_make_widget_screenshot_with_highlight (GtkWidget * widget,
       cairo_image_surface_create (CAIRO_FORMAT_ARGB32, iw + bl + br,
       ih + bt + bb);
   cr = cairo_create (surface);
-  gdk_cairo_set_source_pixbuf (cr, scaled_pixbuf, bl, bt);
+  //cairo_save (cr);
+  cairo_scale (cr, f, f);
+  cairo_set_source_surface (cr, gtk_win_surface, bl, bt);
   cairo_paint (cr);
+  cairo_surface_destroy (gtk_win_surface);
+  //cairo_restore (cr);
 
   // locate widgets and highlight the areas
   r = regions;
@@ -661,10 +648,10 @@ check_make_widget_screenshot_with_highlight (GtkWidget * widget,
        */
       // TODO(ensonic): if we don't snapshot a top-level, we need to subtract the offset
       gtk_widget_get_allocation (child, &a);
-      wx = a.x * f;
-      wy = a.y * f;
-      ww = a.width * f;
-      wh = a.height * f;
+      wx = a.x;
+      wy = a.y;
+      ww = a.width;
+      wh = a.height;
       GST_INFO ("found widget at: %d,%d with %dx%d pixel size", a.x, a.y,
           a.width, a.height);
 
@@ -725,13 +712,13 @@ check_make_widget_screenshot_with_highlight (GtkWidget * widget,
     r++;
     num++;
   }
+
+  filename = make_filename (widget, name);
   add_shadow_and_save (surface, filename, iw + bl + br, ih + bt + bb);
 
   // cleanup
   cairo_destroy (cr);
   cairo_surface_destroy (surface);
-  g_object_unref (pixbuf);
-  g_object_unref (scaled_pixbuf);
   g_free (filename);
 }
 
