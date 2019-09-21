@@ -215,22 +215,6 @@ check_setup_test_display (void)
   if (display_number > -1) {
     // activate the display for use with gtk
     if ((display_manager = gdk_display_manager_get ())) {
-      GdkScreen *default_screen;
-      GtkSettings *default_settings;
-
-      default_display =
-          gdk_display_manager_get_default_display (display_manager);
-      if ((default_screen = gdk_display_get_default_screen (default_display))) {
-
-        // TODO(ensonic): machine icons are in 'gnome' theme
-        // try to convice gtk+ to load uninstalled icons
-
-        // we already tweak the settings in bt_ui_resources_init_icons()
-
-        //g_object_unref(default_screen);
-      } else
-        GST_WARNING ("can't get default_screen");
-
       if ((test_display = gdk_display_open (display_name))) {
         gdk_display_manager_set_default_display (display_manager, test_display);
         GST_INFO ("display %p,\"%s\" is active", test_display,
