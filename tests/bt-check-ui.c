@@ -721,16 +721,20 @@ check_send_key (GtkWidget * widget, guint state, guint keyval,
 {
   GdkEventKey *e;
   GdkWindow *w = gtk_widget_get_window (widget);
+#if GTK_CHECK_VERSION(3,20,0)
   GdkDevice *dev =
       gdk_seat_get_keyboard (gdk_display_get_default_seat
       (gdk_window_get_display (w)));
+#endif
 
   e = (GdkEventKey *) gdk_event_new (GDK_KEY_PRESS);
   e->window = g_object_ref (w);
   e->keyval = keyval;
   e->hardware_keycode = hardware_keycode;
   e->state |= state;
+#if GTK_CHECK_VERSION(3,20,0)
   gdk_event_set_device ((GdkEvent *) e, dev);
+#endif
   gtk_main_do_event ((GdkEvent *) e);
   flush_main_loop ();
   gdk_event_free ((GdkEvent *) e);
@@ -740,7 +744,9 @@ check_send_key (GtkWidget * widget, guint state, guint keyval,
   e->keyval = keyval;
   e->hardware_keycode = hardware_keycode;
   e->state |= GDK_RELEASE_MASK;
+#if GTK_CHECK_VERSION(3,20,0)
   gdk_event_set_device ((GdkEvent *) e, dev);
+#endif
   gtk_main_do_event ((GdkEvent *) e);
   flush_main_loop ();
   gdk_event_free ((GdkEvent *) e);
@@ -761,9 +767,11 @@ check_send_click (GtkWidget * widget, guint button, gdouble x, gdouble y)
 {
   GdkEventButton *e;
   GdkWindow *w = gtk_widget_get_window (widget);
+#if GTK_CHECK_VERSION(3,20,0)
   GdkDevice *dev =
       gdk_seat_get_pointer (gdk_display_get_default_seat (gdk_window_get_display
           (w)));
+#endif
 
   e = (GdkEventButton *) gdk_event_new (GDK_BUTTON_PRESS);
   e->window = g_object_ref (w);
@@ -771,7 +779,9 @@ check_send_click (GtkWidget * widget, guint button, gdouble x, gdouble y)
   e->x = x;
   e->y = y;
   e->state = GDK_BUTTON1_MASK | GDK_BUTTON2_MASK | GDK_BUTTON3_MASK;
+#if GTK_CHECK_VERSION(3,20,0)
   gdk_event_set_device ((GdkEvent *) e, dev);
+#endif
   gtk_main_do_event ((GdkEvent *) e);
   flush_main_loop ();
   gdk_event_free ((GdkEvent *) e);
@@ -782,7 +792,9 @@ check_send_click (GtkWidget * widget, guint button, gdouble x, gdouble y)
   e->x = x;
   e->y = y;
   e->state = GDK_BUTTON1_MASK | GDK_BUTTON2_MASK | GDK_BUTTON3_MASK;
+#if GTK_CHECK_VERSION(3,20,0)
   gdk_event_set_device ((GdkEvent *) e, dev);
+#endif
   gtk_main_do_event ((GdkEvent *) e);
   flush_main_loop ();
   gdk_event_free ((GdkEvent *) e);
