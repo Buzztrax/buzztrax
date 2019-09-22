@@ -17,7 +17,7 @@ env:
   - CONFIGURE_OPTS="--disable-debug"
 
 script:
-  - ./configure ${CONFIGURE_OPTS} && make && make check
+  - ./configure ${CONFIGURE_OPTS} && make && travis_wait make check
 
 after_failure:
   - cat ./test-suite.log && scripts/gdbtests.sh ./test-suite.log
