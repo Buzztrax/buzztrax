@@ -20,7 +20,7 @@ script:
   - ./configure ${CONFIGURE_OPTS} && make && travis_wait make check
 
 after_failure:
-  - cat ./test-suite.log && scripts/gdbtests.sh ./test-suite.log
+  - cat ./bt_edit.log ./test-suite.log && scripts/gdbtests.sh ./test-suite.log
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
