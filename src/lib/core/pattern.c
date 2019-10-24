@@ -1025,17 +1025,22 @@ bt_pattern_persistence_load (const GType type,
           } else if (!strncmp ((char *) child_node->name, "voicedata\0", 10)) {
             voice_str = xmlGetProp (child_node, XML_CHAR_PTR ("voice"));
             voice = atol ((char *) voice_str);
-            param =
-                bt_parameter_group_get_param_index
-                (bt_machine_get_voice_param_group (self->priv->machine, voice),
-                (gchar *) name);
-            if (param != -1) {
-              bt_pattern_set_voice_event (self, tick, voice, param,
-                  (gchar *) value);
+            if (voice < self->priv->voices) {
+              param =
+                  bt_parameter_group_get_param_index
+                  (bt_machine_get_voice_param_group (self->priv->machine,
+                      voice), (gchar *) name);
+              if (param != -1) {
+                bt_pattern_set_voice_event (self, tick, voice, param,
+                    (gchar *) value);
+              } else {
+                GST_WARNING
+                    ("error while loading voice pattern data at tick %ld, param %ld, voice %ld",
+                    tick, param, voice);
+              }
             } else {
-              GST_WARNING
-                  ("error while loading voice pattern data at tick %ld, param %ld, voice %ld",
-                  tick, param, voice);
+              GST_WARNING ("voice %d > max_voices %d", voice,
+                  self->priv->voices);
             }
             xmlFree (voice_str);
           }

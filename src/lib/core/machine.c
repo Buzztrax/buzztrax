@@ -780,8 +780,7 @@ bt_machine_make_internal_element (const BtMachine * const self,
   GstElementFactory *f;
   const gchar *const parent_name = GST_OBJECT_NAME (self);
   gint len_name = strlen (parent_name) + 2 + strlen (element_name);
-  gchar *const name =
-      g_alloca (len_name);
+  gchar *const name = g_alloca (len_name);
   GValue item = { 0, };
 
   g_return_val_if_fail ((self->priv->machines[part] == NULL), TRUE);
@@ -2963,16 +2962,20 @@ bt_machine_persistence_load (const GType type,
           voice = atol ((char *) voice_str);
           name = xmlGetProp (node, XML_CHAR_PTR ("name"));
           value_str = xmlGetProp (node, XML_CHAR_PTR ("value"));
-          pg = self->priv->voice_param_groups[voice];
-          param = bt_parameter_group_get_param_index (pg, (gchar *) name);
-          if ((param != -1) && value_str) {
-            g_value_init (&value, bt_parameter_group_get_param_type (pg,
-                    param));
-            bt_str_parse_gvalue (&value, (gchar *) value_str);
-            g_object_set_property (bt_parameter_group_get_param_parent (pg,
-                    param), (gchar *) name, &value);
-            g_value_unset (&value);
-            bt_parameter_group_set_param_default (pg, param);
+          if (voice < self->priv->voices) {
+            pg = self->priv->voice_param_groups[voice];
+            param = bt_parameter_group_get_param_index (pg, (gchar *) name);
+            if ((param != -1) && value_str) {
+              g_value_init (&value, bt_parameter_group_get_param_type (pg,
+                      param));
+              bt_str_parse_gvalue (&value, (gchar *) value_str);
+              g_object_set_property (bt_parameter_group_get_param_parent (pg,
+                      param), (gchar *) name, &value);
+              g_value_unset (&value);
+              bt_parameter_group_set_param_default (pg, param);
+            }
+          } else {
+            GST_WARNING ("voice %d > max_voices %d", voice, self->priv->voices);
           }
           xmlFree (name);
           xmlFree (value_str);
