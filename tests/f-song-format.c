@@ -6,8 +6,10 @@
  * clang -g -O1 -fsanitize=fuzzer f-song-format.c -I. -I../src/lib .libs/bt-test-application.o `pkg-config libbuzztrax-core --cflags --libs` -o f-song-format
  *
  * run:
- * ./f-song-format songs
- *  GST_DEBUG="bt-core:5" ./f-song-format songs
+ * # this will have the resulting corpus in a new dir 
+ * mkdir -pl f-songs
+ * ./f-song-format f-songs songs
+ *  GST_DEBUG="bt-core:5" ./f-song-format f-songs songs
  */
 
 #include "bt-check.h"
@@ -18,8 +20,12 @@
 int
 LLVMFuzzerTestOneInput (const uint8_t * data, size_t len)
 {
-  bt_setup_for_local_install ();
-  bt_init (NULL, NULL);
+  static int init_done = FALSE;
+  if (!init_done) {
+    bt_setup_for_local_install ();
+    bt_init (NULL, NULL);
+    init_done = TRUE;
+  }
 
   BtApplication *app = bt_test_application_new ();
   BtSong *song = bt_song_new (app);
