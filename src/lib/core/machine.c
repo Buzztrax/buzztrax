@@ -2975,7 +2975,8 @@ bt_machine_persistence_load (const GType type,
               bt_parameter_group_set_param_default (pg, param);
             }
           } else {
-            GST_WARNING ("voice %d > max_voices %d", voice, self->priv->voices);
+            GST_WARNING ("voice %ld > max_voices %lu", voice,
+                self->priv->voices);
           }
           xmlFree (name);
           xmlFree (value_str);

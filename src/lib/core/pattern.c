@@ -1039,7 +1039,7 @@ bt_pattern_persistence_load (const GType type,
                     tick, param, voice);
               }
             } else {
-              GST_WARNING ("voice %d > max_voices %d", voice,
+              GST_WARNING ("voice %ld > max_voices %lu", voice,
                   self->priv->voices);
             }
             xmlFree (voice_str);
