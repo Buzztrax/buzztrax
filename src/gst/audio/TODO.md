@@ -1,6 +1,6 @@
-# SimSyn alike
+# More synthesizers
 
-More synthesizers
+## SimSyn alike
 - we'd like to have one with
   - dual-osc
     - with detune for the 2nd osc: coarse in semitones
@@ -23,11 +23,11 @@ More synthesizers
     a) map for tone above and below base
     b) map for tone related to base and clamp against 1.0
 
-# WaveTabSynth
+## WaveTabSynth
 - slightly modulating the wave-offset could be interesting
   - we could e.g. let it progress during the tone or have an envelope for it
 
-# BLoop (beat looper)
+## BLoop (beat looper)
 - parameters:
   - wavetable-ix
   - subdivide / slices (e.g. 4 for quarter)
@@ -49,7 +49,7 @@ More synthesizers
   subdivide=4, pattern={0,1,2,3} plays the loop as is
   subdivide=4, pattern={0,3,0,1} plays segments in different order
 
-# GrainSynth
+## GrainSynth
 - a grain synth takes snippets from the one wave-table slot, applies a
   fft-window function and mixes it into the output
 - using a triangle-window and a grain-ratio=1.0 would replicate the waveform
@@ -88,6 +88,35 @@ More synthesizers
 spread_range_ms = 12
 overlap_ms = 2
 voices = 1 + (12 / 2) = 7
+
+## Drones
+Simple Osc with multiple slightly detuned voices that are spread in the panorama
+and where the detuning is set so that it matches the song tempo.
+
+Need tables for each tone to calculate the detune factors so that the phases are
+in sync after n-ticks. If this is hard, we can mybe cross-fade a reverse copy
+using sin()² curves and reset the phase after n-ticks.
+
+From ticks and samplerate we calculate the number of samples for desired resync.
+
+TODO:
+- can we disable resetting the phase on the osc component when triggering a note
+  - gstbt_osc_synth_trigger(): self->accumulator = 0.0
+  - we only call this when we change waves
+
+Parameters:
+- note: tone to play
+- wave: classic tonal osc (sin, tri, saw, sqr)
+- ticks: when the phases should be in sync again
+- sync: when plaing a note - should we sync the phases or not?
+- voices: 3,5,7
+- stereo spread: 0 ... 100%
+  - example: 5 voice, spread=100%
+  - voice 1 -> middle
+  - voice 2 -> 50% right
+  - voice 3 -> 50% left
+  - voice 4 -> 100% right
+  - voice 5 -> 100% left
 
 # sfxr
 https://github.com/grimfang4/sfxr/blob/master/sfxr/source/main.cpp

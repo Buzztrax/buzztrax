@@ -24,7 +24,8 @@
  * A drum synthesizer with two tonal and one noise oscillator (#GstBtOscSynth),
  * plus decay envelopes (#GstBtEnvelopeD) for tonal transitions and volumes.
  * The tonal oscillators can be mixed through various #GstBtCombine:combine
- * modes. The noise part is then mixed with the tonal parts.
+ * modes. The noise part is then mixed with the tonal parts. The volume enve-
+ * lopes are applied before combining and mixing.
  *
  * Finally one can apply a filter (#GstBtFilterSVF) to either the tonal mix, the
  * noise or both. The #GstBtFilterSVF:cut-off is also controlled by a decay
@@ -41,12 +42,20 @@
  * ]| Render a drum tone.
  * </refsect2>
  */
-/* TODO: add a delay line for metalic effects */
+/* TODO: add a short delay line for metalic effects */
 /* TODO: add a boolean 'reverse 'parameter
  * - can be a pattern only trigger param to set time to max and time-inc * -1
  * - for that the envelopes need a 'reverse' param too, or we need to check if
  *   we can count 'ct' backwards
  */
+ /* TODO: more volume env routing:
+  * - some combine modes can create loud signals, it would be nice to rapply
+  *   a volum env
+  * - modes: before, after, before+after
+  * - if after or before+after, we need a volume param that can be applied
+  *   during or after the combine operation
+  */
+
 /* TODO: have presets for:
  * kick
  * snare
