@@ -426,10 +426,12 @@ main (int argc, char **argv)
   }
 
   unlink (socket_file);
+
+  memset (&address, 0, sizeof (struct sockaddr_un));
   address.sun_family = PF_LOCAL;
-  strcpy (&address.sun_path[1], socket_file);
+  strncpy (address.sun_path, socket_file, sizeof (address.sun_path) - 1);
   if (bind (server_socket, (struct sockaddr *) &address,
-          sizeof (sa_family_t) + strlen (socket_file) + 1) != 0) {
+          sizeof (struct sockaddr_un)) == -1) {
     TRACE ("socket path already in use!\n");
   }
   // number of pending connections
