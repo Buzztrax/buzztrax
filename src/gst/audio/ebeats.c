@@ -42,7 +42,13 @@
  * ]| Render a drum tone.
  * </refsect2>
  */
-/* TODO: add a short delay line for metalic effects */
+/* TODO: add a short delay line for metalic effects
+ * - parameters: 
+ *   - delay (up to 300Hz -> ~3ms?)
+ *   - feedback: 25 ... 99.9%, logarithmic?
+ *   - routing: pre/port-filter
+ *     (this would need to take filter routings into account too)
+ */
 /* TODO: add a boolean 'reverse 'parameter
  * - can be a pattern only trigger param to set time to max and time-inc * -1
  * - for that the envelopes need a 'reverse' param too, or we need to check if
@@ -78,6 +84,8 @@
  *   http://www.soundonsound.com/sos/Feb02/articles/synthsecrets0202.asp
  *
  * http://www.heise.de/ct/artikel/Tutorial-Einstieg-in-die-Drum-Synthese-mit-Waldorf-Attack-2799668.html
+ * https://sonicscoop.com/2018/11/29/how-to-synthesize-your-own-drum-samples/?singlepage=1
+ * https://www.cim.mcgill.ca/~clark/nordmodularbook/nm_percussion.html
  */
 
 #ifdef HAVE_CONFIG_H

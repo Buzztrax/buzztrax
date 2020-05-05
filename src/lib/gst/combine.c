@@ -39,6 +39,10 @@
  * ![xor](lt-bt_gst_combine_xor__a_b.svg)
  * ![fold](lt-bt_gst_combine_fold__a_b.svg)
  */
+/* TODO:
+ * mul: is ring-mod, also add AM (a*((b+1)/2), see
+ * https://en.wikibooks.org/wiki/Sound_Synthesis_Theory/Modulation_Synthesis
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
