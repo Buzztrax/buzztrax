@@ -375,7 +375,7 @@ bml (gstbml_property_meta_describe_property (GstBMLClass * bml_class,
       if (!(str =
               bml (describe_global_value (bmh, prop_id,
                       g_value_get_int (value)))) || !*str) {
-        snprintf (def, sizeof(def), "%d", g_value_get_int (value));
+        snprintf (def, sizeof (def), "%d", g_value_get_int (value));
         str = def;
       }
       break;
@@ -383,7 +383,7 @@ bml (gstbml_property_meta_describe_property (GstBMLClass * bml_class,
       if (!(str =
               bml (describe_global_value (bmh, prop_id,
                       (gint) g_value_get_uint (value)))) || !*str) {
-        snprintf (def, sizeof(def), "%u", g_value_get_uint (value));
+        snprintf (def, sizeof (def), "%u", g_value_get_uint (value));
         str = def;
       }
       break;
@@ -392,13 +392,12 @@ bml (gstbml_property_meta_describe_property (GstBMLClass * bml_class,
               bml (describe_global_value (bmh, prop_id,
                       g_value_get_enum (value)))) || !*str) {
         // TODO(ensonic): get blurb for enum value
-        snprintf (def, sizeof(def), "%d", g_value_get_enum (value));
+        snprintf (def, sizeof (def), "%d", g_value_get_enum (value));
         str = def;
       }
       break;
     case G_TYPE_STRING:
       return g_strdup_value_contents (value);
-      break;
     default:
       GST_ERROR ("unsupported GType='%s'", G_VALUE_TYPE_NAME (value));
       return g_strdup_value_contents (value);
