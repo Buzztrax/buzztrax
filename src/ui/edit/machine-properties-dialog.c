@@ -1545,7 +1545,8 @@ on_preset_list_selection_changed (GtkTreeSelection * treeselection,
 /*
  * on_box_realize:
  *
- * we adjust the scrollable-window size to contain the whole area
+ * we adjust the scrollable-window size to contain all the machine
+ * property widgets
  */
 static void
 on_box_realize (GtkWidget * widget, gpointer user_data)
@@ -1554,29 +1555,32 @@ on_box_realize (GtkWidget * widget, gpointer user_data)
   GtkScrolledWindow *parent =
       GTK_SCROLLED_WINDOW (gtk_widget_get_parent (gtk_widget_get_parent
           (widget)));
-  GtkRequisition minimum, natural, requisition;
+  GtkRequisition minimum, natural, requisition, natural_scrollwin;
   GtkAllocation tb_alloc;
-  gint height, max_heigth, width, max_width, border;
+  gint width, max_width, max_height, border, win_default_width;
 
   gtk_widget_get_preferred_size (widget, &minimum, &natural);
   gtk_widget_get_allocation (GTK_WIDGET (self->priv->main_toolbar), &tb_alloc);
   border = gtk_container_get_border_width (GTK_CONTAINER (widget));
 
   requisition.width = MAX (minimum.width, natural.width) + border;
-  requisition.height = MAX (minimum.height, natural.height) + border;
-  bt_gtk_workarea_size (&max_width, &max_heigth);
-  max_heigth -= tb_alloc.height;
+  bt_gtk_workarea_size (&max_width, &max_height);
 
-  GST_DEBUG ("#### box size req %d x %d (toolbar-height %d, max %d x %d)",
-      requisition.width, requisition.height, tb_alloc.height, max_width,
-      max_heigth);
+  GST_DEBUG ("#### box width req %d (max %d)", requisition.width, max_width);
 
   // constrain the size by screen size minus some space for panels, deco and toolbar
-  height = MIN (requisition.height, max_heigth);
   width = MIN (requisition.width, max_width);
 
-  gtk_scrolled_window_set_min_content_height (parent, height);
   gtk_scrolled_window_set_min_content_width (parent, width);
+
+  // size the properties window to the height of all property widgets, but don't
+  // exceed 3/4 of the screen height.
+  gtk_widget_get_preferred_size (GTK_WIDGET (parent), NULL, &natural_scrollwin);
+  gtk_window_get_default_size(GTK_WINDOW (self), &win_default_width, NULL);
+  gtk_window_resize(
+      GTK_WINDOW (self),
+      win_default_width,
+      MIN(max_height * 0.75, natural.height + tb_alloc.height));
 }
 
 static void
