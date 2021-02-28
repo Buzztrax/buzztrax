@@ -595,3 +595,31 @@
       * we should use a low sampling rate and trigger the first trigger param
         (max volume, C-0)
 
+* custom pipeline scheduler
+  * sadly adder is still racy and audiomixer is lacking features, beside pull
+    based scheduling is not seeing any improvements either
+  * we could implement manual scheduling on the top-level pipeline. For that
+    we'd:
+    * keep all BtMachine bins in the pipeline but not conenct them
+    * the ghostpads get a pad-probe
+    * confige everything for pull (we need to test that the BtMachines itself
+      would work in pull mode)
+    * sort the BtMachines topologically into a list, where each BtMachine knows
+      its predecessors and has a count of successorts
+    * maintain a pool of buffer (upper size is number of machines)
+    * when playing, gstreamer will pull on the BtSiinkMachine and when the
+      PadProbe is triggered with a buffer, we
+      * build a list of buffers from the one we got plus buffers from the pool
+      * loop over the predecessors elements
+        * if buffer-ptr=null take a buffer from the list, assign, set ref_ct to
+          num_sucessors and pull on the sink ghostpad and return the buffer
+        * else return the existing buffer
+        * when returning the buffer dec the ref_ct and once 0 return the buffer
+          to the pool
+      * once they all return mix into the 1st buffer we got from the probe
+  * options:
+    * change BtMachine to not start with an adder and end with a tee (we could
+      use identities for migration), but then we need to do the mixing ourself
+  * TODO:
+    * make a standalone toy that can validate the graph mandling?
+
