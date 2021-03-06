@@ -344,7 +344,17 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
     property = properties[i];
 
     GST_INFO ("property %p has name '%s'", property, property->name);
-    tool_tip_text = (gchar *) g_param_spec_get_blurb (property);
+
+    gboolean is_readonly = (property->flags & G_PARAM_WRITABLE) == 0;
+    gchar *readonly_tooltip_text;
+
+    if (is_readonly) {
+      readonly_tooltip_text = g_strconcat("(Read-only) ", (gchar *) g_param_spec_get_blurb (property), NULL);
+      tool_tip_text = readonly_tooltip_text;
+    } else {
+      readonly_tooltip_text = NULL;
+      tool_tip_text = (gchar *) g_param_spec_get_blurb (property);
+    }
 
     // get name
     label = gtk_label_new (g_param_spec_get_nick (property));
@@ -488,17 +498,21 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
       }
     }
     gtk_widget_set_tooltip_text (widget1, tool_tip_text);
+    gtk_widget_set_sensitive (widget1, !is_readonly);
     if (!widget2) {
       g_object_set (widget1, "hexpand", TRUE, "margin-left", LABEL_PADDING,
           NULL);
       gtk_grid_attach (GTK_GRID (table), widget1, 1, i, 2, 1);
     } else {
+      gtk_widget_set_sensitive (widget2, !is_readonly);
       gtk_widget_set_tooltip_text (widget2, tool_tip_text);
       g_object_set (widget1, "hexpand", TRUE, "margin-left", LABEL_PADDING,
           "margin-right", LABEL_PADDING, NULL);
       gtk_grid_attach (GTK_GRID (table), widget1, 1, i, 1, 1);
       gtk_grid_attach (GTK_GRID (table), widget2, 2, i, 1, 1);
     }
+
+    g_free(readonly_tooltip_text);
   }
   // eat remaning space
 #if GTK_CHECK_VERSION (3, 8, 0)
