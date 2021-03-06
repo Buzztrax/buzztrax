@@ -2781,35 +2781,55 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
 
     machine = GST_OBJECT (self->priv->machines[PART_MACHINE]);
     for (i = 0; i < prefs_params; i++) {
-      if ((child_node =
-              xmlNewChild (node, NULL, XML_CHAR_PTR ("prefsdata"), NULL))) {
-        pname = bt_parameter_group_get_param_name (prefs_param_group, i);
-        g_value_init (&value,
-            bt_parameter_group_get_param_type (prefs_param_group, i));
-        g_object_get_property (G_OBJECT (machine), pname, &value);
-        gchar *const str = bt_str_format_gvalue (&value);
-        xmlNewProp (child_node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (pname));
-        xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
-        g_free (str);
-        g_value_unset (&value);
+      pname = bt_parameter_group_get_param_name (prefs_param_group, i);
+      g_value_init (&value,
+          bt_parameter_group_get_param_type (prefs_param_group, i));
+      g_object_get_property (G_OBJECT (machine), pname, &value);
+      gchar *const str = bt_str_format_gvalue (&value);
+
+      // Don't write out parameters that can't be formatted or parsed.
+      if (str) {
+        if ((child_node =
+             xmlNewChild (node, NULL, XML_CHAR_PTR ("prefsdata"), NULL))) {
+          xmlNewProp (child_node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (pname));
+          xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
+        } else
+            goto Error;
+      } else {
+        GST_DEBUG_OBJECT (machine, "param %s not serialized as its type %s is null can't be formatted",
+          pname,
+          g_type_name(bt_parameter_group_get_param_spec (prefs_param_group, i)->value_type));
       }
+
+      g_free (str);
+      g_value_unset (&value);
     }
     for (i = 0; i < global_params; i++) {
       // skip trigger parameters
       if (bt_parameter_group_is_param_trigger (global_param_group, i))
         continue;
-      if ((child_node =
-              xmlNewChild (node, NULL, XML_CHAR_PTR ("globaldata"), NULL))) {
-        pname = bt_parameter_group_get_param_name (global_param_group, i);
-        g_value_init (&value,
-            bt_parameter_group_get_param_type (global_param_group, i));
-        g_object_get_property (G_OBJECT (machine), pname, &value);
-        gchar *const str = bt_str_format_gvalue (&value);
-        xmlNewProp (child_node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (pname));
-        xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
-        g_free (str);
-        g_value_unset (&value);
+      pname = bt_parameter_group_get_param_name (global_param_group, i);
+      g_value_init (&value,
+          bt_parameter_group_get_param_type (global_param_group, i));
+      g_object_get_property (G_OBJECT (machine), pname, &value);
+      gchar *const str = bt_str_format_gvalue (&value);
+
+      // Don't write out parameters that can't be formatted or parsed.
+      if (str) {
+          if ((child_node =
+               xmlNewChild (node, NULL, XML_CHAR_PTR ("globaldata"), NULL))) {
+            xmlNewProp (child_node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (pname));
+            xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
+          } else
+            goto Error;
+      } else {
+        GST_DEBUG_OBJECT (machine, "param %s not serialized as its type %s is null can't be formatted",
+          pname,
+          g_type_name(bt_parameter_group_get_param_spec (prefs_param_group, i)->value_type));
       }
+
+      g_free (str);
+      g_value_unset (&value);
     }
     for (j = 0; j < voices; j++) {
       machine_voice =
@@ -2820,20 +2840,30 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
         // skip trigger parameters
         if (bt_parameter_group_is_param_trigger (voice_param_group, i))
           continue;
-        if ((child_node =
-                xmlNewChild (node, NULL, XML_CHAR_PTR ("voicedata"), NULL))) {
-          pname = bt_parameter_group_get_param_name (voice_param_group, i);
-          g_value_init (&value,
-              bt_parameter_group_get_param_type (voice_param_group, i));
-          g_object_get_property (G_OBJECT (machine_voice), pname, &value);
-          gchar *const str = bt_str_format_gvalue (&value);
-          xmlNewProp (child_node, XML_CHAR_PTR ("voice"),
-              XML_CHAR_PTR (bt_str_format_ulong (j)));
-          xmlNewProp (child_node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (pname));
-          xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
-          g_free (str);
-          g_value_unset (&value);
+        pname = bt_parameter_group_get_param_name (voice_param_group, i);
+        g_value_init (&value,
+            bt_parameter_group_get_param_type (voice_param_group, i));
+        g_object_get_property (G_OBJECT (machine_voice), pname, &value);
+        gchar *const str = bt_str_format_gvalue (&value);
+
+        // Don't write out parameters that can't be formatted or parsed.
+        if (str) {
+          if ((child_node =
+                  xmlNewChild (node, NULL, XML_CHAR_PTR ("voicedata"), NULL))) {
+              xmlNewProp (child_node, XML_CHAR_PTR ("voice"),
+                XML_CHAR_PTR (bt_str_format_ulong (j)));
+              xmlNewProp (child_node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (pname));
+              xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
+          } else
+            goto Error;
+        } else {
+          GST_DEBUG_OBJECT (machine, "param %s not serialized as its type %s is null can't be formatted",
+            pname,
+            g_type_name(bt_parameter_group_get_param_spec (prefs_param_group, i)->value_type));
         }
+
+        g_free (str);
+        g_value_unset (&value);
       }
       g_object_unref (machine_voice);
     }
@@ -2931,12 +2961,17 @@ bt_machine_persistence_load (const GType type,
           value_str = xmlGetProp (node, XML_CHAR_PTR ("value"));
           pg = self->priv->prefs_param_group;
           param = bt_parameter_group_get_param_index (pg, (gchar *) name);
+          GST_DEBUG_OBJECT (machine, "restore param %s", name);
           if ((param != -1) && value_str) {
             g_value_init (&value, bt_parameter_group_get_param_type (pg,
                     param));
-            bt_str_parse_gvalue (&value, (gchar *) value_str);
-            g_object_set_property (bt_parameter_group_get_param_parent (pg,
-                    param), (gchar *) name, &value);
+            if (bt_str_parse_gvalue (&value, (gchar *) value_str)) {
+              g_object_set_property (bt_parameter_group_get_param_parent (pg,
+                      param), (gchar *) name, &value);
+            } else {
+              GST_DEBUG_OBJECT (machine,
+                "skipping restore of param %s: serialized value not parseable for type", name);
+            }
             g_value_unset (&value);
           }
           xmlFree (name);
@@ -2949,7 +2984,13 @@ bt_machine_persistence_load (const GType type,
           if ((param != -1) && value_str) {
             g_value_init (&value, bt_parameter_group_get_param_type (pg,
                     param));
-            bt_str_parse_gvalue (&value, (gchar *) value_str);
+            if (bt_str_parse_gvalue (&value, (gchar *) value_str)) {
+              g_object_set_property (bt_parameter_group_get_param_parent (pg,
+                      param), (gchar *) name, &value);
+            } else {
+              GST_DEBUG_OBJECT (machine,
+                "skipping restore of param %s: serialized value not parseable for type", name);
+            }
             g_object_set_property (bt_parameter_group_get_param_parent (pg,
                     param), (gchar *) name, &value);
             g_value_unset (&value);
@@ -2968,7 +3009,13 @@ bt_machine_persistence_load (const GType type,
             if ((param != -1) && value_str) {
               g_value_init (&value, bt_parameter_group_get_param_type (pg,
                       param));
-              bt_str_parse_gvalue (&value, (gchar *) value_str);
+              if (bt_str_parse_gvalue (&value, (gchar *) value_str)) {
+                g_object_set_property (bt_parameter_group_get_param_parent (pg,
+                        param), (gchar *) name, &value);
+              } else {
+                GST_DEBUG_OBJECT (machine,
+                  "skipping restore of param %s: serialized value not parseable for type", name);
+              }
               g_object_set_property (bt_parameter_group_get_param_parent (pg,
                       param), (gchar *) name, &value);
               g_value_unset (&value);
