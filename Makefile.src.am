@@ -743,11 +743,9 @@ if WITH_UPDATE_MIME
 endif
 
 if USE_GIR
-libbtcore_gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztrax_core_la_SOURCES))
-libbtcore_gir_headers=$(patsubst %,$(srcdir)/%, $(libbuzztrax_core_HEADERS))
 
-BuzztraxCore-@BT_MAJORMINOR@.gir: $(G_IR_SCANNER) libbuzztrax-core.la BuzztraxIc-@BT_MAJORMINOR@.gir
-	-$(AM_V_GEN)PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):$(top_srcdir)/src/lib/ic/" $(G_IR_SCANNER) -v \
+BuzztraxCore-@BT_MAJORMINOR@.gir: $(libbuzztrax_core_la_SOURCES) $(libbuzztrax_core_HEADERS) BuzztraxIc-@BT_MAJORMINOR@.gir | $(G_IR_SCANNER) libbuzztrax-core.la
+	$(AM_V_GEN)PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):$(top_srcdir)/src/lib/ic/" $(G_IR_SCANNER) -v \
 	   --namespace=BuzztraxCore \
 	   --nsversion @BT_MAJORMINOR@ \
 	   --warn-all \
@@ -771,19 +769,17 @@ BuzztraxCore-@BT_MAJORMINOR@.gir: $(G_IR_SCANNER) libbuzztrax-core.la BuzztraxIc
 	   --pkg libxml-2.0 \
 	   --pkg gstreamer-@GST_MAJORMINOR@ \
 	   --pkg-export libbuzztrax-core \
-	   --add-init-section="bt_init(NULL,NULL);" \
+	   --add-init-section="void bt_init (gint * argc, gchar ** argv[]); bt_init(NULL,NULL);" \
 	   --output $@ \
-	   $(libbtcore_gir_sources) $(libbtcore_gir_headers) || touch $@
+	   $^
 
-libbtic_gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztrax_ic_la_SOURCES))
-libbtic_gir_headers=$(patsubst %,$(srcdir)/%, $(libbuzztrax_ic_HEADERS))
-
-BuzztraxIc-@BT_MAJORMINOR@.gir: $(G_IR_SCANNER) libbuzztrax-ic.la
-	-$(AM_V_GEN)$(G_IR_SCANNER) -v \
+BuzztraxIc-@BT_MAJORMINOR@.gir: $(libbuzztrax_ic_la_SOURCES) $(libbuzztrax_ic_HEADERS) | $(G_IR_SCANNER) libbuzztrax-ic.la 
+	$(AM_V_GEN)$(G_IR_SCANNER) -v \
 	   --namespace=BuzztraxIc \
 	   --nsversion @BT_MAJORMINOR@ \
 	   --warn-all \
-	   -I$(builddir) \
+	   -I$(abs_top_builddir) \
+	   -I$(abs_top_builddir)/src/ \
 	   -I$(srcdir) \
 	   -I$(top_srcdir)/src/lib/ \
 	   --identifier-prefix=BtIc \
@@ -798,9 +794,9 @@ BuzztraxIc-@BT_MAJORMINOR@.gir: $(G_IR_SCANNER) libbuzztrax-ic.la
 	   --pkg gobject-2.0 \
 	   --pkg gstreamer-@GST_MAJORMINOR@ \
 	   --pkg-export libbuzztrax-ic \
-	   --add-init-section="btic_init(NULL,NULL);" \
+	   --add-init-section="void btic_init (gint * argc, gchar ** argv[]); btic_init(NULL,NULL);" \
 	   --output $@ \
-	   $(libbtic_gir_sources) $(libbtic_gir_headers) || touch $@
+	   $^
 
 BUILT_GIRSOURCES = BuzztraxCore-@BT_MAJORMINOR@.gir BuzztraxIc-@BT_MAJORMINOR@.gir
 
