@@ -108,7 +108,7 @@ bt_song_io_native_xml_save (gconstpointer const _self,
     if (root_node) {
       xmlDocSetRootElement (song_doc, root_node);
       if (file_name) {
-        if (xmlSaveFile (file_name, song_doc) != -1) {
+        if (xmlSaveFormatFile (file_name, song_doc, 1) != -1) {
           result = TRUE;
           GST_INFO ("xml saved okay");
         } else {
