@@ -12,7 +12,7 @@ HELP_MEDIA += \
 # We have no translation for the manual
 HELP_LINUAGS =
 
-C/version.entities: $(abs_top_srcdir)/docs/version.entities
+C/version.entities: $(abs_top_builddir)/docs/version.entities
 	@cp $< $@
 
 CLEANFILES = C/version.entities
