@@ -52,6 +52,7 @@ static void bt_object_list_model_tree_model_init (gpointer const g_iface,
     gpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtObjectListModel, bt_object_list_model, G_TYPE_OBJECT,
+    G_ADD_PRIVATE(BtObjectListModel)
     G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL,
         bt_object_list_model_tree_model_init));
 
@@ -408,9 +409,7 @@ bt_object_list_model_finalize (GObject * object)
 static void
 bt_object_list_model_init (BtObjectListModel * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_OBJECT_LIST_MODEL,
-      BtObjectListModelPrivate);
+  self->priv = bt_object_list_model_get_instance_private(self);
 
   self->priv->seq = g_sequence_new (NULL);
   // random int to check whether an iter belongs to our model
@@ -421,8 +420,6 @@ static void
 bt_object_list_model_class_init (BtObjectListModelClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtObjectListModelPrivate));
 
   gobject_class->dispose = bt_object_list_model_dispose;
   gobject_class->finalize = bt_object_list_model_finalize;

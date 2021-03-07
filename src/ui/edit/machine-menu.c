@@ -49,7 +49,8 @@ struct _BtMachineMenuPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtMachineMenu, bt_machine_menu, GTK_TYPE_MENU);
+G_DEFINE_TYPE_WITH_CODE (BtMachineMenu, bt_machine_menu, GTK_TYPE_MENU, 
+    G_ADD_PRIVATE(BtMachineMenu));
 
 //-- event handler
 
@@ -416,9 +417,7 @@ bt_machine_menu_dispose (GObject * object)
 static void
 bt_machine_menu_init (BtMachineMenu * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MACHINE_MENU,
-      BtMachineMenuPrivate);
+  self->priv = bt_machine_menu_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -427,8 +426,6 @@ static void
 bt_machine_menu_class_init (BtMachineMenuClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtMachineMenuPrivate));
 
   gobject_class->set_property = bt_machine_menu_set_property;
   gobject_class->dispose = bt_machine_menu_dispose;

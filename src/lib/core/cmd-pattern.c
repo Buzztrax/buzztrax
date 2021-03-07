@@ -105,7 +105,8 @@ struct _BtCmdPatternPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtCmdPattern, bt_cmd_pattern, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_CODE (BtCmdPattern, bt_cmd_pattern, G_TYPE_OBJECT, 
+    G_ADD_PRIVATE(BtCmdPattern));
 
 //-- enums
 
@@ -286,17 +287,13 @@ bt_cmd_pattern_finalize (GObject * const object)
 static void
 bt_cmd_pattern_init (BtCmdPattern * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_CMD_PATTERN,
-      BtCmdPatternPrivate);
+  self->priv = bt_cmd_pattern_get_instance_private(self);
 }
 
 static void
 bt_cmd_pattern_class_init (BtCmdPatternClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtCmdPatternPrivate));
 
   gobject_class->constructed = bt_cmd_pattern_constructed;
   gobject_class->set_property = bt_cmd_pattern_set_property;

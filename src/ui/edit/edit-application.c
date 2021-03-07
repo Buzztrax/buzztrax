@@ -94,7 +94,8 @@ static BtEditApplication *singleton = NULL;
 
 //-- the class
 
-G_DEFINE_TYPE (BtEditApplication, bt_edit_application, BT_TYPE_APPLICATION);
+G_DEFINE_TYPE_WITH_CODE (BtEditApplication, bt_edit_application, BT_TYPE_APPLICATION, 
+    G_ADD_PRIVATE(BtEditApplication));
 
 //-- event handler
 
@@ -987,17 +988,13 @@ bt_edit_application_dispose (GObject * object)
 static void
 bt_edit_application_init (BtEditApplication * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_EDIT_APPLICATION,
-      BtEditApplicationPrivate);
+  self->priv = bt_edit_application_get_instance_private(self);
 }
 
 static void
 bt_edit_application_class_init (BtEditApplicationClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtEditApplicationPrivate));
 
   gobject_class->constructor = bt_edit_application_constructor;
   gobject_class->set_property = bt_edit_application_set_property;

@@ -71,6 +71,7 @@ static void bt_wavelevel_persistence_interface_init (gpointer const g_iface,
     gpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtWavelevel, bt_wavelevel, G_TYPE_OBJECT,
+    G_ADD_PRIVATE(BtWavelevel)
     G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
         bt_wavelevel_persistence_interface_init));
 
@@ -348,8 +349,7 @@ bt_wavelevel_finalize (GObject * const object)
 static void
 bt_wavelevel_init (BtWavelevel * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_WAVELEVEL, BtWavelevelPrivate);
+  self->priv = bt_wavelevel_get_instance_private(self);
   self->priv->root_note = BT_WAVELEVEL_DEFAULT_ROOT_NOTE;
 }
 
@@ -359,8 +359,6 @@ static void
 bt_wavelevel_class_init (BtWavelevelClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtWavelevelPrivate));
 
   gobject_class->constructed = bt_wavelevel_constructed;
   gobject_class->set_property = bt_wavelevel_set_property;

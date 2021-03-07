@@ -71,7 +71,8 @@ static gint n_drop_types = sizeof (drop_types) / sizeof (GtkTargetEntry);
 
 //-- the class
 
-G_DEFINE_TYPE (BtMainWindow, bt_main_window, GTK_TYPE_WINDOW);
+G_DEFINE_TYPE_WITH_CODE (BtMainWindow, bt_main_window, GTK_TYPE_WINDOW, 
+    G_ADD_PRIVATE(BtMainWindow));
 
 
 //-- helper methods
@@ -1155,9 +1156,7 @@ bt_main_window_finalize (GObject * object)
 static void
 bt_main_window_init (BtMainWindow * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MAIN_WINDOW,
-      BtMainWindowPrivate);
+  self->priv = bt_main_window_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -1166,8 +1165,6 @@ static void
 bt_main_window_class_init (BtMainWindowClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtMainWindowPrivate));
 
   gobject_class->get_property = bt_main_window_get_property;
   gobject_class->dispose = bt_main_window_dispose;

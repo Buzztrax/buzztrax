@@ -57,8 +57,9 @@ struct _BtMachinePresetPropertiesDialogPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtMachinePresetPropertiesDialog,
-    bt_machine_preset_properties_dialog, GTK_TYPE_DIALOG);
+G_DEFINE_TYPE_WITH_CODE (BtMachinePresetPropertiesDialog,
+    bt_machine_preset_properties_dialog, GTK_TYPE_DIALOG, 
+    G_ADD_PRIVATE(BtMachinePresetPropertiesDialog));
 
 //-- event handler
 
@@ -332,10 +333,7 @@ static void
 bt_machine_preset_properties_dialog_init (BtMachinePresetPropertiesDialog *
     self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self,
-      BT_TYPE_MACHINE_PRESET_PROPERTIES_DIALOG,
-      BtMachinePresetPropertiesDialogPrivate);
+  self->priv = bt_machine_preset_properties_dialog_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -345,9 +343,6 @@ static void
     (BtMachinePresetPropertiesDialogClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass,
-      sizeof (BtMachinePresetPropertiesDialogPrivate));
 
   gobject_class->set_property =
       bt_machine_preset_properties_dialog_set_property;

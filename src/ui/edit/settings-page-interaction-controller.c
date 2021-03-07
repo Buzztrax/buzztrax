@@ -76,8 +76,10 @@ struct _BtSettingsPageInteractionControllerPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtSettingsPageInteractionController,
-    bt_settings_page_interaction_controller, GTK_TYPE_GRID);
+G_DEFINE_TYPE_WITH_CODE (BtSettingsPageInteractionController,
+    bt_settings_page_interaction_controller,
+    GTK_TYPE_GRID, 
+    G_ADD_PRIVATE(BtSettingsPageInteractionController));
 
 //-- helper
 
@@ -573,10 +575,7 @@ static void
     bt_settings_page_interaction_controller_init
     (BtSettingsPageInteractionController * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self,
-      BT_TYPE_SETTINGS_PAGE_INTERACTION_CONTROLLER,
-      BtSettingsPageInteractionControllerPrivate);
+  self->priv = bt_settings_page_interaction_controller_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -586,9 +585,6 @@ static void
     (BtSettingsPageInteractionControllerClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass,
-      sizeof (BtSettingsPageInteractionControllerPrivate));
 
   gobject_class->set_property =
       bt_settings_page_interaction_controller_set_property;

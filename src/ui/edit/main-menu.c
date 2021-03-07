@@ -56,7 +56,8 @@ struct _BtMainMenuPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtMainMenu, bt_main_menu, GTK_TYPE_MENU_BAR);
+G_DEFINE_TYPE_WITH_CODE (BtMainMenu, bt_main_menu, GTK_TYPE_MENU_BAR, 
+    G_ADD_PRIVATE(BtMainMenu));
 
 //-- event handler
 
@@ -1253,8 +1254,7 @@ bt_main_menu_dispose (GObject * object)
 static void
 bt_main_menu_init (BtMainMenu * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MAIN_MENU, BtMainMenuPrivate);
+  self->priv = bt_main_menu_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 
@@ -1272,8 +1272,6 @@ bt_main_menu_class_init (BtMainMenuClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtMainMenuPrivate));
 
   gobject_class->dispose = bt_main_menu_dispose;
 

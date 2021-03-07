@@ -39,7 +39,8 @@ struct _BtIcGudevDiscovererPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtIcGudevDiscoverer, btic_gudev_discoverer, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_CODE (BtIcGudevDiscoverer, btic_gudev_discoverer, G_TYPE_OBJECT,
+						 G_ADD_PRIVATE(BtIcGudevDiscoverer));
 
 //-- helper
 
@@ -303,17 +304,13 @@ done:
 static void
 btic_gudev_discoverer_init (BtIcGudevDiscoverer * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BTIC_TYPE_GUDEV_DISCOVERER,
-      BtIcGudevDiscovererPrivate);
+  self->priv = btic_gudev_discoverer_get_instance_private(self);
 }
 
 static void
 btic_gudev_discoverer_class_init (BtIcGudevDiscovererClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtIcGudevDiscovererPrivate));
 
   gobject_class->constructor = btic_gudev_discoverer_constructor;
   gobject_class->dispose = btic_gudev_discoverer_dispose;

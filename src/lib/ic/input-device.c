@@ -61,7 +61,7 @@ struct _BtIcInputDevicePrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtIcInputDevice, btic_input_device, BTIC_TYPE_DEVICE);
+G_DEFINE_TYPE_WITH_CODE (BtIcInputDevice, btic_input_device, BTIC_TYPE_DEVICE, G_ADD_PRIVATE(BtIcInputDevice));
 
 //-- helper
 #define test_bit(bit, array)    (array[bit>>3] & (1<<(bit&0x7)))
@@ -633,9 +633,7 @@ btic_input_device_finalize (GObject * const object)
 static void
 btic_input_device_init (BtIcInputDevice * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BTIC_TYPE_INPUT_DEVICE,
-      BtIcInputDevicePrivate);
+  self->priv = btic_input_device_get_instance_private(self);
 }
 
 static void
@@ -643,8 +641,6 @@ btic_input_device_class_init (BtIcInputDeviceClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
   BtIcDeviceClass *const bticdevice_class = BTIC_DEVICE_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtIcInputDevicePrivate));
 
   gobject_class->set_property = btic_input_device_set_property;
   gobject_class->get_property = btic_input_device_get_property;

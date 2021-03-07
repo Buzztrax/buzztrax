@@ -61,7 +61,8 @@ struct _BtApplicationPrivate
 
 //-- the class
 
-G_DEFINE_ABSTRACT_TYPE (BtApplication, bt_application, G_TYPE_OBJECT);
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (BtApplication, bt_application, G_TYPE_OBJECT, 
+    G_ADD_PRIVATE(BtApplication));
 
 //-- helper
 
@@ -141,9 +142,7 @@ bt_application_init (BtApplication * self)
   GstBus *bus;
 
   GST_DEBUG ("!!!! self=%p", self);
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_APPLICATION,
-      BtApplicationPrivate);
+  self->priv = bt_application_get_instance_private(self);;
   self->priv->bin = gst_pipeline_new ("song");
   g_assert (GST_IS_ELEMENT (self->priv->bin));
   GST_DEBUG ("bin: %" G_OBJECT_REF_COUNT_FMT,
@@ -171,7 +170,6 @@ bt_application_class_init (BtApplicationClass * const klass)
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
 
   GST_DEBUG ("!!!!");
-  g_type_class_add_private (klass, sizeof (BtApplicationPrivate));
 
   gobject_class->get_property = bt_application_get_property;
   gobject_class->dispose = bt_application_dispose;

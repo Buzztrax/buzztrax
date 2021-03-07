@@ -107,7 +107,9 @@ static void bt_sequence_grid_model_tree_model_init (gpointer const g_iface,
     gpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtSequenceGridModel, bt_sequence_grid_model,
-    G_TYPE_OBJECT, G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL,
+    G_TYPE_OBJECT,
+    G_ADD_PRIVATE(BtSequenceGridModel)
+    G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL,
         bt_sequence_grid_model_tree_model_init));
 
 //-- helper
@@ -682,9 +684,7 @@ bt_sequence_grid_model_finalize (GObject * object)
 static void
 bt_sequence_grid_model_init (BtSequenceGridModel * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SEQUENCE_GRID_MODEL,
-      BtSequenceGridModelPrivate);
+  self->priv = bt_sequence_grid_model_get_instance_private(self);
 
   // random int to check whether an iter belongs to our model
   self->priv->stamp = g_random_int ();
@@ -694,8 +694,6 @@ static void
 bt_sequence_grid_model_class_init (BtSequenceGridModelClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtSequenceGridModelPrivate));
 
   gobject_class->set_property = bt_sequence_grid_model_set_property;
   gobject_class->get_property = bt_sequence_grid_model_get_property;

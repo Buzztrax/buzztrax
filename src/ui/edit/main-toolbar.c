@@ -87,7 +87,8 @@ static void on_song_volume_changed (GstElement * gain, GParamSpec * arg,
 
 //-- the class
 
-G_DEFINE_TYPE (BtMainToolbar, bt_main_toolbar, GTK_TYPE_TOOLBAR);
+G_DEFINE_TYPE_WITH_CODE (BtMainToolbar, bt_main_toolbar, GTK_TYPE_TOOLBAR, 
+    G_ADD_PRIVATE(BtMainToolbar));
 
 
 //-- event handler
@@ -1048,9 +1049,7 @@ bt_main_toolbar_finalize (GObject * object)
 static void
 bt_main_toolbar_init (BtMainToolbar * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MAIN_TOOLBAR,
-      BtMainToolbarPrivate);
+  self->priv = bt_main_toolbar_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
   g_mutex_init (&self->priv->lock);
@@ -1064,8 +1063,6 @@ bt_main_toolbar_class_init (BtMainToolbarClass * klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   bus_msg_level_quark = g_quark_from_static_string ("level");
-
-  g_type_class_add_private (klass, sizeof (BtMainToolbarPrivate));
 
   gobject_class->dispose = bt_main_toolbar_dispose;
   gobject_class->finalize = bt_main_toolbar_finalize;

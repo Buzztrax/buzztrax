@@ -72,7 +72,8 @@ static guint signals[LAST_SIGNAL] = { 0, };
 
 //-- the class
 
-G_DEFINE_TYPE (BtValueGroup, bt_value_group, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_CODE (BtValueGroup, bt_value_group, G_TYPE_OBJECT, 
+    G_ADD_PRIVATE(BtValueGroup));
 
 //-- macros
 
@@ -1376,9 +1377,7 @@ static void
 bt_value_group_init (BtValueGroup * self)
 {
   GST_DEBUG ("!!!! self=%p", self);
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_VALUE_GROUP,
-      BtValueGroupPrivate);
+  self->priv = bt_value_group_get_instance_private(self);
 }
 
 static void
@@ -1387,7 +1386,6 @@ bt_value_group_class_init (BtValueGroupClass * const klass)
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
 
   GST_DEBUG ("!!!!");
-  g_type_class_add_private (klass, sizeof (BtValueGroupPrivate));
 
   gobject_class->constructed = bt_value_group_constructed;
   gobject_class->set_property = bt_value_group_set_property;

@@ -66,8 +66,9 @@ struct _BtMissingFrameworkElementsDialogPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtMissingFrameworkElementsDialog,
-    bt_missing_framework_elements_dialog, GTK_TYPE_DIALOG);
+G_DEFINE_TYPE_WITH_CODE (BtMissingFrameworkElementsDialog,
+    bt_missing_framework_elements_dialog, GTK_TYPE_DIALOG, 
+    G_ADD_PRIVATE(BtMissingFrameworkElementsDialog));
 
 
 //-- event handler
@@ -350,10 +351,7 @@ static void
 bt_missing_framework_elements_dialog_init (BtMissingFrameworkElementsDialog *
     self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self,
-      BT_TYPE_MISSING_FRAMEWORK_ELEMENTS_DIALOG,
-      BtMissingFrameworkElementsDialogPrivate);
+  self->priv = bt_missing_framework_elements_dialog_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -363,9 +361,6 @@ static void
     (BtMissingFrameworkElementsDialogClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass,
-      sizeof (BtMissingFrameworkElementsDialogPrivate));
 
   gobject_class->set_property =
       bt_missing_framework_elements_dialog_set_property;

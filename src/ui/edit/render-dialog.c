@@ -86,7 +86,8 @@ static void on_format_menu_changed (GtkComboBox * menu, gpointer user_data);
 
 //-- the class
 
-G_DEFINE_TYPE (BtRenderDialog, bt_render_dialog, GTK_TYPE_DIALOG);
+G_DEFINE_TYPE_WITH_CODE (BtRenderDialog, bt_render_dialog, GTK_TYPE_DIALOG, 
+    G_ADD_PRIVATE(BtRenderDialog));
 
 
 //-- enums
@@ -818,9 +819,7 @@ bt_render_dialog_finalize (GObject * object)
 static void
 bt_render_dialog_init (BtRenderDialog * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_RENDER_DIALOG,
-      BtRenderDialogPrivate);
+  self->priv = bt_render_dialog_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -829,8 +828,6 @@ static void
 bt_render_dialog_class_init (BtRenderDialogClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtRenderDialogPrivate));
 
   gobject_class->dispose = bt_render_dialog_dispose;
   gobject_class->finalize = bt_render_dialog_finalize;

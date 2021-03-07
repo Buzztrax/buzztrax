@@ -424,7 +424,7 @@ gstbt_audio_synth_create (GstBaseSrc * basesrc, guint64 offset,
   src->n_samples = n_samples;
 
   if (gst_buffer_map (buf, &info, GST_MAP_WRITE)) {
-    if (!klass->process (src, buf, &info)) {
+    if (klass->process && !klass->process (src, buf, &info)) {
       memset (info.data, 0, info.size);
       GST_BUFFER_FLAG_SET (buf, GST_BUFFER_FLAG_GAP);
     }

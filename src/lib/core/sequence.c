@@ -138,6 +138,7 @@ static void bt_sequence_persistence_interface_init (gpointer const g_iface,
     gpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtSequence, bt_sequence, G_TYPE_OBJECT,
+    G_ADD_PRIVATE(BtSequence)
     G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
         bt_sequence_persistence_interface_init));
 
@@ -1781,8 +1782,7 @@ bt_sequence_finalize (GObject * const object)
 static void
 bt_sequence_init (BtSequence * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SEQUENCE, BtSequencePrivate);
+  self->priv = bt_sequence_get_instance_private(self);
   self->priv->loop_start = -1;
   self->priv->loop_end = -1;
   self->priv->pattern_usage = g_hash_table_new (NULL, NULL);
@@ -1794,8 +1794,6 @@ static void
 bt_sequence_class_init (BtSequenceClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtSequencePrivate));
 
   gobject_class->set_property = bt_sequence_set_property;
   gobject_class->get_property = bt_sequence_get_property;

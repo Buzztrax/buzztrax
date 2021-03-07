@@ -68,7 +68,8 @@ struct _BtSettingsDialogPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtSettingsDialog, bt_settings_dialog, GTK_TYPE_DIALOG);
+G_DEFINE_TYPE_WITH_CODE (BtSettingsDialog, bt_settings_dialog, GTK_TYPE_DIALOG, 
+    G_ADD_PRIVATE(BtSettingsDialog));
 
 
 //-- enums
@@ -415,9 +416,7 @@ bt_settings_dialog_dispose (GObject * object)
 static void
 bt_settings_dialog_init (BtSettingsDialog * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SETTINGS_DIALOG,
-      BtSettingsDialogPrivate);
+  self->priv = bt_settings_dialog_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -426,8 +425,6 @@ static void
 bt_settings_dialog_class_init (BtSettingsDialogClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtSettingsDialogPrivate));
 
   gobject_class->set_property = bt_settings_dialog_set_property;
   gobject_class->get_property = bt_settings_dialog_get_property;

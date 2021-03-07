@@ -52,8 +52,9 @@ struct _BtMissingSongElementsDialogPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtMissingSongElementsDialog, bt_missing_song_elements_dialog,
-    GTK_TYPE_DIALOG);
+G_DEFINE_TYPE_WITH_CODE (BtMissingSongElementsDialog, bt_missing_song_elements_dialog,
+    GTK_TYPE_DIALOG, 
+    G_ADD_PRIVATE(BtMissingSongElementsDialog));
 
 
 //-- event handler
@@ -213,9 +214,7 @@ bt_missing_song_elements_dialog_dispose (GObject * object)
 static void
 bt_missing_song_elements_dialog_init (BtMissingSongElementsDialog * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MISSING_SONG_ELEMENTS_DIALOG,
-      BtMissingSongElementsDialogPrivate);
+  self->priv = bt_missing_song_elements_dialog_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -225,8 +224,6 @@ bt_missing_song_elements_dialog_class_init (BtMissingSongElementsDialogClass *
     klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtMissingSongElementsDialogPrivate));
 
   gobject_class->set_property = bt_missing_song_elements_dialog_set_property;
   gobject_class->dispose = bt_missing_song_elements_dialog_dispose;

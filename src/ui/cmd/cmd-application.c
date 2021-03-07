@@ -68,7 +68,8 @@ static gboolean is_playing = FALSE;
 
 //-- the class
 
-G_DEFINE_TYPE (BtCmdApplication, bt_cmd_application, BT_TYPE_APPLICATION);
+G_DEFINE_TYPE_WITH_CODE (BtCmdApplication, bt_cmd_application, BT_TYPE_APPLICATION, 
+    G_ADD_PRIVATE(BtCmdApplication));
 
 //-- helper methods
 
@@ -709,9 +710,7 @@ static void
 bt_cmd_application_init (BtCmdApplication * self)
 {
   GST_DEBUG ("!!!! self=%p", self);
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_CMD_APPLICATION,
-      BtCmdApplicationPrivate);
+  self->priv = bt_cmd_application_get_instance_private(self);
 
   self->priv->loop = g_main_loop_new (NULL, FALSE);
 #if THREADED_MAIN
@@ -725,8 +724,6 @@ bt_cmd_application_class_init (BtCmdApplicationClass * klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   GST_DEBUG ("!!!!");
-  g_type_class_add_private (klass, sizeof (BtCmdApplicationPrivate));
-
   gobject_class->set_property = bt_cmd_application_set_property;
   gobject_class->dispose = bt_cmd_application_dispose;
   gobject_class->finalize = bt_cmd_application_finalize;

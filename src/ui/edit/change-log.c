@@ -250,7 +250,8 @@ static BtChangeLog *singleton = NULL;
 
 //-- the class
 
-G_DEFINE_TYPE (BtChangeLog, bt_change_log, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_CODE (BtChangeLog, bt_change_log, G_TYPE_OBJECT, 
+    G_ADD_PRIVATE(BtChangeLog));
 
 //-- helper
 
@@ -1192,9 +1193,7 @@ bt_change_log_get_property (GObject * object, guint property_id, GValue * value,
 static void
 bt_change_log_init (BtChangeLog * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_CHANGE_LOG,
-      BtChangeLogPrivate);
+  self->priv = bt_change_log_get_instance_private(self);
   /* this is created from the app, we need to avoid a ref-cycle */
   self->priv->app = bt_edit_application_new ();
   g_object_try_weak_ref (self->priv->app);
@@ -1231,8 +1230,6 @@ static void
 bt_change_log_class_init (BtChangeLogClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtChangeLogPrivate));
 
   gobject_class->get_property = bt_change_log_get_property;
   gobject_class->constructor = bt_change_log_constructor;

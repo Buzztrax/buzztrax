@@ -243,6 +243,7 @@ static void bt_song_persistence_interface_init (gpointer const g_iface,
 
 
 G_DEFINE_TYPE_WITH_CODE (BtSong, bt_song, G_TYPE_OBJECT,
+    G_ADD_PRIVATE(BtSong)
     G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
         bt_song_persistence_interface_init));
 
@@ -1771,7 +1772,7 @@ bt_song_init (BtSong * self)
 {
   GstClockTime s, e;
 
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SONG, BtSongPrivate);
+  self->priv = bt_song_get_instance_private(self);
 
   self->priv->position_query = gst_query_new_position (GST_FORMAT_TIME);
   self->priv->play_rate = 1.0;
@@ -1787,8 +1788,6 @@ static void
 bt_song_class_init (BtSongClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtSongPrivate));
 
   gobject_class->constructed = bt_song_constructed;
   gobject_class->set_property = bt_song_set_property;

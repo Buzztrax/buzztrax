@@ -59,8 +59,9 @@ struct _BtSettingsPageShortcutsPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtSettingsPageShortcuts, bt_settings_page_shortcuts,
-    GTK_TYPE_GRID);
+G_DEFINE_TYPE_WITH_CODE (BtSettingsPageShortcuts, bt_settings_page_shortcuts,
+    GTK_TYPE_GRID, 
+    G_ADD_PRIVATE(BtSettingsPageShortcuts));
 
 
 
@@ -154,9 +155,7 @@ bt_settings_page_shortcuts_finalize (GObject * object)
 static void
 bt_settings_page_shortcuts_init (BtSettingsPageShortcuts * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SETTINGS_PAGE_SHORTCUTS,
-      BtSettingsPageShortcutsPrivate);
+  self->priv = bt_settings_page_shortcuts_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -165,8 +164,6 @@ static void
 bt_settings_page_shortcuts_class_init (BtSettingsPageShortcutsClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtSettingsPageShortcutsPrivate));
 
   gobject_class->dispose = bt_settings_page_shortcuts_dispose;
   gobject_class->finalize = bt_settings_page_shortcuts_finalize;

@@ -148,8 +148,9 @@ static GQuark bus_msg_spectrum_quark = 0;
 
 //-- the class
 
-G_DEFINE_TYPE (BtSignalAnalysisDialog, bt_signal_analysis_dialog,
-    GTK_TYPE_WINDOW);
+G_DEFINE_TYPE_WITH_CODE (BtSignalAnalysisDialog, bt_signal_analysis_dialog,
+    GTK_TYPE_WINDOW, 
+    G_ADD_PRIVATE(BtSignalAnalysisDialog));
 
 
 //-- event handler helper
@@ -1293,9 +1294,7 @@ bt_signal_analysis_dialog_init (BtSignalAnalysisDialog * self)
   guint i;
   gdouble f, inc, end;
 
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SIGNAL_ANALYSIS_DIALOG,
-      BtSignalAnalysisDialogPrivate);
+  self->priv = bt_signal_analysis_dialog_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 
@@ -1335,8 +1334,6 @@ bt_signal_analysis_dialog_class_init (BtSignalAnalysisDialogClass * klass)
 
   bus_msg_level_quark = g_quark_from_static_string ("level");
   bus_msg_spectrum_quark = g_quark_from_static_string ("spectrum");
-
-  g_type_class_add_private (klass, sizeof (BtSignalAnalysisDialogPrivate));
 
   gobject_class->set_property = bt_signal_analysis_dialog_set_property;
   gobject_class->dispose = bt_signal_analysis_dialog_dispose;

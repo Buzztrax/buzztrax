@@ -56,8 +56,9 @@ struct _BtMachineRenameDialogPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtMachineRenameDialog, bt_machine_rename_dialog,
-    GTK_TYPE_DIALOG);
+G_DEFINE_TYPE_WITH_CODE (BtMachineRenameDialog, bt_machine_rename_dialog,
+    GTK_TYPE_DIALOG, 
+    G_ADD_PRIVATE(BtMachineRenameDialog));
 
 
 //-- event handler
@@ -258,9 +259,7 @@ bt_machine_rename_dialog_finalize (GObject * object)
 static void
 bt_machine_rename_dialog_init (BtMachineRenameDialog * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MACHINE_RENAME_DIALOG,
-      BtMachineRenameDialogPrivate);
+  self->priv = bt_machine_rename_dialog_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -269,8 +268,6 @@ static void
 bt_machine_rename_dialog_class_init (BtMachineRenameDialogClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtMachineRenameDialogPrivate));
 
   gobject_class->get_property = bt_machine_rename_dialog_get_property;
   gobject_class->set_property = bt_machine_rename_dialog_set_property;

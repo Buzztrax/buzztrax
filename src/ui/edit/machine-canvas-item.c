@@ -159,7 +159,8 @@ static GQuark machine_canvas_item_quark = 0;
 
 //-- the class
 
-G_DEFINE_TYPE (BtMachineCanvasItem, bt_machine_canvas_item, CLUTTER_TYPE_ACTOR);
+G_DEFINE_TYPE_WITH_CODE (BtMachineCanvasItem, bt_machine_canvas_item, CLUTTER_TYPE_ACTOR, 
+    G_ADD_PRIVATE(BtMachineCanvasItem));
 
 
 //-- prototypes
@@ -1544,9 +1545,7 @@ bt_machine_canvas_item_init (BtMachineCanvasItem * self)
   GstBin *bin;
   GstBus *bus;
 
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MACHINE_CANVAS_ITEM,
-      BtMachineCanvasItemPrivate);
+  self->priv = bt_machine_canvas_item_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 
@@ -1583,8 +1582,6 @@ bt_machine_canvas_item_class_init (BtMachineCanvasItemClass * klass)
   bus_msg_level_quark = g_quark_from_static_string ("level");
   machine_canvas_item_quark =
       g_quark_from_static_string ("machine-canvas-item");
-
-  g_type_class_add_private (klass, sizeof (BtMachineCanvasItemPrivate));
 
   gobject_class->constructed = bt_machine_canvas_item_constructed;
   gobject_class->set_property = bt_machine_canvas_item_set_property;

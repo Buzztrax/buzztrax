@@ -81,8 +81,9 @@ extern GQuark bt_machine_property_name;
 
 //-- the class
 
-G_DEFINE_TYPE (BtInteractionControllerMenu, bt_interaction_controller_menu,
-    GTK_TYPE_MENU);
+G_DEFINE_TYPE_WITH_CODE (BtInteractionControllerMenu, bt_interaction_controller_menu,
+    GTK_TYPE_MENU, 
+    G_ADD_PRIVATE(BtInteractionControllerMenu));
 
 //-- prototypes
 
@@ -571,9 +572,7 @@ bt_interaction_controller_menu_finalize (GObject * object)
 static void
 bt_interaction_controller_menu_init (BtInteractionControllerMenu * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_INTERACTION_CONTROLLER_MENU,
-      BtInteractionControllerMenuPrivate);
+  self->priv = bt_interaction_controller_menu_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
   self->priv->menuitem_to_control = g_hash_table_new (NULL, NULL);
@@ -586,8 +585,6 @@ bt_interaction_controller_menu_class_init (BtInteractionControllerMenuClass *
     klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtInteractionControllerMenuPrivate));
 
   gobject_class->set_property = bt_interaction_controller_menu_set_property;
   gobject_class->get_property = bt_interaction_controller_menu_get_property;
