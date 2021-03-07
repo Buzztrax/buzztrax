@@ -445,7 +445,7 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
         GST_INFO ("enum range: %d, %d", enum_class->minimum,
             enum_class->maximum);
         // need a real model because of sparse enums
-        store = gtk_list_store_new (2, G_TYPE_ULONG, G_TYPE_STRING);
+        store = gtk_list_store_new (2, G_TYPE_INT, G_TYPE_STRING);
         for (value = enum_class->minimum; value <= enum_class->maximum; value++) {
           if ((enum_value = g_enum_get_value (enum_class, value))) {
             //GST_INFO("enum value: %d, '%s', '%s'",enum_value->value,enum_value->value_name,enum_value->value_nick);
