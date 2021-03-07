@@ -2664,6 +2664,8 @@ bt_machine_reset_parameters (const BtMachine * const self)
   for (j = 0; j < voices; j++) {
     bt_parameter_group_reset_values (self->priv->voice_param_groups[j]);
   }
+
+  bt_machine_set_param_defaults (self);
 }
 
 //-- linking
