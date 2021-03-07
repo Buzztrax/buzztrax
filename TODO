@@ -598,14 +598,29 @@
 * custom pipeline scheduler
   * sadly adder is still racy and audiomixer is lacking features, beside pull
     based scheduling is not seeing any improvements either
-  * we could implement manual scheduling on the top-level pipeline. For that
-    we'd:
-    * keep all BtMachine bins in the pipeline but not conenct them
-    * the ghostpads get a pad-probe
+  * we could implement manual scheduling on the top-level pipeline
+  * key point to keep in mind:
+    * if we don't use adders we need to mixing ourself
+    * if we don't use tees we need to refcount outgoing buffers to avoid
+      recalculating 
+    * seeks go to the sink, new-segments needs to be send from sources after a 
+      seek
+  * common code changes:
+    * keep all BtMachine bins in the pipeline but not connect them
+    * replace adder/tees with fakesrc/sink or appsrc/sink
+    * the ghostpads get a pad-probe (or we use the respective callbacks)
+  * push based scheduling idea:
+    * sort the BtMachines topologically starting from sources into a list 
+      * level is max(depth) from sources
+    * when playing, gstreamer will call create on all sources
+    * we let native sources create, but block fakesource until all predecessor
+      elemets have buffers, once that is true, we mix and send
+  * pull based scheduling idea:
     * confige everything for pull (we need to test that the BtMachines itself
       would work in pull mode)
-    * sort the BtMachines topologically into a list, where each BtMachine knows
-      its predecessors and has a count of successorts
+    * sort the BtMachines topologically starting from the sink into a list, 
+      where each BtMachine knows its predecessors and has a count of successors
+      * level is max(depths) from sink
     * maintain a pool of buffer (upper size is number of machines)
     * when playing, gstreamer will pull on the BtSiinkMachine and when the
       PadProbe is triggered with a buffer, we
@@ -617,9 +632,9 @@
         * when returning the buffer dec the ref_ct and once 0 return the buffer
           to the pool
       * once they all return mix into the 1st buffer we got from the probe
-  * options:
-    * change BtMachine to not start with an adder and end with a tee (we could
-      use identities for migration), but then we need to do the mixing ourself
   * TODO:
     * make a standalone toy that can validate the graph mandling?
+    * test what happens with events if we have all these parallel sub pipelines
+      (each BtMachine will have sinks and sources now). The GstPipeline will
+      probably send seek-events to each pipeline (which is probably okay)
 
