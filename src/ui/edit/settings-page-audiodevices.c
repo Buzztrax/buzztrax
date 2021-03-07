@@ -66,8 +66,9 @@ struct _BtSettingsPageAudiodevicesPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtSettingsPageAudiodevices, bt_settings_page_audiodevices,
-    GTK_TYPE_GRID);
+G_DEFINE_TYPE_WITH_CODE (BtSettingsPageAudiodevices, bt_settings_page_audiodevices,
+    GTK_TYPE_GRID,
+    G_ADD_PRIVATE(BtSettingsPageAudiodevices));
 
 //-- helper
 
@@ -546,9 +547,7 @@ bt_settings_page_audiodevices_finalize (GObject * object)
 static void
 bt_settings_page_audiodevices_init (BtSettingsPageAudiodevices * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SETTINGS_PAGE_AUDIODEVICES,
-      BtSettingsPageAudiodevicesPrivate);
+  self->priv = bt_settings_page_audiodevices_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -558,8 +557,6 @@ bt_settings_page_audiodevices_class_init (BtSettingsPageAudiodevicesClass *
     klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtSettingsPageAudiodevicesPrivate));
 
   gobject_class->dispose = bt_settings_page_audiodevices_dispose;
   gobject_class->finalize = bt_settings_page_audiodevices_finalize;

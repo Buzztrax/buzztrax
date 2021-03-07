@@ -63,7 +63,8 @@ struct _BtSequenceViewPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtSequenceView, bt_sequence_view, GTK_TYPE_TREE_VIEW);
+G_DEFINE_TYPE_WITH_CODE (BtSequenceView, bt_sequence_view, GTK_TYPE_TREE_VIEW, 
+    G_ADD_PRIVATE(BtSequenceView));
 
 
 //-- event handler
@@ -276,9 +277,7 @@ bt_sequence_view_dispose (GObject * object)
 static void
 bt_sequence_view_init (BtSequenceView * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SEQUENCE_VIEW,
-      BtSequenceViewPrivate);
+  self->priv = bt_sequence_view_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -288,8 +287,6 @@ bt_sequence_view_class_init (BtSequenceViewClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtSequenceViewPrivate));
 
   gobject_class->set_property = bt_sequence_view_set_property;
   gobject_class->dispose = bt_sequence_view_dispose;

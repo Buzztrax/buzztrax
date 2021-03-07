@@ -113,6 +113,7 @@ static void bt_pattern_persistence_interface_init (gpointer const g_iface,
     gpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtPattern, bt_pattern, BT_TYPE_CMD_PATTERN,
+    G_ADD_PRIVATE(BtPattern)
     G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
         bt_pattern_persistence_interface_init));
 
@@ -1207,8 +1208,7 @@ bt_pattern_finalize (GObject * const object)
 static void
 bt_pattern_init (BtPattern * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_PATTERN, BtPatternPrivate);
+  self->priv = bt_pattern_get_instance_private(self);
   self->priv->wire_value_groups =
       g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) g_object_unref);
   self->priv->param_to_value_groups =
@@ -1219,8 +1219,6 @@ static void
 bt_pattern_class_init (BtPatternClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtPatternPrivate));
 
   gobject_class->constructed = bt_pattern_constructed;
   gobject_class->set_property = bt_pattern_set_property;

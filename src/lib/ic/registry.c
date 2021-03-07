@@ -51,7 +51,7 @@ static BtIcRegistry *singleton = NULL;
 
 //-- the class
 
-G_DEFINE_TYPE (BtIcRegistry, btic_registry, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_CODE (BtIcRegistry, btic_registry, G_TYPE_OBJECT, G_ADD_PRIVATE(BtIcRegistry));
 
 //-- helper
 
@@ -283,17 +283,13 @@ btic_registry_constructor (GType type, guint n_construct_params,
 static void
 btic_registry_init (BtIcRegistry * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BTIC_TYPE_REGISTRY,
-      BtIcRegistryPrivate);
+  self->priv = btic_registry_get_instance_private(self);
 }
 
 static void
 btic_registry_class_init (BtIcRegistryClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtIcRegistryPrivate));
 
   gobject_class->constructor = btic_registry_constructor;
   gobject_class->get_property = btic_registry_get_property;

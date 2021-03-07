@@ -37,7 +37,8 @@ struct _BtAboutDialogPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtAboutDialog, bt_about_dialog, GTK_TYPE_ABOUT_DIALOG);
+G_DEFINE_TYPE_WITH_CODE (BtAboutDialog, bt_about_dialog, GTK_TYPE_ABOUT_DIALOG, 
+    G_ADD_PRIVATE(BtAboutDialog));
 
 //-- event handler
 
@@ -173,9 +174,7 @@ bt_about_dialog_dispose (GObject * object)
 static void
 bt_about_dialog_init (BtAboutDialog * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_ABOUT_DIALOG,
-      BtAboutDialogPrivate);
+  self->priv = bt_about_dialog_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -184,8 +183,6 @@ static void
 bt_about_dialog_class_init (BtAboutDialogClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtAboutDialogPrivate));
 
   gobject_class->dispose = bt_about_dialog_dispose;
 }

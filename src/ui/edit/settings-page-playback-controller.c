@@ -106,8 +106,9 @@ struct _BtSettingsPagePlaybackControllerPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtSettingsPagePlaybackController,
-    bt_settings_page_playback_controller, GTK_TYPE_GRID);
+G_DEFINE_TYPE_WITH_CODE (BtSettingsPagePlaybackController,
+    bt_settings_page_playback_controller, GTK_TYPE_GRID, 
+    G_ADD_PRIVATE(BtSettingsPagePlaybackController));
 
 
 //-- helper
@@ -678,10 +679,7 @@ static void
 bt_settings_page_playback_controller_init (BtSettingsPagePlaybackController *
     self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self,
-      BT_TYPE_SETTINGS_PAGE_PLAYBACK_CONTROLLER,
-      BtSettingsPagePlaybackControllerPrivate);
+  self->priv = bt_settings_page_playback_controller_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
   g_object_get (self->priv->app, "settings", &self->priv->settings, NULL);
@@ -692,9 +690,6 @@ static void
     (BtSettingsPagePlaybackControllerClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass,
-      sizeof (BtSettingsPagePlaybackControllerPrivate));
 
   gobject_class->dispose = bt_settings_page_playback_controller_dispose;
 }

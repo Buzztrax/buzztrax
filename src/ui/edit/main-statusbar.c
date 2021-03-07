@@ -74,7 +74,8 @@ struct _BtMainStatusbarPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtMainStatusbar, bt_main_statusbar, GTK_TYPE_BOX);
+G_DEFINE_TYPE_WITH_CODE (BtMainStatusbar, bt_main_statusbar, GTK_TYPE_BOX, 
+    G_ADD_PRIVATE(BtMainStatusbar));
 
 
 //-- helper
@@ -426,9 +427,7 @@ bt_main_statusbar_dispose (GObject * object)
 static void
 bt_main_statusbar_init (BtMainStatusbar * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MAIN_STATUSBAR,
-      BtMainStatusbarPrivate);
+  self->priv = bt_main_statusbar_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -437,8 +436,6 @@ static void
 bt_main_statusbar_class_init (BtMainStatusbarClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtMainStatusbarPrivate));
 
   gobject_class->set_property = bt_main_statusbar_set_property;
   gobject_class->dispose = bt_main_statusbar_dispose;

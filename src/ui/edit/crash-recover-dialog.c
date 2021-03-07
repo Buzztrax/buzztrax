@@ -79,7 +79,8 @@ struct _BtCrashRecoverDialogPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtCrashRecoverDialog, bt_crash_recover_dialog, GTK_TYPE_DIALOG);
+G_DEFINE_TYPE_WITH_CODE (BtCrashRecoverDialog, bt_crash_recover_dialog, GTK_TYPE_DIALOG, 
+    G_ADD_PRIVATE(BtCrashRecoverDialog));
 
 //-- helper
 
@@ -374,9 +375,7 @@ bt_crash_recover_dialog_dispose (GObject * object)
 static void
 bt_crash_recover_dialog_init (BtCrashRecoverDialog * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_CRASH_RECOVER_DIALOG,
-      BtCrashRecoverDialogPrivate);
+  self->priv = bt_crash_recover_dialog_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -385,8 +384,6 @@ static void
 bt_crash_recover_dialog_class_init (BtCrashRecoverDialogClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtCrashRecoverDialogPrivate));
 
   gobject_class->set_property = bt_crash_recover_dialog_set_property;
   gobject_class->dispose = bt_crash_recover_dialog_dispose;

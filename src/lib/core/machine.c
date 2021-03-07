@@ -287,6 +287,7 @@ static void bt_machine_persistence_interface_init (gpointer const g_iface,
     gpointer const iface_data);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (BtMachine, bt_machine, GST_TYPE_BIN,
+    G_ADD_PRIVATE(BtMachine)
     G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
         bt_machine_persistence_interface_init));
 
@@ -3548,8 +3549,7 @@ bt_machine_finalize (GObject * const object)
 static void
 bt_machine_init (BtMachine * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MACHINE, BtMachinePrivate);
+  self->priv = bt_machine_get_instance_private(self);
   // default is no voice, only global params
   //self->priv->voices=1;
   self->priv->properties =
@@ -3569,7 +3569,6 @@ bt_machine_class_init (BtMachineClass * const klass)
   GstElementClass *const gstelement_class = GST_ELEMENT_CLASS (klass);
 
   error_domain = g_type_qname (BT_TYPE_MACHINE);
-  g_type_class_add_private (klass, sizeof (BtMachinePrivate));
 
   bt_machine_machine = g_quark_from_static_string ("BtMachine::machine");
   bt_machine_property_name =

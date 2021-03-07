@@ -73,7 +73,8 @@ static GList *plugins = NULL;
 
 //-- the class
 
-G_DEFINE_ABSTRACT_TYPE (BtSongIO, bt_song_io, G_TYPE_OBJECT);
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (BtSongIO, bt_song_io, G_TYPE_OBJECT,
+    G_ADD_PRIVATE(BtSongIO));
 
 //-- error codes
 
@@ -590,16 +591,13 @@ bt_song_io_finalize (GObject * const object)
 static void
 bt_song_io_init (BtSongIO * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SONG_IO, BtSongIOPrivate);
+  self->priv = bt_song_io_get_instance_private(self);
 }
 
 static void
 bt_song_io_class_init (BtSongIOClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtSongIOPrivate));
 
   gobject_class->set_property = bt_song_io_set_property;
   gobject_class->get_property = bt_song_io_get_property;

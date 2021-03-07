@@ -57,7 +57,8 @@ static void btic_aseq_device_interface_init (gpointer const g_iface,
     gpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtIcASeqDevice, btic_aseq_device, BTIC_TYPE_DEVICE,
-    G_IMPLEMENT_INTERFACE (BTIC_TYPE_LEARN, btic_aseq_device_interface_init));
+    G_ADD_PRIVATE(BtIcASeqDevice)
+	G_IMPLEMENT_INTERFACE (BTIC_TYPE_LEARN, btic_aseq_device_interface_init));
 
 //-- defines
 
@@ -446,9 +447,7 @@ btic_aseq_device_finalize (GObject * const object)
 static void
 btic_aseq_device_init (BtIcASeqDevice * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BTIC_TYPE_ASEQ_DEVICE,
-      BtIcASeqDevicePrivate);
+  self->priv = btic_aseq_device_get_instance_private(self);
   self->priv->src_port = -1;
 }
 
@@ -458,8 +457,6 @@ btic_aseq_device_class_init (BtIcASeqDeviceClass * const klass)
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
   BtIcDeviceClass *const bticdevice_class = BTIC_DEVICE_CLASS (klass);
   gint err;
-
-  g_type_class_add_private (klass, sizeof (BtIcASeqDevicePrivate));
 
   gobject_class->constructed = btic_aseq_device_constructed;
   gobject_class->set_property = btic_aseq_device_set_property;

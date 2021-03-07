@@ -111,6 +111,7 @@ static void bt_wave_persistence_interface_init (gpointer const g_iface,
     gpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtWave, bt_wave, G_TYPE_OBJECT,
+    G_ADD_PRIVATE(BtWave)
     G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
         bt_wave_persistence_interface_init));
 
@@ -989,7 +990,7 @@ bt_wave_finalize (GObject * const object)
 static void
 bt_wave_init (BtWave * self)
 {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_WAVE, BtWavePrivate);
+  self->priv = bt_wave_get_instance_private(self);
   self->priv->volume = 1.0;
   self->priv->fd = -1;
   self->priv->ext_fd = -1;
@@ -1001,7 +1002,6 @@ bt_wave_class_init (BtWaveClass * const klass)
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
 
   error_domain = g_type_qname (BT_TYPE_WAVE);
-  g_type_class_add_private (klass, sizeof (BtWavePrivate));
 
   gobject_class->constructed = bt_wave_constructed;
   gobject_class->set_property = bt_wave_set_property;

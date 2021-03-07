@@ -380,6 +380,7 @@ static void bt_setup_persistence_interface_init (gpointer const g_iface,
     gpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtSetup, bt_setup, G_TYPE_OBJECT,
+    G_ADD_PRIVATE(BtSetup)
     G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
         bt_setup_persistence_interface_init));
 
@@ -2227,8 +2228,7 @@ bt_setup_finalize (GObject * const object)
 static void
 bt_setup_init (BtSetup * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SETUP, BtSetupPrivate);
+  self->priv = bt_setup_get_instance_private(self);
 
   self->priv->properties =
       g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
@@ -2242,8 +2242,6 @@ static void
 bt_setup_class_init (BtSetupClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtSetupPrivate));
 
   gobject_class->set_property = bt_setup_set_property;
   gobject_class->get_property = bt_setup_get_property;

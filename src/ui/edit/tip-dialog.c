@@ -87,7 +87,8 @@ struct _BtTipDialogPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtTipDialog, bt_tip_dialog, GTK_TYPE_DIALOG);
+G_DEFINE_TYPE_WITH_CODE (BtTipDialog, bt_tip_dialog, GTK_TYPE_DIALOG, 
+    G_ADD_PRIVATE(BtTipDialog));
 
 
 //-- event handler
@@ -315,9 +316,7 @@ bt_tip_dialog_dispose (GObject * object)
 static void
 bt_tip_dialog_init (BtTipDialog * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_TIP_DIALOG,
-      BtTipDialogPrivate);
+  self->priv = bt_tip_dialog_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -326,8 +325,6 @@ static void
 bt_tip_dialog_class_init (BtTipDialogClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtTipDialogPrivate));
 
   gobject_class->dispose = bt_tip_dialog_dispose;
 }

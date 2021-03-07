@@ -79,6 +79,7 @@ static void bt_wavetable_persistence_interface_init (gpointer const g_iface,
     gpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtWavetable, bt_wavetable, G_TYPE_OBJECT,
+    G_ADD_PRIVATE(BtWavetable)
     G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
         bt_wavetable_persistence_interface_init));
 
@@ -417,16 +418,13 @@ bt_wavetable_finalize (GObject * const object)
 static void
 bt_wavetable_init (BtWavetable * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_WAVETABLE, BtWavetablePrivate);
+  self->priv = bt_wavetable_get_instance_private(self);
 }
 
 static void
 bt_wavetable_class_init (BtWavetableClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtWavetablePrivate));
 
   gobject_class->set_property = bt_wavetable_set_property;
   gobject_class->get_property = bt_wavetable_get_property;

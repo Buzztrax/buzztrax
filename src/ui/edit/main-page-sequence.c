@@ -201,7 +201,9 @@ static void bt_main_page_sequence_change_logger_interface_init (gpointer const
     g_iface, gconstpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtMainPageSequence, bt_main_page_sequence,
-    GTK_TYPE_BOX, G_IMPLEMENT_INTERFACE (BT_TYPE_CHANGE_LOGGER,
+    GTK_TYPE_BOX,
+    G_ADD_PRIVATE(BtMainPageSequence)
+    G_IMPLEMENT_INTERFACE (BT_TYPE_CHANGE_LOGGER,
         bt_main_page_sequence_change_logger_interface_init));
 
 // this only works for 4/4 meassure
@@ -4707,9 +4709,7 @@ bt_main_page_sequence_finalize (GObject * object)
 static void
 bt_main_page_sequence_init (BtMainPageSequence * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MAIN_PAGE_SEQUENCE,
-      BtMainPageSequencePrivate);
+  self->priv = bt_main_page_sequence_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 
@@ -4750,8 +4750,6 @@ bt_main_page_sequence_class_init (BtMainPageSequenceClass * klass)
       g_quark_from_static_string ("BtMainPageSequence::skip-update");
   machine_for_track =
       g_quark_from_static_string ("BtMainPageSequence::machine_for_track");
-
-  g_type_class_add_private (klass, sizeof (BtMainPageSequencePrivate));
 
   gobject_class->get_property = bt_main_page_sequence_get_property;
   gobject_class->set_property = bt_main_page_sequence_set_property;

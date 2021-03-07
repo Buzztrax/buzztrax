@@ -55,7 +55,8 @@ static BtUIResources *singleton = NULL;
 
 //-- the class
 
-G_DEFINE_TYPE (BtUIResources, bt_ui_resources, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_CODE (BtUIResources, bt_ui_resources, G_TYPE_OBJECT, 
+    G_ADD_PRIVATE(BtUIResources));
 
 //-- event handler
 
@@ -437,17 +438,13 @@ bt_ui_resources_constructor (GType type, guint n_construct_params,
 static void
 bt_ui_resources_init (BtUIResources * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_UI_RESOURCES,
-      BtUIResourcesPrivate);
+  self->priv = bt_ui_resources_get_instance_private(self);
 }
 
 static void
 bt_ui_resources_class_init (BtUIResourcesClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtUIResourcesPrivate));
 
   gobject_class->constructor = bt_ui_resources_constructor;
   gobject_class->dispose = bt_ui_resources_dispose;

@@ -44,7 +44,8 @@ struct _BtSettingsPageUIPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtSettingsPageUI, bt_settings_page_ui, GTK_TYPE_GRID);
+G_DEFINE_TYPE_WITH_CODE (BtSettingsPageUI, bt_settings_page_ui, GTK_TYPE_GRID, 
+    G_ADD_PRIVATE(BtSettingsPageUI));
 
 //-- event handler
 
@@ -166,9 +167,7 @@ bt_settings_page_ui_finalize (GObject * object)
 static void
 bt_settings_page_ui_init (BtSettingsPageUI * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SETTINGS_PAGE_UI,
-      BtSettingsPageUIPrivate);
+  self->priv = bt_settings_page_ui_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -177,8 +176,6 @@ static void
 bt_settings_page_ui_class_init (BtSettingsPageUIClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtSettingsPageUIPrivate));
 
   gobject_class->dispose = bt_settings_page_ui_dispose;
   gobject_class->finalize = bt_settings_page_ui_finalize;

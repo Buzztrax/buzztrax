@@ -45,7 +45,8 @@ struct _BtIcAbsRangeControlPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtIcAbsRangeControl, btic_abs_range_control, BTIC_TYPE_CONTROL);
+G_DEFINE_TYPE_WITH_CODE (BtIcAbsRangeControl, btic_abs_range_control, BTIC_TYPE_CONTROL,
+    G_ADD_PRIVATE(BtIcAbsRangeControl));
 
 //-- helper
 
@@ -161,17 +162,13 @@ btic_abs_range_control_dispose (GObject * const object)
 static void
 btic_abs_range_control_init (BtIcAbsRangeControl * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BTIC_TYPE_ABS_RANGE_CONTROL,
-      BtIcAbsRangeControlPrivate);
+  self->priv = btic_abs_range_control_get_instance_private(self);
 }
 
 static void
 btic_abs_range_control_class_init (BtIcAbsRangeControlClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtIcAbsRangeControlPrivate));
 
   gobject_class->set_property = btic_abs_range_control_set_property;
   gobject_class->get_property = btic_abs_range_control_get_property;

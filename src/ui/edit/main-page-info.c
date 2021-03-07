@@ -77,7 +77,8 @@ struct _BtMainPageInfoPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtMainPageInfo, bt_main_page_info, GTK_TYPE_BOX);
+G_DEFINE_TYPE_WITH_CODE (BtMainPageInfo, bt_main_page_info, GTK_TYPE_BOX, 
+    G_ADD_PRIVATE(BtMainPageInfo));
 
 
 //-- event handler
@@ -632,9 +633,7 @@ bt_main_page_info_dispose (GObject * object)
 static void
 bt_main_page_info_init (BtMainPageInfo * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MAIN_PAGE_INFO,
-      BtMainPageInfoPrivate);
+  self->priv = bt_main_page_info_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 
@@ -647,8 +646,6 @@ bt_main_page_info_class_init (BtMainPageInfoClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtMainPageInfoPrivate));
 
   gobject_class->dispose = bt_main_page_info_dispose;
 

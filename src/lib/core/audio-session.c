@@ -67,7 +67,8 @@ static BtAudioSession *singleton = NULL;
 
 //-- the class
 
-G_DEFINE_TYPE (BtAudioSession, bt_audio_session, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_CODE (BtAudioSession, bt_audio_session, G_TYPE_OBJECT, 
+    G_ADD_PRIVATE(BtAudioSession));
 
 //-- signal handlers
 
@@ -373,9 +374,7 @@ bt_audio_session_finalize (GObject * const object)
 static void
 bt_audio_session_init (BtAudioSession * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_AUDIO_SESSION,
-      BtAudioSessionPrivate);
+  self->priv = bt_audio_session_get_instance_private(self);
 
   GST_INFO ("!!!! self=%p", self);
 
@@ -394,8 +393,6 @@ static void
 bt_audio_session_class_init (BtAudioSessionClass * klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtAudioSessionPrivate));
 
   gobject_class->constructor = bt_audio_session_constructor;
   gobject_class->set_property = bt_audio_session_set_property;

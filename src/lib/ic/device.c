@@ -60,7 +60,7 @@ struct _BtIcDevicePrivate
 
 //-- the class
 
-G_DEFINE_ABSTRACT_TYPE (BtIcDevice, btic_device, G_TYPE_OBJECT);
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (BtIcDevice, btic_device, G_TYPE_OBJECT, G_ADD_PRIVATE(BtIcDevice));
 
 //-- helper
 
@@ -353,8 +353,7 @@ btic_device_finalize (GObject * const object)
 static void
 btic_device_init (BtIcDevice * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BTIC_TYPE_DEVICE, BtIcDevicePrivate);
+  self->priv = btic_device_get_instance_private(self);
 
   self->priv->controls_by_id =
       g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) g_object_unref);
@@ -364,8 +363,6 @@ static void
 btic_device_class_init (BtIcDeviceClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtIcDevicePrivate));
 
   gobject_class->set_property = btic_device_set_property;
   gobject_class->get_property = btic_device_get_property;

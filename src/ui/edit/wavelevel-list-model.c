@@ -52,7 +52,9 @@ static void bt_wavelevel_list_model_tree_model_init (gpointer const g_iface,
     gpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtWavelevelListModel, bt_wavelevel_list_model,
-    G_TYPE_OBJECT, G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL,
+    G_TYPE_OBJECT,
+    G_ADD_PRIVATE(BtWavelevelListModel)
+    G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL,
         bt_wavelevel_list_model_tree_model_init));
 
 //-- signal handlers
@@ -405,9 +407,7 @@ bt_wavelevel_list_model_finalize (GObject * object)
 static void
 bt_wavelevel_list_model_init (BtWavelevelListModel * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_WAVELEVEL_LIST_MODEL,
-      BtWavelevelListModelPrivate);
+  self->priv = bt_wavelevel_list_model_get_instance_private(self);
 
   self->priv->seq = g_sequence_new (NULL);
   // random int to check whether an iter belongs to our model
@@ -418,8 +418,6 @@ static void
 bt_wavelevel_list_model_class_init (BtWavelevelListModelClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtWavelevelListModelPrivate));
 
   gobject_class->finalize = bt_wavelevel_list_model_finalize;
 }

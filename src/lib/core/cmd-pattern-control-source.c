@@ -62,8 +62,9 @@ struct _BtCmdPatternControlSourcePrivate
 };
 
 //-- the class
-G_DEFINE_TYPE (BtCmdPatternControlSource, bt_cmd_pattern_control_source,
-    GST_TYPE_CONTROL_BINDING);
+G_DEFINE_TYPE_WITH_CODE (BtCmdPatternControlSource, bt_cmd_pattern_control_source,
+    GST_TYPE_CONTROL_BINDING,
+    G_ADD_PRIVATE(BtCmdPatternControlSource));
 
 /**
  * bt_cmd_pattern_control_source_new:
@@ -369,9 +370,7 @@ bt_cmd_pattern_control_source_finalize (GObject * const object)
 static void
 bt_cmd_pattern_control_source_init (BtCmdPatternControlSource * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_CMD_PATTERN_CONTROL_SOURCE,
-      BtCmdPatternControlSourcePrivate);
+  self->priv = bt_cmd_pattern_control_source_get_instance_private(self);
 }
 
 static void
@@ -381,8 +380,6 @@ bt_cmd_pattern_control_source_class_init (BtCmdPatternControlSourceClass *
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
   GstControlBindingClass *control_binding_class =
       (GstControlBindingClass *) klass;
-
-  g_type_class_add_private (klass, sizeof (BtCmdPatternControlSourcePrivate));
 
   control_binding_class->sync_values =
       gst_cmd_pattern_control_source_sync_values;

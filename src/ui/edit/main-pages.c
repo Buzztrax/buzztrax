@@ -61,7 +61,8 @@ struct _BtMainPagesPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtMainPages, bt_main_pages, GTK_TYPE_NOTEBOOK);
+G_DEFINE_TYPE_WITH_CODE (BtMainPages, bt_main_pages, GTK_TYPE_NOTEBOOK, 
+    G_ADD_PRIVATE(BtMainPages));
 
 
 //-- event handler
@@ -286,9 +287,7 @@ bt_main_pages_dispose (GObject * object)
 static void
 bt_main_pages_init (BtMainPages * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MAIN_PAGES,
-      BtMainPagesPrivate);
+  self->priv = bt_main_pages_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -297,8 +296,6 @@ static void
 bt_main_pages_class_init (BtMainPagesClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtMainPagesPrivate));
 
   gobject_class->get_property = bt_main_pages_get_property;
   gobject_class->dispose = bt_main_pages_dispose;

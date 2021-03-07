@@ -143,8 +143,9 @@ static GQuark widget_param_num_quark = 0;       /* which parameter inside the gr
 
 //-- the class
 
-G_DEFINE_TYPE (BtMachinePropertiesDialog, bt_machine_properties_dialog,
-    GTK_TYPE_WINDOW);
+G_DEFINE_TYPE_WITH_CODE (BtMachinePropertiesDialog, bt_machine_properties_dialog,
+    GTK_TYPE_WINDOW, 
+    G_ADD_PRIVATE(BtMachinePropertiesDialog));
 
 //-- event handler helper
 
@@ -3044,9 +3045,7 @@ bt_machine_properties_dialog_finalize (GObject * object)
 static void
 bt_machine_properties_dialog_init (BtMachinePropertiesDialog * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MACHINE_PROPERTIES_DIALOG,
-      BtMachinePropertiesDialogPrivate);
+  self->priv = bt_machine_properties_dialog_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 
@@ -3073,8 +3072,6 @@ bt_machine_properties_dialog_class_init (BtMachinePropertiesDialogClass * klass)
 
   widget_child_quark =
       g_quark_from_static_string ("BtInteractionControllerMenu::widget-child");
-
-  g_type_class_add_private (klass, sizeof (BtMachinePropertiesDialogPrivate));
 
   gobject_class->set_property = bt_machine_properties_dialog_set_property;
   gobject_class->dispose = bt_machine_properties_dialog_dispose;

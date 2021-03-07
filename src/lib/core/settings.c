@@ -114,7 +114,8 @@ struct _BtSettingsPrivate
   GSettings *org_freedesktop_gstreamer_defaults;
 };
 
-G_DEFINE_TYPE (BtSettings, bt_settings, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_CODE (BtSettings, bt_settings, G_TYPE_OBJECT, 
+    G_ADD_PRIVATE(BtSettings));
 
 //-- helper
 
@@ -861,16 +862,13 @@ static void
 bt_settings_init (BtSettings * self)
 {
   GST_DEBUG ("!!!! self=%p", self);
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SETTINGS, BtSettingsPrivate);
+  self->priv = bt_settings_get_instance_private(self);
 }
 
 static void
 bt_settings_class_init (BtSettingsClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtSettingsPrivate));
 
   gobject_class->set_property = bt_settings_set_property;
   gobject_class->get_property = bt_settings_get_property;

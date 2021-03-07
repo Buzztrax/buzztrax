@@ -71,8 +71,9 @@ static GQuark error_domain = 0;
 
 //-- the class
 
-G_DEFINE_TYPE (BtSongIONativeBZT, bt_song_io_native_bzt,
-    BT_TYPE_SONG_IO_NATIVE);
+G_DEFINE_TYPE_WITH_CODE (BtSongIONativeBZT, bt_song_io_native_bzt,
+    BT_TYPE_SONG_IO_NATIVE,
+    G_ADD_PRIVATE(BtSongIONativeBZT));
 
 //-- public methods
 
@@ -458,9 +459,7 @@ bt_song_io_native_bzt_dispose (GObject * const object)
 static void
 bt_song_io_native_bzt_init (BtSongIONativeBZT * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SONG_IO_NATIVE_BZT,
-      BtSongIONativeBZTPrivate);
+  self->priv = bt_song_io_native_bzt_get_instance_private(self);
 }
 
 static void
@@ -470,7 +469,6 @@ bt_song_io_native_bzt_class_init (BtSongIONativeBZTClass * const klass)
   BtSongIOClass *const btsongio_class = BT_SONG_IO_CLASS (klass);
 
   error_domain = g_type_qname (BT_TYPE_SONG_IO_NATIVE_BZT);
-  g_type_class_add_private (klass, sizeof (BtSongIONativeBZTPrivate));
 
   gobject_class->dispose = bt_song_io_native_bzt_dispose;
 

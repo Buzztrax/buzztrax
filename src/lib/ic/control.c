@@ -78,7 +78,7 @@ struct _BtIcControlPrivate
 
 //-- the class
 
-G_DEFINE_ABSTRACT_TYPE (BtIcControl, btic_control, G_TYPE_OBJECT);
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (BtIcControl, btic_control, G_TYPE_OBJECT, G_ADD_PRIVATE(BtIcControl));
 
 //-- helper
 
@@ -193,16 +193,13 @@ btic_control_finalize (GObject * const object)
 static void
 btic_control_init (BtIcControl * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BTIC_TYPE_CONTROL, BtIcControlPrivate);
+  self->priv = btic_control_get_instance_private(self);
 }
 
 static void
 btic_control_class_init (BtIcControlClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtIcControlPrivate));
 
   gobject_class->set_property = btic_control_set_property;
   gobject_class->get_property = btic_control_get_property;

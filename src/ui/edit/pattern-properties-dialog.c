@@ -61,8 +61,9 @@ struct _BtPatternPropertiesDialogPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtPatternPropertiesDialog, bt_pattern_properties_dialog,
-    GTK_TYPE_DIALOG);
+G_DEFINE_TYPE_WITH_CODE (BtPatternPropertiesDialog, bt_pattern_properties_dialog,
+    GTK_TYPE_DIALOG, 
+    G_ADD_PRIVATE(BtPatternPropertiesDialog));
 
 
 //-- event handler
@@ -355,9 +356,7 @@ bt_pattern_properties_dialog_finalize (GObject * object)
 static void
 bt_pattern_properties_dialog_init (BtPatternPropertiesDialog * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_PATTERN_PROPERTIES_DIALOG,
-      BtPatternPropertiesDialogPrivate);
+  self->priv = bt_pattern_properties_dialog_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -366,8 +365,6 @@ static void
 bt_pattern_properties_dialog_class_init (BtPatternPropertiesDialogClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtPatternPropertiesDialogPrivate));
 
   gobject_class->get_property = bt_pattern_properties_dialog_get_property;
   gobject_class->set_property = bt_pattern_properties_dialog_set_property;

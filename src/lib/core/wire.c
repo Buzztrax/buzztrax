@@ -142,6 +142,7 @@ static void bt_wire_persistence_interface_init (gpointer const g_iface,
     gpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtWire, bt_wire, GST_TYPE_BIN,
+    G_ADD_PRIVATE(BtWire)
     G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
         bt_wire_persistence_interface_init));
 
@@ -1467,7 +1468,7 @@ bt_wire_finalize (GObject * const object)
 static void
 bt_wire_init (BtWire * self)
 {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_WIRE, BtWirePrivate);
+  self->priv = bt_wire_get_instance_private(self);
   self->priv->num_params = 1;
   self->priv->properties =
       g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
@@ -1489,7 +1490,6 @@ bt_wire_class_init (BtWireClass * const klass)
   GstElementClass *const gstelement_klass = GST_ELEMENT_CLASS (klass);
 
   error_domain = g_type_qname (BT_TYPE_WIRE);
-  g_type_class_add_private (klass, sizeof (BtWirePrivate));
 
   gobject_class->constructed = bt_wire_constructed;
   gobject_class->set_property = bt_wire_set_property;

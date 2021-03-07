@@ -68,8 +68,9 @@ static GQuark widget_parent_quark = 0;
 
 //-- the class
 
-G_DEFINE_TYPE (BtMachinePreferencesDialog, bt_machine_preferences_dialog,
-    GTK_TYPE_WINDOW);
+G_DEFINE_TYPE_WITH_CODE (BtMachinePreferencesDialog, bt_machine_preferences_dialog,
+    GTK_TYPE_WINDOW, 
+    G_ADD_PRIVATE(BtMachinePreferencesDialog));
 
 //-- event handler
 
@@ -581,9 +582,7 @@ bt_machine_preferences_dialog_dispose (GObject * object)
 static void
 bt_machine_preferences_dialog_init (BtMachinePreferencesDialog * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MACHINE_PREFERENCES_DIALOG,
-      BtMachinePreferencesDialogPrivate);
+  self->priv = bt_machine_preferences_dialog_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 }
@@ -596,8 +595,6 @@ bt_machine_preferences_dialog_class_init (BtMachinePreferencesDialogClass *
 
   widget_parent_quark =
       g_quark_from_static_string ("BtMachinePreferencesDialog::widget-parent");
-
-  g_type_class_add_private (klass, sizeof (BtMachinePreferencesDialogPrivate));
 
   gobject_class->set_property = bt_machine_preferences_dialog_set_property;
   gobject_class->dispose = bt_machine_preferences_dialog_dispose;

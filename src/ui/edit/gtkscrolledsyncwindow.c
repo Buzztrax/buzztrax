@@ -168,7 +168,8 @@ static void gtk_scrolled_sync_window_cancel_deceleration (GtkScrolledSyncWindow
 
 static guint signals[LAST_SIGNAL] = { 0 };
 
-G_DEFINE_TYPE (GtkScrolledSyncWindow, gtk_scrolled_sync_window, GTK_TYPE_BIN)
+G_DEFINE_TYPE_WITH_CODE (GtkScrolledSyncWindow, gtk_scrolled_sync_window, GTK_TYPE_BIN, 
+    G_ADD_PRIVATE(GtkScrolledSyncWindow));
 
      static void
          add_scroll_binding (GtkBindingSet * binding_set,
@@ -202,8 +203,6 @@ gtk_scrolled_sync_window_class_init (GtkScrolledSyncWindowClass * klass)
   GtkWidgetClass *widget_class = (GtkWidgetClass *) klass;
   GtkContainerClass *container_class = (GtkContainerClass *) klass;
   GtkBindingSet *binding_set;
-
-  g_type_class_add_private (klass, sizeof (GtkScrolledSyncWindowPrivate));
 
   gobject_class->set_property = gtk_scrolled_sync_window_set_property;
   gobject_class->get_property = gtk_scrolled_sync_window_get_property;
@@ -345,9 +344,7 @@ gtk_scrolled_sync_window_init (GtkScrolledSyncWindow * self)
 {
   GtkScrolledSyncWindowPrivate *priv;
 
-  self->priv = priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self,
-      GTK_TYPE_SCROLLED_SYNC_WINDOW, GtkScrolledSyncWindowPrivate);
+  self->priv = priv = gtk_scrolled_sync_window_get_instance_private(self);
 
   gtk_widget_set_has_window (GTK_WIDGET (self), FALSE);
   gtk_widget_set_can_focus (GTK_WIDGET (self), TRUE);

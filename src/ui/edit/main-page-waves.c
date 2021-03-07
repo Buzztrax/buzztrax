@@ -115,7 +115,8 @@ struct _BtMainPageWavesPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtMainPageWaves, bt_main_page_waves, GTK_TYPE_BOX);
+G_DEFINE_TYPE_WITH_CODE (BtMainPageWaves, bt_main_page_waves, GTK_TYPE_BOX, 
+    G_ADD_PRIVATE(BtMainPageWaves));
 
 
 //-- event handler helper
@@ -1607,9 +1608,7 @@ bt_main_page_waves_dispose (GObject * object)
 static void
 bt_main_page_waves_init (BtMainPageWaves * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MAIN_PAGE_WAVES,
-      BtMainPageWavesPrivate);
+  self->priv = bt_main_page_waves_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
   self->priv->settings = bt_settings_make ();
@@ -1626,8 +1625,6 @@ static void
 bt_main_page_waves_class_init (BtMainPageWavesClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtMainPageWavesPrivate));
 
   gobject_class->dispose = bt_main_page_waves_dispose;
 }

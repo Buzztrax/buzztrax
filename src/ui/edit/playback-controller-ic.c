@@ -40,8 +40,9 @@ struct _BtPlaybackControllerIcPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtPlaybackControllerIc, bt_playback_controller_ic,
-    G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_CODE (BtPlaybackControllerIc, bt_playback_controller_ic,
+    G_TYPE_OBJECT, 
+    G_ADD_PRIVATE(BtPlaybackControllerIc));
 
 //-- signal handlers
 
@@ -295,9 +296,7 @@ bt_playback_controller_ic_finalize (GObject * object)
 static void
 bt_playback_controller_ic_init (BtPlaybackControllerIc * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_PLAYBACK_CONTROLLER_IC,
-      BtPlaybackControllerIcPrivate);
+  self->priv = bt_playback_controller_ic_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   /* this is created from the app, we need to avoid a ref-cycle */
   self->priv->app = bt_edit_application_new ();
@@ -312,8 +311,6 @@ static void
 bt_playback_controller_ic_class_init (BtPlaybackControllerIcClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtPlaybackControllerIcPrivate));
 
   gobject_class->dispose = bt_playback_controller_ic_dispose;
   gobject_class->finalize = bt_playback_controller_ic_finalize;

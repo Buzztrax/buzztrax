@@ -199,7 +199,8 @@ static void on_audio_sink_child_added (GstBin * bin, GstElement * element,
 
 //-- the class
 
-G_DEFINE_TYPE (BtSinkBin, bt_sink_bin, GST_TYPE_BIN);
+G_DEFINE_TYPE_WITH_CODE (BtSinkBin, bt_sink_bin, GST_TYPE_BIN, 
+    G_ADD_PRIVATE(BtSinkBin));
 
 //-- enums
 
@@ -1285,8 +1286,7 @@ bt_sink_bin_finalize (GObject * const object)
 static void
 bt_sink_bin_init (BtSinkBin * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SINK_BIN, BtSinkBinPrivate);
+  self->priv = bt_sink_bin_get_instance_private(self);
 
   GST_INFO ("!!!! self=%p", self);
 
@@ -1323,8 +1323,6 @@ bt_sink_bin_class_init (BtSinkBinClass * klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
   GstElementClass *const element_class = GST_ELEMENT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtSinkBinPrivate));
 
   gobject_class->set_property = bt_sink_bin_set_property;
   gobject_class->get_property = bt_sink_bin_get_property;

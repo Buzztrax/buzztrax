@@ -188,7 +188,9 @@ static void bt_main_page_patterns_change_logger_interface_init (gpointer const
     g_iface, gconstpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtMainPagePatterns, bt_main_page_patterns,
-    GTK_TYPE_BOX, G_IMPLEMENT_INTERFACE (BT_TYPE_CHANGE_LOGGER,
+    GTK_TYPE_BOX,
+    G_ADD_PRIVATE(BtMainPagePatterns)
+    G_IMPLEMENT_INTERFACE (BT_TYPE_CHANGE_LOGGER,
         bt_main_page_patterns_change_logger_interface_init));
 
 
@@ -3873,9 +3875,7 @@ bt_main_page_patterns_finalize (GObject * object)
 static void
 bt_main_page_patterns_init (BtMainPagePatterns * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MAIN_PAGE_PATTERNS,
-      BtMainPagePatternsPrivate);
+  self->priv = bt_main_page_patterns_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 
@@ -3904,8 +3904,6 @@ bt_main_page_patterns_class_init (BtMainPagePatternsClass * klass)
 
   pattern_atom =
       gdk_atom_intern_static_string ("application/buzztrax::pattern");
-
-  g_type_class_add_private (klass, sizeof (BtMainPagePatternsPrivate));
 
   gobject_class->dispose = bt_main_page_patterns_dispose;
   gobject_class->finalize = bt_main_page_patterns_finalize;

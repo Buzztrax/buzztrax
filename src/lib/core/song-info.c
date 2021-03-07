@@ -125,6 +125,7 @@ static void bt_song_info_persistence_interface_init (gpointer const g_iface,
     gpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtSongInfo, bt_song_info, G_TYPE_OBJECT,
+    G_ADD_PRIVATE(BtSongInfo)
     G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
         bt_song_info_persistence_interface_init));
 
@@ -706,8 +707,7 @@ bt_song_info_init (BtSongInfo * self)
   time_t now = time (NULL);
   const gchar *user_name;
 
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SONG_INFO, BtSongInfoPrivate);
+  self->priv = bt_song_info_get_instance_private(self);
   self->priv->taglist = gst_tag_list_new_empty ();
 
   user_name = g_get_real_name ();
@@ -743,8 +743,6 @@ static void
 bt_song_info_class_init (BtSongInfoClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtSongInfoPrivate));
 
   gobject_class->set_property = bt_song_info_set_property;
   gobject_class->get_property = bt_song_info_get_property;

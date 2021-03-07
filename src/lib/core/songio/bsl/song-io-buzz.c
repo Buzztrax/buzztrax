@@ -61,7 +61,8 @@ struct _BtSongIOBuzzPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtSongIOBuzz, bt_song_io_buzz, BT_TYPE_SONG_IO);
+G_DEFINE_TYPE_WITH_CODE (BtSongIOBuzz, bt_song_io_buzz, BT_TYPE_SONG_IO, 
+    G_ADD_PRIVATE(BtSongIOBuzz));
 
 
 typedef enum
@@ -2457,9 +2458,7 @@ bt_song_io_buzz_finalize (GObject * object)
 static void
 bt_song_io_buzz_init (BtSongIOBuzz * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SONG_IO_BUZZ,
-      BtSongIOBuzzPrivate);
+  self->priv = bt_song_io_buzz_get_instance_private(self);
 }
 
 static void
@@ -2467,8 +2466,6 @@ bt_song_io_buzz_class_init (BtSongIOBuzzClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   BtSongIOClass *base_class = BT_SONG_IO_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtSongIOBuzzPrivate));
 
   gobject_class->finalize = bt_song_io_buzz_finalize;
 

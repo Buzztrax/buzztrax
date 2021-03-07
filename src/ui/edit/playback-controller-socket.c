@@ -90,8 +90,9 @@ struct _BtPlaybackControllerSocketPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtPlaybackControllerSocket, bt_playback_controller_socket,
-    G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_CODE (BtPlaybackControllerSocket, bt_playback_controller_socket,
+    G_TYPE_OBJECT, 
+    G_ADD_PRIVATE(BtPlaybackControllerSocket));
 
 //-- helper methods
 
@@ -654,9 +655,7 @@ bt_playback_controller_socket_finalize (GObject * object)
 static void
 bt_playback_controller_socket_init (BtPlaybackControllerSocket * self)
 {
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_PLAYBACK_CONTROLLER_SOCKET,
-      BtPlaybackControllerSocketPrivate);
+  self->priv = bt_playback_controller_socket_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
   /* this is created from the app, we need to avoid a ref-cycle */
   self->priv->app = bt_edit_application_new ();
@@ -676,8 +675,6 @@ bt_playback_controller_socket_class_init (BtPlaybackControllerSocketClass *
     klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtPlaybackControllerSocketPrivate));
 
   gobject_class->dispose = bt_playback_controller_socket_dispose;
   gobject_class->finalize = bt_playback_controller_socket_finalize;
