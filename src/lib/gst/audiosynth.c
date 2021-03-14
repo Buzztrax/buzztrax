@@ -144,13 +144,27 @@ gstbt_audio_synth_fixate (GstBaseSrc * basesrc, GstCaps * caps)
   GstBtAudioSynth *self = GSTBT_AUDIO_SYNTH (basesrc);
   GstBtAudioSynthClass *klass = GSTBT_AUDIO_SYNTH_GET_CLASS (self);
   gint i, n = gst_caps_get_size (caps);
+  guint target_rate;
 
-  GST_INFO_OBJECT (self, "fixate");
+  GST_INFO_OBJECT (self, "fixate, self->info.rate is %d", self->info.rate);
 
+  // Note: "fixate" is called before "set_caps".
+  if (self->info.rate) {
+    // This will be the case when caps have previously been fixated and then
+    // set_caps has been called. During playback, maybe?
+    target_rate = self->info.rate;
+  } else {
+    // If the subclass doesn't override this rate by re-setting the caps, then
+    // it will be the rate used. Effectively the default sampling rate of audiosynths.
+    // More "audioresample" elements need to be placed in the pipeline to enable 
+    // audiosynths to choose their own sampling rates, anyway. Future work?
+    target_rate = GST_AUDIO_DEF_RATE;
+  }
+  
   caps = gst_caps_make_writable (caps);
   for (i = 0; i < n; i++) {
     gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
-        "rate", self->info.rate);
+        "rate", target_rate);
   }
   GST_INFO_OBJECT (self, "fixated to %" GST_PTR_FORMAT, caps);
 
