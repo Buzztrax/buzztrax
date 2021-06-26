@@ -1921,7 +1921,7 @@ sequence_set_loop_end (const BtMainPageSequence * self, glong row)
 
     // we shorten the song, backup data
     if (row < sequence_length) {
-      GString *old_data = g_string_new (NULL);
+      /*GString *old_data = g_string_new (NULL);
       gulong number_of_tracks;
 
       g_object_get (self->priv->sequence, "tracks", &number_of_tracks, NULL);
@@ -1929,7 +1929,7 @@ sequence_set_loop_end (const BtMainPageSequence * self, glong row)
           sequence_length - 1, old_data);
       sequence_range_log_undo_redo (self, 0, number_of_tracks, row,
           sequence_length - 1, old_data->str, g_strdup (old_data->str));
-      g_string_free (old_data, TRUE);
+          g_string_free (old_data, TRUE);*/
     }
     bt_change_log_end_group (self->priv->change_log);
 
