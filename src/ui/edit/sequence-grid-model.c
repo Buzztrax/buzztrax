@@ -265,7 +265,7 @@ on_sequence_length_changed (BtSequence * sequence, GParamSpec * arg,
   BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (user_data);
   gulong old_length = model->priv->length;
 
-  g_object_get ((gpointer) sequence, "length", &model->priv->length, NULL);
+  g_object_get ((gpointer) sequence, "len-patterns", &model->priv->length, NULL);
   if (model->priv->length != old_length) {
     gulong old_visible_length = model->priv->visible_length;
     model->priv->visible_length = MAX (old_visible_length, model->priv->length);

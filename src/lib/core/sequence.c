@@ -80,7 +80,8 @@ enum
   SEQUENCE_LOOP_START,
   SEQUENCE_LOOP_END,
   SEQUENCE_PROPERTIES,
-  SEQUENCE_TOC
+  SEQUENCE_TOC,
+  SEQUENCE_LEN_PATTERNS
 };
 
 struct _BtSequencePrivate
@@ -91,8 +92,11 @@ struct _BtSequencePrivate
   /* the song the sequence belongs to */
   BtSong *song;
 
-  /* the number of timeline entries */
+  /* the position of the song end */
   gulong length;
+  
+  /* the total number of timeline entries */
+  gulong len_patterns;
 
   /* the number of tracks */
   gulong tracks;
@@ -330,6 +334,30 @@ bt_sequence_get_machine_unchecked (const BtSequence * const self,
 }
 
 /*
+ * bt_sequence_get_nonnull_length:
+ *
+ * Return the length of the sequence minus any trailing rows that are totally
+ * null/empty. Includes all available patterns, even those beyond the "end"
+ * of the song.
+ * 
+ * Returns 0 if all rows are null or sequence length is zero.
+ */
+static gulong
+bt_sequence_get_nonnull_length (const BtSequence * const self) {
+  if (self->priv->len_patterns == 0)
+    return 0;
+  
+  for (gulong i = self->priv->len_patterns; i-- > 0; ) {
+    for (gulong j = 0; j < self->priv->tracks; j++) {
+      if (bt_sequence_test_pattern(self, i, j)) {
+        return i+1;
+      }
+    }
+  }
+  return 0;
+}
+
+/*
  * bt_sequence_resize_data_length:
  * @self: the sequence to resize the length
  * @length: the old length
@@ -337,17 +365,25 @@ bt_sequence_get_machine_unchecked (const BtSequence * const self,
  * Resizes the pattern data grid to the new length. Keeps previous values.
  */
 static void
-bt_sequence_resize_data_length (const BtSequence * const self,
-    const gulong old_length)
+bt_sequence_resize_data_length (const BtSequence * const self)
 {
   const gulong tracks = self->priv->tracks;
-  const gulong new_length = self->priv->length;
+
+  const gulong old_length = self->priv->len_patterns;
+  
+  // try to shrink the pattern up to the row having the final non-empty pattern cell
+  const gulong new_length =
+      MAX(self->priv->length, bt_sequence_get_nonnull_length (self));
+  
   const gulong old_data_count = old_length * tracks;
   const gulong new_data_count = new_length * tracks;
   BtCmdPattern **const patterns = self->priv->patterns;
   gchar **const labels = self->priv->labels;
 
-  // allocate new space
+  if (self->priv->labels && new_data_count == old_data_count)
+    return;
+
+  // there is a need to grow or shrink pattern/label space; allocate new space
   if ((self->priv->patterns =
           (BtCmdPattern **) g_try_new0 (gpointer, new_data_count))) {
     if (patterns) {
@@ -380,8 +416,7 @@ bt_sequence_resize_data_length (const BtSequence * const self,
       memcpy (self->priv->labels, labels, count * sizeof (gpointer));
       // free old data
       if (old_length > new_length) {
-        gulong i;
-        for (i = new_length; i < old_length; i++) {
+        for (gulong i = new_length; i < old_length; i++) {
           g_free (labels[i]);
         }
       }
@@ -392,6 +427,8 @@ bt_sequence_resize_data_length (const BtSequence * const self,
     GST_INFO ("extending sequence labels from %lu to %lu failed", old_length,
         new_length);
   }
+
+  self->priv->len_patterns = new_length;
 }
 
 /*
@@ -843,7 +880,7 @@ gchar *
 bt_sequence_get_label (const BtSequence * const self, const gulong time)
 {
   g_return_val_if_fail (BT_IS_SEQUENCE (self), NULL);
-  g_return_val_if_fail (time < self->priv->length, NULL);
+  g_return_val_if_fail (time < self->priv->len_patterns, NULL);
 
   return g_strdup (self->priv->labels[time]);
 }
@@ -889,7 +926,7 @@ bt_sequence_get_pattern (const BtSequence * const self, const gulong time,
     const gulong track)
 {
   g_return_val_if_fail (BT_IS_SEQUENCE (self), NULL);
-  g_return_val_if_fail (time < self->priv->length, NULL);
+  g_return_val_if_fail (time < self->priv->len_patterns, NULL);
   g_return_val_if_fail (track < self->priv->tracks, NULL);
 
   //GST_DEBUG("get pattern at time %d, track %d",time, track);
@@ -1588,6 +1625,9 @@ bt_sequence_get_property (GObject * const object, const guint property_id,
     case SEQUENCE_TOC:
       g_value_set_pointer (value, bt_sequence_get_toc (self));
       break;
+    case SEQUENCE_LEN_PATTERNS:
+      g_value_set_ulong (value, self->priv->len_patterns);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -1615,7 +1655,7 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
       self->priv->length = g_value_get_ulong (value);
       if (length != self->priv->length) {
         GST_DEBUG ("set the length for sequence: %lu", self->priv->length);
-        bt_sequence_resize_data_length (self, length);
+        bt_sequence_resize_data_length (self);
         if (self->priv->loop_end != -1) {
           // clip loopend to length or extend loop-end as well if loop_end was
           // old length
@@ -1881,6 +1921,11 @@ bt_sequence_class_init (BtSequenceClass * const klass)
           "length of the sequence in timeline bars", 0, G_MAXLONG, 0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property (gobject_class, SEQUENCE_LEN_PATTERNS,
+      g_param_spec_ulong ("len-patterns", "patterns length prop",
+          "total length of non-null patterns in timeline bars", 0, G_MAXLONG, 0,
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  
   g_object_class_install_property (gobject_class, SEQUENCE_TRACKS,
       g_param_spec_ulong ("tracks",
           "tracks prop",

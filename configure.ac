@@ -74,6 +74,11 @@ AC_DEFINE_UNQUOTED(BT_RELEASE_YEAR, $BT_RELEASE_YEAR, [release year])
 
 dnl Checks for programs.
 AC_PROG_CC
+AC_PROG_CC_C99
+if test "x$ac_cv_prog_cc_c99" = "no" ; then
+	AC_MSG_ERROR([C compiler seems not to support required C99 features.])
+fi
+
 AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_INSTALL
