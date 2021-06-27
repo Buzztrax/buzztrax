@@ -236,6 +236,7 @@ libbuzztrax_gstinclude_HEADERS = \
   src/lib/gst/toneconversion.h \
   src/lib/gst/propertymeta.h \
   src/lib/gst/tempo.h \
+  src/lib/gst/ui.h \
   $(GST_COMPAT_H_FILES)
 
 presetdir = $(datadir)/gstreamer-$(GST_MAJORMINOR)/presets
