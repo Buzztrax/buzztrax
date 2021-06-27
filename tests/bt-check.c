@@ -316,6 +316,10 @@ check_gst_log_handler (GstDebugCategory * category,
   const gchar *level_str, *cat_str;
   GstClockTime elapsed;
 
+  //-- print the log message unconditionally to stderr if BT_TEST_DEBUG is set
+  if (g_getenv ("BT_TEST_DEBUG") && category == GST_CAT_DEFAULT)
+    fprintf (stderr, "%s:%d:%s: %s\n", file, line, function, message);
+  
   //-- check message contents
   if (__check_method && (strstr (function, __check_method) != NULL)
       && __check_test && (strstr (message, __check_test) != NULL))

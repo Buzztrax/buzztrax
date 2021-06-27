@@ -216,6 +216,7 @@ check_setup_test_display (void)
     // activate the display for use with gtk
     if ((display_manager = gdk_display_manager_get ())) {
       if ((test_display = gdk_display_open (display_name))) {
+        default_display = gdk_display_manager_get_default_display (display_manager);
         gdk_display_manager_set_default_display (display_manager, test_display);
         GST_INFO ("display %p,\"%s\" is active", test_display,
             gdk_display_get_name (test_display));
@@ -235,17 +236,19 @@ check_shutdown_test_display (void)
 #ifdef XVFB_PATH
   if (test_display) {
     wait_for_server = TRUE;
-
-    g_assert (GDK_IS_DISPLAY_MANAGER (display_manager));
-    g_assert (GDK_IS_DISPLAY (test_display));
-    g_assert (GDK_IS_DISPLAY (default_display));
-
+    
     GST_INFO ("trying to shut down test display on server %d", server_pid);
-    // restore default and close our display
+
     GST_DEBUG
         ("display_manager=%p, test_display=%p,\"%s\" default_display=%p,\"%s\"",
         display_manager, test_display, gdk_display_get_name (test_display),
         default_display, gdk_display_get_name (default_display));
+    
+    g_assert (GDK_IS_DISPLAY_MANAGER (display_manager));
+    g_assert (GDK_IS_DISPLAY (test_display));
+    g_assert (GDK_IS_DISPLAY (default_display));
+
+    // restore default and close our display
     gdk_display_manager_set_default_display (display_manager, default_display);
     GST_INFO ("display has been restored");
     // TODO(ensonic): here it hangs, hmm not anymore

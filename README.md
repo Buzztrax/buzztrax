@@ -101,5 +101,9 @@ run all the tests:
 select tests to run:
 
     BT_CHECKS="test_bt_edit_app*" make bt_edit.check
+    
+activate some logging info that can help while testing:
+    
+    BT_TEST_DEBUG=1 make check
 
-
+The tests make use of Xvfb (X Virtual Frame Buffer) to create UI in a headless scenario; if installed, it will be used. Sometimes it's useful to be able to see the UI when writing or debugging tests, though. You can set `BT_CHECK_NO_XVFB=1` to disable use of XVfb. You will then see UI windows created on your desktop directly during test runs.

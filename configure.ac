@@ -672,7 +672,6 @@ AC_SUBST(ARCH_CCASFLAGS)
 AC_CONFIG_FILES(Makefile \
   docs/version.entities \
   docs/help/bt-edit/Makefile \
-  docs/help/bt-edit/C/Makefile \
   docs/reference/bt-cmd/Makefile \
   docs/reference/bt-core/Makefile \
   docs/reference/bt-core/buzztrax-core.types \
