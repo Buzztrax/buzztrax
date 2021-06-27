@@ -249,20 +249,21 @@ on_window_destroy (GtkWidget * widget, gpointer user_data)
 }
 
 static void
-on_song_unsaved_changed (const GObject * object, GParamSpec * arg,
-    gpointer user_data)
+bt_main_window_update_title (BtMainWindow *self)
 {
-  BtMainWindow *self = BT_MAIN_WINDOW (user_data);
   gboolean unsaved = bt_edit_application_is_song_unsaved (self->priv->app);
   BtSong *song;
-  gchar *title, *name;
+  gchar *title;
 
   // compose title
   g_object_get (self->priv->app, "song", &song, NULL);
   if (!song)
     return;
 
-  bt_child_proxy_get (song, "song-info::name", &name, NULL);
+  BtSongInfo* song_info;
+  g_object_get ((GObject *) song, "song-info", &song_info, NULL);
+  gchar* name = bt_song_info_get_name(song_info);
+  
   // we don't use PACKAGE_NAME = 'buzztrax' for the window title
   title =
       g_strdup_printf ("%s (%s) - Buzztrax", name,
@@ -272,6 +273,44 @@ on_song_unsaved_changed (const GObject * object, GParamSpec * arg,
   g_free (title);
   //-- release the references
   g_object_unref (song);
+  g_object_unref (song_info);
+}
+
+static void
+on_song_unsaved_changed (const GObject * object, GParamSpec * arg,
+    gpointer user_data)
+{
+  bt_main_window_update_title (BT_MAIN_WINDOW (user_data));
+}
+
+static void
+on_song_title_changed (const GObject * object, GParamSpec * arg,
+    gpointer user_data)
+{
+  bt_main_window_update_title (BT_MAIN_WINDOW (user_data));
+}
+
+static void
+on_song_changed (const GObject * object, GParamSpec * arg,
+    gpointer user_data)
+{
+  BtMainWindow *self = BT_MAIN_WINDOW (user_data);
+  bt_main_window_update_title (BT_MAIN_WINDOW (user_data));
+  
+  BtSong *song;
+
+  g_object_get (self->priv->app, "song", &song, NULL);
+  if (!song)
+    return;
+
+  BtSongInfo* song_info;
+  g_object_get (song, "song-info", &song_info, NULL);
+
+  g_signal_connect (song_info, "notify::name",
+      G_CALLBACK (on_song_title_changed), (gpointer) self);
+  
+  g_object_unref (song);
+  g_object_unref (song_info);
 }
 
 static void
@@ -429,6 +468,9 @@ bt_main_window_init_ui (const BtMainWindow * self)
   g_signal_connect (self->priv->app, "notify::unsaved",
       G_CALLBACK (on_song_unsaved_changed), (gpointer) self);
 
+  g_signal_connect (self->priv->app, "notify::song",
+      G_CALLBACK (on_song_changed), (gpointer) self);
+  
   change_log = bt_change_log_new ();
   g_signal_connect (change_log, "notify::can-undo",
       G_CALLBACK (on_song_unsaved_changed), (gpointer) self);
@@ -774,7 +816,8 @@ bt_main_window_save_song_as (const BtMainWindow * self)
   bt_child_proxy_get (self->priv->app,
       "song::song-info", &song_info, "settings::song-folder", &folder_name,
       NULL);
-  g_object_get (song_info, "name", &name, "file-name", &file_name, NULL);
+  name = bt_song_info_get_name(song_info);
+  g_object_get (song_info, "file-name", &file_name, NULL);
   g_object_unref (song_info);
   gtk_file_chooser_add_shortcut_folder (self->priv->file_chooser, folder_name,
       NULL);

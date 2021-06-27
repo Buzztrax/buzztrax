@@ -63,4 +63,6 @@ gulong bt_song_info_time_to_tick(const BtSongInfo * const self, const GstClockTi
 void bt_song_info_time_to_m_s_ms(const BtSongInfo * const self, gulong ts, gulong *m, gulong *s, gulong *ms);
 void bt_song_info_tick_to_m_s_ms(const BtSongInfo * const self, const gulong tick, gulong *m, gulong *s, gulong *ms);
 
+gchar *bt_song_info_get_name(const BtSongInfo * const self);
+
 #endif // BT_SONG_INFO_H

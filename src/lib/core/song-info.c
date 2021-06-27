@@ -331,6 +331,33 @@ bt_song_info_tick_to_m_s_ms (const BtSongInfo * const self, const gulong tick,
   bt_song_info_time_to_m_s_ms (self, ts, m, s, ms);
 }
 
+/**
+ * bt_song_info_get_name:
+ * @self: the song_info
+ *
+ * Get the song name, or an appropriate default if none is set.
+ * This method should be used in places where the song's title is displayed,
+ * i.e. in the window title bar.
+ *
+ * If a song title has been set by the user, then return that.
+ * Otherwise return the filename of the song if available.
+ * If no filename is available for some reason, then return the default title.
+ *
+ * Returns: a newly-allocated string, free after use.
+ */
+gchar *
+bt_song_info_get_name(const BtSongInfo * const self) {
+  BtSongInfoPrivate *p = self->priv;
+  
+  if (p->name && strlen(p->name) != 0) {
+    return g_strdup(p->name);
+  } else if (p->file_name && strlen(p->file_name) != 0) {
+    return g_path_get_basename(p->file_name);
+  } else {
+    return g_strdup(DEFAULT_SONG_NAME);
+  }
+}
+
 //-- io interface
 
 static xmlNodePtr
@@ -343,23 +370,6 @@ bt_song_info_persistence_save (const BtPersistence * const persistence,
   GST_DEBUG ("PERSISTENCE::song-info");
 
   if ((node = xmlNewChild (parent_node, NULL, XML_CHAR_PTR ("meta"), NULL))) {
-    if (!strcmp (self->priv->name, DEFAULT_SONG_NAME)) {
-      gchar *file_path = NULL, *file_name, *ext;
-
-      bt_child_proxy_get (self->priv->song, "song-io::file-name", &file_path,
-          NULL);
-      if (file_path) {
-        file_name = g_path_get_basename (file_path);
-        if ((ext = strrchr (file_name, '.'))) {
-          *ext = '\0';
-        }
-        GST_INFO ("using '%s' instead of default title", file_name);
-        g_object_set ((gpointer) self, "name", file_name, NULL);
-        g_free (file_name);
-        g_free (file_path);
-      }
-    }
-
     if (self->priv->info) {
       xmlNewChild (node, NULL, XML_CHAR_PTR ("info"),
           XML_CHAR_PTR (self->priv->info));
@@ -715,7 +725,7 @@ bt_song_info_init (BtSongInfo * self)
     user_name = g_get_user_name ();
   }
 
-  self->priv->name = g_strdup (DEFAULT_SONG_NAME);
+  self->priv->name = g_strdup ("");
   self->priv->author = g_strdup (user_name);
   // @idea alternate bpm's a little at new_song (user defined range?)
   self->priv->beats_per_minute = 125;   // 1..1000
@@ -769,7 +779,7 @@ bt_song_info_class_init (BtSongInfoClass * const klass)
           "comment me!", G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SONG_INFO_NAME,
-      g_param_spec_string ("name", "name prop", "songs name", DEFAULT_SONG_NAME,
+      g_param_spec_string ("name", "name prop", "songs name", "",
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SONG_INFO_GENRE,
