@@ -287,7 +287,7 @@ static void bt_machine_persistence_interface_init (gpointer const g_iface,
     gpointer const iface_data);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (BtMachine, bt_machine, GST_TYPE_BIN,
-    G_ADD_PRIVATE(BtMachine)
+    G_ADD_PRIVATE (BtMachine)
     G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
         bt_machine_persistence_interface_init));
 
@@ -1598,13 +1598,28 @@ bt_machine_activate_adder (BtMachine * const self)
           "output-buffer-duration", tick_duration,
           // TODO: latency=1 is a workaround to avoid overqueueing
           "latency", G_GUINT64_CONSTANT (1), NULL);
+      // before moving audiomixer from gst-plugin-ad the caps property was 
+      // dropped in 
+      // https://gitlab.freedesktop.org/gstreamer/gst-plugins-bad/-/commit/536cb125773f36ecc46815e72ffa7ae2bba783d7
+      // We'd need to use a dedicated capsfilter (we could plug that always and for adder set the caps twice?
+      // g_object_set (machines[PART_???], "caps", bt_default_caps, NULL);
+
+      // this breanch causes the pad-links to fail:
+      /*
+         10 0x00007ffff7bb6a7d in gst_pad_link_full () at /usr/lib/x86_64-linux-gnu/libgstreamer-1.0.so.0
+         #11 0x00007ffff7f87d6b in link_wire_end
+         (self=self@entry=0x555555dbc920, wire=wire@entry=0x555555f2c410 [GstElement|ebeats_master], peer=0x555555efea20 [GstPad|sink_0], peer@entry=0x0 [GstPad], dir=dir@entry=GST_PAD_SRC) at src/lib/core/setup.c:580
+         #12 0x00007ffff7f87f28 in link_wire (wire=0x555555f2c410 [GstElement|ebeats_master], self=0x555555dbc920)
+         at src/lib/core/setup.c:608
+       */
+
     } else {
       // Use adder
       if (!(bt_machine_make_internal_element (self, PART_ADDER, "adder",
                   "adder")))
         goto Error;
+      g_object_set (machines[PART_ADDER], "caps", bt_default_caps, NULL);
     }
-    g_object_set (machines[PART_ADDER], "caps", bt_default_caps, NULL);
 
     if (!BT_IS_SINK_MACHINE (self)) {
       const GstCaps *dst_caps =
@@ -2791,15 +2806,17 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
       // Don't write out parameters that can't be formatted or parsed.
       if (str) {
         if ((child_node =
-             xmlNewChild (node, NULL, XML_CHAR_PTR ("prefsdata"), NULL))) {
+                xmlNewChild (node, NULL, XML_CHAR_PTR ("prefsdata"), NULL))) {
           xmlNewProp (child_node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (pname));
           xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
         } else
-            goto Error;
+          goto Error;
       } else {
-        GST_DEBUG_OBJECT (machine, "param %s not serialized as its type %s is null can't be formatted",
-          pname,
-          g_type_name(bt_parameter_group_get_param_spec (prefs_param_group, i)->value_type));
+        GST_DEBUG_OBJECT (machine,
+            "param %s not serialized as its type %s is null can't be formatted",
+            pname,
+            g_type_name (bt_parameter_group_get_param_spec (prefs_param_group,
+                    i)->value_type));
       }
 
       g_free (str);
@@ -2817,16 +2834,18 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
 
       // Don't write out parameters that can't be formatted or parsed.
       if (str) {
-          if ((child_node =
-               xmlNewChild (node, NULL, XML_CHAR_PTR ("globaldata"), NULL))) {
-            xmlNewProp (child_node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (pname));
-            xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
-          } else
-            goto Error;
+        if ((child_node =
+                xmlNewChild (node, NULL, XML_CHAR_PTR ("globaldata"), NULL))) {
+          xmlNewProp (child_node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (pname));
+          xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
+        } else
+          goto Error;
       } else {
-        GST_DEBUG_OBJECT (machine, "param %s not serialized as its type %s is null can't be formatted",
-          pname,
-          g_type_name(bt_parameter_group_get_param_spec (prefs_param_group, i)->value_type));
+        GST_DEBUG_OBJECT (machine,
+            "param %s not serialized as its type %s is null can't be formatted",
+            pname,
+            g_type_name (bt_parameter_group_get_param_spec (prefs_param_group,
+                    i)->value_type));
       }
 
       g_free (str);
@@ -2851,16 +2870,19 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
         if (str) {
           if ((child_node =
                   xmlNewChild (node, NULL, XML_CHAR_PTR ("voicedata"), NULL))) {
-              xmlNewProp (child_node, XML_CHAR_PTR ("voice"),
+            xmlNewProp (child_node, XML_CHAR_PTR ("voice"),
                 XML_CHAR_PTR (bt_str_format_ulong (j)));
-              xmlNewProp (child_node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (pname));
-              xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
+            xmlNewProp (child_node, XML_CHAR_PTR ("name"),
+                XML_CHAR_PTR (pname));
+            xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
           } else
             goto Error;
         } else {
-          GST_DEBUG_OBJECT (machine, "param %s not serialized as its type %s is null can't be formatted",
-            pname,
-            g_type_name(bt_parameter_group_get_param_spec (prefs_param_group, i)->value_type));
+          GST_DEBUG_OBJECT (machine,
+              "param %s not serialized as its type %s is null can't be formatted",
+              pname,
+              g_type_name (bt_parameter_group_get_param_spec (prefs_param_group,
+                      i)->value_type));
         }
 
         g_free (str);
@@ -2971,7 +2993,8 @@ bt_machine_persistence_load (const GType type,
                       param), (gchar *) name, &value);
             } else {
               GST_DEBUG_OBJECT (machine,
-                "skipping restore of param %s: serialized value not parseable for type", name);
+                  "skipping restore of param %s: serialized value not parseable for type",
+                  name);
             }
             g_value_unset (&value);
           }
@@ -2990,7 +3013,8 @@ bt_machine_persistence_load (const GType type,
                       param), (gchar *) name, &value);
             } else {
               GST_DEBUG_OBJECT (machine,
-                "skipping restore of param %s: serialized value not parseable for type", name);
+                  "skipping restore of param %s: serialized value not parseable for type",
+                  name);
             }
             g_object_set_property (bt_parameter_group_get_param_parent (pg,
                     param), (gchar *) name, &value);
@@ -3015,7 +3039,8 @@ bt_machine_persistence_load (const GType type,
                         param), (gchar *) name, &value);
               } else {
                 GST_DEBUG_OBJECT (machine,
-                  "skipping restore of param %s: serialized value not parseable for type", name);
+                    "skipping restore of param %s: serialized value not parseable for type",
+                    name);
               }
               g_object_set_property (bt_parameter_group_get_param_parent (pg,
                       param), (gchar *) name, &value);
@@ -3549,7 +3574,7 @@ bt_machine_finalize (GObject * const object)
 static void
 bt_machine_init (BtMachine * self)
 {
-  self->priv = bt_machine_get_instance_private(self);
+  self->priv = bt_machine_get_instance_private (self);
   // default is no voice, only global params
   //self->priv->voices=1;
   self->priv->properties =
