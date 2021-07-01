@@ -396,7 +396,7 @@ bt_song_io_native_bzt_save (gconstpointer const _self,
             gsf_off_t len = gsf_output_size (self->priv->output);
             const guint8 *mem = gsf_output_memory_get_bytes (
                 (GsfOutputMemory *) self->priv->output);
-            gpointer data = g_memdup (mem, (guint) len);
+            gpointer data = g_memdup2 (mem, (gsize) len);
             g_object_set ((gpointer) self, "data", data, "data-len",
                 (guint) len, NULL);
           }
