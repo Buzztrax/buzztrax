@@ -433,6 +433,7 @@ bt_song_get_type
 BtSongInfo
 bt_song_info_new
 bt_song_info_get_change_dts_in_local_tz
+bt_song_info_get_name
 bt_song_info_get_seconds_since_last_saved
 bt_song_info_tick_to_time
 bt_song_info_time_to_tick

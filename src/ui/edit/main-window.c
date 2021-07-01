@@ -255,14 +255,17 @@ on_song_unsaved_changed (const GObject * object, GParamSpec * arg,
   BtMainWindow *self = BT_MAIN_WINDOW (user_data);
   gboolean unsaved = bt_edit_application_is_song_unsaved (self->priv->app);
   BtSong *song;
-  gchar *title, *name;
+  gchar *title;
 
   // compose title
   g_object_get (self->priv->app, "song", &song, NULL);
   if (!song)
     return;
 
-  bt_child_proxy_get (song, "song-info::name", &name, NULL);
+  BtSongInfo* song_info;
+  g_object_get ((GObject *) song, "song-info", &song_info, NULL);
+  gchar* name = bt_song_info_get_name(song_info);
+  
   // we don't use PACKAGE_NAME = 'buzztrax' for the window title
   title =
       g_strdup_printf ("%s (%s) - Buzztrax", name,
@@ -272,6 +275,7 @@ on_song_unsaved_changed (const GObject * object, GParamSpec * arg,
   g_free (title);
   //-- release the references
   g_object_unref (song);
+  g_object_unref (song_info);
 }
 
 static void
