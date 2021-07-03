@@ -118,11 +118,11 @@ bt_song_io_native_xml_save (gconstpointer const _self,
         }
       } else {
         xmlChar *mem;
-        gint len;
+        guint len;
         gpointer data;
 
-        xmlDocDumpMemory (song_doc, &mem, &len);
-        data = g_memdup2 (mem, len);
+        xmlDocDumpMemory (song_doc, &mem, (int *) &len);
+        data = g_memdup (mem, len);
         xmlFree (mem);
         g_object_set ((gpointer) self, "data", data, "data-len", len, NULL);
       }
