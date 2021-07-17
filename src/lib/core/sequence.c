@@ -360,12 +360,12 @@ bt_sequence_get_nonnull_length (const BtSequence * const self) {
 /*
  * bt_sequence_resize_data_length:
  * @self: the sequence to resize the length
- * @length: the old length
+ * @length: the length to which the data will be resized
  *
  * Resizes the pattern data grid to the new length. Keeps previous values.
  */
 static void
-bt_sequence_resize_data_length (const BtSequence * const self)
+bt_sequence_resize_data_length (const BtSequence * const self, const gulong length)
 {
   const gulong tracks = self->priv->tracks;
 
@@ -373,7 +373,7 @@ bt_sequence_resize_data_length (const BtSequence * const self)
   
   // try to shrink the pattern up to the row having the final non-empty pattern cell
   const gulong new_length =
-      MAX(self->priv->length, bt_sequence_get_nonnull_length (self));
+      MAX(length, bt_sequence_get_nonnull_length (self));
   
   const gulong old_data_count = old_length * tracks;
   const gulong new_data_count = new_length * tracks;
@@ -1361,7 +1361,7 @@ bt_sequence_persistence_save (const BtPersistence * const persistence,
 {
   BtSequence *const self = BT_SEQUENCE (persistence);
   const gulong tracks = self->priv->tracks;
-  const gulong length = self->priv->length;
+  const gulong length = self->priv->len_patterns;
   BtCmdPattern **patterns = self->priv->patterns;
   BtMachine **machines = self->priv->machines;
   gchar **const labels = self->priv->labels;
@@ -1374,6 +1374,8 @@ bt_sequence_persistence_save (const BtPersistence * const persistence,
   if ((node = xmlNewChild (parent_node, NULL, XML_CHAR_PTR ("sequence"), NULL))) {
     xmlNewProp (node, XML_CHAR_PTR ("length"),
         XML_CHAR_PTR (bt_str_format_ulong (self->priv->length)));
+    xmlNewProp (node, XML_CHAR_PTR ("len-patterns"),
+        XML_CHAR_PTR (bt_str_format_ulong (self->priv->len_patterns)));
     xmlNewProp (node, XML_CHAR_PTR ("tracks"),
         XML_CHAR_PTR (bt_str_format_ulong (self->priv->tracks)));
     if (self->priv->loop) {
@@ -1457,6 +1459,7 @@ bt_sequence_persistence_load (const GType type,
   g_assert (node);
 
   xmlChar *const length_str = xmlGetProp (node, XML_CHAR_PTR ("length"));
+  xmlChar *const len_patterns_str = xmlGetProp (node, XML_CHAR_PTR ("len_patterns"));
   xmlChar *const tracks_str = xmlGetProp (node, XML_CHAR_PTR ("tracks"));
   xmlChar *const loop_str = xmlGetProp (node, XML_CHAR_PTR ("loop"));
   xmlChar *const loop_start_str =
@@ -1471,8 +1474,18 @@ bt_sequence_persistence_load (const GType type,
   const gboolean loop =
       loop_str ? !strncasecmp ((char *) loop_str, "on\0", 3) : FALSE;
 
-  g_object_set (self, "length", length, "tracks", tracks,
-      "loop", loop, "loop-start", loop_start, "loop-end", loop_end, NULL);
+  // also sets self->priv->len_patterns
+  bt_sequence_resize_data_length (self,
+      len_patterns_str ? atol ((char *) len_patterns_str) : length);
+
+  // Can't set the "length" object property here, because pattern resizing logic will also
+  // run. As track data is empty so far, the sequence will be truncated if any patterns
+  // exist beyond "length". Regardless, set self->priv->length in case any logic that runs
+  // during deserialization needs it.
+  self->priv->length = length;
+  
+  g_object_set (self, "tracks", tracks, "loop", loop, "loop-start", loop_start,
+      "loop-end", loop_end, NULL);
   xmlFree (length_str);
   xmlFree (tracks_str);
   xmlFree (loop_str);
@@ -1575,6 +1588,10 @@ bt_sequence_persistence_load (const GType type,
     }
   }
 
+  // Finally, set the "length" prop to run any logic that needs to when this
+  // prop is set. This is important to avoid truncating patterns that exist
+  // beyond the song end (aka "length").
+  g_object_set (self, "length", length, NULL);
   return BT_PERSISTENCE (persistence);
 }
 
@@ -1655,7 +1672,7 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
       self->priv->length = g_value_get_ulong (value);
       if (length != self->priv->length) {
         GST_DEBUG ("set the length for sequence: %lu", self->priv->length);
-        bt_sequence_resize_data_length (self);
+        bt_sequence_resize_data_length (self, self->priv->length);
         if (self->priv->loop_end != -1) {
           // clip loopend to length or extend loop-end as well if loop_end was
           // old length
@@ -1762,7 +1779,7 @@ bt_sequence_dispose (GObject * const object)
 {
   BtSequence *const self = BT_SEQUENCE (object);
   const gulong tracks = self->priv->tracks;
-  const gulong length = self->priv->length;
+  const gulong length = self->priv->len_patterns;
   BtCmdPattern **patterns = self->priv->patterns;
   BtMachine **machines = self->priv->machines;
   gchar **const labels = self->priv->labels;

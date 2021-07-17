@@ -3500,7 +3500,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
 
   g_object_get (song, "setup", &setup, "song-info", &self->priv->song_info,
       "sequence", &self->priv->sequence, "bin", &bin, NULL);
-  g_object_get (self->priv->sequence, "length", &sequence_length, "properties",
+  g_object_get (self->priv->sequence, "len-patterns", &sequence_length, "properties",
       &self->priv->properties, NULL);
   // make sequence_length and step_filter_pos accord to song length
   self->priv->sequence_length = sequence_length;
