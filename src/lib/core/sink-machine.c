@@ -181,6 +181,12 @@ bt_sink_machine_check_type (const BtMachine * const self,
   return TRUE;
 }
 
+static gboolean
+bt_sink_machine_is_cloneable (const BtMachine * const self)
+{
+  return FALSE;
+}
+
 //-- g_object overrides
 
 static void
@@ -261,6 +267,7 @@ bt_sink_machine_class_init (BtSinkMachineClass * klass)
   gobject_class->get_property = bt_sink_machine_get_property;
 
   machine_class->check_type = bt_sink_machine_check_type;
+  machine_class->is_cloneable = bt_sink_machine_is_cloneable;
 
   gst_element_class_add_pad_template (gstelement_klass,
       gst_static_pad_template_get (&machine_sink_template));

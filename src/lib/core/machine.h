@@ -60,6 +60,7 @@ struct _BtMachine {
  * BtMachineClass:
  * @check_type: sanity check that the given input/output characteristics are
  * okay for the implementation
+ * @is_cloneable: return true if the machine can be cloned by the user.
  *
  * Base class for machines.
  */
@@ -70,6 +71,7 @@ struct _BtMachineClass {
   /*< public >*/
   /* virtual methods for subclasses */
   gboolean (*check_type)(const BtMachine * const machine, const gulong pad_src_ct, const gulong pad_sink_ct);
+  gboolean (*is_cloneable)(const BtMachine * const self);
 };
 
 #define BT_TYPE_MACHINE_STATE       (bt_machine_state_get_type())
@@ -96,12 +98,16 @@ typedef enum {
 GType bt_machine_get_type(void) G_GNUC_CONST;
 GType bt_machine_state_get_type(void) G_GNUC_CONST;
 
+BtMachine *bt_machine_clone(BtMachine * const self);
+
 gboolean bt_machine_enable_input_pre_level(BtMachine * const self);
 gboolean bt_machine_enable_input_post_level(BtMachine * const self);
 gboolean bt_machine_enable_output_pre_level(BtMachine * const self);
 gboolean bt_machine_enable_output_post_level(BtMachine * const self);
 gboolean bt_machine_enable_input_gain(BtMachine * const self);
 gboolean bt_machine_enable_output_gain(BtMachine * const self);
+
+gboolean bt_machine_is_cloneable (const BtMachine * const self);
 
 gboolean bt_machine_activate_adder(BtMachine * const self);
 gboolean bt_machine_has_active_adder(const BtMachine * const self);

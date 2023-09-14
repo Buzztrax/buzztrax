@@ -664,6 +664,14 @@ on_machine_preferences_dialog_destroy (GtkWidget * widget, gpointer user_data)
 }
 
 static void
+on_context_menu_clone (GtkMenuItem * menuitem, gpointer user_data)
+{
+  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (user_data);
+
+  bt_machine_clone (self->priv->machine);
+}
+
+static void
 on_context_menu_mute_toggled (GtkMenuItem * menuitem, gpointer user_data)
 {
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (user_data);
@@ -903,6 +911,14 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
 
+  if (bt_machine_is_cloneable (machine)) {
+    menu_item = gtk_menu_item_new_with_label (_("Clone"));
+    gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
+    gtk_widget_show (menu_item);
+    g_signal_connect (menu_item, "activate",
+        G_CALLBACK (on_context_menu_clone), (gpointer) self);
+  }
+  
   menu_item = gtk_menu_item_new_with_label (_("Rename…"));
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
