@@ -1431,6 +1431,54 @@ bt_machine_init_voice_params (const BtMachine * const self)
 //-- methods
 
 /**
+ * bt_machine_clone:
+ * @self: the machine to clone
+ *
+ * Creates a copy of the machine with a unique name and also adds it to the song.
+ *
+ * Returns: a new BtMachine instance, or NULL on failure.
+ */
+BtMachine *bt_machine_clone (BtMachine * const self)
+{
+  g_return_val_if_fail (BT_IS_MACHINE (self), FALSE);
+  
+  BtSetup *setup = NULL;
+  g_object_get (self->priv->song, "setup", &setup, NULL);
+  
+  // Use serialization functions to clone the machine.
+  xmlDocPtr const doc = xmlNewDoc (XML_CHAR_PTR ("1.0"));
+  xmlNodePtr root = xmlNewDocNode(doc, NULL, BAD_CAST "dummy", NULL);
+  if (root == NULL) {
+    g_warning ("Error creating root XML node while serializing machine for clone");
+    goto Error;
+  }
+
+  xmlNodePtr node = bt_persistence_save (BT_PERSISTENCE(self), root);
+
+  if (node == NULL) {
+    g_warning ("Error serializing machine for clone");
+    goto Error;
+  }
+  
+  GError *err = NULL;
+  BtMachine *machine =
+    BT_MACHINE (bt_persistence_load (G_OBJECT_TYPE (self), NULL, node,
+                                     &err, "song", self->priv->song, NULL));
+  if (err != NULL) {
+    g_warning ("Can't clone machine: %s", err->message);
+    g_error_free (err);
+  } else {
+    gchar *uid = bt_setup_get_unique_machine_id (setup, self->priv->id);
+    g_object_set (machine, "id", uid, NULL);
+  }
+
+ Error:
+  xmlFreeDoc (doc);
+  return machine;
+}
+
+
+/**
  * bt_machine_enable_input_pre_level:
  * @self: the machine to enable the pre-gain input-level analyser in
  *
@@ -2972,6 +3020,10 @@ bt_machine_persistence_load (const GType type,
   GST_DEBUG ("PERSISTENCE::machine");
   g_assert (node);
 
+  // The derived implementations might accept a NULL value here, but by the time
+  // this base method is called, an BtMachine instance must have been constructed.
+  g_assert (persistence);
+
   if ((machine = GST_OBJECT (self->priv->machines[PART_MACHINE]))) {
     if ((value_str = xmlGetProp (node, XML_CHAR_PTR ("state")))) {
       self->priv->state =
@@ -3571,6 +3623,20 @@ bt_machine_finalize (GObject * const object)
   GST_DEBUG ("  done");
 }
 
+static gboolean bt_machine_is_cloneable_default (const BtMachine * const self) {
+  return TRUE;
+}
+                                          
+//-- wrapper
+
+gboolean bt_machine_is_cloneable (const BtMachine * const self)
+{
+  g_return_val_if_fail (BT_IS_MACHINE (self), -1);
+
+  return BT_MACHINE_GET_CLASS (self)->is_cloneable (self);
+}
+
+
 //-- class internals
 
 static void
@@ -3594,6 +3660,7 @@ bt_machine_class_init (BtMachineClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
   GstElementClass *const gstelement_class = GST_ELEMENT_CLASS (klass);
+  BtMachineClass *const machine_class = BT_MACHINE_CLASS (klass);
 
   error_domain = g_type_qname (BT_TYPE_MACHINE);
 
@@ -3620,6 +3687,7 @@ bt_machine_class_init (BtMachineClass * const klass)
   gstelement_class->request_new_pad = bt_machine_request_new_pad;
   gstelement_class->release_pad = bt_machine_release_pad;
 
+  machine_class->is_cloneable = bt_machine_is_cloneable_default;
   /**
    * BtMachine::pattern-added:
    * @self: the machine object that emitted the signal
