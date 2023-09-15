@@ -1935,7 +1935,7 @@ bt_setup_remember_missing_machine (const BtSetup * const self,
 
 static xmlNodePtr
 bt_setup_persistence_save (const BtPersistence * const persistence,
-    xmlNodePtr const parent_node)
+    xmlNodePtr const parent_node, gpointer const userdata)
 {
   BtSetup *const self = BT_SETUP (persistence);
   xmlNodePtr node = NULL;
@@ -1952,11 +1952,11 @@ bt_setup_persistence_save (const BtPersistence * const persistence,
       goto Error;
     if ((child_node =
             xmlNewChild (node, NULL, XML_CHAR_PTR ("machines"), NULL))) {
-      bt_persistence_save_list (self->priv->machines, child_node);
+      bt_persistence_save_list (self->priv->machines, child_node, NULL);
     } else
       goto Error;
     if ((child_node = xmlNewChild (node, NULL, XML_CHAR_PTR ("wires"), NULL))) {
-      bt_persistence_save_list (self->priv->wires, child_node);
+      bt_persistence_save_list (self->priv->wires, child_node, NULL);
     } else
       goto Error;
   }

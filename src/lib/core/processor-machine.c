@@ -56,8 +56,6 @@ GST_STATIC_PAD_TEMPLATE ("sink_%u",
 
 /**
  * bt_processor_machine_new:
- * @song: the song the new instance belongs to
- * @id: the id, we can use to lookup the machine
  * @plugin_name: the name of the gst-plugin the machine is using
  * @voices: the number of voices the machine should initially have
  * @err: inform about failed instance creation
@@ -69,12 +67,12 @@ GST_STATIC_PAD_TEMPLATE ("sink_%u",
  * Returns: the new instance or %NULL in case of an error
  */
 BtProcessorMachine *
-bt_processor_machine_new (const BtSong * const song, const gchar * const id,
+bt_processor_machine_new (BtMachineConstructorParams* const params, 
     const gchar * const plugin_name, const glong voices, GError ** err)
 {
   return BT_PROCESSOR_MACHINE (g_object_new (BT_TYPE_PROCESSOR_MACHINE,
-          "construction-error", err, "song", song, "id", id, "plugin-name",
-          plugin_name, "voices", voices, NULL));
+          "construction-error", err, "song", params->song, "id", params->id,
+          "plugin-name", plugin_name, "voices", voices, NULL));
 }
 
 //-- methods
@@ -83,7 +81,7 @@ bt_processor_machine_new (const BtSong * const song, const gchar * const id,
 
 static xmlNodePtr
 bt_processor_machine_persistence_save (const BtPersistence * const persistence,
-    xmlNodePtr const parent_node)
+    xmlNodePtr const parent_node, gpointer const userdata)
 {
   const BtProcessorMachine *const self = BT_PROCESSOR_MACHINE (persistence);
   const BtPersistenceInterface *const parent_iface =
@@ -95,7 +93,7 @@ bt_processor_machine_persistence_save (const BtPersistence * const persistence,
   GST_DEBUG ("PERSISTENCE::processor-machine");
 
   // save parent class stuff
-  if ((node = parent_iface->save (persistence, parent_node))) {
+  if ((node = parent_iface->save (persistence, parent_node, userdata))) {
     xmlNewProp (node, XML_CHAR_PTR ("type"), XML_CHAR_PTR ("processor"));
 
     g_object_get ((gpointer) self, "plugin-name", &plugin_name, "voices",
@@ -127,31 +125,13 @@ bt_processor_machine_persistence_load (const GType type,
   voices = voices_str ? atol ((char *) voices_str) : 0;
 
   if (!persistence) {
-    BtSong *song = NULL;
-    gchar *param_name;
-    va_list va;
-
-    G_VA_COPY (va, var_args);
-    // we need to get parameters from var_args (need to handle all baseclass params
-    param_name = va_arg (va, gchar *);
-    while (param_name) {
-      if (!strcmp (param_name, "song")) {
-        song = va_arg (va, gpointer);
-      } else {
-        GST_WARNING ("unhandled argument: %s", param_name);
-        break;
-      }
-      param_name = va_arg (va, gchar *);
-    }
-    // TODO(ensonic): we also need the parameters the parent-class would parse
-    // as a a quick hack copied the code from the parent class into the subclasses
-    // see : http://www.buzztrax.org/index.php/Gobject_serialisation#Dealing_with_inheritance
-
+    BtMachineConstructorParams cparams;
+    bt_machine_varargs_to_constructor_params (var_args, (gchar *) id, &cparams);
+    
     self =
-        bt_processor_machine_new (song, (gchar *) id, (gchar *) plugin_name,
+        bt_processor_machine_new (&cparams, (gchar *) plugin_name,
         voices, err);
     result = BT_PERSISTENCE (self);
-    va_end (va);
   } else {
     self = BT_PROCESSOR_MACHINE (persistence);
     result = BT_PERSISTENCE (persistence);

@@ -104,7 +104,7 @@ bt_song_io_native_xml_save (gconstpointer const _self,
   xmlDocPtr const song_doc = xmlNewDoc (XML_CHAR_PTR ("1.0"));
   if (song_doc) {
     xmlNodePtr const root_node =
-        bt_persistence_save (BT_PERSISTENCE (song), NULL);
+        bt_persistence_save (BT_PERSISTENCE (song), NULL, NULL);
     if (root_node) {
       xmlDocSetRootElement (song_doc, root_node);
       if (file_name) {

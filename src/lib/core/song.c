@@ -1407,7 +1407,7 @@ bt_song_write_to_lowlevel_dot_file (const BtSong * const self)
 
 static xmlNodePtr
 bt_song_persistence_save (const BtPersistence * const persistence,
-    xmlNodePtr const parent_node)
+    xmlNodePtr const parent_node, gpointer const userdata)
 {
   const BtSong *const self = BT_SONG (persistence);
   xmlNodePtr node = NULL;
@@ -1422,10 +1422,10 @@ bt_song_persistence_save (const BtPersistence * const persistence,
     xmlNewProp (node, XML_CHAR_PTR ("xsd:noNamespaceSchemaLocation"),
         XML_CHAR_PTR ("buzztrax.xsd"));
 
-    bt_persistence_save (BT_PERSISTENCE (self->priv->song_info), node);
-    bt_persistence_save (BT_PERSISTENCE (self->priv->setup), node);
-    bt_persistence_save (BT_PERSISTENCE (self->priv->sequence), node);
-    bt_persistence_save (BT_PERSISTENCE (self->priv->wavetable), node);
+    bt_persistence_save (BT_PERSISTENCE (self->priv->song_info), node, NULL);
+    bt_persistence_save (BT_PERSISTENCE (self->priv->setup), node, NULL);
+    bt_persistence_save (BT_PERSISTENCE (self->priv->sequence), node, NULL);
+    bt_persistence_save (BT_PERSISTENCE (self->priv->wavetable), node, NULL);
   }
   return node;
 }

@@ -63,14 +63,14 @@ G_DEFINE_INTERFACE (BtPersistence, bt_persistence, 0);
  * Returns: %TRUE if all elements have been serialized.
  */
 gboolean
-bt_persistence_save_list (const GList * list, xmlNodePtr const node)
+bt_persistence_save_list (const GList * list, xmlNodePtr const node, gpointer const userdata)
 {
   gboolean res = TRUE;
 
   for (; (list && res); list = g_list_next (list)) {
     if (BT_IS_PERSISTENCE (list->data)) {
       res &=
-          (bt_persistence_save ((BtPersistence *) (list->data), node) != NULL);
+          (bt_persistence_save ((BtPersistence *) (list->data), node, userdata) != NULL);
     }
   }
   return res;
@@ -176,17 +176,17 @@ bt_persistence_load_hashtable (GHashTable * hashtable, xmlNodePtr node)
  * @self: a serialiable object
  * @parent_node: the parent xml node
  *
- * Serializes the given object into @node.
+ * Serializes the given object into an xmlNode.
  *
  * Returns: the new node if the object has been serialized, else %NULL.
  */
 xmlNodePtr
 bt_persistence_save (const BtPersistence * const self,
-    xmlNodePtr const parent_node)
+    xmlNodePtr const parent_node, gpointer const userdata)
 {
   g_return_val_if_fail (BT_IS_PERSISTENCE (self), FALSE);
 
-  return BT_PERSISTENCE_GET_INTERFACE (self)->save (self, parent_node);
+  return BT_PERSISTENCE_GET_INTERFACE (self)->save (self, parent_node, userdata);
 }
 
 /**

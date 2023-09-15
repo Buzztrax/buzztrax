@@ -218,7 +218,7 @@ on_parameter_reset (GtkMenuItem * menuitem, gpointer user_data)
     g_value_unset (&gvalue);
 
     // The property control widget that was right-clicked on.
-	GtkWidget *actuator_widget = gtk_menu_get_attach_widget (menu);
+    GtkWidget *actuator_widget = gtk_menu_get_attach_widget (GTK_MENU (menu));
 	if (actuator_widget) {
 	  update_param_after_interaction (actuator_widget);
 	} else {
@@ -692,7 +692,7 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
           "selected-parameter-group", pg, "selected-property-name",
           property_name, NULL);
 
-      gtk_menu_popup_at_pointer (GTK_MENU (m), event);
+      gtk_menu_popup_at_pointer (GTK_MENU (m), (GdkEvent*) event);
       gtk_menu_attach_to_widget (GTK_MENU (m), widget, NULL);
       res = TRUE;
     } else if (event->button == GDK_BUTTON_PRIMARY) {

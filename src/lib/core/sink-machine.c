@@ -57,8 +57,6 @@ GST_STATIC_PAD_TEMPLATE ("sink_%u",
 
 /**
  * bt_sink_machine_new:
- * @song: the song the new instance belongs to
- * @id: the id, we can use to lookup the machine
  * @err: inform about failed instance creation
  *
  * Create a new instance.
@@ -72,12 +70,11 @@ GST_STATIC_PAD_TEMPLATE ("sink_%u",
  * Returns: the new instance or %NULL in case of an error
  */
 BtSinkMachine *
-bt_sink_machine_new (const BtSong * const song, const gchar * const id,
-    GError ** err)
+bt_sink_machine_new (BtMachineConstructorParams* const params, GError ** err)
 {
   return BT_SINK_MACHINE (g_object_new (BT_TYPE_SINK_MACHINE,
-          "construction-error", err, "song", song, "id", id, "plugin-name",
-          "bt-sink-bin", NULL));
+          "construction-error", err, "song", params->song, "id", params->id,
+          "plugin-name", "bt-sink-bin", NULL));
 }
 
 //-- methods
@@ -86,7 +83,7 @@ bt_sink_machine_new (const BtSong * const song, const gchar * const id,
 
 static xmlNodePtr
 bt_sink_machine_persistence_save (const BtPersistence * const persistence,
-    xmlNodePtr const parent_node)
+    xmlNodePtr const parent_node, gpointer const userdata)
 {
   //BtSinkMachine *self = BT_SINK_MACHINE(persistence);
   BtPersistenceInterface *const parent_iface =
@@ -96,7 +93,7 @@ bt_sink_machine_persistence_save (const BtPersistence * const persistence,
   GST_DEBUG ("PERSISTENCE::sink-machine");
 
   // save parent class stuff
-  if ((node = parent_iface->save (persistence, parent_node))) {
+  if ((node = parent_iface->save (persistence, parent_node, userdata))) {
     xmlNewProp (node, XML_CHAR_PTR ("type"), XML_CHAR_PTR ("sink"));
   }
   return node;
@@ -117,27 +114,11 @@ bt_sink_machine_persistence_load (const GType type,
   xmlChar *const id = xmlGetProp (node, XML_CHAR_PTR ("id"));
 
   if (!persistence) {
-    BtSong *song = NULL;
-    gchar *param_name;
-    va_list va;
+    BtMachineConstructorParams cparams;
+    bt_machine_varargs_to_constructor_params (var_args, (gchar *) id, &cparams);
 
-    G_VA_COPY (va, var_args);
-    // we need to get parameters from var_args
-    // TODO(ensonic): this is duplicated code among the subclasses
-    param_name = va_arg (va, gchar *);
-    while (param_name) {
-      if (!strcmp (param_name, "song")) {
-        song = va_arg (va, gpointer);
-      } else {
-        GST_WARNING ("unhandled argument: %s", param_name);
-        break;
-      }
-      param_name = va_arg (va, gchar *);
-    }
-
-    self = bt_sink_machine_new (song, (gchar *) id, err);
+    self = bt_sink_machine_new (&cparams, err);
     result = BT_PERSISTENCE (self);
-    va_end (va);
   } else {
     self = BT_SINK_MACHINE (persistence);
     result = BT_PERSISTENCE (persistence);

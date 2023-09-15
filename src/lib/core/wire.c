@@ -953,7 +953,7 @@ bt_wire_dbg_print_parts (const BtWire * const self)
 
 static xmlNodePtr
 bt_wire_persistence_save (const BtPersistence * const persistence,
-    xmlNodePtr const parent_node)
+    xmlNodePtr const parent_node, gpointer const userdata)
 {
   const BtWire *const self = BT_WIRE (persistence);
   gchar *const id;

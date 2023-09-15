@@ -1436,7 +1436,7 @@ bt_machine_init_voice_params (const BtMachine * const self)
  *
  * Creates a copy of the machine with a unique name and also adds it to the song.
  *
- * Returns: a new BtMachine instance, or NULL on failure.
+ * Returns: (transfer full): a new BtMachine instance, or NULL on failure.
  */
 BtMachine *bt_machine_clone (BtMachine * const self)
 {
@@ -1453,7 +1453,7 @@ BtMachine *bt_machine_clone (BtMachine * const self)
     goto Error;
   }
 
-  xmlNodePtr node = bt_persistence_save (BT_PERSISTENCE(self), root);
+  xmlNodePtr node = bt_persistence_save (BT_PERSISTENCE (self), root, (void*)"clone");
 
   if (node == NULL) {
     g_warning ("Error serializing machine for clone");
@@ -1461,17 +1461,17 @@ BtMachine *bt_machine_clone (BtMachine * const self)
   }
   
   GError *err = NULL;
+  gchar *uid = bt_setup_get_unique_machine_id (setup, self->priv->id);
   BtMachine *machine =
     BT_MACHINE (bt_persistence_load (G_OBJECT_TYPE (self), NULL, node,
-                                     &err, "song", self->priv->song, NULL));
+                                     &err, "song", self->priv->song, "id", uid, NULL));
   if (err != NULL) {
     g_warning ("Can't clone machine: %s", err->message);
     g_error_free (err);
-  } else {
-    gchar *uid = bt_setup_get_unique_machine_id (setup, self->priv->id);
-    g_object_set (machine, "id", uid, NULL);
   }
 
+  g_free (uid);
+  
  Error:
   xmlFreeDoc (doc);
   return machine;
@@ -2815,9 +2815,45 @@ bt_machine_dbg_print_parts (const BtMachine * const self)
 
 //-- io interface
 
+/**
+ * bt_machine_varargs_to_constructor_params
+ * @var_args: consisting of alternating key/value gchar* pairs
+ * @id: the id intended for the machine, used if no override is given in varargs
+ * @params: will have its data set according to varargs
+ *
+ * Processes varargs to get common inputs that all machine subclass 'new' functions may use.
+ *
+ */
+void
+bt_machine_varargs_to_constructor_params (va_list var_args, gchar * id,
+    BtMachineConstructorParams * params) {
+  
+  g_assert(id);
+  
+  params->id = id;
+
+  va_list va;
+  
+  G_VA_COPY (va, var_args);
+  // we need to get parameters from var_args
+  gchar *param_name = va_arg (va, gchar *);
+  while (param_name) {
+    if (!strcmp (param_name, "song")) {
+      params->song = va_arg (va, gpointer);
+    } else if (!strcmp (param_name, "id")) {
+      params->id = va_arg (va, gpointer);
+    } else {
+      GST_WARNING ("unhandled argument: %s", param_name);
+      break;
+    }
+    param_name = va_arg (va, gchar *);
+  }
+  va_end (va);
+}
+
 static xmlNodePtr
 bt_machine_persistence_save (const BtPersistence * const persistence,
-    const xmlNodePtr parent_node)
+    const xmlNodePtr parent_node, gpointer const userdata)
 {
   const BtMachine *const self = BT_MACHINE (persistence);
   GstObject *machine;
@@ -2829,6 +2865,8 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
 
   GST_DEBUG ("PERSISTENCE::machine");
 
+  gchar *context = (gchar*) userdata;
+  
   if ((node = xmlNewChild (parent_node, NULL, XML_CHAR_PTR ("machine"), NULL))) {
     const gulong voices = self->priv->voices;
     const gulong prefs_params = self->priv->prefs_params;
@@ -2949,13 +2987,17 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
       } else
         goto Error;
     }
-    if (bt_machine_has_patterns (self)) {
+
+    // When the persistence is executing in the context of a "clone" operation,
+    // then patterns shouldn't be included in the serialized data.
+    if (bt_machine_has_patterns (self) && g_strcmp0 (context, "clone") != 0) {
       if ((child_node =
               xmlNewChild (node, NULL, XML_CHAR_PTR ("patterns"), NULL))) {
-        bt_persistence_save_list (self->priv->patterns, child_node);
+        bt_persistence_save_list (self->priv->patterns, child_node, NULL);
       } else
         goto Error;
     }
+    
     if (g_hash_table_size (self->priv->control_data)) {
       if ((child_node =
               xmlNewChild (node, NULL, XML_CHAR_PTR ("interaction-controllers"),
