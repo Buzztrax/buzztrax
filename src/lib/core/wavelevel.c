@@ -112,7 +112,7 @@ bt_wavelevel_new (const BtSong * const song, const BtWave * const wave,
 
 static xmlNodePtr
 bt_wavelevel_persistence_save (const BtPersistence * const persistence,
-    xmlNodePtr const parent_node)
+    xmlNodePtr const parent_node, gpointer const userdata)
 {
   const BtWavelevel *const self = BT_WAVELEVEL (persistence);
   xmlNodePtr node = NULL;

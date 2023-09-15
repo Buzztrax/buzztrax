@@ -362,7 +362,7 @@ bt_song_info_get_name(const BtSongInfo * const self) {
 
 static xmlNodePtr
 bt_song_info_persistence_save (const BtPersistence * const persistence,
-    xmlNodePtr const parent_node)
+    xmlNodePtr const parent_node, gpointer const userdata)
 {
   const BtSongInfo *const self = BT_SONG_INFO (persistence);
   xmlNodePtr node = NULL;

@@ -258,7 +258,7 @@ bt_wavetable_remember_missing_wave (const BtWavetable * const self,
 
 static xmlNodePtr
 bt_wavetable_persistence_save (const BtPersistence * const persistence,
-    xmlNodePtr const parent_node)
+    xmlNodePtr const parent_node, gpointer const userdata)
 {
   const BtWavetable *const self = BT_WAVETABLE (persistence);
   xmlNodePtr node = NULL;
@@ -267,7 +267,7 @@ bt_wavetable_persistence_save (const BtPersistence * const persistence,
 
   if ((node =
           xmlNewChild (parent_node, NULL, XML_CHAR_PTR ("wavetable"), NULL))) {
-    bt_persistence_save_list (self->priv->waves, node);
+    bt_persistence_save_list (self->priv->waves, node, NULL);
   }
   return node;
 }

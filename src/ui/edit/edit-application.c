@@ -321,7 +321,11 @@ bt_edit_application_new_song (const BtEditApplication * self)
   bt_child_proxy_set (song, "sequence::length", bars * 4, NULL);
   // add audiosink
   id = bt_setup_get_unique_machine_id (setup, "master");
-  machine = BT_MACHINE (bt_sink_machine_new (song, id, &err));
+  
+  BtMachineConstructorParams cparams;
+  cparams.id = id;
+  cparams.song = song;
+  machine = BT_MACHINE (bt_sink_machine_new (&cparams, &err));
   if (err == NULL) {
     GHashTable *properties;
 

@@ -1357,7 +1357,7 @@ bt_sequence_delete_full_rows (const BtSequence * const self, const gulong time,
 
 static xmlNodePtr
 bt_sequence_persistence_save (const BtPersistence * const persistence,
-    xmlNodePtr const parent_node)
+    xmlNodePtr const parent_node, gpointer const userdata)
 {
   BtSequence *const self = BT_SEQUENCE (persistence);
   const gulong tracks = self->priv->tracks;

@@ -1967,15 +1967,20 @@ bt_main_page_machines_add_machine (const BtMainPageMachines * self,
   GError *err = NULL;
   g_object_get (self->priv->app, "song", &song, NULL);
   uid = bt_setup_get_unique_machine_id (self->priv->setup, id);
+  
+  BtMachineConstructorParams cparams;
+  cparams.id = uid;
+  cparams.song = song;
+  
   // try with 1 voice, if monophonic, voices will be reset to 0 in
   // bt_machine_init_voice_params()
   switch (type) {
     case 0:
-      machine = BT_MACHINE (bt_source_machine_new (song, uid, plugin_name,
+      machine = BT_MACHINE (bt_source_machine_new (&cparams, plugin_name,
               /*voices= */ 1, &err));
       break;
     case 1:
-      machine = BT_MACHINE (bt_processor_machine_new (song, uid, plugin_name,
+      machine = BT_MACHINE (bt_processor_machine_new (&cparams, plugin_name,
               /*voices= */ 1, &err));
       break;
   }
@@ -2309,13 +2314,18 @@ bt_main_page_machines_change_logger_change (const BtChangeLogger * owner,
       g_match_info_free (match_info);
       GST_DEBUG ("-> [%d|%s|%s]", type, mid, pname);
       g_object_get (self->priv->app, "song", &song, NULL);
+      
+      BtMachineConstructorParams cparams;
+      cparams.id = mid;
+      cparams.song = song;
+      
       switch (type) {
         case 0:
-          machine = BT_MACHINE (bt_source_machine_new (song, mid, pname,        /*voices= */
+          machine = BT_MACHINE (bt_source_machine_new (&cparams, pname,        /*voices= */
                   1, &err));
           break;
         case 1:
-          machine = BT_MACHINE (bt_processor_machine_new (song, mid, pname,
+          machine = BT_MACHINE (bt_processor_machine_new (&cparams, pname,
                   /*voices= */ 1, &err));
           break;
         default:

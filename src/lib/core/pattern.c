@@ -871,7 +871,7 @@ bt_pattern_serialize_columns (const BtPattern * const self,
 
 static xmlNodePtr
 bt_pattern_persistence_save (const BtPersistence * const persistence,
-    xmlNodePtr const parent_node)
+    xmlNodePtr const parent_node, gpointer const userdata)
 {
   const BtPattern *const self = BT_PATTERN (persistence);;
   xmlNodePtr node = NULL;

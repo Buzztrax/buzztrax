@@ -65,6 +65,6 @@ typedef enum {
 
 GType bt_sink_machine_get_type(void) G_GNUC_CONST;
 
-BtSinkMachine *bt_sink_machine_new(const BtSong * const song, const gchar * const id, GError **err);
+BtSinkMachine *bt_sink_machine_new(BtMachineConstructorParams* const params, GError **err);
 
 #endif // BT_SINK_MACHINE_H

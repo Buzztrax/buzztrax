@@ -67,6 +67,6 @@ typedef enum {
 
 GType bt_source_machine_get_type(void) G_GNUC_CONST;
 
-BtSourceMachine *bt_source_machine_new(const BtSong * const song, const gchar * const id, const gchar * const plugin_name, const glong voices, GError **err);
+BtSourceMachine *bt_source_machine_new(BtMachineConstructorParams* const params, const gchar * const plugin_name, const glong voices, GError **err);
 
 #endif // BT_SOURCE_MACHINE_H

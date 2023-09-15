@@ -159,4 +159,18 @@ void bt_machine_reset_parameters(const BtMachine * const self) ;
 
 BtWire *bt_machine_get_wire_by_dst_machine(const BtMachine * const self, const BtMachine * const dst);
 
+//-- persistence
+
+/*
+ * These inputs may be used by 'new' functions of any subclass of BtMachine.
+ * @song: the song the new instance belongs to
+ * @id: the id, we can use to lookup the machine
+ */
+typedef struct {
+  gchar* id;
+  const BtSong* song;
+} BtMachineConstructorParams;
+
+void bt_machine_varargs_to_constructor_params(va_list var_args, gchar * id, BtMachineConstructorParams * params);
+
 #endif // BT_MACHINE_H
