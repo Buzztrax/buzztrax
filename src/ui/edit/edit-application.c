@@ -554,8 +554,8 @@ bt_edit_application_save_song (const BtEditApplication * self,
     }
     if (bt_song_io_save (saver, self->priv->song, err)) {
       res = TRUE;
-      if (!old_file_name || strcmp (old_file_name, file_name)) {
-        // saving worked, we remove the bak file as
+      if (bak_file_name && (!old_file_name || strcmp (old_file_name, file_name))) {
+        // saving worked, we remove the bak file (if one was present) as
         // - there was no old_file_name and/or
         // - user has chosen to overwrite this file
         g_unlink (bak_file_name);
