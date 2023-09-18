@@ -130,6 +130,8 @@ bt_song_io_native_xml_save (gconstpointer const _self,
       g_set_error (err, G_IO_ERROR, G_IO_ERROR_FAILED,
           "Failed to serialize XML doc.");
     }
+
+    xmlFreeDoc (song_doc);
   } else {
     g_set_error (err, G_IO_ERROR, G_IO_ERROR_FAILED,
         "Failed to create XML doc.");
