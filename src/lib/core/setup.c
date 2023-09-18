@@ -1866,16 +1866,17 @@ bt_setup_get_wires_by_dst_machine (const BtSetup * const self,
  * @base_name: the leading name part
  *
  * The function makes the supplied base_name unique in this setup by eventually
- * adding a number postfix. This method should be used when adding new machines.
+ * adding a number postfix and incrementing that postfix when necessary.
+ * This method should be used when adding new machines.
  *
- * Returns: (transfer full): the newly allocated unique name
+ * Returns: (transfer full): the newly allocated unique name, or NULL if no
+ * unique name could be generated.
  */
 gchar *
 bt_setup_get_unique_machine_id (const BtSetup * const self,
     const gchar * const base_name)
 {
   BtMachine *machine;
-  guint8 i = 0;
 
   g_return_val_if_fail (BT_IS_SETUP (self), NULL);
   g_return_val_if_fail (BT_IS_STRING (base_name), NULL);
@@ -1887,13 +1888,49 @@ bt_setup_get_unique_machine_id (const BtSetup * const self,
     machine = NULL;
   }
 
-  gchar *const id = g_strdup_printf ("%s 00", base_name);
-  gchar *const ptr = &id[strlen (base_name) + 1];
-  do {
-    (void) g_sprintf (ptr, "%02u", i++);
+  gsize len_id = strlen (base_name);
+  gsize postfix_pos;
+  gchar *id;
+  gint postfix;
+  if (len_id >= 2 &&
+      g_ascii_isdigit (base_name[len_id - 2]) &&
+      g_ascii_isdigit (base_name[len_id - 1])) {
+    id = g_strdup (base_name);
+    postfix_pos = len_id - 2;
+
+    // At this point, a machine with the name "base_name" is known to exist,
+    // so start by checking the existing prefix value + 1.
+    postfix = atoi (base_name + postfix_pos) + 1;
+  } else {
+    id = g_strdup_printf ("%s 00", base_name);
+    postfix_pos = len_id + 1;
+    postfix = 0;
+  }
+
+  // "id" is now a newly-allocated string having the format
+  // "<base_name> <digit><digit>".
+  //
+  // While a machine with the name "id" exists, increment the two digit postfix
+  // and try again.
+  gchar *const ptr = &id[postfix_pos];
+  for (guint i = postfix; ; ++i) {
+    (void) g_sprintf (ptr, "%02u", i);
     g_object_try_unref (machine);
-  } while ((machine = bt_setup_get_machine_by_id (self, id)) && (i < 100));
+    machine = bt_setup_get_machine_by_id (self, id);
+    
+    if (!machine) {
+      // A unique name has been found.
+      break;
+    } else if (i == postfix + 100) {
+      // No unique name could be found.
+      g_free (id);
+      id = NULL;
+      break;
+    }
+  }
+  
   g_object_try_unref (machine);
+  
   return id;
 }
 
