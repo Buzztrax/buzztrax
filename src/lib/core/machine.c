@@ -1453,7 +1453,7 @@ BtMachine *bt_machine_clone (BtMachine * const self)
     goto Error;
   }
 
-  xmlNodePtr node = bt_persistence_save (BT_PERSISTENCE (self), root, (void*)"clone");
+  xmlNodePtr node = bt_persistence_save (BT_PERSISTENCE (self), root, (gpointer)"clone");
 
   if (node == NULL) {
     g_warning ("Error serializing machine for clone");
@@ -2851,6 +2851,15 @@ bt_machine_varargs_to_constructor_params (va_list var_args, gchar * id,
   va_end (va);
 }
 
+/**
+ * bt_machine_persistence_save
+ * @userdata: a gchar* that indicates the 'context' of the save operation.
+ *            Possible values are NULL, "clone". "clone" means the save is being
+ *            used to clone the machine.
+ *
+ * Processes varargs to get common inputs that all machine subclass 'new' functions may use.
+ *
+ */
 static xmlNodePtr
 bt_machine_persistence_save (const BtPersistence * const persistence,
     const xmlNodePtr parent_node, gpointer const userdata)

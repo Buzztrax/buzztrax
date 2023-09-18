@@ -39,7 +39,9 @@ typedef struct _BtPersistenceInterface BtPersistenceInterface;
 
 /**
  * BtPersistenceInterface:
- * @save: virtual method to serialize an object to an xml node
+ * @save: virtual method to serialize an object to an xml node.
+ *        "userdata" may be used to pass subclass-specific inputs to the save
+ *        operation. The meaning of this data differs from subclass to subclass.
  * @load: virtual method to deserialze an object from an xml node
  *
  * #BtPersistence interface
