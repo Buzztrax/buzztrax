@@ -61,6 +61,7 @@ struct _BtMachine {
  * @check_type: sanity check that the given input/output characteristics are
  * okay for the implementation
  * @is_cloneable: return true if the machine can be cloned by the user.
+ * By default, returns true.
  *
  * Base class for machines.
  */
