@@ -52,25 +52,28 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_pattern_properties (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_properties)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
   /* act & assert */
-  fail_unless (check_gobject_properties ((GObject *) pattern), NULL);
+  ck_assert (check_gobject_properties ((GObject *) pattern));
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_pattern_new_null_machine (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_new_null_machine)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -80,20 +83,24 @@ test_bt_pattern_new_null_machine (BT_TEST_ARGS)
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 1L, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
-  fail_unless (pattern != NULL, NULL);
+  ck_assert (check_has_error_trapped ());
+  ck_assert (pattern != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_pattern_new_null_name (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_new_null_name)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+  BtMachineConstructorParams cparams;
+  cparams.id = "id";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   check_init_error_trapp ("bt_cmd_pattern_", "BT_IS_STRING (self->priv->name)");
 
@@ -101,37 +108,45 @@ test_bt_pattern_new_null_name (BT_TEST_ARGS)
   BtPattern *pattern = bt_pattern_new (song, NULL, 1L, machine);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
-  fail_unless (pattern != NULL, NULL);
+  ck_assert (check_has_error_trapped ());
+  ck_assert (pattern != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_pattern_mono_get_voice_vg (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_mono_get_voice_vg)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+  BtMachineConstructorParams cparams;
+  cparams.id = "id";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 1L, machine);
 
   /* act && assert */
-  fail_unless (bt_pattern_get_voice_group (pattern, 1) == NULL, NULL);
+  ck_assert (bt_pattern_get_voice_group (pattern, 1) == NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_pattern_get_group_by_null_paramgroup (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_get_group_by_null_paramgroup)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+  BtMachineConstructorParams cparams;
+  cparams.id = "id";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 1L, machine);
 
@@ -143,6 +158,7 @@ test_bt_pattern_get_group_by_null_paramgroup (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_pattern_test_case (void)

@@ -76,12 +76,14 @@ move_cursor_to (GtkWidget * w, guint group, guint param, guint digit, guint row)
 
 //-- tests
 
-static void
-test_bt_main_page_patterns_focus (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_patterns_focus)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
@@ -99,14 +101,17 @@ test_bt_main_page_patterns_focus (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
 // test entering notes
-static void
-test_bt_main_page_patterns_enter_note (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_patterns_enter_note)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
@@ -124,7 +129,7 @@ test_bt_main_page_patterns_enter_note (BT_TEST_ARGS)
 
   GST_INFO ("-- assert --");
   str = bt_pattern_get_global_event (pattern, 0, 3);
-  fail_unless (str != NULL, NULL);
+  ck_assert (str != NULL);
   str[2] = '0';
   ck_assert_str_eq_and_free (str, "c-0");
 
@@ -133,13 +138,16 @@ test_bt_main_page_patterns_enter_note (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_main_page_patterns_enter_note_off (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_patterns_enter_note_off)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
@@ -162,14 +170,17 @@ test_bt_main_page_patterns_enter_note_off (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
 // test entering notes
-static void
-test_bt_main_page_patterns_clear_note (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_patterns_clear_note)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
@@ -194,14 +205,17 @@ test_bt_main_page_patterns_clear_note (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
 // test entering booleans
-static void
-test_bt_main_page_patterns_enter_switch (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_patterns_enter_switch)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
@@ -223,14 +237,17 @@ test_bt_main_page_patterns_enter_switch (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
 // test entering sparse enum
-static void
-test_bt_main_page_patterns_enter_sparse_enum (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_patterns_enter_sparse_enum)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
@@ -252,14 +269,17 @@ test_bt_main_page_patterns_enter_sparse_enum (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
 // test entering sparse enum
-static void
-test_bt_main_page_patterns_enter_invalid_sparse_enum (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_patterns_enter_invalid_sparse_enum)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
@@ -281,14 +301,17 @@ test_bt_main_page_patterns_enter_invalid_sparse_enum (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
 // test entering sparse enum
-static void
-test_bt_main_page_patterns_enter_sparse_enum_in_2_steps (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_patterns_enter_sparse_enum_in_2_steps)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
@@ -312,14 +335,17 @@ test_bt_main_page_patterns_enter_sparse_enum_in_2_steps (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
 
-static void
-test_bt_main_page_patterns_pattern_voices (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_patterns_pattern_voices)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
@@ -336,7 +362,7 @@ test_bt_main_page_patterns_pattern_voices (BT_TEST_ARGS)
   g_object_get (pattern, "voices", &voices, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (voices == 2, NULL);
+  ck_assert (voices == 2);
   // send two tab keys to ensure the new voice is visible
   check_send_key (pattern_editor, 0, GDK_KEY_Tab, 0);
   check_send_key (pattern_editor, 0, GDK_KEY_Tab, 0);
@@ -347,6 +373,7 @@ test_bt_main_page_patterns_pattern_voices (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_main_page_patterns_example_case (void)

@@ -39,8 +39,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_create_obj (BT_TEST_ARGS)
+START_TEST (test_create_obj)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -56,10 +55,10 @@ test_create_obj (BT_TEST_ARGS)
   ck_gst_object_final_unref (mix);
   BT_TEST_END;
 }
+END_TEST
 
 // cp /tmp/lt-bt_gst_combine_*.svg docs/reference/bt-gst/images/
-static void
-test_combine_modes (BT_TEST_ARGS)
+START_TEST (test_combine_modes)
 {
   BT_TEST_START;
   gint16 data1[WAVE_SIZE], data2[WAVE_SIZE];
@@ -90,6 +89,7 @@ test_combine_modes (BT_TEST_ARGS)
   ck_gst_object_final_unref (mix);
   BT_TEST_END;
 }
+END_TEST
 
 
 TCase *

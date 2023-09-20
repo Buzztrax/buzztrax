@@ -52,8 +52,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_child_proxy_get (BT_TEST_ARGS)
+START_TEST (test_bt_child_proxy_get)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -68,9 +67,9 @@ test_bt_child_proxy_get (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_child_proxy_set (BT_TEST_ARGS)
+START_TEST (test_bt_child_proxy_set)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -84,13 +83,14 @@ test_bt_child_proxy_set (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_child_proxy_get_property (BT_TEST_ARGS)
+START_TEST (test_bt_child_proxy_get_property)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  GValue value = { 0, };
+  GValue value = { 0, }
+END_TEST;
   g_value_init (&value, G_TYPE_ULONG);
   g_value_set_ulong (&value, 0);
 
@@ -105,13 +105,14 @@ test_bt_child_proxy_get_property (BT_TEST_ARGS)
   g_value_unset (&value);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_child_proxy_set_property (BT_TEST_ARGS)
+START_TEST (test_bt_child_proxy_set_property)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  GValue value = { 0, };
+  GValue value = { 0, }
+END_TEST;
   g_value_init (&value, G_TYPE_ULONG);
   g_value_set_ulong (&value, 0);
 
@@ -125,6 +126,7 @@ test_bt_child_proxy_set_property (BT_TEST_ARGS)
   g_value_unset (&value);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_child_proxy_test_case (void)

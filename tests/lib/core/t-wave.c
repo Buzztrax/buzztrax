@@ -57,8 +57,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_wave_properties (BT_TEST_ARGS)
+START_TEST (test_bt_wave_properties)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -66,15 +65,15 @@ test_bt_wave_properties (BT_TEST_ARGS)
       1.0, BT_WAVE_LOOP_MODE_OFF, 0);
 
   /* act & assert */
-  fail_unless (check_gobject_properties (wave), NULL);
+  ck_assert (check_gobject_properties (wave));
 
   GST_INFO ("-- cleanup --");
   g_object_unref (wave);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_wave_get_beyond_size (BT_TEST_ARGS)
+START_TEST (test_bt_wave_get_beyond_size)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -82,12 +81,13 @@ test_bt_wave_get_beyond_size (BT_TEST_ARGS)
       BT_WAVE_LOOP_MODE_OFF, 0);
 
   /* act & assert */
-  fail_unless (bt_wave_get_level_by_index (wave, 10) == NULL, NULL);
+  ck_assert (bt_wave_get_level_by_index (wave, 10) == NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (wave);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_wave_test_case (void)

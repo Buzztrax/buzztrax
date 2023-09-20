@@ -51,12 +51,15 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_machine_add_null_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_machine_add_null_pattern)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
+  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   check_init_error_trapp ("", "BT_IS_CMD_PATTERN (pattern)");
 
@@ -64,18 +67,22 @@ test_bt_machine_add_null_pattern (BT_TEST_ARGS)
   bt_machine_add_pattern (gen1, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_add_pattern_twice (BT_TEST_ARGS)
+START_TEST (test_bt_machine_add_pattern_twice)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
+  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, gen1);
 
@@ -91,13 +98,17 @@ test_bt_machine_add_pattern_twice (BT_TEST_ARGS)
   g_list_free (list);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_remove_null_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_machine_remove_null_pattern)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
+  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   check_init_error_trapp ("", "BT_IS_CMD_PATTERN (pattern)");
 
@@ -105,23 +116,30 @@ test_bt_machine_remove_null_pattern (BT_TEST_ARGS)
   bt_machine_remove_pattern (gen1, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_state_bypass_on_source (BT_TEST_ARGS)
+START_TEST (test_bt_machine_state_bypass_on_source)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
   BtMachine *src =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+      BT_MACHINE (bt_source_machine_new (&cparams, "audiotestsrc", 0L,
           NULL));
+
+  cparams.id = "vol";
   BtMachine *proc =
-      BT_MACHINE (bt_processor_machine_new (song, "vol", "volume", 0L, NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0L, NULL));
+  cparams.id = "sink";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   bt_wire_new (song, src, proc, NULL);
   bt_wire_new (song, proc, sink, NULL);
 
@@ -136,18 +154,26 @@ test_bt_machine_state_bypass_on_source (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_state_solo_on_sink (BT_TEST_ARGS)
+START_TEST (test_bt_machine_state_solo_on_sink)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
   BtMachine *src =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+      BT_MACHINE (bt_source_machine_new (&cparams, "audiotestsrc", 0L,
           NULL));
+
+  cparams.id = "vol";
   BtMachine *proc =
-      BT_MACHINE (bt_processor_machine_new (song, "vol", "volume", 0L, NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0L, NULL));
+
+  cparams.id = "sink";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   bt_wire_new (song, src, proc, NULL);
   bt_wire_new (song, proc, sink, NULL);
 
@@ -162,6 +188,7 @@ test_bt_machine_state_solo_on_sink (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_machine_test_case (void)

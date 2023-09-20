@@ -42,8 +42,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_create_obj (BT_TEST_ARGS)
+START_TEST (test_create_obj)
 {
   BT_TEST_START;
   GstBtFilterSVF *filter;
@@ -53,17 +52,17 @@ test_create_obj (BT_TEST_ARGS)
   filter = gstbt_filter_svf_new ();
 
   GST_INFO ("-- assert --");
-  fail_unless (filter != NULL, NULL);
-  fail_unless (G_OBJECT (filter)->ref_count == 1, NULL);
+  ck_assert (filter != NULL);
+  ck_assert (G_OBJECT (filter)->ref_count == 1);
 
   GST_INFO ("-- cleanup --");
   ck_gst_object_final_unref (filter);
   BT_TEST_END;
 }
+END_TEST
 
 // cp /tmp/lt-bt_gst_filter-svf_*.svg docs/reference/bt-gst/images/
-static void
-test_filter (BT_TEST_ARGS)
+START_TEST (test_filter)
 {
   BT_TEST_START;
   GstBtFilterSVF *filter;
@@ -131,6 +130,7 @@ test_filter (BT_TEST_ARGS)
   ck_gst_object_final_unref (filter);
   BT_TEST_END;
 }
+END_TEST
 
 
 TCase *

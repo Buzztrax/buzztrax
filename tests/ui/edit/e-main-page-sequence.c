@@ -72,8 +72,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_main_page_sequence_focus (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_sequence_focus)
 {
   BT_TEST_START;
 
@@ -88,10 +87,10 @@ test_bt_main_page_sequence_focus (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 // activate tracks
-static void
-test_bt_main_page_sequence_active_machine (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_sequence_active_machine)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -99,10 +98,14 @@ test_bt_main_page_sequence_active_machine (BT_TEST_ARGS)
   // (main-page-sequence is not listening for "track-added" signal).
   // When adding a src, a track is added automatically and this updates the
   // view though.
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "fx";
   bt_sequence_add_track (sequence,
-      BT_MACHINE (bt_processor_machine_new (song, "fx", "volume", 0L, NULL)),
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0L, NULL)),
       -1);
-  bt_source_machine_new (song, "gen", "simsyn", 0L, NULL);
+  cparams.id = "gen";
+  bt_source_machine_new (&cparams, "simsyn", 0L, NULL);
   BtMainPageSequence *sequence_page;
   GtkWidget *sequence_view;
 
@@ -135,14 +138,17 @@ test_bt_main_page_sequence_active_machine (BT_TEST_ARGS)
   g_object_unref (sequence_page);
   BT_TEST_END;
 }
+END_TEST
 
 // activate tracks
-static void
-test_bt_main_page_sequence_enter_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_sequence_enter_pattern)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern1 = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPageSequence *sequence_page;
@@ -164,6 +170,7 @@ test_bt_main_page_sequence_enter_pattern (BT_TEST_ARGS)
   g_object_unref (pattern1);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_main_page_sequence_example_case (void)

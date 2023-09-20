@@ -46,8 +46,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_btic_registry_unknown_device (BT_TEST_ARGS)
+START_TEST (test_btic_registry_unknown_device)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -58,12 +57,13 @@ test_btic_registry_unknown_device (BT_TEST_ARGS)
   BtIcDevice *device = btic_registry_get_device_by_name ("unknown-device");
 
   GST_INFO ("-- assert --");
-  fail_unless (device == NULL, NULL);
+  ck_assert (device == NULL);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (registry);
   BT_TEST_END;
 }
+END_TEST
 
 
 TCase *

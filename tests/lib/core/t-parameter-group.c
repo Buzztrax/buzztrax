@@ -52,12 +52,15 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_parameter_group_invalid_param (BT_TEST_ARGS)
+START_TEST (test_bt_parameter_group_invalid_param)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+  BtMachineConstructorParams cparams;
+  cparams.id = "id";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   BtParameterGroup *pg = bt_machine_get_global_param_group (machine);
 
@@ -70,13 +73,17 @@ test_bt_parameter_group_invalid_param (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_parameter_group_no_trigger_param (BT_TEST_ARGS)
+START_TEST (test_bt_parameter_group_no_trigger_param)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+  BtMachineConstructorParams cparams;
+  cparams.id = "id";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-no-arg-mono-source", 0, NULL));
   BtParameterGroup *pg = bt_machine_get_global_param_group (machine);
 
@@ -89,13 +96,17 @@ test_bt_parameter_group_no_trigger_param (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_parameter_group_no_wave_param (BT_TEST_ARGS)
+START_TEST (test_bt_parameter_group_no_wave_param)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+  BtMachineConstructorParams cparams;
+  cparams.id = "id";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-poly-source", 0, NULL));
   BtParameterGroup *pg = bt_machine_get_global_param_group (machine);
 
@@ -108,13 +119,17 @@ test_bt_parameter_group_no_wave_param (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_parameter_group_set_default_for_prefs (BT_TEST_ARGS)
+START_TEST (test_bt_parameter_group_set_default_for_prefs)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+  BtMachineConstructorParams cparams;
+  cparams.id = "id";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   BtParameterGroup *pg = bt_machine_get_prefs_param_group (machine);
 
@@ -128,6 +143,7 @@ test_bt_parameter_group_set_default_for_prefs (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_parameter_group_test_case (void)

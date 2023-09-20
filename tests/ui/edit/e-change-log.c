@@ -178,8 +178,7 @@ case_teardown (void)
 //-- tests
 
 // test lifecycle/refcounts
-static void
-test_bt_change_log_create_and_destroy (BT_TEST_ARGS)
+START_TEST (test_bt_change_log_create_and_destroy)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -188,15 +187,15 @@ test_bt_change_log_create_and_destroy (BT_TEST_ARGS)
   BtChangeLog *cl = bt_change_log_new ();
 
   GST_INFO ("-- assert --");
-  fail_unless (cl != NULL, NULL);
+  ck_assert (cl != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (cl);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_change_log_initial_undo_redo_state (BT_TEST_ARGS)
+START_TEST (test_bt_change_log_initial_undo_redo_state)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -207,16 +206,16 @@ test_bt_change_log_initial_undo_redo_state (BT_TEST_ARGS)
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (!can_undo, NULL);
-  fail_unless (!can_redo, NULL);
+  ck_assert (!can_undo);
+  ck_assert (!can_redo);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (cl);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_change_log_undo_redo_state_after_single_change (BT_TEST_ARGS)
+START_TEST (test_bt_change_log_undo_redo_state_after_single_change)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -229,17 +228,17 @@ test_bt_change_log_undo_redo_state_after_single_change (BT_TEST_ARGS)
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (can_undo, NULL);
-  fail_unless (!can_redo, NULL);
+  ck_assert (can_undo);
+  ck_assert (!can_redo);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (tcl);
   g_object_unref (cl);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_change_log_undo_redo_state_single_change_after_undo (BT_TEST_ARGS)
+START_TEST (test_bt_change_log_undo_redo_state_single_change_after_undo)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -253,17 +252,17 @@ test_bt_change_log_undo_redo_state_single_change_after_undo (BT_TEST_ARGS)
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (!can_undo, NULL);
-  fail_unless (can_redo, NULL);
+  ck_assert (!can_undo);
+  ck_assert (can_redo);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (tcl);
   g_object_unref (cl);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_change_log_undo_redo_state_single_change_after_redo (BT_TEST_ARGS)
+START_TEST (test_bt_change_log_undo_redo_state_single_change_after_redo)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -278,17 +277,17 @@ test_bt_change_log_undo_redo_state_single_change_after_redo (BT_TEST_ARGS)
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (can_undo, NULL);
-  fail_unless (!can_redo, NULL);
+  ck_assert (can_undo);
+  ck_assert (!can_redo);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (tcl);
   g_object_unref (cl);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_change_log_undo_redo_state_double_change_after_undo (BT_TEST_ARGS)
+START_TEST (test_bt_change_log_undo_redo_state_double_change_after_undo)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -303,19 +302,19 @@ test_bt_change_log_undo_redo_state_double_change_after_undo (BT_TEST_ARGS)
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (can_undo, NULL);
-  fail_unless (can_redo, NULL);
+  ck_assert (can_undo);
+  ck_assert (can_redo);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (tcl);
   g_object_unref (cl);
   BT_TEST_END;
 }
+END_TEST
 
 
 // test truncating the undo/redo stack
-static void
-test_bt_change_log_undo_redo_state_stack_trunc (BT_TEST_ARGS)
+START_TEST (test_bt_change_log_undo_redo_state_stack_trunc)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -330,18 +329,18 @@ test_bt_change_log_undo_redo_state_stack_trunc (BT_TEST_ARGS)
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (can_undo, NULL);
-  fail_unless (!can_redo, NULL);
+  ck_assert (can_undo);
+  ck_assert (!can_redo);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (tcl);
   g_object_unref (cl);
   BT_TEST_END;
 }
+END_TEST
 
 // test single undo/redo actions
-static void
-test_bt_change_log_single_change_after_undo (BT_TEST_ARGS)
+START_TEST (test_bt_change_log_single_change_after_undo)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -360,10 +359,10 @@ test_bt_change_log_single_change_after_undo (BT_TEST_ARGS)
   g_object_unref (cl);
   BT_TEST_END;
 }
+END_TEST
 
 // test single undo/redo actions
-static void
-test_bt_change_log_single_change_after_redo (BT_TEST_ARGS)
+START_TEST (test_bt_change_log_single_change_after_redo)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -383,10 +382,10 @@ test_bt_change_log_single_change_after_redo (BT_TEST_ARGS)
   g_object_unref (cl);
   BT_TEST_END;
 }
+END_TEST
 
 // test double undo/redo actions
-static void
-test_bt_change_log_two_changes (BT_TEST_ARGS)
+START_TEST (test_bt_change_log_two_changes)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -416,10 +415,10 @@ test_bt_change_log_two_changes (BT_TEST_ARGS)
   g_object_unref (cl);
   BT_TEST_END;
 }
+END_TEST
 
 // test single and then double undo/redo actions
-static void
-test_bt_change_log_single_then_double_change (BT_TEST_ARGS)
+START_TEST (test_bt_change_log_single_then_double_change)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -460,9 +459,9 @@ test_bt_change_log_single_then_double_change (BT_TEST_ARGS)
   g_object_unref (cl);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_change_log_group (BT_TEST_ARGS)
+START_TEST (test_bt_change_log_group)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -477,12 +476,12 @@ test_bt_change_log_group (BT_TEST_ARGS)
 
   // undo & verify
   bt_change_log_undo (cl);
-  fail_unless (tcl->data == NULL, NULL);
+  ck_assert (tcl->data == NULL);
   ck_assert_int_eq (tcl->data_size, 0);
 
   // redo & verify
   bt_change_log_redo (cl);
-  fail_unless (tcl->data != NULL, NULL);
+  ck_assert (tcl->data != NULL);
   ck_assert_int_eq (tcl->data_size, 2);
   ck_assert_int_eq (tcl->data[0], 1);
 
@@ -491,10 +490,10 @@ test_bt_change_log_group (BT_TEST_ARGS)
   g_object_unref (cl);
   BT_TEST_END;
 }
+END_TEST
 
 
-static void
-test_bt_change_log_nested_groups (BT_TEST_ARGS)
+START_TEST (test_bt_change_log_nested_groups)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -512,12 +511,12 @@ test_bt_change_log_nested_groups (BT_TEST_ARGS)
 
   // undo & verify
   bt_change_log_undo (cl);
-  fail_unless (tcl->data == NULL, NULL);
+  ck_assert (tcl->data == NULL);
   ck_assert_int_eq (tcl->data_size, 0);
 
   // redo & verify
   bt_change_log_redo (cl);
-  fail_unless (tcl->data != NULL, NULL);
+  ck_assert (tcl->data != NULL);
   ck_assert_int_eq (tcl->data_size, 2);
   ck_assert_int_eq (tcl->data[0], 1);
   ck_assert_int_eq (tcl->data[1], 1);
@@ -527,9 +526,9 @@ test_bt_change_log_nested_groups (BT_TEST_ARGS)
   g_object_unref (cl);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_change_log_recover (BT_TEST_ARGS)
+START_TEST (test_bt_change_log_recover)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -547,7 +546,7 @@ test_bt_change_log_recover (BT_TEST_ARGS)
   gboolean res = bt_change_log_recover (cl, log_name);
 
   GST_INFO ("-- assert --");
-  fail_unless (res, NULL);
+  ck_assert (res);
 
   GST_INFO ("-- cleanup --");
   flush_main_loop ();
@@ -556,6 +555,7 @@ test_bt_change_log_recover (BT_TEST_ARGS)
   g_object_unref (cl);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_change_log_example_case (void)

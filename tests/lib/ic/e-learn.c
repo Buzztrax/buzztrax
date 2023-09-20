@@ -49,8 +49,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_btic_learn_register_control (BT_TEST_ARGS)
+START_TEST (test_btic_learn_register_control)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -61,15 +60,15 @@ test_btic_learn_register_control (BT_TEST_ARGS)
       btic_learn_register_learned_control (BTIC_LEARN (device), "learn1");
 
   GST_INFO ("-- assert --");
-  fail_unless (control != NULL, NULL);
+  ck_assert (control != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (device);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_btic_learn_store_controls (BT_TEST_ARGS)
+START_TEST (test_btic_learn_store_controls)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -87,6 +86,7 @@ test_btic_learn_store_controls (BT_TEST_ARGS)
   g_object_unref (device);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_learn_example_case (void)

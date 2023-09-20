@@ -35,8 +35,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_create_obj (BT_TEST_ARGS)
+START_TEST (test_create_obj)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -45,15 +44,15 @@ test_create_obj (BT_TEST_ARGS)
   GstContext *ctx = gstbt_audio_tempo_context_new (120, 4, 8);
 
   GST_INFO ("-- assert --");
-  fail_unless (ctx != NULL, NULL);
+  ck_assert (ctx != NULL);
 
   GST_INFO ("-- cleanup --");
   gst_context_unref (ctx);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_get_tempo (BT_TEST_ARGS)
+START_TEST (test_get_tempo)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -64,7 +63,7 @@ test_get_tempo (BT_TEST_ARGS)
   gboolean res = gstbt_audio_tempo_context_get_tempo (ctx, &bpm, &tpb, &stpb);
 
   GST_INFO ("-- assert --");
-  fail_unless (res, NULL);
+  ck_assert (res);
   ck_assert_int_eq (bpm, 120);
   ck_assert_int_eq (tpb, 4);
   ck_assert_int_eq (stpb, 8);
@@ -73,6 +72,7 @@ test_get_tempo (BT_TEST_ARGS)
   gst_context_unref (ctx);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 gst_buzztrax_tempo_example_case (void)

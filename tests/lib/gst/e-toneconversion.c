@@ -36,46 +36,45 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_create_obj (BT_TEST_ARGS)
+START_TEST (test_create_obj)
 {
   BT_TEST_START;
   GstBtToneConversion *n2f;
 
   n2f = gstbt_tone_conversion_new (GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT);
-  fail_unless (n2f != NULL, NULL);
-  fail_unless (G_OBJECT (n2f)->ref_count == 1, NULL);
+  ck_assert (n2f != NULL);
+  ck_assert (G_OBJECT (n2f)->ref_count == 1);
 
   // free object
   ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_translate_str_base (BT_TEST_ARGS)
+START_TEST (test_translate_str_base)
 {
   BT_TEST_START;
   GstBtToneConversion *n2f;
   gdouble frq;
 
   n2f = gstbt_tone_conversion_new (GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT);
-  fail_unless (n2f != NULL, NULL);
+  ck_assert (n2f != NULL);
 
   frq = gstbt_tone_conversion_translate_from_string (n2f, "A-3");
   //g_print("frq=%lf\n",frq);
-  fail_unless (frq == 440.0, NULL);
+  ck_assert (frq == 440.0);
 
   frq = gstbt_tone_conversion_translate_from_string (n2f, "a-3");
   //g_print("frq=%lf\n",frq);
-  fail_unless (frq == 440.0, NULL);
+  ck_assert (frq == 440.0);
 
   // free object
   ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_translate_str_series (BT_TEST_ARGS)
+START_TEST (test_translate_str_series)
 {
   BT_TEST_START;
   GstBtToneConversion *n2f;
@@ -90,13 +89,13 @@ test_translate_str_series (BT_TEST_ARGS)
   guint i = 0;
 
   n2f = gstbt_tone_conversion_new (_i);
-  fail_unless (n2f != NULL, NULL);
+  ck_assert (n2f != NULL);
 
   while (notes[i]) {
     frq = gstbt_tone_conversion_translate_from_string (n2f, notes[i]);
     //g_print("%s -> frq=%lf\n",notes[i],frq);
-    fail_unless (frq != 0.0, NULL);
-    fail_unless (frq > frq_prev, NULL);
+    ck_assert (frq != 0.0);
+    ck_assert (frq > frq_prev);
     frq_prev = frq;
     i++;
   }
@@ -105,28 +104,28 @@ test_translate_str_series (BT_TEST_ARGS)
   ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_translate_num_base (BT_TEST_ARGS)
+START_TEST (test_translate_num_base)
 {
   BT_TEST_START;
   GstBtToneConversion *n2f;
   gdouble frq;
 
   n2f = gstbt_tone_conversion_new (GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT);
-  fail_unless (n2f != NULL, NULL);
+  ck_assert (n2f != NULL);
 
   frq = gstbt_tone_conversion_translate_from_number (n2f, GSTBT_NOTE_A_3);
   //g_print("frq=%lf\n",frq);
-  fail_unless (frq == 440.0, NULL);
+  ck_assert (frq == 440.0);
 
   // free object
   ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_translate_num_series (BT_TEST_ARGS)
+START_TEST (test_translate_num_series)
 {
   BT_TEST_START;
   GstBtToneConversion *n2f;
@@ -134,14 +133,14 @@ test_translate_num_series (BT_TEST_ARGS)
   guint i, j;
 
   n2f = gstbt_tone_conversion_new (_i);
-  fail_unless (n2f != NULL, NULL);
+  ck_assert (n2f != NULL);
 
   for (i = 0; i < 9; i++) {
     for (j = 0; j < 12; j++) {
       frq = gstbt_tone_conversion_translate_from_number (n2f, 1 + (i * 16 + j));
       //g_print("%3u -> frq=%lf\n",i,frq);
-      fail_unless (frq != 0.0, NULL);
-      fail_unless (frq > frq_prev, NULL);
+      ck_assert (frq != 0.0);
+      ck_assert (frq > frq_prev);
       frq_prev = frq;
     }
   }
@@ -150,9 +149,9 @@ test_translate_num_series (BT_TEST_ARGS)
   ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_convert_note_string_2_number (BT_TEST_ARGS)
+START_TEST (test_convert_note_string_2_number)
 {
   BT_TEST_START;
   ck_assert_int_eq (gstbt_tone_conversion_note_string_2_number ("c-0"),
@@ -161,9 +160,9 @@ test_convert_note_string_2_number (BT_TEST_ARGS)
       GSTBT_NOTE_OFF);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_convert_note_number_2_string (BT_TEST_ARGS)
+START_TEST (test_convert_note_number_2_string)
 {
   BT_TEST_START;
   ck_assert_str_eq (gstbt_tone_conversion_note_number_2_string (GSTBT_NOTE_C_0),
@@ -172,9 +171,9 @@ test_convert_note_number_2_string (BT_TEST_ARGS)
       "off");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_note_number_offset (BT_TEST_ARGS)
+START_TEST (test_note_number_offset)
 {
   BT_TEST_START;
   ck_assert_int_eq (gstbt_tone_conversion_note_number_offset (GSTBT_NOTE_C_0,
@@ -185,6 +184,7 @@ test_note_number_offset (BT_TEST_ARGS)
           10), GSTBT_NOTE_DIS_1);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 gst_buzztrax_toneconversion_example_case (void)

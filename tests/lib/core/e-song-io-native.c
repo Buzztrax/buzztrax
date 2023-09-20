@@ -165,8 +165,14 @@ make_song_normal (void)
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   g_object_set (sequence, "length", 8L, NULL);
 
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
-  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen-m",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
+
+  cparams.id = "gen-m";
+  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   BtWire *wire = bt_wire_new (song, gen1, sink, NULL);
   BtPattern *pat_gen1 = bt_pattern_new (song, "melo", 8L, gen1);
@@ -176,7 +182,8 @@ make_song_normal (void)
 
   bt_pattern_set_wire_event (pat_gen1, 0, wire, 0, "100");
 
-  BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (song, "gen-p",
+  cparams.id = "gen-p";
+  BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-poly-source", 1L, NULL));
   bt_wire_new (song, gen2, sink, NULL);
   BtPattern *pat_gen2 = bt_pattern_new (song, "melo", 8L, gen2);
@@ -203,8 +210,14 @@ make_ext_data_uri (const gchar * file_name)
 static void
 make_song_with_externals (void)
 {
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
-  BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
+
+  cparams.id = "gen";
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   bt_wire_new (song, gen, sink, NULL);
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, gen);
@@ -222,8 +235,14 @@ make_song_with_externals (void)
 static void
 make_song_with_ic_binding (void)
 {
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
-  BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
+
+  cparams.id = "gen";
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   bt_wire_new (song, gen, sink, NULL);
 
@@ -243,8 +262,7 @@ make_song_with_ic_binding (void)
 
 //-- tests
 
-static void
-test_bt_song_io_native_new (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_native_new)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -260,9 +278,9 @@ test_bt_song_io_native_new (BT_TEST_ARGS)
   ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_io_native_formats (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_native_formats)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -280,9 +298,9 @@ test_bt_song_io_native_formats (BT_TEST_ARGS)
   g_free (song_path);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_io_native_load (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_native_load)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -298,9 +316,9 @@ test_bt_song_io_native_load (BT_TEST_ARGS)
   ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_io_native_core_refcounts (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_native_core_refcounts)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -318,9 +336,9 @@ test_bt_song_io_native_core_refcounts (BT_TEST_ARGS)
   ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_io_native_setup_refcounts_0 (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_native_setup_refcounts_0)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -342,9 +360,9 @@ test_bt_song_io_native_setup_refcounts_0 (BT_TEST_ARGS)
   ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_io_native_setup_refcounts_1 (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_native_setup_refcounts_1)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -377,9 +395,9 @@ test_bt_song_io_native_setup_refcounts_1 (BT_TEST_ARGS)
   ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_io_native_setup_refcounts_2 (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_native_setup_refcounts_2)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -416,9 +434,9 @@ test_bt_song_io_native_setup_refcounts_2 (BT_TEST_ARGS)
   ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_io_native_song_refcounts (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_native_song_refcounts)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -446,9 +464,9 @@ test_bt_song_io_native_song_refcounts (BT_TEST_ARGS)
   gst_object_unref (bin);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_io_write_song (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_write_song)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -496,9 +514,9 @@ test_bt_song_io_write_song (BT_TEST_ARGS)
   g_free (song_path);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_io_native_load_legacy_0_7 (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_native_load_legacy_0_7)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -526,6 +544,7 @@ test_bt_song_io_native_load_legacy_0_7 (BT_TEST_ARGS)
   ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_song_io_native_example_case (void)

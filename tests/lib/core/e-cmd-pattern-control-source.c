@@ -41,9 +41,16 @@ test_setup (void)
   song = bt_song_new (app);
   bt_child_proxy_get ((gpointer) song, "sequence", &sequence, "song-info",
       &song_info, "song-info::tick-duration", &tick_time, NULL);
-  src1 = BT_MACHINE (bt_source_machine_new (song, "gen1",
+
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen1";
+  cparams.song = song;
+  
+  src1 = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
-  src2 = BT_MACHINE (bt_source_machine_new (song, "gen2",
+  
+  cparams.id = "gen2";
+  src2 = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
 }
 
@@ -63,8 +70,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_cmd_pattern_control_source_new (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_pattern_control_source_new)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -76,16 +82,16 @@ test_bt_cmd_pattern_control_source_new (BT_TEST_ARGS)
       sequence, song_info, src1);
 
   GST_INFO ("-- assert --");
-  fail_unless (pcs != NULL, NULL);
+  ck_assert (pcs != NULL);
 
   GST_INFO ("-- cleanup --");
   gst_object_unref (pcs);
   gst_object_unref (m);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_cmd_pattern_control_source_normal_default_value (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_pattern_control_source_normal_default_value)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -100,16 +106,16 @@ test_bt_cmd_pattern_control_source_normal_default_value (BT_TEST_ARGS)
   gst_object_sync_values (m, G_GUINT64_CONSTANT (0));
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_genum_eq (src1, "state", BT_MACHINE_STATE_NORMAL);
+  ck_assert_gobject_genum_eq (src1, "state", (gulong)BT_MACHINE_STATE_NORMAL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   gst_object_unref (m);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_cmd_pattern_control_source_set_mute (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_pattern_control_source_set_mute)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -124,7 +130,7 @@ test_bt_cmd_pattern_control_source_set_mute (BT_TEST_ARGS)
   gst_object_sync_values (m, G_GUINT64_CONSTANT (0));
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_genum_eq (src1, "state", BT_MACHINE_STATE_MUTE);
+  ck_assert_gobject_genum_eq (src1, "state", (gulong)BT_MACHINE_STATE_MUTE);
   ck_assert_gobject_gboolean_eq (m, "mute", TRUE);
 
   GST_INFO ("-- cleanup --");
@@ -132,9 +138,9 @@ test_bt_cmd_pattern_control_source_set_mute (BT_TEST_ARGS)
   gst_object_unref (m);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_cmd_pattern_control_source_set_solo (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_pattern_control_source_set_solo)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -151,7 +157,7 @@ test_bt_cmd_pattern_control_source_set_solo (BT_TEST_ARGS)
   gst_object_sync_values (m1, G_GUINT64_CONSTANT (0));
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_genum_eq (src1, "state", BT_MACHINE_STATE_SOLO);
+  ck_assert_gobject_genum_eq (src1, "state", (gulong)BT_MACHINE_STATE_SOLO);
   ck_assert_gobject_gboolean_eq (m1, "mute", FALSE);
   ck_assert_gobject_gboolean_eq (m2, "mute", TRUE);
 
@@ -161,6 +167,7 @@ test_bt_cmd_pattern_control_source_set_solo (BT_TEST_ARGS)
   gst_object_unref (m2);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_cmd_pattern_control_source_example_case (void)

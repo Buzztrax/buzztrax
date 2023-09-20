@@ -52,38 +52,45 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_processor_machine_new (BT_TEST_ARGS)
+START_TEST (test_bt_processor_machine_new)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
 
   GST_INFO ("-- act --");
   GError *err = NULL;
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
   BtProcessorMachine *machine =
-      bt_processor_machine_new (song, "vol", "volume", 0, &err);
+      bt_processor_machine_new (&cparams, "volume", 0, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (machine != NULL, NULL);
-  fail_unless (err == NULL, NULL);
+  ck_assert (machine != NULL);
+  ck_assert (err == NULL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_processor_machine_def_patterns (BT_TEST_ARGS)
+START_TEST (test_bt_processor_machine_def_patterns)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.id = "vol";
+  cparams.song = song;
+  
   BtProcessorMachine *machine =
-      bt_processor_machine_new (song, "vol", "volume", 0, NULL);
+      bt_processor_machine_new (&cparams, "volume", 0, NULL);
 
   GST_INFO ("-- act --");
   GList *list = (GList *) check_gobject_get_ptr_property (machine, "patterns");
 
   GST_INFO ("-- assert --");
-  fail_unless (list != NULL, NULL);
+  ck_assert (list != NULL);
   ck_assert_int_eq (g_list_length (list), 3);   /* break+mute+bypass */
 
   GST_INFO ("-- cleanup --");
@@ -91,34 +98,42 @@ test_bt_processor_machine_def_patterns (BT_TEST_ARGS)
   g_list_free (list);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_processor_machine_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_processor_machine_pattern)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.id = "vol";
+  cparams.song = song;
+  
   BtProcessorMachine *machine =
-      bt_processor_machine_new (song, "vol", "volume", 0, NULL);
+      bt_processor_machine_new (&cparams, "volume", 0, NULL);
 
   GST_INFO ("-- act --");
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L,
       BT_MACHINE (machine));
 
   GST_INFO ("-- assert --");
-  fail_unless (pattern != NULL, NULL);
+  ck_assert (pattern != NULL);
   ck_assert_gobject_gulong_eq (pattern, "voices", 0);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_processor_machine_pattern_by_id (BT_TEST_ARGS)
+START_TEST (test_bt_processor_machine_pattern_by_id)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.id = "vol";
+  cparams.song = song;
+  
   BtProcessorMachine *machine =
-      bt_processor_machine_new (song, "vol", "volume", 0, NULL);
+      bt_processor_machine_new (&cparams, "volume", 0, NULL);
 
   GST_INFO ("-- act --");
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L,
@@ -132,34 +147,42 @@ test_bt_processor_machine_pattern_by_id (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_processor_machine_pattern_by_index (BT_TEST_ARGS)
+START_TEST (test_bt_processor_machine_pattern_by_index)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.id = "vol";
+  cparams.song = song;
+  
   BtProcessorMachine *machine =
-      bt_processor_machine_new (song, "vol", "volume", 0, NULL);
+      bt_processor_machine_new (&cparams, "volume", 0, NULL);
 
   GST_INFO ("-- act --");
   BtCmdPattern *pattern = bt_machine_get_pattern_by_index (BT_MACHINE (machine),
       BT_PROCESSOR_MACHINE_PATTERN_INDEX_MUTE);
 
   GST_INFO ("-- assert --");
-  fail_unless (pattern != NULL, NULL);
+  ck_assert (pattern != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_processor_machine_pattern_by_list (BT_TEST_ARGS)
+START_TEST (test_bt_processor_machine_pattern_by_list)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.id = "vol";
+  cparams.song = song;
+  
   BtProcessorMachine *machine =
-      bt_processor_machine_new (song, "vol", "volume", 0, NULL);
+      bt_processor_machine_new (&cparams, "volume", 0, NULL);
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L,
       BT_MACHINE (machine));
   GList *list = (GList *) check_gobject_get_ptr_property (machine, "patterns");
@@ -168,7 +191,7 @@ test_bt_processor_machine_pattern_by_list (BT_TEST_ARGS)
   GList *node = g_list_last (list);
 
   GST_INFO ("-- assert --");
-  fail_unless (node->data == pattern, NULL);
+  ck_assert (node->data == pattern);
 
   GST_INFO ("-- cleanup --");
   g_list_foreach (list, (GFunc) g_object_unref, NULL);
@@ -176,14 +199,18 @@ test_bt_processor_machine_pattern_by_list (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_processor_machine_ref (BT_TEST_ARGS)
+START_TEST (test_bt_processor_machine_ref)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.id = "vol";
+  cparams.song = song;
+  
   BtProcessorMachine *machine =
-      bt_processor_machine_new (song, "vol", "volume", 0, NULL);
+      bt_processor_machine_new (&cparams, "volume", 0, NULL);
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   gst_object_ref (machine);
 
@@ -198,6 +225,7 @@ test_bt_processor_machine_ref (BT_TEST_ARGS)
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_processor_machine_example_case (void)

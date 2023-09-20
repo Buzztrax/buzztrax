@@ -52,8 +52,7 @@ case_teardown (void)
 //-- tests
 
 // test init with wrong arg usage
-static void
-test_bt_core_init_bad_arg_value (BT_TEST_ARGS)
+START_TEST (test_bt_core_init_bad_arg_value)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -67,10 +66,10 @@ test_bt_core_init_bad_arg_value (BT_TEST_ARGS)
   GST_INFO ("-- assert --");
   BT_TEST_END;
 }
+END_TEST
 
 // test init with nonsense args
-static void
-test_bt_core_init_bad_arg (BT_TEST_ARGS)
+START_TEST (test_bt_core_init_bad_arg)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -91,9 +90,9 @@ test_bt_core_init_bad_arg (BT_TEST_ARGS)
   g_option_context_free (ctx);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_core_init_bad_arg_exits (BT_TEST_ARGS)
+START_TEST (test_bt_core_init_bad_arg_exits)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -107,6 +106,7 @@ test_bt_core_init_bad_arg_exits (BT_TEST_ARGS)
   GST_INFO ("-- assert --");
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_core_test_case (void)

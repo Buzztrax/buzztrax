@@ -60,8 +60,7 @@ case_teardown (void)
 //-- tests
 
 // load a song and show machine properties dialog
-static void
-test_bt_signal_analysis_dialog_create (BT_TEST_ARGS)
+START_TEST (test_bt_signal_analysis_dialog_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -95,6 +94,7 @@ test_bt_signal_analysis_dialog_create (BT_TEST_ARGS)
   g_object_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_signal_analysis_dialog_example_case (void)

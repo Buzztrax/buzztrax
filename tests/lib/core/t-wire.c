@@ -52,56 +52,66 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_wire_properties (BT_TEST_ARGS)
+START_TEST (test_bt_wire_properties)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *src = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
+  cparams.id = "proc";
   BtMachine *dst =
-      BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0L, NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0L, NULL));
   BtWire *wire = bt_wire_new (song, src, dst, NULL);
 
   /* act & assert */
-  fail_unless (check_gobject_properties ((GObject *) wire), NULL);
+  ck_assert (check_gobject_properties ((GObject *) wire));
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 /* create a new wire with NULL for song object */
-static void
-test_bt_wire_new_null_song (BT_TEST_ARGS)
+START_TEST (test_bt_wire_new_null_song)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *src = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
+  cparams.id = "proc";
   BtMachine *dst =
-      BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0L, NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0L, NULL));
 
   GST_INFO ("-- act --");
   GError *err = NULL;
   BtWire *wire = bt_wire_new (NULL, src, dst, &err);
 
   GST_INFO ("-- assert --");
-  fail_unless (wire != NULL, NULL);
-  fail_unless (err != NULL, NULL);
+  ck_assert (wire != NULL);
+  ck_assert (err != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (wire);        // there is no setup to take ownership :/
   g_error_free (err);
   BT_TEST_END;
 }
+END_TEST
 
 /* create a new wire with NULL for the dst machine */
-static void
-test_bt_wire_new_null_machine (BT_TEST_ARGS)
+START_TEST (test_bt_wire_new_null_machine)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *src = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
 
   GST_INFO ("-- act --");
@@ -109,23 +119,26 @@ test_bt_wire_new_null_machine (BT_TEST_ARGS)
   BtWire *wire = bt_wire_new (song, src, NULL, &err);
 
   GST_INFO ("-- assert --");
-  fail_unless (wire != NULL, NULL);
-  fail_unless (err != NULL, NULL);
+  ck_assert (wire != NULL);
+  ck_assert (err != NULL);
 
   GST_INFO ("-- cleanup --");
   g_error_free (err);
   BT_TEST_END;
 }
+END_TEST
 
 /* create a new wire with the wrong machine type for src */
-static void
-test_bt_wire_new_wrong_src_machine_type (BT_TEST_ARGS)
+START_TEST (test_bt_wire_new_wrong_src_machine_type)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *src = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
-  BtMachine *dst = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *dst = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
 
   GST_INFO ("-- act --");
@@ -133,67 +146,77 @@ test_bt_wire_new_wrong_src_machine_type (BT_TEST_ARGS)
   BtWire *wire = bt_wire_new (song, src, dst, &err);
 
   GST_INFO ("-- assert --");
-  fail_unless (wire != NULL, NULL);
-  fail_unless (err != NULL, NULL);
+  ck_assert (wire != NULL);
+  ck_assert (err != NULL);
 
   GST_INFO ("-- cleanup --");
   g_error_free (err);
   BT_TEST_END;
 }
+END_TEST
 
 /* create a new wire with the wrong machine type for dst */
-static void
-test_bt_wire_new_wrong_dst_machine_type (BT_TEST_ARGS)
+START_TEST (test_bt_wire_new_wrong_dst_machine_type)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *src = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
-  BtMachine *dst = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  BtMachine *src = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
+  BtMachine *dst = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
 
   GST_INFO ("-- act --");
   GError *err = NULL;
   BtWire *wire = bt_wire_new (song, src, dst, &err);
 
   GST_INFO ("-- assert --");
-  fail_unless (wire != NULL, NULL);
-  fail_unless (err != NULL, NULL);
+  ck_assert (wire != NULL);
+  ck_assert (err != NULL);
 
   GST_INFO ("-- cleanup --");
   g_error_free (err);
   BT_TEST_END;
 }
+END_TEST
 
 /* create a wire with the same machine as source and dest */
-static void
-test_bt_wire_same_src_and_dst (BT_TEST_ARGS)
+START_TEST (test_bt_wire_same_src_and_dst)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "id";
   BtMachine *machine =
-      BT_MACHINE (bt_processor_machine_new (song, "id", "volume", 0, NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0, NULL));
 
   GST_INFO ("-- act --");
   GError *err = NULL;
   BtWire *wire = bt_wire_new (song, machine, machine, &err);
 
   GST_INFO ("-- assert --");
-  fail_unless (wire != NULL, NULL);
-  fail_unless (err != NULL, NULL);
+  ck_assert (wire != NULL);
+  ck_assert (err != NULL);
 
   GST_INFO ("-- cleanup --");
   g_error_free (err);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_wire_new_twice (BT_TEST_ARGS)
+START_TEST (test_bt_wire_new_twice)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "audiotestsrc";
   BtMachine *src =
-      BT_MACHINE (bt_source_machine_new (song, "audiotestsrc", "audiotestsrc",
+      BT_MACHINE (bt_source_machine_new (&cparams, "audiotestsrc",
           0L, NULL));
-  BtMachine *proc = BT_MACHINE (bt_processor_machine_new (song, "volume",
+  cparams.id = "volume";
+  BtMachine *proc = BT_MACHINE (bt_processor_machine_new (&cparams,
           "volume", 0L, NULL));
   bt_wire_new (song, src, proc, NULL);
 
@@ -202,13 +225,14 @@ test_bt_wire_new_twice (BT_TEST_ARGS)
   BtWire *wire = bt_wire_new (song, src, proc, &err);
 
   GST_INFO ("-- assert --");
-  fail_unless (wire != NULL, NULL);
-  fail_unless (err != NULL, NULL);
+  ck_assert (wire != NULL);
+  ck_assert (err != NULL);
 
   GST_INFO ("-- cleanup --");
   g_error_free (err);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_wire_test_case (void)

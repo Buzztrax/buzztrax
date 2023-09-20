@@ -46,8 +46,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_song_io_module_info (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_module_info)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -56,14 +55,14 @@ test_bt_song_io_module_info (BT_TEST_ARGS)
   const GList *mi = bt_song_io_get_module_info_list ();
 
   GST_INFO ("-- assert --");
-  fail_unless (mi != NULL, NULL);
+  ck_assert (mi != NULL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_io_file (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_file)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -73,16 +72,16 @@ test_bt_song_io_file (BT_TEST_ARGS)
       bt_song_io_from_file (check_get_test_song_path ("simple2.xml"), NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (song_io != NULL, NULL);
-  fail_unless (BT_IS_SONG_IO_NATIVE (song_io), NULL);
+  ck_assert (song_io != NULL);
+  ck_assert (BT_IS_SONG_IO_NATIVE (song_io));
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_io_data (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_data)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -91,13 +90,14 @@ test_bt_song_io_data (BT_TEST_ARGS)
   BtSongIO *song_io = bt_song_io_from_data (NULL, 0, "audio/x-bzt-xml", NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (song_io != NULL, NULL);
-  fail_unless (BT_IS_SONG_IO_NATIVE (song_io), NULL);
+  ck_assert (song_io != NULL);
+  ck_assert (BT_IS_SONG_IO_NATIVE (song_io));
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_song_io_example_case (void)

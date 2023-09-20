@@ -58,8 +58,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_song_properties (BT_TEST_ARGS)
+START_TEST (test_bt_song_properties)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -72,10 +71,10 @@ test_bt_song_properties (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 // test if the default constructor handles NULL
-static void
-test_bt_song_new_null_app (BT_TEST_ARGS)
+START_TEST (test_bt_song_new_null_app)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -85,17 +84,17 @@ test_bt_song_new_null_app (BT_TEST_ARGS)
   BtSong *song = bt_song_new (NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
-  fail_unless (song != NULL, NULL);
+  ck_assert (check_has_error_trapped ());
+  ck_assert (song != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 // we need the apps bin to actually play
-static void
-test_bt_song_play_empty (BT_TEST_ARGS)
+START_TEST (test_bt_song_play_empty)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -107,17 +106,17 @@ test_bt_song_play_empty (BT_TEST_ARGS)
   bt_song_play (song);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 // song is null
-static void
-test_bt_song_play_null (BT_TEST_ARGS)
+START_TEST (test_bt_song_play_null)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -128,17 +127,17 @@ test_bt_song_play_null (BT_TEST_ARGS)
   bt_song_play (NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 // load a new song while the first plays
-static void
-test_bt_song_play_and_load_new (BT_TEST_ARGS)
+START_TEST (test_bt_song_play_and_load_new)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -157,7 +156,7 @@ test_bt_song_play_and_load_new (BT_TEST_ARGS)
       NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (bt_song_io_load (loader, song, NULL), NULL);
+  ck_assert (bt_song_io_load (loader, song, NULL));
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);
@@ -165,6 +164,7 @@ test_bt_song_play_and_load_new (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_song_test_case (void)

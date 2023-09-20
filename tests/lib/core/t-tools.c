@@ -45,17 +45,16 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_tools_element_check (BT_TEST_ARGS)
+START_TEST (test_bt_tools_element_check)
 {
   BT_TEST_START;
   GList *list = bt_gst_check_elements (NULL);
-  fail_unless (list == NULL, NULL);
+  ck_assert (list == NULL);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_str_parse_enum_wrong_type (BT_TEST_ARGS)
+START_TEST (test_bt_str_parse_enum_wrong_type)
 {
   BT_TEST_START;
   GST_INFO ("-- act --");
@@ -65,9 +64,9 @@ test_bt_str_parse_enum_wrong_type (BT_TEST_ARGS)
   ck_assert_int_eq (v, -1);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_str_parse_enum_null_str (BT_TEST_ARGS)
+START_TEST (test_bt_str_parse_enum_null_str)
 {
   BT_TEST_START;
   GST_INFO ("-- act --");
@@ -77,21 +76,21 @@ test_bt_str_parse_enum_null_str (BT_TEST_ARGS)
   ck_assert_int_eq (v, -1);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_str_format_enum_wrong_type (BT_TEST_ARGS)
+START_TEST (test_bt_str_format_enum_wrong_type)
 {
   BT_TEST_START;
   GST_INFO ("-- act --");
   const gchar *v = bt_str_format_enum (G_TYPE_INVALID, 1);
 
   /*assert */
-  fail_unless (v == NULL, NULL);
+  ck_assert (v == NULL);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_str_format_enum_wrong_value (BT_TEST_ARGS)
+START_TEST (test_bt_str_format_enum_wrong_value)
 {
   BT_TEST_START;
   GST_INFO ("-- act --");
@@ -99,9 +98,10 @@ test_bt_str_format_enum_wrong_value (BT_TEST_ARGS)
       BT_MACHINE_STATE_COUNT);
 
   /*assert */
-  fail_unless (v == NULL, NULL);
+  ck_assert (v == NULL);
   BT_TEST_END;
 }
+END_TEST
 
 static GstMessage *
 make_msg (void)
@@ -115,8 +115,7 @@ make_msg (void)
   return msg;
 }
 
-static void
-test_bt_log_message_error_wrong_type (BT_TEST_ARGS)
+START_TEST (test_bt_log_message_error_wrong_type)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -127,15 +126,15 @@ test_bt_log_message_error_wrong_type (BT_TEST_ARGS)
       NULL, NULL);
 
   GST_INFO ("-- assert --");
-  fail_if (res, NULL);
+  ck_assert (!res);
 
   GST_INFO ("-- cleanup --");
   gst_message_unref (msg);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_log_message_warning_wrong_type (BT_TEST_ARGS)
+START_TEST (test_bt_log_message_warning_wrong_type)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -146,12 +145,13 @@ test_bt_log_message_warning_wrong_type (BT_TEST_ARGS)
       NULL, NULL);
 
   GST_INFO ("-- assert --");
-  fail_if (res, NULL);
+  ck_assert (!res);
 
   GST_INFO ("-- cleanup --");
   gst_message_unref (msg);
   BT_TEST_END;
 }
+END_TEST
 
 
 TCase *

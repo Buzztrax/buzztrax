@@ -59,8 +59,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_interaction_controller_menu_create_range_menu (BT_TEST_ARGS)
+START_TEST (test_bt_interaction_controller_menu_create_range_menu)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -71,15 +70,15 @@ test_bt_interaction_controller_menu_create_range_menu (BT_TEST_ARGS)
       NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (menu != NULL, NULL);
+  ck_assert (menu != NULL);
 
   GST_INFO ("-- cleanup --");
   gtk_widget_destroy (menu);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_interaction_controller_menu_create_trigger_menu (BT_TEST_ARGS)
+START_TEST (test_bt_interaction_controller_menu_create_trigger_menu)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -90,12 +89,13 @@ test_bt_interaction_controller_menu_create_trigger_menu (BT_TEST_ARGS)
       (BT_INTERACTION_CONTROLLER_TRIGGER_MENU, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (menu != NULL, NULL);
+  ck_assert (menu != NULL);
 
   GST_INFO ("-- cleanup --");
   gtk_widget_destroy (menu);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_interaction_controller_menu_example_case (void)

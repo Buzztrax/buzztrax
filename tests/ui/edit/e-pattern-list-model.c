@@ -68,12 +68,14 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_pattern_list_model_create (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_list_model_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
 
   GST_INFO ("-- act --");
@@ -81,15 +83,15 @@ test_bt_pattern_list_model_create (BT_TEST_ARGS)
       TRUE);
 
   GST_INFO ("-- assert --");
-  fail_unless (model != NULL, NULL);
+  ck_assert (model != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (model);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_pattern_list_model_get_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_list_model_get_pattern)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -104,7 +106,7 @@ test_bt_pattern_list_model_get_pattern (BT_TEST_ARGS)
   BtPattern *pattern2 = bt_pattern_list_model_get_object (model, &iter);
 
   GST_INFO ("-- assert --");
-  fail_unless (pattern1 == pattern2, NULL);
+  ck_assert (pattern1 == pattern2);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (model);
@@ -112,6 +114,7 @@ test_bt_pattern_list_model_get_pattern (BT_TEST_ARGS)
   g_object_unref (machine);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_pattern_list_model_example_case (void)

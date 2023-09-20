@@ -38,8 +38,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_create_obj (BT_TEST_ARGS)
+START_TEST (test_create_obj)
 {
   BT_TEST_START;
   GstBtEnvelopeAD *env;
@@ -49,17 +48,17 @@ test_create_obj (BT_TEST_ARGS)
   env = gstbt_envelope_ad_new ();
 
   GST_INFO ("-- assert --");
-  fail_unless (env != NULL, NULL);
-  fail_unless (G_OBJECT (env)->ref_count == 1, NULL);
+  ck_assert (env != NULL);
+  ck_assert (G_OBJECT (env)->ref_count == 1);
 
   GST_INFO ("-- cleanup --");
   ck_gst_object_final_unref (env);
   BT_TEST_END;
 }
+END_TEST
 
 // cp /tmp/lt-bt_gst_envelope-ad_*.svg docs/reference/bt-gst/images/
-static void
-test_envelope_parameters (BT_TEST_ARGS)
+START_TEST (test_envelope_parameters)
 {
   BT_TEST_START;
   GstBtEnvelopeAD *env;
@@ -85,6 +84,7 @@ test_envelope_parameters (BT_TEST_ARGS)
   ck_gst_object_final_unref (env);
   BT_TEST_END;
 }
+END_TEST
 
 
 TCase *

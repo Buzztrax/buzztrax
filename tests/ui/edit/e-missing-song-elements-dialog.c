@@ -58,8 +58,7 @@ case_teardown (void)
 //-- tests
 
 // create app and then unconditionally destroy window
-static void
-test_bt_missing_song_elements_dialog_create_empty (BT_TEST_ARGS)
+START_TEST (test_bt_missing_song_elements_dialog_create_empty)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -69,16 +68,16 @@ test_bt_missing_song_elements_dialog_create_empty (BT_TEST_ARGS)
       GTK_WIDGET (bt_missing_song_elements_dialog_new (NULL, NULL));
 
   GST_INFO ("-- assert --");
-  fail_unless (dialog != NULL, NULL);
+  ck_assert (dialog != NULL);
   gtk_widget_show_all (dialog);
 
   GST_INFO ("-- cleanup --");
   gtk_widget_destroy (dialog);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_missing_song_elements_dialog_create (BT_TEST_ARGS)
+START_TEST (test_bt_missing_song_elements_dialog_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -94,7 +93,7 @@ test_bt_missing_song_elements_dialog_create (BT_TEST_ARGS)
           missing_waves));
 
   GST_INFO ("-- assert --");
-  fail_unless (dialog != NULL, NULL);
+  ck_assert (dialog != NULL);
   gtk_widget_show_all (dialog);
   check_make_widget_screenshot (GTK_WIDGET (dialog), NULL);
 
@@ -102,6 +101,7 @@ test_bt_missing_song_elements_dialog_create (BT_TEST_ARGS)
   gtk_widget_destroy (dialog);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_missing_song_elements_dialog_example_case (void)

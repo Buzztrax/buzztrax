@@ -45,8 +45,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_settings_singleton (BT_TEST_ARGS)
+START_TEST (test_bt_settings_singleton)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -56,16 +55,16 @@ test_bt_settings_singleton (BT_TEST_ARGS)
   BtSettings *settings2 = bt_settings_make ();
 
   GST_INFO ("-- assert --");
-  fail_unless (settings1 == settings2, NULL);
+  ck_assert (settings1 == settings2);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (settings2);
   ck_g_object_final_unref (settings1);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_settings_get_audiosink1 (BT_TEST_ARGS)
+START_TEST (test_bt_settings_get_audiosink1)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -85,9 +84,9 @@ test_bt_settings_get_audiosink1 (BT_TEST_ARGS)
   g_object_unref (settings);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_settings_ic_playback_spec (BT_TEST_ARGS)
+START_TEST (test_bt_settings_ic_playback_spec)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -105,6 +104,7 @@ test_bt_settings_ic_playback_spec (BT_TEST_ARGS)
   g_free (s2);
   BT_TEST_END;
 }
+END_TEST
 
 
 TCase *

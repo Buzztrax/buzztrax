@@ -48,7 +48,8 @@ static void btic_test_device_interface_init (gpointer const g_iface,
     gpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtIcTestDevice, btic_test_device, BTIC_TYPE_DEVICE,
-    G_IMPLEMENT_INTERFACE (BTIC_TYPE_LEARN, btic_test_device_interface_init));
+    G_IMPLEMENT_INTERFACE (BTIC_TYPE_LEARN, btic_test_device_interface_init)
+    G_ADD_PRIVATE (BtIcTestDevice));
 
 //-- constructor methods
 
@@ -201,9 +202,7 @@ btic_test_device_init (BtIcTestDevice * self)
 {
   guint ix = 0;
 
-  self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BTIC_TYPE_TEST_DEVICE,
-      BtIcTestDevicePrivate);
+  self->priv = btic_test_device_get_instance_private (self);
 
   // register some static controls
   btic_abs_range_control_new (BTIC_DEVICE (self), "abs1", ix++, 0, 255, 0);
@@ -216,8 +215,6 @@ btic_test_device_class_init (BtIcTestDeviceClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
   BtIcDeviceClass *const bticdevice_class = BTIC_DEVICE_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (BtIcTestDevicePrivate));
 
   gobject_class->set_property = btic_test_device_set_property;
   gobject_class->get_property = btic_test_device_get_property;

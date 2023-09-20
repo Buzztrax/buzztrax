@@ -45,8 +45,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_application_new (BT_TEST_ARGS)
+START_TEST (test_bt_application_new)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -64,6 +63,7 @@ test_bt_application_new (BT_TEST_ARGS)
   ck_g_object_final_unref (app);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_application_example_case (void)

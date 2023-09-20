@@ -561,7 +561,7 @@ check_make_widget_screenshot_with_highlight (GtkWidget * widget,
   gfloat cx = 0.0, cy = 0.0;
   gfloat f = 0.75;
   gint num = 1;
-  gchar num_str[5];
+  gchar num_str[11];
   gboolean have_space;
 
   g_return_if_fail (GTK_IS_WIDGET (widget));

@@ -46,56 +46,56 @@ case_teardown (void)
 //-- tests
 
 // try to create a SongIO object with NULL pointer
-static void
-test_bt_song_io_new_null (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_new_null)
 {
   BT_TEST_START;
   GST_INFO ("-- act --");
   BtSongIO *song_io = bt_song_io_from_file (NULL, NULL);
 
   /*assert */
-  fail_unless (song_io == NULL, NULL);
+  ck_assert (song_io == NULL);
   BT_TEST_END;
 }
+END_TEST
 
 // try to create a SongIO object with empty string
-static void
-test_bt_song_io_new_empty_filename (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_new_empty_filename)
 {
   BT_TEST_START;
   GST_INFO ("-- act --");
   BtSongIO *song_io = bt_song_io_from_file ("", NULL);
 
   /*assert */
-  fail_unless (song_io == NULL, NULL);
+  ck_assert (song_io == NULL);
   BT_TEST_END;
 }
+END_TEST
 
 // try to create a SongIO object from song name without extension
-static void
-test_bt_song_io_new_wrong_filename (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_new_wrong_filename)
 {
   BT_TEST_START;
   GST_INFO ("-- act --");
   BtSongIO *song_io = bt_song_io_from_file ("test", NULL);
 
   /*assert */
-  fail_unless (song_io == NULL, NULL);
+  ck_assert (song_io == NULL);
   BT_TEST_END;
 }
+END_TEST
 
 // try to create a SongIO object from song name with unknown extension
-static void
-test_bt_song_io_new_inexisting_filename (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_new_inexisting_filename)
 {
   BT_TEST_START;
   GST_INFO ("-- act --");
   BtSongIO *song_io = bt_song_io_from_file ("test.unk", NULL);
 
   /*assert */
-  fail_unless (song_io == NULL, NULL);
+  ck_assert (song_io == NULL);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_song_io_test_case (void)

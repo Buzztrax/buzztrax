@@ -63,8 +63,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_wavelevel_list_model_create_null (BT_TEST_ARGS)
+START_TEST (test_bt_wavelevel_list_model_create_null)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -75,15 +74,15 @@ test_bt_wavelevel_list_model_create_null (BT_TEST_ARGS)
   BtWavelevelListModel *model = bt_wavelevel_list_model_new (NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (model != NULL, NULL);
+  ck_assert (model != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (model);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_wavelevel_list_model_create (BT_TEST_ARGS)
+START_TEST (test_bt_wavelevel_list_model_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -98,7 +97,7 @@ test_bt_wavelevel_list_model_create (BT_TEST_ARGS)
   BtWavelevelListModel *model = bt_wavelevel_list_model_new (wave);
 
   GST_INFO ("-- assert --");
-  fail_unless (model != NULL, NULL);
+  ck_assert (model != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (model);
@@ -106,10 +105,10 @@ test_bt_wavelevel_list_model_create (BT_TEST_ARGS)
   g_object_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 // load a wave and check the wavelevel
-static void
-test_bt_wavelevel_list_model_get_wavelevel (BT_TEST_ARGS)
+START_TEST (test_bt_wavelevel_list_model_get_wavelevel)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -127,7 +126,7 @@ test_bt_wavelevel_list_model_get_wavelevel (BT_TEST_ARGS)
   BtWavelevel *wavelevel = bt_wavelevel_list_model_get_object (model, &iter);
 
   GST_INFO ("-- assert --");
-  fail_unless (wavelevel != NULL, NULL);
+  ck_assert (wavelevel != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (wavelevel);
@@ -135,6 +134,7 @@ test_bt_wavelevel_list_model_get_wavelevel (BT_TEST_ARGS)
   g_object_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_wavelevel_list_model_example_case (void)

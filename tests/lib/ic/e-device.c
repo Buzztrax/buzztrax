@@ -49,8 +49,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_btic_device_lookup (BT_TEST_ARGS)
+START_TEST (test_btic_device_lookup)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -59,15 +58,15 @@ test_btic_device_lookup (BT_TEST_ARGS)
   BtIcDevice *device = btic_registry_get_device_by_name ("test");
 
   GST_INFO ("-- assert --");
-  fail_unless (device != NULL, NULL);
+  ck_assert (device != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (device);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_btic_device_has_controls (BT_TEST_ARGS)
+START_TEST (test_btic_device_has_controls)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -77,15 +76,15 @@ test_btic_device_has_controls (BT_TEST_ARGS)
   gboolean has_controls = btic_device_has_controls (device);
 
   GST_INFO ("-- assert --");
-  fail_unless (has_controls, NULL);
+  ck_assert (has_controls);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (device);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_btic_device_get_control_by_name (BT_TEST_ARGS)
+START_TEST (test_btic_device_get_control_by_name)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -95,16 +94,16 @@ test_btic_device_get_control_by_name (BT_TEST_ARGS)
   BtIcControl *control = btic_device_get_control_by_name (device, "abs1");
 
   GST_INFO ("-- assert --");
-  fail_unless (control != NULL, NULL);
+  ck_assert (control != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (control);
   g_object_unref (device);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_btic_device_get_control_by_id (BT_TEST_ARGS)
+START_TEST (test_btic_device_get_control_by_id)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -114,13 +113,14 @@ test_btic_device_get_control_by_id (BT_TEST_ARGS)
   BtIcControl *control = btic_device_get_control_by_id (device, 0);
 
   GST_INFO ("-- assert --");
-  fail_unless (control != NULL, NULL);
+  ck_assert (control != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (control);
   g_object_unref (device);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_device_example_case (void)

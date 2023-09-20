@@ -52,12 +52,16 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_cmd_pattern_obj_mono1 (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_pattern_obj_mono1)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
 
   GST_INFO ("-- act --");
@@ -71,13 +75,17 @@ test_bt_cmd_pattern_obj_mono1 (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_cmd_pattern_obj_poly1 (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_pattern_obj_poly1)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-poly-source", 2L, NULL));
 
   GST_INFO ("-- act --");
@@ -91,6 +99,7 @@ test_bt_cmd_pattern_obj_poly1 (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_cmd_pattern_example_case (void)

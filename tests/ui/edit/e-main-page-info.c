@@ -71,8 +71,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_main_page_info_focus (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_info_focus)
 {
   BT_TEST_START;
 
@@ -87,6 +86,7 @@ test_bt_main_page_info_focus (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_main_page_info_example_case (void)

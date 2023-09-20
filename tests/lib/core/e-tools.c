@@ -44,8 +44,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_tools_element_check0 (BT_TEST_ARGS)
+START_TEST (test_bt_tools_element_check0)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -55,14 +54,14 @@ test_bt_tools_element_check0 (BT_TEST_ARGS)
   GList *missing = bt_gst_check_elements (to_check);
 
   GST_INFO ("-- assert --");
-  fail_unless (missing != NULL, NULL);
+  ck_assert (missing != NULL);
   ck_assert_str_eq (missing->data, "__ploink__");
-  fail_unless (g_list_next (missing) == NULL, NULL);
+  ck_assert (g_list_next (missing) == NULL);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_tools_element_check1 (BT_TEST_ARGS)
+START_TEST (test_bt_tools_element_check1)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -73,14 +72,14 @@ test_bt_tools_element_check1 (BT_TEST_ARGS)
   GList *missing = bt_gst_check_elements (to_check);
 
   GST_INFO ("-- assert --");
-  fail_unless (missing != NULL, NULL);
-  fail_unless (g_list_next (missing) != NULL, NULL);
-  fail_unless (g_list_next (g_list_next (missing)) == NULL, NULL);
+  ck_assert (missing != NULL);
+  ck_assert (g_list_next (missing) != NULL);
+  ck_assert (g_list_next (g_list_next (missing)) == NULL);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_str_parse_enum (BT_TEST_ARGS)
+START_TEST (test_bt_str_parse_enum)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -94,9 +93,9 @@ test_bt_str_parse_enum (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_str_format_enum (BT_TEST_ARGS)
+START_TEST (test_bt_str_format_enum)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -111,9 +110,9 @@ test_bt_str_format_enum (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_log_message_error (BT_TEST_ARGS)
+START_TEST (test_bt_log_message_error)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -128,8 +127,8 @@ test_bt_log_message_error (BT_TEST_ARGS)
       __LINE__, msg, &message, &description);
 
   GST_INFO ("-- assert --");
-  fail_unless (res, NULL);
-  fail_unless (description != NULL, NULL);
+  ck_assert (res);
+  ck_assert (description != NULL);
   ck_assert_str_eq (message, "description");
 
   GST_INFO ("-- cleanup --");
@@ -139,9 +138,9 @@ test_bt_log_message_error (BT_TEST_ARGS)
   gst_object_unref (src);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_log_message_warning (BT_TEST_ARGS)
+START_TEST (test_bt_log_message_warning)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -156,8 +155,8 @@ test_bt_log_message_warning (BT_TEST_ARGS)
       __LINE__, msg, &message, &description);
 
   GST_INFO ("-- assert --");
-  fail_unless (res, NULL);
-  fail_unless (description != NULL, NULL);
+  ck_assert (res);
+  ck_assert (description != NULL);
   ck_assert_str_eq (message, "description");
 
   GST_INFO ("-- cleanup --");
@@ -167,6 +166,7 @@ test_bt_log_message_warning (BT_TEST_ARGS)
   gst_object_unref (src);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_tools_example_case (void)

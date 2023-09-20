@@ -60,8 +60,7 @@ case_teardown (void)
 //-- tests
 
 // load a song and show machine properties dialog
-static void
-test_bt_machine_preferences_dialog_create (BT_TEST_ARGS)
+START_TEST (test_bt_machine_preferences_dialog_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -80,7 +79,7 @@ test_bt_machine_preferences_dialog_create (BT_TEST_ARGS)
   dialog = GTK_WIDGET (bt_machine_preferences_dialog_new (machine));
 
   GST_INFO ("-- assert --");
-  fail_unless (dialog != NULL, NULL);
+  ck_assert (dialog != NULL);
   gtk_widget_show_all (dialog);
   check_make_widget_screenshot (GTK_WIDGET (dialog), NULL);
 
@@ -91,6 +90,7 @@ test_bt_machine_preferences_dialog_create (BT_TEST_ARGS)
   g_object_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_machine_preferences_dialog_example_case (void)

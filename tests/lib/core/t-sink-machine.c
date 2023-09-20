@@ -57,10 +57,15 @@ case_teardown (void)
 static void
 make_test_song (void)
 {
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
-  BtMachine *gen =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
-          NULL));
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
+
+  cparams.id = "gen";
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (&cparams,
+      "audiotestsrc", 0L, NULL));
   bt_wire_new (song, gen, sink, NULL);
   GstElement *element =
       (GstElement *) check_gobject_get_object_property (gen, "machine");
@@ -74,8 +79,7 @@ make_test_song (void)
 //-- tests
 
 // test attribute handling in sink names
-static void
-test_bt_sink_machine_settings_name_with_parameter (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_settings_name_with_parameter)
 {
   BT_TEST_START;
 
@@ -85,23 +89,27 @@ test_bt_sink_machine_settings_name_with_parameter (BT_TEST_ARGS)
 
   GST_INFO ("-- act --");
   GError *err = NULL;
-  BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtMachine *machine = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
 
   GST_INFO ("-- assert --");
-  fail_unless (machine != NULL, NULL);
-  fail_unless (err == NULL, NULL);
+  ck_assert (machine != NULL);
+  ck_assert (err == NULL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 
 /* Check if we handle a sink setting of "audioconvert ! osssink sync=false".
  * This string should be replaced by the sink machine to "ossink" and the
  * machine should be instantiable.
  */
-static void
-test_bt_sink_machine_settings_name_is_launch_snippet (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_settings_name_is_launch_snippet)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -110,20 +118,24 @@ test_bt_sink_machine_settings_name_is_launch_snippet (BT_TEST_ARGS)
 
   GST_INFO ("-- act --");
   GError *err = NULL;
-  BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtSinkMachine *machine = bt_sink_machine_new (&cparams, &err);
 
   GST_INFO ("-- assert --");
-  fail_unless (machine != NULL, NULL);
-  fail_unless (err == NULL, NULL);
+  ck_assert (machine != NULL);
+  ck_assert (err == NULL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 
 // test attribute handling in sink names
-static void
-test_bt_sink_machine_settings_wrong_type (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_settings_wrong_type)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -131,20 +143,24 @@ test_bt_sink_machine_settings_wrong_type (BT_TEST_ARGS)
 
   GST_INFO ("-- act --");
   GError *err = NULL;
-  BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtSinkMachine *machine = bt_sink_machine_new (&cparams, &err);
 
   GST_INFO ("-- assert --");
-  fail_unless (machine != NULL, NULL);
-  fail_unless (err == NULL, NULL);
+  ck_assert (machine != NULL);
+  ck_assert (err == NULL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 
 // test attribute handling in sink names
-static void
-test_bt_sink_machine_settings_wrong_parameters (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_settings_wrong_parameters)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -152,20 +168,24 @@ test_bt_sink_machine_settings_wrong_parameters (BT_TEST_ARGS)
 
   GST_INFO ("-- act --");
   GError *err = NULL;
-  BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtSinkMachine *machine = bt_sink_machine_new (&cparams, &err);
 
   GST_INFO ("-- assert --");
-  fail_unless (machine != NULL, NULL);
-  fail_unless (err == NULL, NULL);
+  ck_assert (machine != NULL);
+  ck_assert (err == NULL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 
 // test attribute handling in sink names
-static void
-test_bt_sink_machine_settings_inexistent_type (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_settings_inexistent_type)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -173,20 +193,24 @@ test_bt_sink_machine_settings_inexistent_type (BT_TEST_ARGS)
 
   GST_INFO ("-- act --");
   GError *err = NULL;
-  BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtSinkMachine *machine = bt_sink_machine_new (&cparams, &err);
 
   GST_INFO ("-- assert --");
-  fail_unless (machine != NULL, NULL);
-  fail_unless (err == NULL, NULL);
+  ck_assert (machine != NULL);
+  ck_assert (err == NULL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 
 // test if the song play routine works with fakesink
-static void
-test_bt_sink_machine_play_fakesink (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_play_fakesink)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -194,17 +218,17 @@ test_bt_sink_machine_play_fakesink (BT_TEST_ARGS)
   make_test_song ();
 
   /* act & assert */
-  fail_unless (bt_song_play (song), NULL);
+  ck_assert (bt_song_play (song));
   g_usleep (G_USEC_PER_SEC / 10);
   bt_song_stop (song);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 // the sink machine should fallback on the default device
-static void
-test_bt_sink_machine_play_wrong_parameters (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_play_wrong_parameters)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -212,17 +236,17 @@ test_bt_sink_machine_play_wrong_parameters (BT_TEST_ARGS)
   make_test_song ();
 
   /* act & assert */
-  fail_unless (bt_song_play (song), NULL);
+  ck_assert (bt_song_play (song));
   g_usleep (G_USEC_PER_SEC / 10);
   bt_song_stop (song);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 // the sink machine should fallback to another sink
-static void
-test_bt_sink_machine_play_inexistent_type (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_play_inexistent_type)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -231,13 +255,14 @@ test_bt_sink_machine_play_inexistent_type (BT_TEST_ARGS)
   make_test_song ();
 
   /* act & assert */
-  fail_unless (bt_song_play (song), NULL);
+  ck_assert (bt_song_play (song));
   g_usleep (G_USEC_PER_SEC / 10);
   bt_song_stop (song);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_sink_machine_test_case (void)

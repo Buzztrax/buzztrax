@@ -106,8 +106,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_state_changes_up_and_down_seq (BT_TEST_ARGS)
+START_TEST (test_state_changes_up_and_down_seq)
 {
   BT_TEST_START;
   GstElement *element;
@@ -118,7 +117,7 @@ test_state_changes_up_and_down_seq (BT_TEST_ARGS)
 
     GST_DEBUG ("testing element %s", name);
     element = gst_element_factory_make (name, name);
-    fail_if (element == NULL, "Could not make element from factory %s", name);
+    ck_assert_msg (element != NULL, "Could not make element from factory %s", name);
 
     if (GST_IS_PIPELINE (element)) {
       GST_DEBUG ("element %s is a pipeline", name);
@@ -139,9 +138,9 @@ test_state_changes_up_and_down_seq (BT_TEST_ARGS)
   }
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_state_changes_up_seq (BT_TEST_ARGS)
+START_TEST (test_state_changes_up_seq)
 {
   BT_TEST_START;
   GstElement *element;
@@ -152,7 +151,7 @@ test_state_changes_up_seq (BT_TEST_ARGS)
 
     GST_INFO ("testing element %s", name);
     element = gst_element_factory_make (name, name);
-    fail_if (element == NULL, "Could not make element from factory %s", name);
+    ck_assert_msg (element != NULL, "Could not make element from factory %s", name);
 
     gst_element_set_state (element, GST_STATE_READY);
 
@@ -169,9 +168,9 @@ test_state_changes_up_seq (BT_TEST_ARGS)
   }
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_state_changes_down_seq (BT_TEST_ARGS)
+START_TEST (test_state_changes_down_seq)
 {
   BT_TEST_START;
   GstElement *element;
@@ -182,7 +181,7 @@ test_state_changes_down_seq (BT_TEST_ARGS)
 
     GST_INFO ("testing element %s", name);
     element = gst_element_factory_make (name, name);
-    fail_if (element == NULL, "Could not make element from factory %s", name);
+    ck_assert_msg (element != NULL, "Could not make element from factory %s", name);
 
     gst_element_set_state (element, GST_STATE_READY);
     gst_element_set_state (element, GST_STATE_PAUSED);
@@ -203,6 +202,7 @@ test_state_changes_down_seq (BT_TEST_ARGS)
   }
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 gst_buzztrax_elements_test_case (void)

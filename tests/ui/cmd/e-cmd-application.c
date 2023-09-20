@@ -46,8 +46,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_cmd_application_create (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_application_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -56,16 +55,16 @@ test_bt_cmd_application_create (BT_TEST_ARGS)
   BtCmdApplication *app = bt_cmd_application_new (TRUE);
 
   GST_INFO ("-- assert --");
-  fail_unless (app != NULL, NULL);
+  ck_assert (app != NULL);
   ck_assert_int_eq (G_OBJECT_REF_COUNT (app), 1);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (app);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_cmd_application_play (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_application_play)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -76,15 +75,15 @@ test_bt_cmd_application_play (BT_TEST_ARGS)
       check_get_test_song_path ("test-simple1.xml"));
 
   GST_INFO ("-- assert --");
-  fail_unless (ret == TRUE, NULL);
+  ck_assert (ret == TRUE);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (app);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_cmd_application_play_two_files (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_application_play_two_files)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -96,15 +95,15 @@ test_bt_cmd_application_play_two_files (BT_TEST_ARGS)
       check_get_test_song_path ("test-simple2.xml"));
 
   GST_INFO ("-- assert --");
-  fail_unless (ret == TRUE, NULL);
+  ck_assert (ret == TRUE);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (app);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_cmd_application_play_incomplete_file (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_application_play_incomplete_file)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -116,15 +115,15 @@ test_bt_cmd_application_play_incomplete_file (BT_TEST_ARGS)
 
   GST_INFO ("-- assert --");
   // we should still attempt to play it
-  fail_unless (ret == TRUE, NULL);
+  ck_assert (ret == TRUE);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (app);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_cmd_application_info (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_application_info)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -137,9 +136,9 @@ test_bt_cmd_application_info (BT_TEST_ARGS)
       check_get_test_song_path ("test-simple1.xml"), tmp_file_name);
 
   GST_INFO ("-- assert --");
-  fail_unless (ret == TRUE, NULL);
-  fail_unless (check_file_contains_str (NULL, tmp_file_name,
-          "song.song_info.name: \"test simple 1\""), NULL);
+  ck_assert (ret == TRUE);
+  ck_assert (check_file_contains_str (NULL, tmp_file_name,
+          "song.song_info.name: \"test simple 1\""));
 
   GST_INFO ("-- cleanup --");
   g_unlink (tmp_file_name);
@@ -147,9 +146,9 @@ test_bt_cmd_application_info (BT_TEST_ARGS)
   ck_g_object_final_unref (app);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_cmd_application_info_for_incomplete_file (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_application_info_for_incomplete_file)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -162,13 +161,13 @@ test_bt_cmd_application_info_for_incomplete_file (BT_TEST_ARGS)
       check_get_test_song_path ("broken2.xml"), tmp_file_name);
 
   GST_INFO ("-- assert --");
-  fail_unless (ret == TRUE, NULL);
-  fail_unless (check_file_contains_str (NULL, tmp_file_name,
-          "song.song_info.name: \"broken 2\""), NULL);
-  fail_unless (check_file_contains_str (NULL, tmp_file_name,
-          "song.setup.number_of_missing_machines: 1"), NULL);
-  fail_unless (check_file_contains_str (NULL, tmp_file_name,
-          "song.wavetable.number_of_missing_waves: 2"), NULL);
+  ck_assert (ret == TRUE);
+  ck_assert (check_file_contains_str (NULL, tmp_file_name,
+          "song.song_info.name: \"broken 2\""));
+  ck_assert (check_file_contains_str (NULL, tmp_file_name,
+          "song.setup.number_of_missing_machines: 1"));
+  ck_assert (check_file_contains_str (NULL, tmp_file_name,
+          "song.wavetable.number_of_missing_waves: 2"));
 
   GST_INFO ("-- cleanup --");
   g_unlink (tmp_file_name);
@@ -176,6 +175,7 @@ test_bt_cmd_application_info_for_incomplete_file (BT_TEST_ARGS)
   ck_g_object_final_unref (app);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_cmd_application_example_case (void)

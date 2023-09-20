@@ -59,8 +59,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_ui_resources_create (BT_TEST_ARGS)
+START_TEST (test_bt_ui_resources_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -69,15 +68,15 @@ test_bt_ui_resources_create (BT_TEST_ARGS)
   BtUIResources *res = bt_ui_resources_new ();
 
   GST_INFO ("-- assert --");
-  fail_unless (res != NULL, NULL);
+  ck_assert (res != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (res);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_ui_resources_singleton (BT_TEST_ARGS)
+START_TEST (test_bt_ui_resources_singleton)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -87,13 +86,14 @@ test_bt_ui_resources_singleton (BT_TEST_ARGS)
   BtUIResources *res2 = bt_ui_resources_new ();
 
   GST_INFO ("-- assert --");
-  fail_unless (res1 == res2, NULL);
+  ck_assert (res1 == res2);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (res2);
   g_object_unref (res1);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_ui_resources_example_case (void)

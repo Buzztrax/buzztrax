@@ -65,8 +65,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_btic_initial_aseq_device_discovered (BT_TEST_ARGS)
+START_TEST (test_btic_initial_aseq_device_discovered)
 {
   BT_TEST_START;
   if (!seq)
@@ -78,15 +77,15 @@ test_btic_initial_aseq_device_discovered (BT_TEST_ARGS)
       btic_registry_get_device_by_name ("alsa sequencer: test-static");
 
   GST_INFO ("-- assert --");
-  fail_unless (device != NULL, NULL);
+  ck_assert (device != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (device);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_btic_new_aseq_device_discovered (BT_TEST_ARGS)
+START_TEST (test_btic_new_aseq_device_discovered)
 {
   BT_TEST_START;
   if (!seq)
@@ -103,16 +102,16 @@ test_btic_new_aseq_device_discovered (BT_TEST_ARGS)
       btic_registry_get_device_by_name ("alsa sequencer: test-dynamic1");
 
   GST_INFO ("-- assert --");
-  fail_unless (device != NULL, NULL);
+  ck_assert (device != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (device);
   snd_seq_delete_port (seq, port);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_btic_removed_aseq_device_discovered (BT_TEST_ARGS)
+START_TEST (test_btic_removed_aseq_device_discovered)
 {
   BT_TEST_START;
   if (!seq)
@@ -130,12 +129,13 @@ test_btic_removed_aseq_device_discovered (BT_TEST_ARGS)
       btic_registry_get_device_by_name ("alsa sequencer: test-dynamic2");
 
   GST_INFO ("-- assert --");
-  fail_unless (device == NULL, NULL);
+  ck_assert (device == NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (device);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_aseq_discoverer_example_case (void)

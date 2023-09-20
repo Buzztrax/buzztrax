@@ -52,16 +52,19 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_source_machine_new (BT_TEST_ARGS)
+START_TEST (test_bt_source_machine_new)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
 
   GST_INFO ("-- act --");
   GError *err = NULL;
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
   BtSourceMachine *machine =
-      bt_source_machine_new (song, "gen", "buzztrax-test-mono-source", 0, &err);
+      bt_source_machine_new (&cparams, "buzztrax-test-mono-source", 0, &err);
 
   GST_INFO ("-- assert --");
   fail_unless (machine != NULL, NULL);
@@ -70,14 +73,18 @@ test_bt_source_machine_new (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_source_machine_def_patterns (BT_TEST_ARGS)
+START_TEST (test_bt_source_machine_def_patterns)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
   BtSourceMachine *machine =
-      bt_source_machine_new (song, "gen", "buzztrax-test-mono-source", 0, NULL);
+    bt_source_machine_new (&cparams, "buzztrax-test-mono-source", 0, NULL);
 
   GST_INFO ("-- act --");
   GList *list = (GList *) check_gobject_get_ptr_property (machine, "patterns");
@@ -91,14 +98,18 @@ test_bt_source_machine_def_patterns (BT_TEST_ARGS)
   g_list_free (list);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_source_machine_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_source_machine_pattern)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
   BtSourceMachine *machine =
-      bt_source_machine_new (song, "gen", "buzztrax-test-mono-source", 0, NULL);
+    bt_source_machine_new (&cparams, "buzztrax-test-mono-source", 0, NULL);
 
   GST_INFO ("-- act --");
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L,
@@ -111,14 +122,18 @@ test_bt_source_machine_pattern (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_source_machine_pattern_by_id (BT_TEST_ARGS)
+START_TEST (test_bt_source_machine_pattern_by_id)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
   BtSourceMachine *machine =
-      bt_source_machine_new (song, "gen", "buzztrax-test-mono-source", 0, NULL);
+    bt_source_machine_new (&cparams, "buzztrax-test-mono-source", 0, NULL);
 
   GST_INFO ("-- act --");
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L,
@@ -132,14 +147,18 @@ test_bt_source_machine_pattern_by_id (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_source_machine_pattern_by_index (BT_TEST_ARGS)
+START_TEST (test_bt_source_machine_pattern_by_index)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
   BtSourceMachine *machine =
-      bt_source_machine_new (song, "gen", "buzztrax-test-mono-source", 0, NULL);
+    bt_source_machine_new (&cparams, "buzztrax-test-mono-source", 0, NULL);
 
   GST_INFO ("-- act --");
   BtCmdPattern *pattern = bt_machine_get_pattern_by_index (BT_MACHINE (machine),
@@ -152,14 +171,18 @@ test_bt_source_machine_pattern_by_index (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_source_machine_pattern_by_list (BT_TEST_ARGS)
+START_TEST (test_bt_source_machine_pattern_by_list)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
   BtSourceMachine *machine =
-      bt_source_machine_new (song, "gen", "buzztrax-test-mono-source", 0, NULL);
+    bt_source_machine_new (&cparams, "buzztrax-test-mono-source", 0, NULL);
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L,
       BT_MACHINE (machine));
   GList *list = (GList *) check_gobject_get_ptr_property (machine, "patterns");
@@ -176,19 +199,23 @@ test_bt_source_machine_pattern_by_list (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
 /*
 * In this example we show how to create a poly source machine and adding a
 * newly created pattern to it. The we change the number of voices in the machine
 * and check back the voices in the pattern.
 */
-static void
-test_bt_source_machine_change_voices (BT_TEST_ARGS)
+START_TEST (test_bt_source_machine_change_voices)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
   BtSourceMachine *machine =
-      bt_source_machine_new (song, "gen", "buzztrax-test-poly-source", 1, NULL);
+    bt_source_machine_new (&cparams, "buzztrax-test-poly-source", 0, NULL);
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L,
       BT_MACHINE (machine));
 
@@ -202,14 +229,18 @@ test_bt_source_machine_change_voices (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_source_machine_ref (BT_TEST_ARGS)
+START_TEST (test_bt_source_machine_ref)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
   BtSourceMachine *machine =
-      bt_source_machine_new (song, "gen", "buzztrax-test-mono-source", 0, NULL);
+    bt_source_machine_new (&cparams, "buzztrax-test-mono-source", 0, NULL);
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   gst_object_ref (machine);
 
@@ -224,6 +255,7 @@ test_bt_source_machine_ref (BT_TEST_ARGS)
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_source_machine_example_case (void)

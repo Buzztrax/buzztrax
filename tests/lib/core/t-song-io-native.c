@@ -58,8 +58,7 @@ static gchar *bad_songs[] = {
 };
 
 // load files with errors
-static void
-test_bt_song_io_native_bad_songs (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_native_bad_songs)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -68,18 +67,18 @@ test_bt_song_io_native_bad_songs (BT_TEST_ARGS)
 
   GST_INFO ("-- act & assert --");
   GError *err = NULL;
-  fail_if (bt_song_io_load (song_io, song, &err), NULL);
-  fail_if (err == NULL, NULL);
+  ck_assert (!bt_song_io_load (song_io, song, &err));
+  ck_assert (err != NULL);
 
   GST_INFO ("-- cleanup --");
   g_error_free (err);
   ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
+END_TEST
 
 // load file into non empty song
-static void
-test_bt_song_io_native_load_twice (BT_TEST_ARGS)
+START_TEST (test_bt_song_io_native_load_twice)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -93,12 +92,13 @@ test_bt_song_io_native_load_twice (BT_TEST_ARGS)
       NULL);
 
   /* act & assert */
-  fail_unless (bt_song_io_load (song_io, song, NULL), NULL);
+  ck_assert (bt_song_io_load (song_io, song, NULL));
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
+END_TEST
 
 // not_a_song.abc
 

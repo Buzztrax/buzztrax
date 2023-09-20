@@ -68,8 +68,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_sequence_grid_model_create (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_grid_model_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -79,12 +78,13 @@ test_bt_sequence_grid_model_create (BT_TEST_ARGS)
       16);
 
   GST_INFO ("-- assert --");
-  fail_unless (model != NULL, NULL);
+  ck_assert (model != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (model);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_sequence_grid_model_example_case (void)

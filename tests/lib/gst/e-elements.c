@@ -58,8 +58,7 @@ static gchar *bt_dec_pipelines[] = {
 
 static gchar *bt_dec_files[] = { "simple2.xml", "simple2.bzt" };
 
-static void
-test_launch_bt_dec (BT_TEST_ARGS)
+START_TEST (test_launch_bt_dec)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -80,7 +79,7 @@ test_launch_bt_dec (BT_TEST_ARGS)
       GST_CLOCK_TIME_NONE);
 
   GST_INFO ("-- assert --");
-  fail_unless (ret == GST_STATE_CHANGE_SUCCESS,
+  ck_assert_msg (ret == GST_STATE_CHANGE_SUCCESS,
       "Couldn't set pipeline to PLAYING: %s",
       gst_element_state_change_return_get_name (ret));
 
@@ -90,12 +89,12 @@ test_launch_bt_dec (BT_TEST_ARGS)
     if (rmessage == tmessage) {
       break;
     } else if (rmessage == GST_MESSAGE_UNKNOWN) {
-      fail ("Unexpected timeout in gst_bus_poll, looking for %d", tmessage);
+      ck_assert_msg (FALSE, "Unexpected timeout in gst_bus_poll, looking for %d", tmessage);
       break;
     } else if (rmessage & message_types) {
       continue;
     }
-    fail ("Unexpected message received of type %d, '%s', looking for %d",
+    ck_assert_msg (FALSE, "Unexpected message received of type %d, '%s', looking for %d",
         rmessage, gst_message_type_get_name (rmessage), tmessage);
   }
 
@@ -106,6 +105,7 @@ test_launch_bt_dec (BT_TEST_ARGS)
   g_free (str);
   BT_TEST_END;
 }
+END_TEST
 
 static gchar *launch_pipelines[] = {
   // synthesizers
@@ -123,8 +123,7 @@ static gchar *launch_pipelines[] = {
   "audiotestsrc num-buffers=10 wave=4 ! bml-libTestBmEffect ! fakesink sync=false"
 };
 
-static void
-test_launch_elements (BT_TEST_ARGS)
+START_TEST (test_launch_elements)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -141,7 +140,7 @@ test_launch_elements (BT_TEST_ARGS)
       GST_CLOCK_TIME_NONE);
 
   GST_INFO ("-- assert --");
-  fail_unless (ret == GST_STATE_CHANGE_SUCCESS,
+  ck_assert_msg (ret == GST_STATE_CHANGE_SUCCESS,
       "Couldn't set pipeline to PLAYING: %s",
       gst_element_state_change_return_get_name (ret));
 
@@ -151,12 +150,12 @@ test_launch_elements (BT_TEST_ARGS)
     if (rmessage == tmessage) {
       break;
     } else if (rmessage == GST_MESSAGE_UNKNOWN) {
-      fail ("Unexpected timeout in gst_bus_poll, looking for %d", tmessage);
+      ck_assert_msg (FALSE, "Unexpected timeout in gst_bus_poll, looking for %d", tmessage);
       break;
     } else if (rmessage & message_types) {
       continue;
     }
-    fail ("Unexpected message received of type %d, '%s', looking for %d",
+    ck_assert_msg (FALSE, "Unexpected message received of type %d, '%s', looking for %d",
         rmessage, gst_message_type_get_name (rmessage), tmessage);
   }
 
@@ -166,6 +165,7 @@ test_launch_elements (BT_TEST_ARGS)
   gst_object_unref (pipeline);
   BT_TEST_END;
 }
+END_TEST
 
 // TODO(ensonic): test with level that all synths produce data
 // TODO(ensonic): if the synth supports presets, test all presets

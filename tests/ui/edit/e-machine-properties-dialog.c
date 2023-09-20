@@ -72,8 +72,7 @@ static gchar *element_names[] = {
 };
 static gulong element_voices[] = { 0, 0, 0, 1 };
 
-static void
-test_bt_machine_properties_dialog_create (BT_TEST_ARGS)
+START_TEST (test_bt_machine_properties_dialog_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -83,7 +82,10 @@ test_bt_machine_properties_dialog_create (BT_TEST_ARGS)
 
   bt_edit_application_new_song (app);
   g_object_get (app, "song", &song, NULL);
-  machine = BT_MACHINE (bt_source_machine_new (song, "gen", element_names[_i],
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  machine = BT_MACHINE (bt_source_machine_new (&cparams, element_names[_i],
           element_voices[_i], NULL));
   // FIXME: this will still overwrite the file for the two runs with the poly src
   const gchar *name = &element_names[_i][strlen ("buzztrax-test-")];
@@ -92,7 +94,7 @@ test_bt_machine_properties_dialog_create (BT_TEST_ARGS)
   dialog = GTK_WIDGET (bt_machine_properties_dialog_new (machine));
 
   GST_INFO ("-- assert --");
-  fail_unless (dialog != NULL, NULL);
+  ck_assert (dialog != NULL);
   gtk_widget_show_all (dialog);
   check_make_widget_screenshot (GTK_WIDGET (dialog), name);
 
@@ -101,13 +103,13 @@ test_bt_machine_properties_dialog_create (BT_TEST_ARGS)
   g_object_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 
 // show machine properties dialog while playing to test parameter updates
 static gchar *machine_ids[] = { "beep1", "echo1", "audio_sink" };
 
-static void
-test_bt_machine_properties_dialog_update (BT_TEST_ARGS)
+START_TEST (test_bt_machine_properties_dialog_update)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -141,6 +143,7 @@ test_bt_machine_properties_dialog_update (BT_TEST_ARGS)
   g_object_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 // TODO(ensonic): test adding/removing voices/wires while dialog is shown
 

@@ -91,8 +91,7 @@ case_teardown (void)
 //-- tests
 
 // view all tabs
-static void
-test_bt_main_pages_view_all_tabs (BT_TEST_ARGS)
+START_TEST (test_bt_main_pages_view_all_tabs)
 {
   BT_TEST_START;
   BtMainPagePatterns *pattern_page;
@@ -121,10 +120,10 @@ test_bt_main_pages_view_all_tabs (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 // view all tabs
-static void
-test_bt_main_pages_view_all_tabs_playing (BT_TEST_ARGS)
+START_TEST (test_bt_main_pages_view_all_tabs_playing)
 {
   BT_TEST_START;
   BtMainPagePatterns *pattern_page;
@@ -152,6 +151,7 @@ test_bt_main_pages_view_all_tabs_playing (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_main_pages_example_case (void)

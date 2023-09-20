@@ -78,9 +78,15 @@ make_new_song (gint wave)
 {
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
+
+  cparams.id = "gen";
   BtMachine *gen =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+      BT_MACHINE (bt_source_machine_new (&cparams, "audiotestsrc", 0L,
           NULL));
   BtParameterGroup *pg = bt_machine_get_global_param_group (gen);
   bt_wire_new (song, gen, sink, NULL);
@@ -331,8 +337,7 @@ run_main_loop_until_eos (void)
 
 //-- tests
 
-static void
-test_bt_sink_bin_new (BT_TEST_ARGS)
+START_TEST (test_bt_sink_bin_new)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -347,10 +352,10 @@ test_bt_sink_bin_new (BT_TEST_ARGS)
   gst_object_unref (bin);
   BT_TEST_END;
 }
+END_TEST
 
 /* test recording (loop test over BtSinkBinRecordFormat */
-static void
-test_bt_sink_bin_record (BT_TEST_ARGS)
+START_TEST (test_bt_sink_bin_record)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -394,10 +399,10 @@ test_bt_sink_bin_record (BT_TEST_ARGS)
   gst_object_unref (sink_bin);
   BT_TEST_END;
 }
+END_TEST
 
 /* test playback + recording, same as above */
-static void
-test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
+START_TEST (test_bt_sink_bin_record_and_play)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -440,10 +445,10 @@ test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
   gst_object_unref (sink_bin);
   BT_TEST_END;
 }
+END_TEST
 
 /* test master volume, using appsink? */
-static void
-test_bt_sink_bin_master_volume (BT_TEST_ARGS)
+START_TEST (test_bt_sink_bin_master_volume)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -480,10 +485,10 @@ test_bt_sink_bin_master_volume (BT_TEST_ARGS)
   g_object_try_unref (machine);
   BT_TEST_END;
 }
+END_TEST
 
 /* insert analyzers */
-static void
-test_bt_sink_bin_analyzers (BT_TEST_ARGS)
+START_TEST (test_bt_sink_bin_analyzers)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -519,6 +524,7 @@ test_bt_sink_bin_analyzers (BT_TEST_ARGS)
   gst_object_unref (sink_bin);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_sink_bin_example_case (void)

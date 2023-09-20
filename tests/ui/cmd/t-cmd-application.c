@@ -50,8 +50,7 @@ static gchar *bad_files[] = {
 //-- tests
 
 // tests if the play method works without exceptions if we put NULL as filename.
-static void
-test_bt_cmd_application_play_null_as_filename (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_application_play_null_as_filename)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -63,17 +62,17 @@ test_bt_cmd_application_play_null_as_filename (BT_TEST_ARGS)
   gboolean ret = bt_cmd_application_play (app, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
-  fail_unless (ret == FALSE, NULL);
+  ck_assert (check_has_error_trapped ());
+  ck_assert (ret == FALSE);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (app);
   BT_TEST_END;
 }
+END_TEST
 
 // file not found test. this is a negative test
-static void
-test_bt_cmd_application_play_non_existing_file (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_application_play_non_existing_file)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -85,16 +84,16 @@ test_bt_cmd_application_play_non_existing_file (BT_TEST_ARGS)
   gboolean ret = bt_cmd_application_play (app, "");
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
-  fail_unless (ret == FALSE, NULL);
+  ck_assert (check_has_error_trapped ());
+  ck_assert (ret == FALSE);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (app);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_cmd_application_play_bad_file (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_application_play_bad_file)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -105,16 +104,16 @@ test_bt_cmd_application_play_bad_file (BT_TEST_ARGS)
       check_get_test_song_path (bad_files[_i]));
 
   GST_INFO ("-- assert --");
-  fail_unless (ret == FALSE, NULL);
+  ck_assert (ret == FALSE);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (app);
   BT_TEST_END;
 }
+END_TEST
 
 // test if the info method works with NULL argument for the filename,
-static void
-test_bt_cmd_application_info_null_as_filename (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_application_info_null_as_filename)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -126,17 +125,17 @@ test_bt_cmd_application_info_null_as_filename (BT_TEST_ARGS)
   gboolean ret = bt_cmd_application_info (app, NULL, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
-  fail_unless (ret == FALSE, NULL);
+  ck_assert (check_has_error_trapped ());
+  ck_assert (ret == FALSE);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (app);
   BT_TEST_END;
 }
+END_TEST
 
 // test if the info method works with a empty filename.
-static void
-test_bt_cmd_application_info_non_existing_file (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_application_info_non_existing_file)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -148,16 +147,16 @@ test_bt_cmd_application_info_non_existing_file (BT_TEST_ARGS)
   gboolean ret = bt_cmd_application_info (app, "", NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
-  fail_unless (ret == FALSE, NULL);
+  ck_assert (check_has_error_trapped ());
+  ck_assert (ret == FALSE);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (app);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_cmd_application_info_bad_file (BT_TEST_ARGS)
+START_TEST (test_bt_cmd_application_info_bad_file)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -168,12 +167,13 @@ test_bt_cmd_application_info_bad_file (BT_TEST_ARGS)
       check_get_test_song_path (bad_files[_i]), NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (ret == FALSE, NULL);
+  ck_assert (ret == FALSE);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (app);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_cmd_application_test_case (void)

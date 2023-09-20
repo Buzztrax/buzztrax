@@ -61,8 +61,11 @@ case_teardown (void)
 static BtValueGroup *
 get_mono_value_group (void)
 {
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "id";
   machine =
-      BT_MACHINE (bt_source_machine_new (song, "id",
+      BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   pattern = bt_pattern_new (song, "pattern-name", 4L, machine);
   return bt_pattern_get_global_group (pattern);
@@ -71,22 +74,21 @@ get_mono_value_group (void)
 
 //-- tests
 
-static void
-test_bt_value_group_default_empty (BT_TEST_ARGS)
+START_TEST (test_bt_value_group_default_empty)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtValueGroup *vg = get_mono_value_group ();
 
   /* act && assert */
-  fail_unless (!G_IS_VALUE (bt_value_group_get_event_data (vg, 0, 0)), NULL);
+  ck_assert (!G_IS_VALUE (bt_value_group_get_event_data (vg, 0, 0)));
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_value_group_value (BT_TEST_ARGS)
+START_TEST (test_bt_value_group_value)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -101,9 +103,9 @@ test_bt_value_group_value (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_value_group_insert_row (BT_TEST_ARGS)
+START_TEST (test_bt_value_group_insert_row)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -122,9 +124,9 @@ test_bt_value_group_insert_row (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_value_group_delete_row (BT_TEST_ARGS)
+START_TEST (test_bt_value_group_delete_row)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -142,9 +144,9 @@ test_bt_value_group_delete_row (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_value_group_clear_column (BT_TEST_ARGS)
+START_TEST (test_bt_value_group_clear_column)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -162,9 +164,9 @@ test_bt_value_group_clear_column (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_value_group_clear_columns (BT_TEST_ARGS)
+START_TEST (test_bt_value_group_clear_columns)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -186,6 +188,7 @@ test_bt_value_group_clear_columns (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 static struct _blend_column
 {
@@ -201,8 +204,7 @@ static struct _blend_column
   /* *INDENT-ON* */
 };
 
-static void
-test_bt_value_group_blend_column (BT_TEST_ARGS)
+START_TEST (test_bt_value_group_blend_column)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -223,9 +225,9 @@ test_bt_value_group_blend_column (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_value_group_flip_column (BT_TEST_ARGS)
+START_TEST (test_bt_value_group_flip_column)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -245,9 +247,9 @@ test_bt_value_group_flip_column (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_value_group_randomize_column (BT_TEST_ARGS)
+START_TEST (test_bt_value_group_randomize_column)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -259,15 +261,15 @@ test_bt_value_group_randomize_column (BT_TEST_ARGS)
   GST_INFO ("-- assert --");
   guint i;
   for (i = 0; i < 4; i++) {
-    fail_unless (G_IS_VALUE (bt_value_group_get_event_data (vg, 0, _i)), NULL);
+    ck_assert (G_IS_VALUE (bt_value_group_get_event_data (vg, 0, _i)));
   }
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_value_group_range_randomize_column (BT_TEST_ARGS)
+START_TEST (test_bt_value_group_range_randomize_column)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -285,7 +287,7 @@ test_bt_value_group_range_randomize_column (BT_TEST_ARGS)
   for (i = 0; i < 4; i++) {
     GST_DEBUG ("value[%d]", i);
     str = bt_value_group_get_event (vg, i, 0);
-    fail_unless (str != NULL, NULL);
+    ck_assert (str != NULL);
     v = atoi (str);
     ck_assert_int_ge (v, 5);
     ck_assert_int_le (v, 50);
@@ -295,9 +297,9 @@ test_bt_value_group_range_randomize_column (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_value_group_transpose_fine_up_column (BT_TEST_ARGS)
+START_TEST (test_bt_value_group_transpose_fine_up_column)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -317,9 +319,9 @@ test_bt_value_group_transpose_fine_up_column (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_value_group_transpose_fine_down_column (BT_TEST_ARGS)
+START_TEST (test_bt_value_group_transpose_fine_down_column)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -339,9 +341,9 @@ test_bt_value_group_transpose_fine_down_column (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_value_group_copy (BT_TEST_ARGS)
+START_TEST (test_bt_value_group_copy)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -358,6 +360,7 @@ test_bt_value_group_copy (BT_TEST_ARGS)
   g_object_unref (vg2);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_value_group_example_case (void)

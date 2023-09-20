@@ -52,23 +52,22 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_wave_table_properties (BT_TEST_ARGS)
+START_TEST (test_bt_wave_table_properties)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   GObject *wave_table = check_gobject_get_object_property (song, "wavetable");
 
   /* act & assert */
-  fail_unless (check_gobject_properties (wave_table), NULL);
+  ck_assert (check_gobject_properties (wave_table));
 
   GST_INFO ("-- cleanup --");
   g_object_unref (wave_table);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_wave_table_get_beyond_size (BT_TEST_ARGS)
+START_TEST (test_bt_wave_table_get_beyond_size)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -76,12 +75,13 @@ test_bt_wave_table_get_beyond_size (BT_TEST_ARGS)
       (BtWavetable *) check_gobject_get_object_property (song, "wavetable");
 
   /* act & assert */
-  fail_unless (bt_wavetable_get_wave_by_index (wave_table, 1) == NULL, NULL);
+  ck_assert (bt_wavetable_get_wave_by_index (wave_table, 1) == NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (wave_table);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_wave_table_test_case (void)
