@@ -7,7 +7,7 @@ buzztrax-edit.pdf: index.docbook dblatex_pdf.xsl
 	  -I figures \
 	  index.docbook
 
-buzztrax-edit.txt: index.docbook
+buzztrax-edit.txt: $(top_srcdir)/index.docbook
 	xmlto txt buzztrax-edit.xml
 
 # statistics for index building:

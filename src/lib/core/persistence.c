@@ -178,7 +178,7 @@ bt_persistence_load_hashtable (GHashTable * hashtable, xmlNodePtr node)
  *
  * Serializes the given object into an xmlNode.
  *
- * Returns: the new node if the object has been serialized, else %NULL.
+ * Returns: (skip): the new node if the object has been serialized, else %NULL.
  */
 xmlNodePtr
 bt_persistence_save (const BtPersistence * const self,

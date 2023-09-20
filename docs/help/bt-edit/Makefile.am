@@ -14,11 +14,10 @@ HELP_LINGUAS =
 
 DOC_MODULE = legal
 
-C/version.entities: $(abs_top_builddir)/docs/version.entities
-	mkdir -p C/
+version.entities: $(abs_top_builddir)/docs/version.entities
 	@cp $< $@
 
-CLEANFILES = C/version.entities
+CLEANFILES = version.entities
 
 EXTRA_DIST = C/aspell.pws
 
