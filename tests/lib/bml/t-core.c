@@ -46,8 +46,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bmln_open_bad_path (BT_TEST_ARGS)
+START_TEST (test_bmln_open_bad_path)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -59,6 +58,7 @@ test_bmln_open_bad_path (BT_TEST_ARGS)
   fail_unless (bmh == NULL);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bml_core_test_case (void)

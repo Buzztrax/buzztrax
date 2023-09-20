@@ -57,8 +57,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_settings_dialog_create (BT_TEST_ARGS)
+START_TEST (test_bt_settings_dialog_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -69,7 +68,7 @@ test_bt_settings_dialog_create (BT_TEST_ARGS)
   GtkWidget *dialog = GTK_WIDGET (bt_settings_dialog_new ());
 
   GST_INFO ("-- assert --");
-  fail_unless (dialog != NULL, NULL);
+  ck_assert (dialog != NULL);
   g_object_set (G_OBJECT (dialog), "page", _i, NULL);
   gtk_widget_show_all (dialog);
   check_make_widget_screenshot (dialog, enum_value->value_nick);
@@ -79,6 +78,7 @@ test_bt_settings_dialog_create (BT_TEST_ARGS)
   g_type_class_unref (enum_class);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_settings_dialog_example_case (void)

@@ -35,8 +35,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_null_context (BT_TEST_ARGS)
+START_TEST (test_null_context)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -44,14 +43,14 @@ test_null_context (BT_TEST_ARGS)
   gboolean res = gstbt_audio_tempo_context_get_tempo (NULL, NULL, NULL, NULL);
 
   GST_INFO ("-- assert --");
-  fail_if (res, NULL);
+  ck_assert (!res);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_wrong_context_type (BT_TEST_ARGS)
+START_TEST (test_wrong_context_type)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -61,12 +60,13 @@ test_wrong_context_type (BT_TEST_ARGS)
   gboolean res = gstbt_audio_tempo_context_get_tempo (ctx, NULL, NULL, NULL);
 
   GST_INFO ("-- assert --");
-  fail_if (res, NULL);
+  ck_assert (!(res));
 
   GST_INFO ("-- cleanup --");
   gst_context_unref (ctx);
   BT_TEST_END;
 }
+END_TEST
 
 
 TCase *

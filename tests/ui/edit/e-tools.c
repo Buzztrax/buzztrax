@@ -47,8 +47,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_strjoin_list_with_empty_list (BT_TEST_ARGS)
+START_TEST (test_bt_strjoin_list_with_empty_list)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -57,14 +56,14 @@ test_bt_strjoin_list_with_empty_list (BT_TEST_ARGS)
   gchar *res = bt_strjoin_list (NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (res == NULL, NULL);
+  ck_assert (res == NULL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_strjoin_list_with_single_value_list (BT_TEST_ARGS)
+START_TEST (test_bt_strjoin_list_with_single_value_list)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -74,17 +73,17 @@ test_bt_strjoin_list_with_single_value_list (BT_TEST_ARGS)
   gchar *res = bt_strjoin_list (list);
 
   GST_INFO ("-- assert --");
-  fail_unless (res != NULL, NULL);
-  fail_unless (strcmp ("first", res) == 0, NULL);
+  ck_assert (res != NULL);
+  ck_assert (strcmp ("first", res) == 0);
 
   GST_INFO ("-- cleanup --");
   g_free (res);
   g_list_free (list);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_strjoin_list_with_two_value_list (BT_TEST_ARGS)
+START_TEST (test_bt_strjoin_list_with_two_value_list)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -95,14 +94,15 @@ test_bt_strjoin_list_with_two_value_list (BT_TEST_ARGS)
   gchar *res = bt_strjoin_list (list);
 
   GST_INFO ("-- assert --");
-  fail_unless (res != NULL, NULL);
-  fail_unless (strcmp ("first\nsecond", res) == 0, NULL);
+  ck_assert (res != NULL);
+  ck_assert (strcmp ("first\nsecond", res) == 0);
 
   GST_INFO ("-- cleanup --");
   g_free (res);
   g_list_free (list);
   BT_TEST_END;
 }
+END_TEST
 
 
 TCase *

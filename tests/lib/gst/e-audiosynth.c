@@ -175,8 +175,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_create_obj (BT_TEST_ARGS)
+START_TEST (test_create_obj)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -185,15 +184,15 @@ test_create_obj (BT_TEST_ARGS)
   GstElement *e = gst_element_factory_make ("buzztrax-test-audio-synth", NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (e != NULL, NULL);
+  ck_assert (e != NULL);
 
   GST_INFO ("-- cleanup --");
   gst_object_unref (e);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_initialized_with_audio_caps (BT_TEST_ARGS)
+START_TEST (test_initialized_with_audio_caps)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -210,12 +209,12 @@ test_initialized_with_audio_caps (BT_TEST_ARGS)
   gst_bus_poll (bus, GST_MESSAGE_EOS | GST_MESSAGE_ERROR, GST_CLOCK_TIME_NONE);
 
   GST_INFO ("-- assert --");
-  fail_unless (e->caps != NULL, NULL);
+  ck_assert (e->caps != NULL);
   gint i, cs = gst_caps_get_size (e->caps);
-  fail_unless (cs > 0, NULL);
+  ck_assert (cs > 0);
   for (i = 0; i < cs; i++) {
-    fail_unless (gst_structure_has_name (gst_caps_get_structure (e->caps, i),
-            "audio/x-raw"), NULL);
+    ck_assert (gst_structure_has_name (gst_caps_get_structure (e->caps, i),
+            "audio/x-raw"));
   }
 
   GST_INFO ("-- cleanup --");
@@ -224,9 +223,9 @@ test_initialized_with_audio_caps (BT_TEST_ARGS)
   gst_object_unref (p);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_audio_context_configures_buffer_size (BT_TEST_ARGS)
+START_TEST (test_audio_context_configures_buffer_size)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -256,9 +255,9 @@ test_audio_context_configures_buffer_size (BT_TEST_ARGS)
   gst_object_unref (p);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_forward_first_buffer_starts_at_zero (BT_TEST_ARGS)
+START_TEST (test_forward_first_buffer_starts_at_zero)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -276,8 +275,8 @@ test_forward_first_buffer_starts_at_zero (BT_TEST_ARGS)
 
   GST_INFO ("-- assert --");
   BufferFields *bf = get_buffer_info (e, 0);
-  ck_assert_uint64_eq (bf->ts, 0);
-  ck_assert_uint64_eq (bf->offset, 0);
+  ck_assert_uint64_eq (bf->ts, 0L);
+  ck_assert_uint64_eq (bf->offset, 0L);
 
   GST_INFO ("-- cleanup --");
   gst_element_set_state (p, GST_STATE_NULL);
@@ -285,9 +284,9 @@ test_forward_first_buffer_starts_at_zero (BT_TEST_ARGS)
   gst_object_unref (p);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_backwards_last_buffer_ends_at_zero (BT_TEST_ARGS)
+START_TEST (test_backwards_last_buffer_ends_at_zero)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -312,8 +311,8 @@ test_backwards_last_buffer_ends_at_zero (BT_TEST_ARGS)
 
   GST_INFO ("-- assert --");
   BufferFields *bf = get_buffer_info (e, 0);
-  ck_assert_uint64_eq (bf->ts, 0);
-  ck_assert_uint64_eq (bf->offset, 0);
+  ck_assert_uint64_eq (bf->ts, 0L);
+  ck_assert_uint64_eq (bf->offset, 0L);
 
   GST_INFO ("-- cleanup --");
   gst_element_set_state (p, GST_STATE_NULL);
@@ -322,9 +321,9 @@ test_backwards_last_buffer_ends_at_zero (BT_TEST_ARGS)
 
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_buffers_are_contigous (BT_TEST_ARGS)
+START_TEST (test_buffers_are_contigous)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -352,9 +351,9 @@ test_buffers_are_contigous (BT_TEST_ARGS)
   gst_object_unref (p);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_num_buffers_with_stop_pos (BT_TEST_ARGS)
+START_TEST (test_num_buffers_with_stop_pos)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -394,9 +393,9 @@ test_num_buffers_with_stop_pos (BT_TEST_ARGS)
   gst_object_unref (p);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_last_buffer_is_clipped (BT_TEST_ARGS)
+START_TEST (test_last_buffer_is_clipped)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -432,9 +431,9 @@ test_last_buffer_is_clipped (BT_TEST_ARGS)
   gst_object_unref (p);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_no_reset_without_seeks (BT_TEST_ARGS)
+START_TEST (test_no_reset_without_seeks)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -457,9 +456,9 @@ test_no_reset_without_seeks (BT_TEST_ARGS)
   gst_object_unref (p);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_reset_on_seek (BT_TEST_ARGS)
+START_TEST (test_reset_on_seek)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -489,9 +488,9 @@ test_reset_on_seek (BT_TEST_ARGS)
   gst_object_unref (p);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_position_query_time (BT_TEST_ARGS)
+START_TEST (test_position_query_time)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -512,7 +511,7 @@ test_position_query_time (BT_TEST_ARGS)
   gint64 pos;
   gboolean res = gst_element_query_position ((GstElement *) e, GST_FORMAT_TIME,
       &pos);
-  fail_unless (res, NULL);
+  ck_assert (res);
   ck_assert_uint64_eq (bf->duration, pos);
 
   GST_INFO ("-- cleanup --");
@@ -521,6 +520,7 @@ test_position_query_time (BT_TEST_ARGS)
   gst_object_unref (p);
   BT_TEST_END;
 }
+END_TEST
 
 /*
 test buffer metadata in process

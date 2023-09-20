@@ -69,8 +69,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_main_page_machines_focus (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_machines_focus)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -84,9 +83,9 @@ test_bt_main_page_machines_focus (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_main_page_machines_machine_create (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_machines_machine_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -101,7 +100,7 @@ test_bt_main_page_machines_machine_create (BT_TEST_ARGS)
   BtMachine *machine = bt_setup_get_machine_by_id (setup, "beep1");
 
   GST_INFO ("-- assert --");
-  fail_unless (machine != NULL, NULL);
+  ck_assert (machine != NULL);
   flush_main_loop ();
 
   GST_INFO ("-- cleanup --");
@@ -110,9 +109,9 @@ test_bt_main_page_machines_machine_create (BT_TEST_ARGS)
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_main_page_machines_machine_ref (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_machines_machine_ref)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -148,13 +147,13 @@ test_bt_main_page_machines_machine_ref (BT_TEST_ARGS)
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 // TODO(ensonic): do the same test for a wire, right now adding a wire is not
 // exposed as public api though
 
 // load a song and remove a machine
-static void
-test_bt_main_page_machines_remove_source_machine (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_machines_remove_source_machine)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -202,10 +201,10 @@ test_bt_main_page_machines_remove_source_machine (BT_TEST_ARGS)
   g_object_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 // load a song and remove machines
-static void
-test_bt_main_page_machines_remove_processor_machine (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_machines_remove_processor_machine)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -239,9 +238,9 @@ test_bt_main_page_machines_remove_processor_machine (BT_TEST_ARGS)
   g_object_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_main_page_machines_remove_wire (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_machines_remove_wire)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -278,11 +277,11 @@ test_bt_main_page_machines_remove_wire (BT_TEST_ARGS)
   g_object_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 // load a song and remove machines & wires
 // FIXME(ensonic): this test needs work, doing too many things at once
-static void
-test_bt_main_page_machines_edit (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_machines_edit)
 {
   BT_TEST_START;
   BtMainPages *pages;
@@ -350,9 +349,9 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
   g_object_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_main_page_machines_convert_coordinates (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_machines_convert_coordinates)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -377,6 +376,7 @@ test_bt_main_page_machines_convert_coordinates (BT_TEST_ARGS)
   g_object_unref (machines_page);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_main_page_machines_example_case (void)

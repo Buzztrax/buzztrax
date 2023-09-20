@@ -59,8 +59,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_change_log_recover_while_missing_machine (BT_TEST_ARGS)
+START_TEST (test_bt_change_log_recover_while_missing_machine)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -78,7 +77,7 @@ test_bt_change_log_recover_while_missing_machine (BT_TEST_ARGS)
   gboolean res = bt_change_log_recover (cl, log_name);
 
   GST_INFO ("-- assert --");
-  fail_if (res, NULL);
+  ck_assert (!(res));
 
   GST_INFO ("-- cleanup --");
   flush_main_loop ();
@@ -86,6 +85,7 @@ test_bt_change_log_recover_while_missing_machine (BT_TEST_ARGS)
   g_object_unref (cl);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_change_log_test_case (void)

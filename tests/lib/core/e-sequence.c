@@ -61,8 +61,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_sequence_new (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_new)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -72,19 +71,19 @@ test_bt_sequence_new (BT_TEST_ARGS)
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (sequence, "length", 0);
-  ck_assert_gobject_gulong_eq (sequence, "tracks", 0);
+  ck_assert_gobject_gulong_eq (sequence, "length", 0L);
+  ck_assert_gobject_gulong_eq (sequence, "tracks", 0L);
   ck_assert_gobject_gboolean_eq (sequence, "loop", FALSE);
-  ck_assert_gobject_glong_eq (sequence, "loop-start", -1);
-  ck_assert_gobject_glong_eq (sequence, "loop-end", -1);
+  ck_assert_gobject_glong_eq (sequence, "loop-start", -1L);
+  ck_assert_gobject_glong_eq (sequence, "loop-end", -1L);
 
   GST_INFO ("-- cleanup --");
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_labels (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_labels)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -105,15 +104,19 @@ test_bt_sequence_labels (BT_TEST_ARGS)
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_append_track (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_append_track)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
 
   GST_INFO ("-- act --");
@@ -126,17 +129,21 @@ test_bt_sequence_append_track (BT_TEST_ARGS)
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_insert_track (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_insert_track)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
-  BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-poly-source", 0, NULL));
   bt_sequence_add_track (sequence, gen1, -1);
 
@@ -150,18 +157,24 @@ test_bt_sequence_insert_track (BT_TEST_ARGS)
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_move_track_left (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_move_track_left)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   g_object_set (sequence, "length", 16L, NULL);
-  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen1";
+  
+  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
-  BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (song, "gen",
+  
+  cparams.id = "gen2";
+  BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-poly-source", 0, NULL));
   bt_sequence_add_track (sequence, gen1, -1);
   bt_sequence_add_track (sequence, gen2, -1);
@@ -176,18 +189,22 @@ test_bt_sequence_move_track_left (BT_TEST_ARGS)
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_move_track_right (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_move_track_right)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   g_object_set (sequence, "length", 16L, NULL);
-  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
-  BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-poly-source", 0, NULL));
   bt_sequence_add_track (sequence, gen1, -1);
   bt_sequence_add_track (sequence, gen2, -1);
@@ -202,15 +219,19 @@ test_bt_sequence_move_track_right (BT_TEST_ARGS)
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_pattern)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   BtCmdPattern *pattern =
       (BtCmdPattern *) bt_pattern_new (song, "pattern-name", 8L, machine);
@@ -234,15 +255,19 @@ test_bt_sequence_pattern (BT_TEST_ARGS)
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_get_tick_by_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_get_tick_by_pattern)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   BtCmdPattern *p1 = (BtCmdPattern *) bt_pattern_new (song, "p1", 4L, machine);
   BtCmdPattern *p2 = (BtCmdPattern *) bt_pattern_new (song, "p2", 4L, machine);
@@ -264,15 +289,19 @@ test_bt_sequence_get_tick_by_pattern (BT_TEST_ARGS)
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_enlarge_length (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_enlarge_length)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   bt_sequence_add_track (sequence, machine, -1);
 
@@ -286,9 +315,9 @@ test_bt_sequence_enlarge_length (BT_TEST_ARGS)
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_enlarge_length_check_labels (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_enlarge_length_check_labels)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -308,9 +337,9 @@ test_bt_sequence_enlarge_length_check_labels (BT_TEST_ARGS)
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_enlarge_length_labels (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_enlarge_length_labels)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -333,15 +362,19 @@ test_bt_sequence_enlarge_length_labels (BT_TEST_ARGS)
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_shrink_length (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_shrink_length)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   bt_sequence_add_track (sequence, machine, -1);
   g_object_set (sequence, "length", 16L, NULL);
@@ -356,15 +389,19 @@ test_bt_sequence_shrink_length (BT_TEST_ARGS)
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_enlarge_track (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_enlarge_track)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen-m",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen-m";
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
 
   GST_INFO ("-- act --");
@@ -378,15 +415,19 @@ test_bt_sequence_enlarge_track (BT_TEST_ARGS)
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_enlarge_track_vals (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_enlarge_track_vals)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   bt_sequence_add_track (sequence, machine, -1);
 
@@ -403,15 +444,19 @@ test_bt_sequence_enlarge_track_vals (BT_TEST_ARGS)
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_shrink_track (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_shrink_track)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   g_object_set (sequence, "length", 1L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
@@ -427,15 +472,19 @@ test_bt_sequence_shrink_track (BT_TEST_ARGS)
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_enlarge_both_vals (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_enlarge_both_vals)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   BtCmdPattern *pattern =
       (BtCmdPattern *) bt_pattern_new (song, "pattern-name", 8L, machine);
@@ -461,20 +510,24 @@ test_bt_sequence_enlarge_both_vals (BT_TEST_ARGS)
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
 /* we moved these updates to the app, to give the undo/redo framework a chance
  * to backup the data
  */
 #ifdef __CHECK_DISABLED__
 // test that removing patterns updates the sequence
-static void
-test_bt_sequence_update (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_update)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
@@ -493,6 +546,7 @@ test_bt_sequence_update (BT_TEST_ARGS)
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 #endif
 
 #define TICK_CT 8L
@@ -521,8 +575,7 @@ on_bt_sequence_ticks_notify (GstObject * machine, GParamSpec * arg,
   }
 }
 
-static void
-test_bt_sequence_ticks (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_ticks)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -533,9 +586,16 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
       BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
   g_object_set (song_info, "bpm", 250L, "tpb", 16L, NULL);
   /* need a real element that handles tempo and calls gst_object_sync */
-  BtMachine *src =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "simsyn", 0, NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *src = BT_MACHINE (bt_source_machine_new (&cparams,
+      "simsyn", 0, NULL));
+
+
+  cparams.id = "sink";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   bt_wire_new (song, src, sink, NULL);
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", TICK_CT, src);
   GstObject *element =
@@ -575,11 +635,11 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
   g_object_unref (song_info);
   BT_TEST_END;
 }
+END_TEST
 
 #undef TICK_CT
 
-static void
-test_bt_sequence_default_loop (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_default_loop)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -598,9 +658,9 @@ test_bt_sequence_default_loop (BT_TEST_ARGS)
   g_object_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_enlarging_length_enlarges_loop (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_enlarging_length_enlarges_loop)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -620,9 +680,9 @@ test_bt_sequence_enlarging_length_enlarges_loop (BT_TEST_ARGS)
   g_object_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_enlarging_length_keeps_loop (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_enlarging_length_keeps_loop)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -643,9 +703,9 @@ test_bt_sequence_enlarging_length_keeps_loop (BT_TEST_ARGS)
   g_object_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_shortening_length_truncates_loop (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_shortening_length_truncates_loop)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -665,9 +725,9 @@ test_bt_sequence_shortening_length_truncates_loop (BT_TEST_ARGS)
   g_object_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_shortening_length_disables_loop (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_shortening_length_disables_loop)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -687,19 +747,23 @@ test_bt_sequence_shortening_length_disables_loop (BT_TEST_ARGS)
   g_object_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_insert_rows (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_insert_rows)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   g_object_set (sequence, "length", 16L, NULL);
-  BtMachine *gen =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
-          NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (&cparams,
+      "audiotestsrc", 0L, NULL));
+  cparams.id = "master";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   bt_wire_new (song, gen, sink, NULL);
   BtCmdPattern *pattern =
       (BtCmdPattern *) bt_pattern_new (song, "melo", 8L, gen);
@@ -719,19 +783,23 @@ test_bt_sequence_insert_rows (BT_TEST_ARGS)
   g_object_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_insert_rows_shifts_out (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_insert_rows_shifts_out)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   g_object_set (sequence, "length", 8L, NULL);
-  BtMachine *gen =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
-          NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (&cparams,
+      "audiotestsrc", 0L, NULL));
+  cparams.id = "master";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   bt_wire_new (song, gen, sink, NULL);
   BtCmdPattern *pattern =
       (BtCmdPattern *) bt_pattern_new (song, "melo", 8L, gen);
@@ -750,19 +818,24 @@ test_bt_sequence_insert_rows_shifts_out (BT_TEST_ARGS)
   g_object_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_insert_full_rows (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_insert_full_rows)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   g_object_set (sequence, "length", 16L, NULL);
-  BtMachine *gen =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
-          NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (&cparams,
+      "audiotestsrc", 0L, NULL));
+  
+  cparams.id = "master";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   bt_wire_new (song, gen, sink, NULL);
   BtCmdPattern *pattern =
       (BtCmdPattern *) bt_pattern_new (song, "melo", 8L, gen);
@@ -787,19 +860,24 @@ test_bt_sequence_insert_full_rows (BT_TEST_ARGS)
   g_object_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_delete_rows (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_delete_rows)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   g_object_set (sequence, "length", 16L, NULL);
-  BtMachine *gen =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
-          NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (&cparams,
+      "audiotestsrc", 0L, NULL));
+
+  cparams.id = "master";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   bt_wire_new (song, gen, sink, NULL);
   BtCmdPattern *pattern =
       (BtCmdPattern *) bt_pattern_new (song, "melo", 8L, gen);
@@ -819,19 +897,24 @@ test_bt_sequence_delete_rows (BT_TEST_ARGS)
   g_object_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_delete_full_rows (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_delete_full_rows)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   g_object_set (sequence, "length", 16L, NULL);
-  BtMachine *gen =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
-          NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (&cparams,
+      "audiotestsrc", 0L, NULL));
+
+  cparams.id = "sink";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   bt_wire_new (song, gen, sink, NULL);
   BtCmdPattern *pattern =
       (BtCmdPattern *) bt_pattern_new (song, "melo", 8L, gen);
@@ -856,20 +939,25 @@ test_bt_sequence_delete_full_rows (BT_TEST_ARGS)
   g_object_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
 
-static void
-test_bt_sequence_duration (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_duration)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   g_object_set (sequence, "length", 16L, NULL);
-  BtMachine *gen =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
-          NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (&cparams,
+      "audiotestsrc", 0L, NULL));
+
+  cparams.id = "master";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   bt_wire_new (song, gen, sink, NULL);
   GstElement *sink_bin =
       GST_ELEMENT (check_gobject_get_object_property (sink, "machine"));
@@ -890,19 +978,24 @@ test_bt_sequence_duration (BT_TEST_ARGS)
   g_object_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sequence_duration_play (BT_TEST_ARGS)
+START_TEST (test_bt_sequence_duration_play)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   g_object_set (sequence, "length", 16L, NULL);
-  BtMachine *gen =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
-          NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (&cparams,
+      "audiotestsrc", 0L, NULL));
+
+  cparams.id = "master";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   bt_wire_new (song, gen, sink, NULL);
   GstElement *element =
       (GstElement *) check_gobject_get_object_property (gen, "machine");
@@ -929,6 +1022,7 @@ test_bt_sequence_duration_play (BT_TEST_ARGS)
   g_object_unref (sequence);
   BT_TEST_END;
 }
+END_TEST
 
 
 TCase *

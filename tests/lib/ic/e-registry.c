@@ -45,8 +45,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_btic_registry_create (BT_TEST_ARGS)
+START_TEST (test_btic_registry_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -55,15 +54,15 @@ test_btic_registry_create (BT_TEST_ARGS)
   BtIcRegistry *registry = btic_registry_new ();
 
   GST_INFO ("-- assert --");
-  fail_unless (registry != NULL, NULL);
+  ck_assert (registry != NULL);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (registry);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_btic_registry_not_empty (BT_TEST_ARGS)
+START_TEST (test_btic_registry_not_empty)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -75,16 +74,16 @@ test_btic_registry_not_empty (BT_TEST_ARGS)
       (GList *) check_gobject_get_ptr_property (registry, "devices");
 
   GST_INFO ("-- assert --");
-  fail_unless (devices != NULL, NULL);
+  ck_assert (devices != NULL);
   ck_assert_int_gt (g_list_length (devices), 0);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (registry);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_btic_registry_get_device_by_name (BT_TEST_ARGS)
+START_TEST (test_btic_registry_get_device_by_name)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -95,13 +94,14 @@ test_btic_registry_get_device_by_name (BT_TEST_ARGS)
   BtIcDevice *device = btic_registry_get_device_by_name ("test");
 
   GST_INFO ("-- assert --");
-  fail_unless (device != NULL, NULL);
+  ck_assert (device != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (device);
   ck_g_object_final_unref (registry);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_registry_example_case (void)

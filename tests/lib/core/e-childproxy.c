@@ -54,8 +54,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_child_proxy_get (BT_TEST_ARGS)
+START_TEST (test_bt_child_proxy_get)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -70,9 +69,9 @@ test_bt_child_proxy_get (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_child_proxy_set (BT_TEST_ARGS)
+START_TEST (test_bt_child_proxy_set)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -88,9 +87,9 @@ test_bt_child_proxy_set (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_child_proxy_get_property (BT_TEST_ARGS)
+START_TEST (test_bt_child_proxy_get_property)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -108,9 +107,9 @@ test_bt_child_proxy_get_property (BT_TEST_ARGS)
   g_value_unset (&value);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_child_proxy_set_property (BT_TEST_ARGS)
+START_TEST (test_bt_child_proxy_set_property)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -130,6 +129,7 @@ test_bt_child_proxy_set_property (BT_TEST_ARGS)
   g_value_unset (&value);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_child_proxy_example_case (void)

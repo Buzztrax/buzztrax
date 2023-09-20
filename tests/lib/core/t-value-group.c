@@ -59,8 +59,11 @@ case_teardown (void)
 static BtValueGroup *
 get_mono_value_group (void)
 {
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "id";
   machine =
-      BT_MACHINE (bt_source_machine_new (song, "id",
+      BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   pattern = bt_pattern_new (song, "pattern-name", 4L, machine);
   return bt_pattern_get_global_group (pattern);
@@ -68,23 +71,22 @@ get_mono_value_group (void)
 
 //-- tests
 
-static void
-test_bt_value_group_get_beyond_size (BT_TEST_ARGS)
+START_TEST (test_bt_value_group_get_beyond_size)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtValueGroup *vg = get_mono_value_group ();
 
   /* act && assert */
-  fail_unless (bt_value_group_get_event_data (vg, 100, 100) == NULL, NULL);
+  ck_assert (bt_value_group_get_event_data (vg, 100, 100) == NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_value_group_range_randomize_column_empty_end (BT_TEST_ARGS)
+START_TEST (test_bt_value_group_range_randomize_column_empty_end)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -104,9 +106,9 @@ test_bt_value_group_range_randomize_column_empty_end (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_value_group_transpose_fine_down_column_clip (BT_TEST_ARGS)
+START_TEST (test_bt_value_group_transpose_fine_down_column_clip)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -125,6 +127,7 @@ test_bt_value_group_transpose_fine_down_column_clip (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 
 TCase *

@@ -84,8 +84,7 @@ get_sink_element (GstBin * bin)
 
 //-- tests
 
-static void
-test_bt_sink_machine_new (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_new)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -93,29 +92,37 @@ test_bt_sink_machine_new (BT_TEST_ARGS)
 
   GST_INFO ("-- act --");
   GError *err = NULL;
-  BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtSinkMachine *machine = bt_sink_machine_new (&cparams, &err);
 
   GST_INFO ("-- assert --");
-  fail_unless (machine != NULL, NULL);
-  fail_unless (err == NULL, NULL);
+  ck_assert (machine != NULL);
+  ck_assert (err == NULL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sink_machine_def_patterns (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_def_patterns)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   g_object_set (settings, "audiosink", "fakesink", NULL);
-  BtSinkMachine *machine = bt_sink_machine_new (song, "master", NULL);
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtSinkMachine *machine = bt_sink_machine_new (&cparams, NULL);
 
   GST_INFO ("-- act --");
   GList *list = (GList *) check_gobject_get_ptr_property (machine, "patterns");
 
   GST_INFO ("-- assert --");
-  fail_unless (list != NULL, NULL);
+  ck_assert (list != NULL);
   ck_assert_int_eq (g_list_length (list), 2);   /* break+mute */
 
   GST_INFO ("-- cleanup --");
@@ -123,14 +130,18 @@ test_bt_sink_machine_def_patterns (BT_TEST_ARGS)
   g_list_free (list);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sink_machine_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_pattern)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   g_object_set (settings, "audiosink", "fakesink", NULL);
-  BtSinkMachine *machine = bt_sink_machine_new (song, "master", NULL);
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtSinkMachine *machine = bt_sink_machine_new (&cparams, NULL);
 
   GST_INFO ("-- act --");
   BtCmdPattern *pattern =
@@ -138,21 +149,25 @@ test_bt_sink_machine_pattern (BT_TEST_ARGS)
       BT_MACHINE (machine));
 
   GST_INFO ("-- assert --");
-  fail_unless (pattern != NULL, NULL);
-  ck_assert_gobject_gulong_eq (pattern, "voices", 0);
+  ck_assert (pattern != NULL);
+  ck_assert_gobject_gulong_eq (pattern, "voices", 0L);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sink_machine_pattern_by_id (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_pattern_by_id)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   g_object_set (settings, "audiosink", "fakesink", NULL);
-  BtSinkMachine *machine = bt_sink_machine_new (song, "master", NULL);
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtSinkMachine *machine = bt_sink_machine_new (&cparams, NULL);
 
   GST_INFO ("-- act --");
   BtCmdPattern *pattern =
@@ -167,33 +182,41 @@ test_bt_sink_machine_pattern_by_id (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sink_machine_pattern_by_index (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_pattern_by_index)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtSinkMachine *machine = bt_sink_machine_new (song, "master", NULL);
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtSinkMachine *machine = bt_sink_machine_new (&cparams, NULL);
 
   GST_INFO ("-- act --");
   BtCmdPattern *pattern = bt_machine_get_pattern_by_index (BT_MACHINE (machine),
       BT_SINK_MACHINE_PATTERN_INDEX_MUTE);
 
   GST_INFO ("-- assert --");
-  fail_unless (pattern != NULL, NULL);
+  ck_assert (pattern != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sink_machine_pattern_by_list (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_pattern_by_list)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   g_object_set (settings, "audiosink", "fakesink", NULL);
-  BtSinkMachine *machine = bt_sink_machine_new (song, "master", NULL);
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtSinkMachine *machine = bt_sink_machine_new (&cparams, NULL);
   BtCmdPattern *pattern =
       (BtCmdPattern *) bt_pattern_new (song, "pattern-name", 8L,
       BT_MACHINE (machine));
@@ -203,7 +226,7 @@ test_bt_sink_machine_pattern_by_list (BT_TEST_ARGS)
   GList *node = g_list_last (list);
 
   GST_INFO ("-- assert --");
-  fail_unless (node->data == pattern, NULL);
+  ck_assert (node->data == pattern);
 
   GST_INFO ("-- cleanup --");
   g_list_foreach (list, (GFunc) g_object_unref, NULL);
@@ -211,9 +234,9 @@ test_bt_sink_machine_pattern_by_list (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sink_machine_default (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_default)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -221,18 +244,22 @@ test_bt_sink_machine_default (BT_TEST_ARGS)
 
   GST_INFO ("-- act --");
   GError *err = NULL;
-  BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtSinkMachine *machine = bt_sink_machine_new (&cparams, &err);
 
   GST_INFO ("-- assert --");
-  fail_unless (machine != NULL, NULL);
-  fail_unless (err == NULL, NULL);
+  ck_assert (machine != NULL);
+  ck_assert (err == NULL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sink_machine_fallback (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_fallback)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -247,22 +274,30 @@ test_bt_sink_machine_fallback (BT_TEST_ARGS)
 
   GST_INFO ("-- act --");
   GError *err = NULL;
-  BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtSinkMachine *machine = bt_sink_machine_new (&cparams, &err);
 
   GST_INFO ("-- assert --");
-  fail_unless (machine != NULL, NULL);
-  fail_unless (err == NULL, NULL);
+  ck_assert (machine != NULL);
+  ck_assert (err == NULL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sink_machine_actual_sink (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_actual_sink)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtSinkMachine *machine = bt_sink_machine_new (song, "master", NULL);
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtSinkMachine *machine = bt_sink_machine_new (&cparams, NULL);
 
   GST_INFO ("-- act --");
   GstElement *sink_bin =
@@ -271,26 +306,31 @@ test_bt_sink_machine_actual_sink (BT_TEST_ARGS)
   GstElement *sink = get_sink_element ((GstBin *) sink_bin);
 
   GST_INFO ("-- assert --");
-  fail_unless (sink != NULL, NULL);
+  ck_assert (sink != NULL);
 
   GST_INFO ("-- cleanup --");
   gst_object_unref (sink_bin);
   BT_TEST_END;
 }
+END_TEST
 
 /* the parameter index _i is 2bits for latency, 2bits for bpm, 2 bits for tpb */
-static void
-test_bt_sink_machine_latency (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_latency)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSongInfo *song_info =
       BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
-  BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   BtTestMonoSource *src =
       (BtTestMonoSource *) check_gobject_get_object_property (gen, "machine");
-  BtMachine *master = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  cparams.id = "master";
+  
+  BtMachine *master = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   GstElement *sink_bin =
       GST_ELEMENT (check_gobject_get_object_property (master, "machine"));
   bt_wire_new (song, gen, master, NULL);
@@ -300,7 +340,7 @@ test_bt_sink_machine_latency (BT_TEST_ARGS)
     GST_WARNING ("no sink or not AudioBaseSink");
     goto Cleanup;
   }
-  guint latency = 20 + 20 * (_i & 0x3);
+  gulong latency = 20 + 20 * (_i & 0x3);
   gulong bpm = 80 + 20 * ((_i >> 2) & 0x3);
   gulong tpb = 4 + 2 * ((_i >> 4) & 0x3);
 
@@ -309,7 +349,7 @@ test_bt_sink_machine_latency (BT_TEST_ARGS)
   // assert the resulting latency-time properties on the audio_sink
   g_object_set (settings, "latency", latency, NULL);
   g_object_set (song_info, "bpm", bpm, "tpb", tpb, NULL);
-  guint st = src->stpb, c_bpm = src->bpm, c_tpb = src->tpb;
+  gulong st = src->stpb, c_bpm = src->bpm, c_tpb = src->tpb;
 
   GST_INFO ("-- assert --");
   gint64 latency_time, c_latency_time;
@@ -317,10 +357,10 @@ test_bt_sink_machine_latency (BT_TEST_ARGS)
   latency_time = GST_TIME_AS_USECONDS ((GST_SECOND * 60) / (bpm * tpb * st));
 
   GST_INFO_OBJECT (sink,
-      "bpm=%3lu=%3u, tpb=%lu=%u, stpb=%2u, target-latency=%2u , latency-time=%6"
+      "bpm=%3lu=%3lu, tpb=%lu=%lu, stpb=%2lu, target-latency=%2lu , latency-time=%6"
       G_GINT64_FORMAT "=%6" G_GINT64_FORMAT ", delta=%+4" G_GINT64_FORMAT, bpm,
       c_bpm, tpb, c_tpb, st, latency, latency_time, c_latency_time,
-      (latency_time - ((gint) latency * 1000)) / 1000);
+      (latency_time - (latency * 1000)) / 1000);
 
   ck_assert_ulong_eq (c_bpm, bpm);
   ck_assert_ulong_eq (c_tpb, tpb);
@@ -332,13 +372,17 @@ Cleanup:
   g_object_unref (song_info);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_sink_machine_pretty_name (BT_TEST_ARGS)
+START_TEST (test_bt_sink_machine_pretty_name)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtSinkMachine *machine = bt_sink_machine_new (song, "master", NULL);
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtSinkMachine *machine = bt_sink_machine_new (&cparams, NULL);
 
   GST_INFO ("-- act --");
 
@@ -348,6 +392,7 @@ test_bt_sink_machine_pretty_name (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 
 TCase *

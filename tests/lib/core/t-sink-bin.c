@@ -51,20 +51,20 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_sink_bin_properties (BT_TEST_ARGS)
+START_TEST (test_bt_sink_bin_properties)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   GstElement *bin = gst_element_factory_make ("bt-sink-bin", NULL);
 
   /* act & assert */
-  fail_unless (check_gobject_properties ((GObject *) bin), NULL);
+  ck_assert (check_gobject_properties ((GObject *) bin));
 
   GST_INFO ("-- cleanup --");
   mark_point ();
   BT_TEST_END;
 }
+END_TEST
 
 ;
 

@@ -47,8 +47,7 @@ case_teardown (void)
 //-- helper
 
 //-- tests
-static void
-test_bt_main_page_wave_missing_playbin (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_wave_missing_playbin)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -80,6 +79,7 @@ test_bt_main_page_wave_missing_playbin (BT_TEST_ARGS)
   ck_g_object_final_unref (app);
   BT_TEST_END;
 }
+END_TEST
 
 
 

@@ -64,9 +64,15 @@ make_new_song (void)
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
   BtSongInfo *song_info =
       BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
+
+  cparams.id = "gen";
   BtMachine *gen =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+      BT_MACHINE (bt_source_machine_new (&cparams, "audiotestsrc", 0L,
           NULL));
   bt_wire_new (song, gen, sink, NULL);
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, gen);
@@ -102,8 +108,7 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
 //-- tests
 
 // test if the default constructor works as expected
-static void
-test_bt_song_new (BT_TEST_ARGS)
+START_TEST (test_bt_song_new)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -112,18 +117,18 @@ test_bt_song_new (BT_TEST_ARGS)
   BtSong *song = bt_song_new (app);
 
   GST_INFO ("-- assert --");
-  fail_unless (song != NULL, NULL);
+  ck_assert (song != NULL);
   ck_assert_gobject_object_eq (song, "master", NULL);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 // test, if a newly created song contains setup, sequence, song-info and
 // wavetable and they point back to the song
-static void
-test_bt_song_members (BT_TEST_ARGS)
+START_TEST (test_bt_song_members)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -141,13 +146,13 @@ test_bt_song_members (BT_TEST_ARGS)
 
   GST_INFO ("-- assert --");
   ck_assert_gobject_object_eq (song, "app", app);
-  fail_unless (setup != NULL, NULL);
+  ck_assert (setup != NULL);
   ck_assert_gobject_object_eq (setup, "song", song);
-  fail_unless (sequence != NULL, NULL);
+  ck_assert (sequence != NULL);
   ck_assert_gobject_object_eq (sequence, "song", song);
-  fail_unless (songinfo != NULL, NULL);
+  ck_assert (songinfo != NULL);
   ck_assert_gobject_object_eq (songinfo, "song", song);
-  fail_unless (wavetable != NULL, NULL);
+  ck_assert (wavetable != NULL);
   ck_assert_gobject_object_eq (wavetable, "song", song);
 
   GST_INFO ("-- cleanup --");
@@ -158,9 +163,9 @@ test_bt_song_members (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_master (BT_TEST_ARGS)
+START_TEST (test_bt_song_master)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -173,10 +178,10 @@ test_bt_song_master (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 // test if the song play routine works without failure
-static void
-test_bt_song_play_single (BT_TEST_ARGS)
+START_TEST (test_bt_song_play_single)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -189,7 +194,7 @@ test_bt_song_play_single (BT_TEST_ARGS)
   check_run_main_loop_until_playing_or_error (song);
 
   GST_INFO ("-- assert --");
-  fail_unless (play_signal_invoked, NULL);
+  ck_assert (play_signal_invoked);
   ck_assert_gobject_gboolean_eq (song, "is-playing", TRUE);
 
   GST_INFO ("-- act --");
@@ -203,10 +208,10 @@ test_bt_song_play_single (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 // play, wait a little, stop, play again
-static void
-test_bt_song_play_twice (BT_TEST_ARGS)
+START_TEST (test_bt_song_play_twice)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -221,19 +226,19 @@ test_bt_song_play_twice (BT_TEST_ARGS)
   check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
 
   /* act && assert */
-  fail_unless (bt_song_play (song), NULL);
+  ck_assert (bt_song_play (song));
   check_run_main_loop_until_playing_or_error (song);
-  fail_unless (play_signal_invoked, NULL);
+  ck_assert (play_signal_invoked);
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 // load a new song, play, change audiosink to fakesink
-static void
-test_bt_song_play_and_change_sink (BT_TEST_ARGS)
+START_TEST (test_bt_song_play_and_change_sink)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -254,10 +259,10 @@ test_bt_song_play_and_change_sink (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 // change audiosink to NULL, load and play a song
-static void
-test_bt_song_play_fallback_sink (BT_TEST_ARGS)
+START_TEST (test_bt_song_play_fallback_sink)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -272,17 +277,17 @@ test_bt_song_play_fallback_sink (BT_TEST_ARGS)
   BtSong *song = make_new_song ();
 
   GST_INFO ("-- act --");
-  fail_unless (bt_song_play (song), NULL);
+  ck_assert (bt_song_play (song));
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 // test the idle looper
-static void
-test_bt_song_idle1 (BT_TEST_ARGS)
+START_TEST (test_bt_song_idle1)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -300,10 +305,10 @@ test_bt_song_idle1 (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 // test the idle looper and playing transition
-static void
-test_bt_song_idle2 (BT_TEST_ARGS)
+START_TEST (test_bt_song_idle2)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -335,25 +340,32 @@ test_bt_song_idle2 (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 /*
  * check if we can connect two sine machines to one sink. Also try to play after
  * connecting the machines.
  */
-static void
-test_bt_song_play_two_sources (BT_TEST_ARGS)
+START_TEST (test_bt_song_play_two_sources)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSong *song = bt_song_new (app);
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
+
+  cparams.id = "gen1";
   BtMachine *gen1 =
-      BT_MACHINE (bt_source_machine_new (song, "gen1", "audiotestsrc", 0L,
+      BT_MACHINE (bt_source_machine_new (&cparams, "audiotestsrc", 0L,
           NULL));
+  cparams.id = "gen2";
   BtMachine *gen2 =
-      BT_MACHINE (bt_source_machine_new (song, "gen2", "audiotestsrc", 0L,
+      BT_MACHINE (bt_source_machine_new (&cparams, "audiotestsrc", 0L,
           NULL));
   bt_wire_new (song, gen1, sink, NULL);
   bt_wire_new (song, gen2, sink, NULL);
@@ -376,7 +388,7 @@ test_bt_song_play_two_sources (BT_TEST_ARGS)
     /* stop the song */
     bt_song_stop (song);
   } else {
-    fail ("playing song failed");
+    ck_assert_msg (FALSE, "playing song failed");
   }
 
   GST_INFO ("-- cleanup --");
@@ -386,28 +398,36 @@ test_bt_song_play_two_sources (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 /*
  * check if we can connect two sine machines to one effect and this to the
  * sink. Also try to start play after connecting the machines.
  */
-static void
-test_bt_song_play_two_sources_and_one_fx (BT_TEST_ARGS)
+START_TEST (test_bt_song_play_two_sources_and_one_fx)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSong *song = bt_song_new (app);
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
+
+  cparams.id = "gen1";
   BtMachine *gen1 =
-      BT_MACHINE (bt_source_machine_new (song, "gen1", "audiotestsrc", 0L,
+      BT_MACHINE (bt_source_machine_new (&cparams, "audiotestsrc", 0L,
           NULL));
+  cparams.id = "gen2";
   BtMachine *gen2 =
-      BT_MACHINE (bt_source_machine_new (song, "gen2", "audiotestsrc", 0L,
+      BT_MACHINE (bt_source_machine_new (&cparams, "audiotestsrc", 0L,
           NULL));
+  cparams.id = "proc";
   BtMachine *proc =
-      BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0, NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0, NULL));
   bt_wire_new (song, gen1, proc, NULL);
   bt_wire_new (song, gen2, proc, NULL);
   bt_wire_new (song, proc, sink, NULL);
@@ -430,7 +450,7 @@ test_bt_song_play_two_sources_and_one_fx (BT_TEST_ARGS)
     /* stop the song */
     bt_song_stop (song);
   } else {
-    fail ("playing song failed");
+    ck_assert_msg (FALSE, "playing song failed");
   }
 
   gst_object_unref (element1);
@@ -439,13 +459,13 @@ test_bt_song_play_two_sources_and_one_fx (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 /*
  * check if we can connect two sine machines to one sink, then play() and
  * stop(). After stopping remove one machine and play again.
  */
-static void
-test_bt_song_play_change_replay (BT_TEST_ARGS)
+START_TEST (test_bt_song_play_change_replay)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -454,12 +474,19 @@ test_bt_song_play_change_replay (BT_TEST_ARGS)
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "master";
+  
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
+
+  cparams.id = "gen1";
   BtMachine *gen1 =
-      BT_MACHINE (bt_source_machine_new (song, "gen1", "audiotestsrc", 0L,
+      BT_MACHINE (bt_source_machine_new (&cparams, "audiotestsrc", 0L,
           NULL));
+  cparams.id = "gen2";
   BtMachine *gen2 =
-      BT_MACHINE (bt_source_machine_new (song, "gen2", "audiotestsrc", 0L,
+      BT_MACHINE (bt_source_machine_new (&cparams, "audiotestsrc", 0L,
           NULL));
   bt_wire_new (song, gen1, sink, NULL);
   BtWire *wire2 = bt_wire_new (song, gen2, sink, NULL);
@@ -482,12 +509,12 @@ test_bt_song_play_change_replay (BT_TEST_ARGS)
     /* stop the song */
     bt_song_stop (song);
   } else {
-    fail ("playing of network song failed");
+    ck_assert_msg (FALSE, "playing of network song failed");
   }
 
   /* remove one machine */
   bt_setup_remove_wire (setup, wire2);
-  fail_unless (bt_sequence_remove_track_by_machine (sequence, gen2), NULL);
+  ck_assert (bt_sequence_remove_track_by_machine (sequence, gen2));
   bt_setup_remove_machine (setup, gen2);
   mark_point ();
 
@@ -498,7 +525,7 @@ test_bt_song_play_change_replay (BT_TEST_ARGS)
     /* stop the song */
     bt_song_stop (song);
   } else {
-    fail ("playing song failed again");
+    ck_assert_msg (FALSE, "playing song failed again");
   }
 
   GST_INFO ("-- cleanup --");
@@ -509,9 +536,9 @@ test_bt_song_play_change_replay (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_play_pos (BT_TEST_ARGS)
+START_TEST (test_bt_song_play_pos)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -531,9 +558,9 @@ test_bt_song_play_pos (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_play_pos_on_eos (BT_TEST_ARGS)
+START_TEST (test_bt_song_play_pos_on_eos)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -552,9 +579,9 @@ test_bt_song_play_pos_on_eos (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_play_pos_after_initial_seek (BT_TEST_ARGS)
+START_TEST (test_bt_song_play_pos_after_initial_seek)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -574,9 +601,9 @@ test_bt_song_play_pos_after_initial_seek (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_play_again_should_restart (BT_TEST_ARGS)
+START_TEST (test_bt_song_play_again_should_restart)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -598,9 +625,9 @@ test_bt_song_play_again_should_restart (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_play_loop (BT_TEST_ARGS)
+START_TEST (test_bt_song_play_loop)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -624,40 +651,46 @@ test_bt_song_play_loop (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_persistence (BT_TEST_ARGS)
+START_TEST (test_bt_song_persistence)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSong *song = make_new_song ();
 
   GST_INFO ("-- act --");
-  xmlNodePtr node = bt_persistence_save (BT_PERSISTENCE (song), NULL);
+  xmlNodePtr node = bt_persistence_save (BT_PERSISTENCE (song), NULL, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (node != NULL, NULL);
+  ck_assert (node != NULL);
   ck_assert_str_eq ((gchar *) node->name, "buzztrax");
-  fail_unless (node->children != NULL, NULL);
+  ck_assert (node->children != NULL);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_tempo_update_set_context (BT_TEST_ARGS)
+START_TEST (test_bt_song_tempo_update_set_context)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSong *song = bt_song_new (app);
   BtSongInfo *song_info =
       BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
-  BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   BtTestMonoSource *e =
       (BtTestMonoSource *) check_gobject_get_object_property (gen, "machine");
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+
+  cparams.id = "master";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   bt_wire_new (song, gen, sink, NULL);
 
   GST_INFO ("-- act --");
@@ -671,6 +704,7 @@ test_bt_song_tempo_update_set_context (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 
 

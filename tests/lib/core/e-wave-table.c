@@ -57,8 +57,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_wave_table_default_empty (BT_TEST_ARGS)
+START_TEST (test_bt_wave_table_default_empty)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -69,15 +68,15 @@ test_bt_wave_table_default_empty (BT_TEST_ARGS)
   GList *list = (GList *) check_gobject_get_ptr_property (wave_table, "waves");
 
   GST_INFO ("-- assert --");
-  fail_unless (list == NULL, NULL);
+  ck_assert (list == NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (wave_table);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_wave_table_add_wave (BT_TEST_ARGS)
+START_TEST (test_bt_wave_table_add_wave)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -90,7 +89,7 @@ test_bt_wave_table_add_wave (BT_TEST_ARGS)
 
   GST_INFO ("-- assert --");
   GList *list = (GList *) check_gobject_get_ptr_property (wave_table, "waves");
-  fail_unless (list != NULL, NULL);
+  ck_assert (list != NULL);
   ck_assert_int_eq (g_list_length (list), 1);
 
   GST_INFO ("-- cleanup --");
@@ -99,9 +98,9 @@ test_bt_wave_table_add_wave (BT_TEST_ARGS)
   g_object_unref (wave_table);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_wave_table_rem_wave (BT_TEST_ARGS)
+START_TEST (test_bt_wave_table_rem_wave)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -115,16 +114,16 @@ test_bt_wave_table_rem_wave (BT_TEST_ARGS)
 
   GST_INFO ("-- assert --");
   GList *list = (GList *) check_gobject_get_ptr_property (wave_table, "waves");
-  fail_unless (list == NULL, NULL);
+  ck_assert (list == NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (wave);
   g_object_unref (wave_table);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_wave_table_get_wave_by_ix (BT_TEST_ARGS)
+START_TEST (test_bt_wave_table_get_wave_by_ix)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -137,7 +136,7 @@ test_bt_wave_table_get_wave_by_ix (BT_TEST_ARGS)
   BtWave *wave_by_ix = bt_wavetable_get_wave_by_index (wave_table, 1);
 
   GST_INFO ("-- assert --");
-  fail_unless (wave == wave_by_ix, NULL);
+  ck_assert (wave == wave_by_ix);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (wave);
@@ -145,9 +144,9 @@ test_bt_wave_table_get_wave_by_ix (BT_TEST_ARGS)
   g_object_unref (wave_table);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_wave_table_replace_wave (BT_TEST_ARGS)
+START_TEST (test_bt_wave_table_replace_wave)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -162,7 +161,7 @@ test_bt_wave_table_replace_wave (BT_TEST_ARGS)
   BtWave *wave_by_ix = bt_wavetable_get_wave_by_index (wave_table, 1);
 
   GST_INFO ("-- assert --");
-  fail_unless (wave2 == wave_by_ix, NULL);
+  ck_assert (wave2 == wave_by_ix);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (wave1);
@@ -171,9 +170,9 @@ test_bt_wave_table_replace_wave (BT_TEST_ARGS)
   g_object_unref (wave_table);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_wave_table_get_callbacks (BT_TEST_ARGS)
+START_TEST (test_bt_wave_table_get_callbacks)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -186,18 +185,18 @@ test_bt_wave_table_get_callbacks (BT_TEST_ARGS)
   gpointer *cb = (gpointer *) bt_wavetable_get_callbacks (wave_table);
 
   GST_INFO ("-- assert --");
-  fail_unless (cb != NULL, NULL);
-  fail_unless (cb[0] != NULL, NULL);
-  fail_unless (cb[1] != NULL, NULL);
+  ck_assert (cb != NULL);
+  ck_assert (cb[0] != NULL);
+  ck_assert (cb[1] != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (wave);
   g_object_unref (wave_table);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_wave_table_callbacks_get_wave (BT_TEST_ARGS)
+START_TEST (test_bt_wave_table_callbacks_get_wave)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -213,7 +212,7 @@ test_bt_wave_table_callbacks_get_wave (BT_TEST_ARGS)
   GstStructure *s = get_wave_buffer (cb[0], 1, 0);
 
   GST_INFO ("-- assert --");
-  fail_unless (s != NULL, NULL);
+  ck_assert (s != NULL);
 
   GST_INFO ("-- cleanup --");
   gst_structure_free (s);
@@ -221,6 +220,7 @@ test_bt_wave_table_callbacks_get_wave (BT_TEST_ARGS)
   g_object_unref (wave_table);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_wave_table_example_case (void)

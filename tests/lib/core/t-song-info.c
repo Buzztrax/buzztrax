@@ -52,35 +52,35 @@ case_teardown (void)
 //-- tests
 
 /* apply generic property tests to song-info */
-static void
-test_bt_song_info_properties (BT_TEST_ARGS)
+START_TEST (test_bt_song_info_properties)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   GObject *song_info = check_gobject_get_object_property (song, "song-info");
 
   /* act & assert */
-  fail_unless (check_gobject_properties (song_info), NULL);
+  ck_assert (check_gobject_properties (song_info));
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 /* create a new song-info with a NULL song object */
-static void
-test_bt_song_info_null_song (BT_TEST_ARGS)
+START_TEST (test_bt_song_info_null_song)
 {
   BT_TEST_START;
   GST_INFO ("-- act --");
   BtSongInfo *song_info = bt_song_info_new (NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (song_info != NULL, NULL);
+  ck_assert (song_info != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (song_info);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_song_info_test_case (void)

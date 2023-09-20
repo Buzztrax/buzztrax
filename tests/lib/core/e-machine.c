@@ -38,7 +38,11 @@ test_setup (void)
 {
   app = bt_test_application_new ();
   song = bt_song_new (app);
-  bt_sink_machine_new (song, "master", NULL);
+  BtMachineConstructorParams cparams;
+  cparams.id = "master";
+  cparams.song = song;
+  
+  bt_sink_machine_new (&cparams, NULL);
 
   registry = btic_registry_new ();
   device = (BtIcDevice *) btic_test_device_new ("test");
@@ -68,139 +72,168 @@ static gchar *element_names[] = {
 };
 static gulong element_voices[] = { 0, 0, 0, 1 };
 
-static void
-test_bt_machine_create (BT_TEST_ARGS)
+START_TEST (test_bt_machine_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
 
   GST_INFO ("-- act --");
   GError *err = NULL;
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           element_names[_i], element_voices[_i], &err));
 
   GST_INFO ("-- assert --");
-  fail_unless (machine != NULL, NULL);
-  fail_unless (err == NULL, NULL);
-  fail_unless (!bt_machine_has_patterns (machine), NULL);
+  ck_assert (machine != NULL);
+  ck_assert (err == NULL);
+  ck_assert (!bt_machine_has_patterns (machine));
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 /*
  * activate the input level meter in an unconnected machine
  */
-static void
-test_bt_machine_enable_input_level1 (BT_TEST_ARGS)
+START_TEST (test_bt_machine_enable_input_level1)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.id = "vol";
+  cparams.song = song;
+  
   BtMachine *machine =
-      BT_MACHINE (bt_processor_machine_new (song, "vol", "volume", 0, NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0, NULL));
 
   GST_INFO ("-- act --");
   gboolean res = bt_machine_enable_input_pre_level (machine);
 
   GST_INFO ("-- assert --");
-  fail_unless (res == TRUE, NULL);
+  ck_assert (res == TRUE);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 /*
  * activate the input level meter in a connected machine
  */
-static void
-test_bt_machine_enable_input_level2 (BT_TEST_ARGS)
+START_TEST (test_bt_machine_enable_input_level2)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.id = "vol1";
+  cparams.song = song;
+  
   BtMachine *machine1 =
-      BT_MACHINE (bt_processor_machine_new (song, "vol1", "volume", 0, NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0, NULL));
+
+  cparams.id = "vol2";
   BtMachine *machine2 =
-      BT_MACHINE (bt_processor_machine_new (song, "vol2", "volume", 0, NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0, NULL));
   bt_wire_new (song, machine1, machine2, NULL);
 
   GST_INFO ("-- act --");
   gboolean res = bt_machine_enable_input_pre_level (machine2);
 
   GST_INFO ("-- assert --");
-  fail_unless (res == TRUE, NULL);
+  ck_assert (res == TRUE);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 /*
  * activate the input gain control in an unconnected machine
  */
-static void
-test_bt_machine_enable_input_gain1 (BT_TEST_ARGS)
+START_TEST (test_bt_machine_enable_input_gain1)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.id = "vol";
+  cparams.song = song;
+  
   BtMachine *machine =
-      BT_MACHINE (bt_processor_machine_new (song, "vol", "volume", 0, NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0, NULL));
 
   GST_INFO ("-- act --");
   gboolean res = bt_machine_enable_input_gain (machine);
 
   GST_INFO ("-- assert --");
-  fail_unless (res == TRUE, NULL);
+  ck_assert (res == TRUE);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 /*
  * activate the output gain control in an unconnected machine
  */
-static void
-test_bt_machine_enable_output_gain1 (BT_TEST_ARGS)
+START_TEST (test_bt_machine_enable_output_gain1)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.id = "vol";
+  cparams.song = song;
+  
   BtMachine *machine =
-      BT_MACHINE (bt_processor_machine_new (song, "vol", "volume", 0, NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0, NULL));
 
   GST_INFO ("-- act --");
   gboolean res = bt_machine_enable_output_gain (machine);
 
   GST_INFO ("-- assert --");
-  fail_unless (res == TRUE, NULL);
+  ck_assert (res == TRUE);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 /* add pattern */
-static void
-test_bt_machine_add_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_machine_add_pattern)
 {
   BT_TEST_START;
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-poly-source", 1L, NULL));
 
   GST_INFO ("-- act --");
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
   GST_INFO ("-- assert --");
-  fail_unless (bt_machine_has_patterns (machine), NULL);
+  ck_assert (bt_machine_has_patterns (machine));
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_rem_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_machine_rem_pattern)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
@@ -208,19 +241,23 @@ test_bt_machine_rem_pattern (BT_TEST_ARGS)
   bt_machine_remove_pattern (machine, (BtCmdPattern *) pattern);
 
   GST_INFO ("-- assert --");
-  fail_if (bt_machine_has_patterns (machine), NULL);
+  ck_assert (!bt_machine_has_patterns (machine));
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_unique_pattern_name (BT_TEST_ARGS)
+START_TEST (test_bt_machine_unique_pattern_name)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
@@ -236,13 +273,17 @@ test_bt_machine_unique_pattern_name (BT_TEST_ARGS)
 
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_next_pattern_name (BT_TEST_ARGS)
+START_TEST (test_bt_machine_next_pattern_name)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "00", 8L, machine);
 
@@ -258,15 +299,19 @@ test_bt_machine_next_pattern_name (BT_TEST_ARGS)
 
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_check_voices (BT_TEST_ARGS)
+START_TEST (test_bt_machine_check_voices)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
 
   GST_INFO ("-- act --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-poly-source", 2L, NULL));
 
   GST_INFO ("-- assert --");
@@ -279,16 +324,20 @@ test_bt_machine_check_voices (BT_TEST_ARGS)
   gst_object_unref (element);
   BT_TEST_END;
 }
+END_TEST
 
 /*
  * change voices and verify that voices in machine and patetrn are in sync
  */
-static void
-test_bt_machine_change_voices (BT_TEST_ARGS)
+START_TEST (test_bt_machine_change_voices)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *p1 = bt_pattern_new (song, "pattern-name1", 8L, machine);
   BtPattern *p2 = bt_pattern_new (song, "pattern-name2", 8L, machine);
@@ -297,26 +346,33 @@ test_bt_machine_change_voices (BT_TEST_ARGS)
   g_object_set (machine, "voices", 2, NULL);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (p1, "voices", 2);
-  ck_assert_gobject_gulong_eq (p2, "voices", 2);
+  ck_assert_gobject_gulong_eq (p1, "voices", 2L);
+  ck_assert_gobject_gulong_eq (p2, "voices", 2L);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (p1);
   g_object_unref (p2);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_state_mute_no_sideeffects (BT_TEST_ARGS)
+START_TEST (test_bt_machine_state_mute_no_sideeffects)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
   BtMachine *src =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+      BT_MACHINE (bt_source_machine_new (&cparams, "audiotestsrc", 0L,
           NULL));
+
+  cparams.id = "vol";
   BtMachine *proc =
-      BT_MACHINE (bt_processor_machine_new (song, "vol", "volume", 0L, NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0L, NULL));
+  cparams.id = "sink";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   bt_wire_new (song, src, proc, NULL);
   bt_wire_new (song, proc, sink, NULL);
 
@@ -331,19 +387,26 @@ test_bt_machine_state_mute_no_sideeffects (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_state_solo_resets_others (BT_TEST_ARGS)
+START_TEST (test_bt_machine_state_solo_resets_others)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen1";
+  cparams.song = song;
+  
   BtMachine *src1 =
-      BT_MACHINE (bt_source_machine_new (song, "gen1", "audiotestsrc", 0L,
+      BT_MACHINE (bt_source_machine_new (&cparams, "audiotestsrc", 0L,
           NULL));
+
+  cparams.id = "gen2";
   BtMachine *src2 =
-      BT_MACHINE (bt_source_machine_new (song, "gen2", "audiotestsrc", 0L,
+      BT_MACHINE (bt_source_machine_new (&cparams, "audiotestsrc", 0L,
           NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
+  cparams.id = "sink";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   bt_wire_new (song, src1, sink, NULL);
   bt_wire_new (song, src2, sink, NULL);
 
@@ -358,18 +421,25 @@ test_bt_machine_state_solo_resets_others (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_state_bypass_no_sideeffects (BT_TEST_ARGS)
+START_TEST (test_bt_machine_state_bypass_no_sideeffects)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
   BtMachine *src =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+      BT_MACHINE (bt_source_machine_new (&cparams, "audiotestsrc", 0L,
           NULL));
+
+  cparams.id = "vol";
   BtMachine *proc =
-      BT_MACHINE (bt_processor_machine_new (song, "vol", "volume", 0L, NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0L, NULL));
+  cparams.id = "sink";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   bt_wire_new (song, src, proc, NULL);
   bt_wire_new (song, proc, sink, NULL);
 
@@ -384,9 +454,9 @@ test_bt_machine_state_bypass_no_sideeffects (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_state_not_overridden (BT_TEST_ARGS)
+START_TEST (test_bt_machine_state_not_overridden)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -394,9 +464,17 @@ test_bt_machine_state_not_overridden (BT_TEST_ARGS)
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
   BtSongInfo *song_info =
       BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
-  BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
+  
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
+  BtMachine *src = BT_MACHINE (bt_source_machine_new (&cparams,
           "simsyn", 0L, NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
+  
+  cparams.id = "sink";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
+  
   bt_wire_new (song, src, sink, NULL);
   BtCmdPattern *pattern = bt_cmd_pattern_new (song, src, BT_PATTERN_CMD_SOLO);
   GstElement *element =
@@ -425,14 +503,18 @@ test_bt_machine_state_not_overridden (BT_TEST_ARGS)
   g_object_unref (song_info);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_pretty_name (BT_TEST_ARGS)
+START_TEST (test_bt_machine_pretty_name)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.id = "audiotestsrc";
+  cparams.song = song;
+  
   BtMachine *src =
-      BT_MACHINE (bt_source_machine_new (song, "audiotestsrc", "audiotestsrc",
+      BT_MACHINE (bt_source_machine_new (&cparams, "audiotestsrc",
           0L, NULL));
 
   GST_INFO ("-- act --");
@@ -443,14 +525,18 @@ test_bt_machine_pretty_name (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_pretty_name_with_detail (BT_TEST_ARGS)
+START_TEST (test_bt_machine_pretty_name_with_detail)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
   BtMachine *src =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+      BT_MACHINE (bt_source_machine_new (&cparams, "audiotestsrc", 0L,
           NULL));
 
   GST_INFO ("-- act --");
@@ -461,13 +547,17 @@ test_bt_machine_pretty_name_with_detail (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_set_defaults (BT_TEST_ARGS)
+START_TEST (test_bt_machine_set_defaults)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+  BtMachineConstructorParams cparams;
+  cparams.id = "id";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   GstObject *element =
       (GstObject *) check_gobject_get_object_property (machine, "machine");
@@ -486,13 +576,17 @@ test_bt_machine_set_defaults (BT_TEST_ARGS)
   gst_object_unref (element);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_bind_parameter_control (BT_TEST_ARGS)
+START_TEST (test_bt_machine_bind_parameter_control)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+  BtMachineConstructorParams cparams;
+  cparams.id = "id";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   GstObject *element =
       (GstObject *) check_gobject_get_object_property (machine, "machine");
@@ -513,13 +607,17 @@ test_bt_machine_bind_parameter_control (BT_TEST_ARGS)
   g_object_unref (control);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_unbind_parameter_control (BT_TEST_ARGS)
+START_TEST (test_bt_machine_unbind_parameter_control)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+  BtMachineConstructorParams cparams;
+  cparams.id = "id";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   GstObject *element =
       (GstObject *) check_gobject_get_object_property (machine, "machine");
@@ -541,13 +639,17 @@ test_bt_machine_unbind_parameter_control (BT_TEST_ARGS)
   g_object_unref (control);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_unbind_parameter_controls (BT_TEST_ARGS)
+START_TEST (test_bt_machine_unbind_parameter_controls)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+  BtMachineConstructorParams cparams;
+  cparams.id = "id";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   GstObject *element =
       (GstObject *) check_gobject_get_object_property (machine, "machine");
@@ -569,6 +671,7 @@ test_bt_machine_unbind_parameter_controls (BT_TEST_ARGS)
   g_object_unref (control);
   BT_TEST_END;
 }
+END_TEST
 
 
 TCase *

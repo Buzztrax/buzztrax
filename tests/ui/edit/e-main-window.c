@@ -95,8 +95,7 @@ leave_dialog (gpointer user_data)
 }
 
 // test message dialog
-static void
-test_bt_main_window_message (BT_TEST_ARGS)
+START_TEST (test_bt_main_window_message)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -107,15 +106,15 @@ test_bt_main_window_message (BT_TEST_ARGS)
   bt_dialog_message (main_window, "title", "headline", "message");
 
   GST_INFO ("-- assert --");
-  fail_unless (dialog_data.dialog != NULL, NULL);
+  ck_assert (dialog_data.dialog != NULL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 // test question dialog
-static void
-test_bt_main_window_question (BT_TEST_ARGS)
+START_TEST (test_bt_main_window_question)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -127,16 +126,16 @@ test_bt_main_window_question (BT_TEST_ARGS)
       bt_dialog_question (main_window, "title", "headline", "message");
 
   GST_INFO ("-- assert --");
-  fail_unless (res == TRUE, NULL);
-  fail_unless (dialog_data.dialog != NULL, NULL);
+  ck_assert (res == TRUE);
+  ck_assert (dialog_data.dialog != NULL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 // test open a song, but cancel
-static void
-test_bt_main_window_open_song (BT_TEST_ARGS)
+START_TEST (test_bt_main_window_open_song)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -147,15 +146,15 @@ test_bt_main_window_open_song (BT_TEST_ARGS)
   bt_main_window_open_song (main_window);
 
   GST_INFO ("-- assert --");
-  fail_unless (dialog_data.dialog != NULL, NULL);
+  ck_assert (dialog_data.dialog != NULL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 // test open a song, but cancel
-static void
-test_bt_main_window_save_song_as (BT_TEST_ARGS)
+START_TEST (test_bt_main_window_save_song_as)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -167,14 +166,14 @@ test_bt_main_window_save_song_as (BT_TEST_ARGS)
   bt_main_window_save_song_as (main_window);
 
   GST_INFO ("-- assert --");
-  fail_unless (dialog_data.dialog != NULL, NULL);
+  ck_assert (dialog_data.dialog != NULL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_main_window_check_unsaved (BT_TEST_ARGS)
+START_TEST (test_bt_main_window_check_unsaved)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -185,15 +184,15 @@ test_bt_main_window_check_unsaved (BT_TEST_ARGS)
   gboolean res = bt_main_window_check_unsaved_song (main_window, "X", "X");
 
   GST_INFO ("-- assert --");
-  fail_unless (res == TRUE, NULL);
+  ck_assert (res == TRUE);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 // ensure window title is correct without a song title explicitly set
-static void
-test_bt_main_window_song_title_untitled (BT_TEST_ARGS)
+START_TEST (test_bt_main_window_song_title_untitled)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -216,10 +215,10 @@ test_bt_main_window_song_title_untitled (BT_TEST_ARGS)
   
   BT_TEST_END;
 }
+END_TEST
 
 // ensure window title is correct with a song title explicitly set
-static void
-test_bt_main_window_song_title_titled (BT_TEST_ARGS)
+START_TEST (test_bt_main_window_song_title_titled)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -250,10 +249,10 @@ test_bt_main_window_song_title_titled (BT_TEST_ARGS)
   
   BT_TEST_END;
 }
+END_TEST
 
 // ensure that the filename chosen for an untitled song is correct
-static void
-test_bt_main_window_song_title_save (BT_TEST_ARGS)
+START_TEST (test_bt_main_window_song_title_save)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -276,6 +275,7 @@ test_bt_main_window_song_title_save (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_main_window_example_case (void)

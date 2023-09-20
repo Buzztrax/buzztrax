@@ -57,8 +57,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_wave_default_levels (BT_TEST_ARGS)
+START_TEST (test_bt_wave_default_levels)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -69,13 +68,14 @@ test_bt_wave_default_levels (BT_TEST_ARGS)
   GList *list = (GList *) check_gobject_get_ptr_property (wave, "wavelevels");
 
   GST_INFO ("-- assert --");
-  fail_unless (list != NULL, NULL);
+  ck_assert (list != NULL);
   ck_assert_int_eq (g_list_length (list), 1);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (wave);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_wave_example_case (void)

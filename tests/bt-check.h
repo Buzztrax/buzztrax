@@ -126,35 +126,14 @@ n##_suite (void) \
  */
 gboolean _bt_check_run_test_func (const gchar * func_name);
 
-#if CHECK_VERSION <= 903
 static inline void
-__bt_tcase_add_test (TCase * tc, TFun tf, const char * fname, int signal)
-{
-  if (_bt_check_run_test_func (fname)) {
-    _tcase_add_test (tc, tf, fname, signal);
-  }
-}
-#else
-#if CHECK_VERSION <= 906
-static inline void
-__bt_tcase_add_test (TCase * tc, TFun tf, const char * fname, int signal,
-    int start, int end)
-{
-  if (_bt_check_run_test_func (fname)) {
-    _tcase_add_test (tc, tf, fname, signal, start, end);
-  }
-}
-#else
-static inline void
-__bt_tcase_add_test (TCase * tc, TFun tf, const char * fname, int signal,
+__bt_tcase_add_test (TCase * tc, const TTest * ttest, int signal,
     int allowed_exit_value, int start, int end)
 {
-  if (_bt_check_run_test_func (fname)) {
-    _tcase_add_test (tc, tf, fname, signal, allowed_exit_value, start, end);
+  if (_bt_check_run_test_func (ttest->name)) {
+    _tcase_add_test (tc, ttest, signal, allowed_exit_value, start, end);
   }
 }
-#endif
-#endif
 
 #define _tcase_add_test __bt_tcase_add_test
 
@@ -171,7 +150,7 @@ void bt_check_init(void);
   GST_INFO("object <%s>:%p,ref_ct=%d",G_OBJECT_TYPE_NAME(__objref),__objref,__objrefct);\
   g_object_add_weak_pointer(__objref,&__objref);\
   g_object_unref(__objref);\
-  fail_unless(__objref == NULL, "%d ref(s) left",__objrefct-1);\
+  ck_assert_msg(__objref == NULL, "%d ref(s) left",__objrefct-1);\
 }
 
 #define ck_g_object_remaining_unref(obj, n) \
@@ -182,7 +161,7 @@ void bt_check_init(void);
   GST_INFO("object <%s>:%p,ref_ct=%d",G_OBJECT_TYPE_NAME(__objref),__objref,__objrefct);\
   g_object_add_weak_pointer(__objref,&__objref);\
   g_object_unref(__objref);\
-  fail_if(__objref == NULL, "was last unref, %d remaining refs expectd", n); \
+  ck_assert_msg(__objref != NULL, "was last unref, %d remaining refs expectd", n); \
   g_object_remove_weak_pointer(__objref,&__objref);\
   ck_assert_int_eq(G_OBJECT(__objref)->ref_count, n);\
 }
@@ -204,7 +183,7 @@ void bt_check_init(void);
   GST_INFO_OBJECT(__objref, "object <%s>:%p,ref_ct=%d",G_OBJECT_TYPE_NAME(__objref),__objref,__objrefct);\
   g_object_add_weak_pointer(__objref,&__objref);\
   gst_object_unref(__objref);\
-  fail_unless(__objref == NULL, "%d ref(s) left",__objrefct-1);\
+  ck_assert_msg(__objref == NULL, "%d ref(s) left",__objrefct-1);\
 }
 
 #define ck_gst_object_remaining_unref(obj, n) \
@@ -215,7 +194,7 @@ void bt_check_init(void);
   GST_INFO_OBJECT(__objref, "object <%s>:%p,ref_ct=%d",G_OBJECT_TYPE_NAME(__objref),__objref,__objrefct);\
   g_object_add_weak_pointer(__objref,&__objref);\
   gst_object_unref(__objref);\
-  fail_if(__objref == NULL, "was last unref, %d remaining refs expectd", n); \
+  ck_assert_msg(__objref != NULL, "was last unref, %d remaining refs expectd", n); \
   g_object_remove_weak_pointer(__objref,&__objref);\
   ck_assert_int_eq(G_OBJECT(__objref)->ref_count, n);\
 }
@@ -237,7 +216,7 @@ gboolean check_has_error_trapped(void);
 gboolean _check_log_contains(gchar *text);
 
 #define check_log_contains(text, msg) \
-  fail_unless (_check_log_contains(text), msg)
+  ck_assert_msg (_check_log_contains(text), msg)
 
 void setup_log_base(gint argc, gchar **argv);
 void setup_log_case(const gchar * file_name);
@@ -269,17 +248,17 @@ GObject *check_gobject_get_object_property(gpointer obj, const gchar *prop);
 gchar *check_gobject_get_str_property(gpointer obj, const gchar *prop);
 gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);
 
-/* comparsion macros with improved output compared to fail_unless(). */
+/* comparsion macros with improved output compared to regular 'check.h' macros. */
 #define _ck_assert_gboolean(O, X, C, Y) do { \
   gboolean __ck = check_gobject_get_boolean_property((O), (X)); \
-  fail_unless(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%ld, "#Y"==%ld", __ck, Y); \
+  ck_assert_msg(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%d, "#Y"==%d", __ck, Y); \
 } while (0)
 #define ck_assert_gobject_gboolean_eq(O, X, Y) _ck_assert_gboolean(O, X, ==, Y)
 #define ck_assert_gobject_gboolean_ne(O, X, Y) _ck_assert_gboolean(O, X, !=, Y)
 
 #define _ck_assert_guint(O, X, C, Y) do { \
   guint __ck = check_gobject_get_uint_property((O), (X)); \
-  fail_unless(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%u, "#Y"==%u", __ck, Y); \
+  ck_assert_msg(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%u, "#Y"==%u", __ck, Y); \
 } while (0)
 #define ck_assert_gobject_guint_eq(O, X, Y) _ck_assert_guint(O, X, ==, Y)
 #define ck_assert_gobject_guint_ne(O, X, Y) _ck_assert_guint(O, X, !=, Y)
@@ -290,7 +269,7 @@ gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);
 
 #define _ck_assert_glong(O, X, C, Y) do { \
   glong __ck = check_gobject_get_long_property((O), (X)); \
-  fail_unless(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%ld, "#Y"==%ld", __ck, Y); \
+  ck_assert_msg(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%ld, "#Y"==%ld", __ck, Y); \
 } while (0)
 #define ck_assert_gobject_glong_eq(O, X, Y) _ck_assert_glong(O, X, ==, Y)
 #define ck_assert_gobject_glong_ne(O, X, Y) _ck_assert_glong(O, X, !=, Y)
@@ -301,7 +280,7 @@ gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);
 
 #define _ck_assert_gulong(O, X, C, Y) do { \
   gulong __ck = check_gobject_get_ulong_property((O), (X)); \
-  fail_unless(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%lu, "#Y"==%lu", __ck, Y); \
+  ck_assert_msg(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%lu, "#Y"==%lu", __ck, Y); \
 } while (0)
 #define ck_assert_gobject_gulong_eq(O, X, Y) _ck_assert_gulong(O, X, ==, Y)
 #define ck_assert_gobject_gulong_ne(O, X, Y) _ck_assert_gulong(O, X, !=, Y)
@@ -312,7 +291,7 @@ gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);
 
 #define _ck_assert_genum(O, X, C, Y) do { \
   gulong __ck = check_gobject_get_int_property((O), (X)); \
-  fail_unless(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%lu, "#Y"==%lu", __ck, Y); \
+  ck_assert_msg(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%lu, "#Y"==%lu", __ck, Y); \
 } while (0)
 #define ck_assert_gobject_genum_eq(O, X, Y) _ck_assert_genum(O, X, ==, Y)
 #define ck_assert_gobject_genum_ne(O, X, Y) _ck_assert_genum(O, X, !=, Y)
@@ -320,7 +299,7 @@ gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);
 
 #define _ck_assert_gobject(O, X, C, Y) do { \
   GObject *__ck = check_gobject_get_object_property ((O), (X)); \
-  fail_unless(__ck C (GObject *)(Y), "Assertion '"#X#C#Y"' failed: "#X"==%p, "#Y"==%p", __ck, Y); \
+  ck_assert_msg(__ck C (GObject *)(Y), "Assertion '"#X#C#Y"' failed: "#X"==%p, "#Y"==%p", __ck, Y); \
   if(__ck) g_object_unref(__ck); \
 } while(0)
 #define ck_assert_gobject_object_eq(O, X, Y) _ck_assert_gobject(O, X, ==, Y)
@@ -328,19 +307,19 @@ gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);
 
 #define _ck_assert_str_and_free(F, X, C, Y) do { \
   gchar *__ck = (X); \
-  fail_unless(F(__ck, (Y)), "Assertion '"#X#C#Y"' failed: "#X"==\"%s\", "#Y"==\"%s\"", __ck, Y); \
+  ck_assert_msg(F(__ck, (Y)), "Assertion '"#X#C#Y"' failed: "#X"==\"%s\", "#Y"==\"%s\"", __ck, Y); \
   g_free(__ck); \
 } while(0)
 #define ck_assert_str_eq_and_free(X, Y) _ck_assert_str_and_free(!g_strcmp0, X, ==, Y)
 #define ck_assert_str_ne_and_free(X, Y) _ck_assert_str_and_free(g_strcmp0, X, !=, Y)
 
-#define ck_assert_gobject_str_eq(O, X, Y) _ck_assert_str_and_free(!g_strcmp0, check_gobject_get_str_property((O), (X)), ==, Y)
-#define ck_assert_gobject_str_ne(O, X, Y) _ck_assert_str_and_free(g_strcmp0, check_gobject_get_str_property((O), (X)), !=, Y)
+#define ck_assert_gobject_str_eq(O, X, Y) _ck_assert_str_and_free(!g_strcmp0, check_gobject_get_str_property((O), (X)), ==, (gchar*)(Y))
+#define ck_assert_gobject_str_ne(O, X, Y) _ck_assert_str_and_free(g_strcmp0, check_gobject_get_str_property((O), (X)), !=, (gchar*)(Y))
 
 
 #define _ck_assert_gobject_and_unref(X, C, Y) do { \
   GObject *__ck = (GObject *)(X); \
-  fail_unless(__ck C (GObject *)(Y), "Assertion '"#X#C#Y"' failed: "#X"==%p, "#Y"==%p", __ck, Y); \
+  ck_assert_msg(__ck C (GObject *)(Y), "Assertion '"#X#C#Y"' failed: "#X"==%p, "#Y"==%p", __ck, Y); \
   if(__ck) g_object_unref(__ck); \
 } while(0)
 #define ck_assert_gobject_eq_and_unref(X, Y) _ck_assert_gobject_and_unref(X, ==, Y)
@@ -376,12 +355,6 @@ gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);
 #define ck_assert_int64_le(X, Y) _ck_assert_int64(X, <=, Y)
 
 #define _ck_assert_float(X, O, Y) ck_assert_msg((X) O (Y), "Assertion '"#X#O#Y"' failed: "#X"==%f, "#Y"==%f", X, Y)
-#define ck_assert_float_eq(X, Y) _ck_assert_float(X, ==, Y)
-#define ck_assert_float_ne(X, Y) _ck_assert_float(X, !=, Y)
-#define ck_assert_float_gt(X, Y) _ck_assert_float(X, >, Y)
-#define ck_assert_float_lt(X, Y) _ck_assert_float(X, <, Y)
-#define ck_assert_float_ge(X, Y) _ck_assert_float(X, >=, Y)
-#define ck_assert_float_le(X, Y) _ck_assert_float(X, <=, Y)
 
 // plotting helper
 

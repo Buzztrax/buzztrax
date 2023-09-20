@@ -38,8 +38,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_create_obj (BT_TEST_ARGS)
+START_TEST (test_create_obj)
 {
   BT_TEST_START;
   GstBtOscSynth *osc;
@@ -49,17 +48,17 @@ test_create_obj (BT_TEST_ARGS)
   osc = gstbt_osc_synth_new ();
 
   GST_INFO ("-- assert --");
-  fail_unless (osc != NULL, NULL);
-  fail_unless (G_OBJECT (osc)->ref_count == 1, NULL);
+  ck_assert (osc != NULL);
+  ck_assert (G_OBJECT (osc)->ref_count == 1);
 
   GST_INFO ("-- cleanup --");
   ck_gst_object_final_unref (osc);
   BT_TEST_END;
 }
+END_TEST
 
 // cp /tmp/lt-bt_gst_osc-synth_*.svg docs/reference/bt-gst/images/
-static void
-test_waves_not_silent (BT_TEST_ARGS)
+START_TEST (test_waves_not_silent)
 {
   BT_TEST_START;
   GstBtOscSynth *osc;
@@ -87,13 +86,14 @@ test_waves_not_silent (BT_TEST_ARGS)
       if (data[j] != 0)
         break;
     }
-    fail_if (j == WAVE_SIZE, "in %s all samples are 0", enum_value->value_name);
+    ck_assert_msg (j != WAVE_SIZE, "in %s all samples are 0", enum_value->value_name);
   }
 
   GST_INFO ("-- cleanup --");
   ck_gst_object_final_unref (osc);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 gst_buzztrax_osc_synth_example_case (void)

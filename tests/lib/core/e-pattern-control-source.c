@@ -42,7 +42,11 @@ test_setup (void)
   song = bt_song_new (app);
   bt_child_proxy_get ((gpointer) song, "sequence", &sequence, "song-info",
       &song_info, "song-info::tick-duration", &tick_time, NULL);
-  machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
+  machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   element = GST_OBJECT (check_gobject_get_object_property (machine, "machine"));
   pg = bt_machine_get_global_param_group (machine);
@@ -65,8 +69,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_pattern_control_source_new (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_control_source_new)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -84,9 +87,9 @@ test_bt_pattern_control_source_new (BT_TEST_ARGS)
   gst_object_unref (pcs);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_pattern_control_source_normal_default_for_empty_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_control_source_normal_default_for_empty_pattern)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -108,9 +111,9 @@ test_bt_pattern_control_source_normal_default_for_empty_pattern (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_pattern_control_source_normal_default_for_cmd_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_control_source_normal_default_for_cmd_pattern)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -133,9 +136,9 @@ test_bt_pattern_control_source_normal_default_for_cmd_pattern (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_pattern_control_source_trigger_default_for_empty_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_control_source_trigger_default_for_empty_pattern)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -154,9 +157,9 @@ test_bt_pattern_control_source_trigger_default_for_empty_pattern (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_pattern_control_source_override_default_from_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_control_source_override_default_from_pattern)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -180,9 +183,9 @@ test_bt_pattern_control_source_override_default_from_pattern (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_pattern_control_source_restore_default_on_pattern_cleared (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_control_source_restore_default_on_pattern_cleared)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -207,9 +210,9 @@ test_bt_pattern_control_source_restore_default_on_pattern_cleared (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_pattern_control_source_change_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_control_source_change_pattern)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -229,9 +232,9 @@ test_bt_pattern_control_source_change_pattern (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_pattern_control_source_hold_normal (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_control_source_hold_normal)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -253,9 +256,9 @@ test_bt_pattern_control_source_hold_normal (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_pattern_control_source_release_trigger (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_control_source_release_trigger)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -277,9 +280,9 @@ test_bt_pattern_control_source_release_trigger (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_pattern_control_source_combine_pattern_shadows (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_control_source_combine_pattern_shadows)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -305,9 +308,9 @@ test_bt_pattern_control_source_combine_pattern_shadows (BT_TEST_ARGS)
   g_object_unref (pattern2);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_pattern_control_source_combine_pattern_unshadows (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_control_source_combine_pattern_unshadows)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -336,9 +339,9 @@ test_bt_pattern_control_source_combine_pattern_unshadows (BT_TEST_ARGS)
   g_object_unref (pattern2);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_pattern_control_source_combine_value_unshadows (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_control_source_combine_value_unshadows)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -367,9 +370,9 @@ test_bt_pattern_control_source_combine_value_unshadows (BT_TEST_ARGS)
   g_object_unref (pattern2);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_pattern_control_source_combine_two_tracks (BT_TEST_ARGS)
+START_TEST (test_bt_pattern_control_source_combine_two_tracks)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -395,6 +398,7 @@ test_bt_pattern_control_source_combine_two_tracks (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_pattern_control_source_example_case (void)

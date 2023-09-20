@@ -52,79 +52,90 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_setup_properties (BT_TEST_ARGS)
+START_TEST (test_bt_setup_properties)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   GObject *setup = check_gobject_get_object_property (song, "setup");
 
   /* act & assert */
-  fail_unless (check_gobject_properties (setup), NULL);
+  ck_assert (check_gobject_properties (setup));
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 /* create a new setup with NULL for song object */
-static void
-test_bt_setup_new_null_song (BT_TEST_ARGS)
+START_TEST (test_bt_setup_new_null_song)
 {
   BT_TEST_START;
   GST_INFO ("-- act --");
   BtSetup *setup = bt_setup_new (NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (setup != NULL, NULL);
+  ck_assert (setup != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /* add the same machine twice to the setup */
-static void
-test_bt_setup_add_machine_twice (BT_TEST_ARGS)
+START_TEST (test_bt_setup_add_machine_twice)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
 
   /* act & assert */
-  fail_if (bt_setup_add_machine (setup, machine), NULL);
+  ck_assert (!bt_setup_add_machine (setup, machine));
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /* add the same wire twice */
-static void
-test_bt_setup_add_wire_twice (BT_TEST_ARGS)
+START_TEST (test_bt_setup_add_wire_twice)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
-  BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "gen",
+  
+  BtMachineConstructorParams cparams;
+  cparams.id = "gen";
+  cparams.song = song;
+  
+  BtMachine *source = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
+
+  cparams.id = "sink";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   BtWire *wire = bt_wire_new (song, source, sink, NULL);
 
   /* act & assert */
-  fail_if (bt_setup_add_wire (setup, wire), NULL);
+  ck_assert (!bt_setup_add_wire (setup, wire));
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /* call bt_setup_add_machine with NULL object for self */
-static void
-test_bt_setup_obj4 (BT_TEST_ARGS)
+START_TEST (test_bt_setup_obj4)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -134,15 +145,15 @@ test_bt_setup_obj4 (BT_TEST_ARGS)
   bt_setup_add_machine (NULL, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 /* call bt_setup_add_machine with NULL object for machine */
-static void
-test_bt_setup_obj5 (BT_TEST_ARGS)
+START_TEST (test_bt_setup_obj5)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -154,16 +165,16 @@ test_bt_setup_obj5 (BT_TEST_ARGS)
   bt_setup_add_machine (setup, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /* call bt_setup_add_wire with NULL object for self */
-static void
-test_bt_setup_obj6 (BT_TEST_ARGS)
+START_TEST (test_bt_setup_obj6)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -173,15 +184,15 @@ test_bt_setup_obj6 (BT_TEST_ARGS)
   bt_setup_add_wire (NULL, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 /* call bt_setup_add_wire with NULL object for wire */
-static void
-test_bt_setup_obj7 (BT_TEST_ARGS)
+START_TEST (test_bt_setup_obj7)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -193,16 +204,16 @@ test_bt_setup_obj7 (BT_TEST_ARGS)
   bt_setup_add_wire (setup, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /* call bt_setup_get_machine_by_id with NULL object for self */
-static void
-test_bt_setup_obj8 (BT_TEST_ARGS)
+START_TEST (test_bt_setup_obj8)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -212,15 +223,15 @@ test_bt_setup_obj8 (BT_TEST_ARGS)
   bt_setup_get_machine_by_id (NULL, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 /* call bt_setup_get_machine_by_id with NULL object for id */
-static void
-test_bt_setup_obj9 (BT_TEST_ARGS)
+START_TEST (test_bt_setup_obj9)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -232,18 +243,18 @@ test_bt_setup_obj9 (BT_TEST_ARGS)
   bt_setup_get_machine_by_id (setup, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /*
 * call bt_setup_get_wire_by_src_machine with NULL for setup parameter
 */
-static void
-test_bt_setup_get_wire_by_src_machine1 (BT_TEST_ARGS)
+START_TEST (test_bt_setup_get_wire_by_src_machine1)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -254,15 +265,15 @@ test_bt_setup_get_wire_by_src_machine1 (BT_TEST_ARGS)
   bt_setup_get_wire_by_src_machine (NULL, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 /* call bt_setup_get_wire_by_src_machine with NULL for machine parameter */
-static void
-test_bt_setup_get_wire_by_src_machine2 (BT_TEST_ARGS)
+START_TEST (test_bt_setup_get_wire_by_src_machine2)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -275,23 +286,27 @@ test_bt_setup_get_wire_by_src_machine2 (BT_TEST_ARGS)
   bt_setup_get_wire_by_src_machine (setup, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /* get wires by source machine with NULL for setup */
-static void
-test_bt_setup_get_wires_by_src_machine1 (BT_TEST_ARGS)
+START_TEST (test_bt_setup_get_wires_by_src_machine1)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "src";
+  
   BtSourceMachine *src_machine =
-      bt_source_machine_new (song, "src", "buzztrax-test-mono-source", 0L,
+      bt_source_machine_new (&cparams, "buzztrax-test-mono-source", 0L,
       NULL);
   check_init_error_trapp ("bt_setup_get_wires_by_src_machine",
       "BT_IS_SETUP (self)");
@@ -300,16 +315,16 @@ test_bt_setup_get_wires_by_src_machine1 (BT_TEST_ARGS)
   bt_setup_get_wires_by_src_machine (NULL, BT_MACHINE (src_machine));
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /* get wires by source machine with NULL for machine */
-static void
-test_bt_setup_get_wires_by_src_machine2 (BT_TEST_ARGS)
+START_TEST (test_bt_setup_get_wires_by_src_machine2)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -320,36 +335,41 @@ test_bt_setup_get_wires_by_src_machine2 (BT_TEST_ARGS)
 
   GST_INFO ("-- act --");
   bt_setup_get_wires_by_src_machine (setup, NULL);
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /* get wires by source machine with a not added machine */
-static void
-test_bt_setup_get_wires_by_src_machine3 (BT_TEST_ARGS)
+START_TEST (test_bt_setup_get_wires_by_src_machine3)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "src",
-          "buzztrax-test-mono-source", 0L, NULL));
-  bt_setup_remove_machine (setup, machine);
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "src";
+  
+  BtSourceMachine *machine =
+      bt_source_machine_new (&cparams, "buzztrax-test-mono-source", 0L,
+      NULL);
+  bt_setup_remove_machine (setup, BT_MACHINE (machine));
 
   /* act & assert */
-  fail_if (bt_setup_get_wires_by_src_machine (setup, machine), NULL);
+  ck_assert (!bt_setup_get_wires_by_src_machine (setup, BT_MACHINE (machine)));
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /* call bt_setup_get_wire_by_dst_machine with NULL for setup parameter */
-static void
-test_bt_setup_get_wire_by_dst_machine1 (BT_TEST_ARGS)
+START_TEST (test_bt_setup_get_wire_by_dst_machine1)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -362,16 +382,16 @@ test_bt_setup_get_wire_by_dst_machine1 (BT_TEST_ARGS)
   bt_setup_get_wire_by_dst_machine (NULL, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /* call bt_setup_get_wire_by_dst_machine with NULL for machine parameter */
-static void
-test_bt_setup_get_wire_by_dst_machine2 (BT_TEST_ARGS)
+START_TEST (test_bt_setup_get_wire_by_dst_machine2)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -384,22 +404,27 @@ test_bt_setup_get_wire_by_dst_machine2 (BT_TEST_ARGS)
   bt_setup_get_wire_by_dst_machine (setup, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /* get wires by destination machine with NULL for setup */
-static void
-test_bt_setup_get_wires_by_dst_machine1 (BT_TEST_ARGS)
+START_TEST (test_bt_setup_get_wires_by_dst_machine1)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
-  BtMachine *machine = BT_MACHINE (bt_sink_machine_new (song, "dst", NULL));
+  
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "dst";
+  
+  BtMachine *machine = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   check_init_error_trapp ("bt_setup_get_wires_by_dst_machine",
       "BT_IS_SETUP (self)");
 
@@ -407,16 +432,16 @@ test_bt_setup_get_wires_by_dst_machine1 (BT_TEST_ARGS)
   bt_setup_get_wires_by_dst_machine (NULL, machine);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /* get wires by sink machine with NULL for machine */
-static void
-test_bt_setup_get_wires_by_dst_machine2 (BT_TEST_ARGS)
+START_TEST (test_bt_setup_get_wires_by_dst_machine2)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -429,35 +454,40 @@ test_bt_setup_get_wires_by_dst_machine2 (BT_TEST_ARGS)
   bt_setup_get_wires_by_dst_machine (setup, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /* get wires by sink machine with a not added machine */
-static void
-test_bt_setup_get_wires_by_dst_machine3 (BT_TEST_ARGS)
+START_TEST (test_bt_setup_get_wires_by_dst_machine3)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
-  BtMachine *machine = BT_MACHINE (bt_sink_machine_new (song, "dst", NULL));
+  
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "dst";
+  
+  BtMachine *machine = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   bt_setup_remove_machine (setup, machine);
 
   /* act & assert */
-  fail_if (bt_setup_get_wires_by_dst_machine (setup, machine), NULL);
+  ck_assert (!bt_setup_get_wires_by_dst_machine (setup, machine));
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /* remove a machine from setup with NULL pointer for setup */
-static void
-test_bt_setup_remove_machine_null_setup (BT_TEST_ARGS)
+START_TEST (test_bt_setup_remove_machine_null_setup)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -467,15 +497,15 @@ test_bt_setup_remove_machine_null_setup (BT_TEST_ARGS)
   bt_setup_remove_machine (NULL, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 /* remove a wire from setup with NULL pointer for setup */
-static void
-test_bt_setup_remove_wire_null_setup (BT_TEST_ARGS)
+START_TEST (test_bt_setup_remove_wire_null_setup)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -485,15 +515,15 @@ test_bt_setup_remove_wire_null_setup (BT_TEST_ARGS)
   bt_setup_remove_wire (NULL, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 /* remove a machine from setup with NULL pointer for machine */
-static void
-test_bt_setup_remove_null_machine (BT_TEST_ARGS)
+START_TEST (test_bt_setup_remove_null_machine)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -505,16 +535,16 @@ test_bt_setup_remove_null_machine (BT_TEST_ARGS)
   bt_setup_remove_machine (setup, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /* remove a wire from setup with NULL pointer for wire */
-static void
-test_bt_setup_remove_null_wire (BT_TEST_ARGS)
+START_TEST (test_bt_setup_remove_null_wire)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -526,22 +556,25 @@ test_bt_setup_remove_null_wire (BT_TEST_ARGS)
   bt_setup_remove_wire (setup, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /* remove a machine from setup with a machine witch is never added */
-static void
-test_bt_setup_remove_machine_twice (BT_TEST_ARGS)
+START_TEST (test_bt_setup_remove_machine_twice)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
-  BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "src",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "src";
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   gst_object_ref (gen);
   bt_setup_remove_machine (setup, gen);
@@ -551,25 +584,32 @@ test_bt_setup_remove_machine_twice (BT_TEST_ARGS)
   bt_setup_remove_machine (setup, gen);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   gst_object_unref (gen);
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 /* remove a wire from setup with a wire which is not added */
-static void
-test_bt_setup_remove_wire_twice (BT_TEST_ARGS)
+START_TEST (test_bt_setup_remove_wire_twice)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
-  BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "src",
+  
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "src";
+  
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "dst", NULL));
+
+  cparams.id = "dst";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   BtWire *wire = bt_wire_new (song, gen, sink, NULL);
   gst_object_ref (wire);
   bt_setup_remove_wire (setup, wire);
@@ -579,26 +619,78 @@ test_bt_setup_remove_wire_twice (BT_TEST_ARGS)
   bt_setup_remove_wire (setup, wire);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   gst_object_unref (wire);
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
-/* add wire(src,dst) and wire(dst,src) to setup. This should fail (cycle). */
-static void
-test_bt_setup_wire_cycle1 (BT_TEST_ARGS)
+/**
+ * Ensure that creating multiple machines with the same name results in the
+ * correct unique name pattern.
+ */
+START_TEST (test_bt_setup_unique_machine_id)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
+
+  GST_INFO ("-- act --");
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "src1";
+  
+  BtMachine *elem1 =
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0L, NULL));
+  
+  cparams.id = bt_setup_get_unique_machine_id (setup, "src1");
+  BtMachine *elem2 =
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0L, NULL));
+  g_free (cparams.id);
+  
+  cparams.id = bt_setup_get_unique_machine_id (setup, "src1");
+  BtMachine *elem3 =
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0L, NULL));
+  g_free (cparams.id);
+
+  GST_INFO ("-- assert --");
+  gchar* id = NULL;
+  
+  g_object_get (G_OBJECT (elem1), "id", &id, NULL);
+  ck_assert_str_eq_and_free (id, "src1");
+  
+  g_object_get (G_OBJECT (elem2), "id", &id, NULL);
+  ck_assert_str_eq_and_free (id, "src1 00");
+
+  g_object_get (G_OBJECT (elem3), "id", &id, NULL);
+  ck_assert_str_eq_and_free (id, "src1 01");
+  
+  GST_INFO ("-- cleanup --");
+  g_object_unref (setup);
+  BT_TEST_END;
+}
+END_TEST
+
+/* add wire(src,dst) and wire(dst,src) to setup. This should fail (cycle). */
+START_TEST (test_bt_setup_wire_cycle1)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtSetup *setup =
+      (BtSetup *) check_gobject_get_object_property (song, "setup");
+  
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "src";
+  
   BtMachine *src =
-      BT_MACHINE (bt_processor_machine_new (song, "src", "volume", 0L, NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0L, NULL));
   BtMachine *dst =
-      BT_MACHINE (bt_processor_machine_new (song, "src", "volume", 0L, NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0L, NULL));
   bt_wire_new (song, src, dst, NULL);
 
   GST_INFO ("-- act --");
@@ -606,29 +698,37 @@ test_bt_setup_wire_cycle1 (BT_TEST_ARGS)
   BtWire *wire2 = bt_wire_new (song, dst, src, &err);
 
   GST_INFO ("-- assert --");
-  fail_unless (wire2 != NULL, NULL);
-  fail_unless (err != NULL, NULL);
+  ck_assert (wire2 != NULL);
+  ck_assert (err != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 // test graph cycles
-static void
-test_bt_setup_wire_cycle2 (BT_TEST_ARGS)
+START_TEST (test_bt_setup_wire_cycle2)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
+  
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "src1";
+  
   BtMachine *elem1 =
-      BT_MACHINE (bt_processor_machine_new (song, "src1", "volume", 0L, NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0L, NULL));
+  cparams.id = "src2";
   BtMachine *elem2 =
-      BT_MACHINE (bt_processor_machine_new (song, "src2", "volume", 0L, NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0L, NULL));
+  cparams.id = "src3";
   BtMachine *elem3 =
-      BT_MACHINE (bt_processor_machine_new (song, "src3", "volume", 0L, NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
+      BT_MACHINE (bt_processor_machine_new (&cparams, "volume", 0L, NULL));
+  cparams.id = "sink";
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (&cparams, NULL));
   bt_wire_new (song, elem3, sink, NULL);
   bt_wire_new (song, elem1, elem2, NULL);
   bt_wire_new (song, elem2, elem3, NULL);
@@ -638,13 +738,14 @@ test_bt_setup_wire_cycle2 (BT_TEST_ARGS)
   BtWire *wire3 = bt_wire_new (song, elem3, elem1, &err);
 
   GST_INFO ("-- assert --");
-  fail_unless (wire3 != NULL, NULL);
-  fail_unless (err != NULL, NULL);
+  ck_assert (wire3 != NULL);
+  ck_assert (err != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_setup_test_case (void)
@@ -677,6 +778,7 @@ bt_setup_test_case (void)
   tcase_add_test (tc, test_bt_setup_remove_null_wire);
   tcase_add_test (tc, test_bt_setup_remove_machine_twice);
   tcase_add_test (tc, test_bt_setup_remove_wire_twice);
+  tcase_add_test (tc, test_bt_setup_unique_machine_id);
   tcase_add_test (tc, test_bt_setup_wire_cycle1);
   tcase_add_test (tc, test_bt_setup_wire_cycle2);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);

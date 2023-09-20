@@ -57,8 +57,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_object_list_model_create (BT_TEST_ARGS)
+START_TEST (test_bt_object_list_model_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -68,15 +67,15 @@ test_bt_object_list_model_create (BT_TEST_ARGS)
       "label");
 
   GST_INFO ("-- assert --");
-  fail_unless (model != NULL, NULL);
+  ck_assert (model != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (g_object_ref_sink (model));
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_object_list_model_add_entry (BT_TEST_ARGS)
+START_TEST (test_bt_object_list_model_add_entry)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -91,13 +90,14 @@ test_bt_object_list_model_add_entry (BT_TEST_ARGS)
   GtkWidget *l2 = (GtkWidget *) bt_object_list_model_get_object (model, &iter);
 
   GST_INFO ("-- assert --");
-  fail_unless (l1 == l2, NULL);
+  ck_assert (l1 == l2);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (l1);
   g_object_unref (g_object_ref_sink (model));
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_object_list_model_example_case (void)

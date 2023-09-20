@@ -53,46 +53,54 @@ case_teardown (void)
 //-- tests
 
 /* create a machine with not exising plugin name */
-static void
-test_bt_processor_machine_wrong_name (BT_TEST_ARGS)
+START_TEST (test_bt_processor_machine_wrong_name)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
 
   GST_INFO ("-- act --");
   GError *err = NULL;
+  BtMachineConstructorParams cparams;
+  cparams.id = "id";
+  cparams.song = song;
+  
   BtProcessorMachine *machine =
-      bt_processor_machine_new (song, "id", "nonsense", 1, &err);
+      bt_processor_machine_new (&cparams, "nonsense", 1, &err);
 
   GST_INFO ("-- assert --");
-  fail_unless (machine != NULL, NULL);
-  fail_unless (err != NULL, NULL);
+  ck_assert (machine != NULL);
+  ck_assert (err != NULL);
 
   GST_INFO ("-- cleanup --");
   g_error_free (err);
   BT_TEST_END;
 }
+END_TEST
 
 /* create a machine which is a sink machine and not a processor machine */
-static void
-test_bt_processor_machine_wrong_type (BT_TEST_ARGS)
+START_TEST (test_bt_processor_machine_wrong_type)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
 
   /*act */
   GError *err = NULL;
-  BtProcessorMachine *machine =
-      bt_processor_machine_new (song, "id", "autoaudiosink", 1, &err);
+  BtMachineConstructorParams cparams;
+  cparams.id = "id";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
+      "autoaudiosink", 1, &err));
 
   GST_INFO ("-- assert --");
-  fail_unless (machine != NULL, NULL);
-  fail_unless (err != NULL, NULL);
+  ck_assert (machine != NULL);
+  ck_assert (err != NULL);
 
   GST_INFO ("-- cleanup --");
   g_error_free (err);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_processor_machine_test_case (void)

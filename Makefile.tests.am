@@ -402,8 +402,12 @@ test-clean-local:
 	fi;
 
 # make check           -- run all checks
-# make (test).check    -- run the given check once
-#	make (test).check BT_CHECKS="test5*" -- run the given testcase(s) only
+#
+# make (test).check    -- run the given check once (i.e. "make bt_core.check", "make bt_ic.check")
+# I.e. make bt_core.check
+#      make bt_ic.check
+#
+# make (test).check BT_CHECKS="test5*" -- run the given testcase(s) only
 %.check: %
 	@$(AM_TESTS_ENVIRONMENT)	\
 	./$*

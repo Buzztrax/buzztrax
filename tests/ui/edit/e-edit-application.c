@@ -66,8 +66,7 @@ case_teardown (void)
 //-- tests
 
 // create app and then unconditionally destroy window
-static void
-test_bt_edit_application_create (BT_TEST_ARGS)
+START_TEST (test_bt_edit_application_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -75,7 +74,7 @@ test_bt_edit_application_create (BT_TEST_ARGS)
   GST_INFO ("-- act --");
 
   GST_INFO ("-- assert --");
-  fail_unless (app != NULL, NULL);
+  ck_assert (app != NULL);
   check_make_widget_screenshot (GTK_WIDGET (main_window), NULL);
   {
     BtCheckWidgetScreenshotRegions regions[] = {
@@ -97,6 +96,7 @@ test_bt_edit_application_create (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 static gboolean
 finish_main_loops (gpointer user_data)
@@ -107,8 +107,7 @@ finish_main_loops (gpointer user_data)
 }
 
 // create app and then unconditionally destroy window
-static void
-test_bt_edit_application_run (BT_TEST_ARGS)
+START_TEST (test_bt_edit_application_run)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -127,10 +126,10 @@ test_bt_edit_application_run (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 // create a new song
-static void
-test_bt_edit_application_new_song (BT_TEST_ARGS)
+START_TEST (test_bt_edit_application_new_song)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -144,9 +143,9 @@ test_bt_edit_application_new_song (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_edit_application_new_song_is_saved (BT_TEST_ARGS)
+START_TEST (test_bt_edit_application_new_song_is_saved)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -161,10 +160,10 @@ test_bt_edit_application_new_song_is_saved (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 // load a song
-static void
-test_bt_edit_application_load_song (BT_TEST_ARGS)
+START_TEST (test_bt_edit_application_load_song)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -179,9 +178,9 @@ test_bt_edit_application_load_song (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_edit_application_load_song_is_saved (BT_TEST_ARGS)
+START_TEST (test_bt_edit_application_load_song_is_saved)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -196,10 +195,10 @@ test_bt_edit_application_load_song_is_saved (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 // load a song, free it, load another
-static void
-test_bt_edit_application_load_songs (BT_TEST_ARGS)
+START_TEST (test_bt_edit_application_load_songs)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -215,17 +214,17 @@ test_bt_edit_application_load_songs (BT_TEST_ARGS)
 
   GST_INFO ("-- assert --");
   g_object_get (app, "song", &song2, NULL);
-  fail_unless (song2 != NULL, NULL);
-  fail_unless (song2 != song1, NULL);
+  ck_assert (song2 != NULL);
+  ck_assert (song2 != song1);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (song2);
   BT_TEST_END;
 }
+END_TEST
 
 // load a song, free it, load again
-static void
-test_bt_edit_application_num_children (BT_TEST_ARGS)
+START_TEST (test_bt_edit_application_num_children)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -246,16 +245,16 @@ test_bt_edit_application_num_children (BT_TEST_ARGS)
   GST_INFO ("song.elements=%d", GST_BIN_NUMCHILDREN (bin));
 
   GST_INFO ("-- assert --");
-  fail_unless (num == GST_BIN_NUMCHILDREN (bin), NULL);
+  ck_assert (num == GST_BIN_NUMCHILDREN (bin));
 
   GST_INFO ("-- cleanup --");
   gst_object_unref (bin);
   BT_TEST_END;
 }
+END_TEST
 
 // load a song with a view disabled
-static void
-test_bt_edit_application_load_song_with_view_disabled (BT_TEST_ARGS)
+START_TEST (test_bt_edit_application_load_song_with_view_disabled)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -275,10 +274,10 @@ test_bt_edit_application_load_song_with_view_disabled (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 // load a song and play it
-static void
-test_bt_edit_application_load_and_play (BT_TEST_ARGS)
+START_TEST (test_bt_edit_application_load_and_play)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -292,7 +291,7 @@ test_bt_edit_application_load_and_play (BT_TEST_ARGS)
   gboolean playing = bt_song_play (song);
 
   GST_INFO ("-- assert --");
-  fail_unless (playing == TRUE, NULL);
+  ck_assert (playing == TRUE);
 
   GST_INFO ("-- cleanup --");
   flush_main_loop ();
@@ -300,10 +299,10 @@ test_bt_edit_application_load_and_play (BT_TEST_ARGS)
   g_object_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 // load a song, play it and load another song while the former is playing
-static void
-test_bt_edit_application_load_while_playing (BT_TEST_ARGS)
+START_TEST (test_bt_edit_application_load_while_playing)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -325,6 +324,7 @@ test_bt_edit_application_load_while_playing (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_edit_application_example_case (void)

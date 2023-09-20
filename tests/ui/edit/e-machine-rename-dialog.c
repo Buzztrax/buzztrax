@@ -58,8 +58,7 @@ case_teardown (void)
 //-- tests
 
 // create app and then unconditionally destroy window
-static void
-test_bt_machine_rename_dialog_create (BT_TEST_ARGS)
+START_TEST (test_bt_machine_rename_dialog_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -70,15 +69,18 @@ test_bt_machine_rename_dialog_create (BT_TEST_ARGS)
   // create a new song
   bt_edit_application_new_song (app);
   g_object_get (app, "song", &song, NULL);
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "synth";
   machine =
-      BT_MACHINE (bt_source_machine_new (song, "synth",
+      BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
 
   GST_INFO ("-- act --");
   dialog = GTK_WIDGET (bt_machine_rename_dialog_new (machine));
 
   GST_INFO ("-- assert --");
-  fail_unless (dialog != NULL, NULL);
+  ck_assert (dialog != NULL);
   gtk_widget_show_all (dialog);
   check_make_widget_screenshot (GTK_WIDGET (dialog), NULL);
 
@@ -87,6 +89,7 @@ test_bt_machine_rename_dialog_create (BT_TEST_ARGS)
   g_object_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_machine_rename_dialog_example_case (void)

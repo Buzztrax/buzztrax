@@ -52,28 +52,27 @@ case_teardown (void)
 //-- tests
 
 // test if the normal init call works with commandline arguments (no args)
-static void
-test_btic_init_no_args (BT_TEST_ARGS)
+START_TEST (test_btic_init_no_args)
 {
   BT_TEST_START;
   GST_INFO ("-- act --");
   btic_init (&test_argc, &test_argvptr);
   BT_TEST_END;
 }
+END_TEST
 
 // test if the init call handles correct null pointers
-static void
-test_btic_init_nullptr_args (BT_TEST_ARGS)
+START_TEST (test_btic_init_nullptr_args)
 {
   BT_TEST_START;
   GST_INFO ("-- act --");
   btic_init (NULL, NULL);
   BT_TEST_END;
 }
+END_TEST
 
 // test if the normal init call works with commandline arguments
-static void
-test_btic_init_args (BT_TEST_ARGS)
+START_TEST (test_btic_init_args)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -86,10 +85,11 @@ test_btic_init_args (BT_TEST_ARGS)
 
   GST_INFO ("-- assert --");
   ck_assert_int_eq (test_argc, 1);
-  fail_unless (check_file_contains_str (stdout, NULL,
-          "libbuzztrax-ic-" BT_VERSION " from " PACKAGE_STRING), NULL);
+  ck_assert (check_file_contains_str (stdout, NULL,
+          "libbuzztrax-ic-" BT_VERSION " from " PACKAGE_STRING));
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_ic_example_case (void)

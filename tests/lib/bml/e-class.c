@@ -48,8 +48,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bmln_get_machine_info (BT_TEST_ARGS)
+START_TEST (test_bmln_get_machine_info)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -67,6 +66,7 @@ test_bmln_get_machine_info (BT_TEST_ARGS)
   bmln_close (bmh);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bml_class_example_case (void)

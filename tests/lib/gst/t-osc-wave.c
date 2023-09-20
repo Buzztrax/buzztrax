@@ -45,8 +45,7 @@ case_teardown (void)
 //-- tests
 
 // no wavetable set, no format negotiated
-static void
-test_osc_wave_create_disconncted (BT_TEST_ARGS)
+START_TEST (test_osc_wave_create_disconncted)
 {
   BT_TEST_START;
   GstBtOscWave *osc;
@@ -57,15 +56,15 @@ test_osc_wave_create_disconncted (BT_TEST_ARGS)
   GST_INFO ("-- act --");
 
   GST_INFO ("-- assert --");
-  fail_unless (osc->process == NULL, NULL);
+  ck_assert (osc->process == NULL);
 
   GST_INFO ("-- cleanup --");
   ck_gst_object_final_unref (osc);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_osc_wave_no_wave (BT_TEST_ARGS)
+START_TEST (test_osc_wave_no_wave)
 {
   BT_TEST_START;
   GstBtOscWave *osc;
@@ -78,12 +77,13 @@ test_osc_wave_no_wave (BT_TEST_ARGS)
   GST_INFO ("-- act --");
 
   GST_INFO ("-- assert --");
-  fail_unless (osc->process == NULL, NULL);
+  ck_assert (osc->process == NULL);
 
   GST_INFO ("-- cleanup --");
   ck_gst_object_final_unref (osc);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 gst_buzztrax_osc_wave_test_case (void)

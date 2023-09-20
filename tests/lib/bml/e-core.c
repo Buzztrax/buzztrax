@@ -46,19 +46,18 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bml_setup (BT_TEST_ARGS)
+START_TEST (test_bml_setup)
 {
   BT_TEST_START;
   GST_INFO ("-- act --");
   int res = bml_setup ();
   GST_INFO ("-- assert --");
-  fail_unless (res, NULL);
+  fail_unless (res);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bml_finalize (BT_TEST_ARGS)
+START_TEST (test_bml_finalize)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -67,9 +66,9 @@ test_bml_finalize (BT_TEST_ARGS)
   bml_finalize ();
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bmln_master_info (BT_TEST_ARGS)
+START_TEST (test_bmln_master_info)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -78,9 +77,9 @@ test_bmln_master_info (BT_TEST_ARGS)
   bmln_set_master_info (120, 4, 44100);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bmln_open (BT_TEST_ARGS)
+START_TEST (test_bmln_open)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -94,6 +93,7 @@ test_bmln_open (BT_TEST_ARGS)
   bmln_close (bmh);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bml_core_example_case (void)

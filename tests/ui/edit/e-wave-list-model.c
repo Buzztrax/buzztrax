@@ -57,8 +57,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_wave_list_model_create (BT_TEST_ARGS)
+START_TEST (test_bt_wave_list_model_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -73,7 +72,7 @@ test_bt_wave_list_model_create (BT_TEST_ARGS)
   BtWaveListModel *model = bt_wave_list_model_new (wavetable);
 
   GST_INFO ("-- assert --");
-  fail_unless (model != NULL, NULL);
+  ck_assert (model != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (model);
@@ -81,9 +80,9 @@ test_bt_wave_list_model_create (BT_TEST_ARGS)
   g_object_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_wave_list_model_get_null_wave (BT_TEST_ARGS)
+START_TEST (test_bt_wave_list_model_get_null_wave)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -101,7 +100,7 @@ test_bt_wave_list_model_get_null_wave (BT_TEST_ARGS)
   BtWave *wave = bt_wave_list_model_get_object (model, &iter);
 
   GST_INFO ("-- assert --");
-  fail_unless (wave == NULL, NULL);
+  ck_assert (wave == NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (model);
@@ -109,6 +108,7 @@ test_bt_wave_list_model_get_null_wave (BT_TEST_ARGS)
   g_object_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_wave_list_model_example_case (void)

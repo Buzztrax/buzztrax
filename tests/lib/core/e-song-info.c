@@ -52,8 +52,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_song_info_date_stamps (BT_TEST_ARGS)
+START_TEST (test_bt_song_info_date_stamps)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -72,10 +71,10 @@ test_bt_song_info_date_stamps (BT_TEST_ARGS)
   g_object_unref (song_info);
   BT_TEST_END;
 }
+END_TEST
 
 /* Test changing the tempo */
-static void
-test_bt_song_info_update_bpm (BT_TEST_ARGS)
+START_TEST (test_bt_song_info_update_bpm)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -96,9 +95,9 @@ test_bt_song_info_update_bpm (BT_TEST_ARGS)
   g_object_unref (song_info);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_info_update_tpb (BT_TEST_ARGS)
+START_TEST (test_bt_song_info_update_tpb)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -119,10 +118,10 @@ test_bt_song_info_update_tpb (BT_TEST_ARGS)
   g_object_unref (song_info);
   BT_TEST_END;
 }
+END_TEST
 
 
-static void
-test_bt_song_info_seconds_since_last_saved (BT_TEST_ARGS)
+START_TEST (test_bt_song_info_seconds_since_last_saved)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -141,9 +140,9 @@ test_bt_song_info_seconds_since_last_saved (BT_TEST_ARGS)
   g_object_unref (song_info);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_song_info_tick_to_time (BT_TEST_ARGS)
+START_TEST (test_bt_song_info_tick_to_time)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -161,6 +160,7 @@ test_bt_song_info_tick_to_time (BT_TEST_ARGS)
   g_object_unref (song_info);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_song_info_example_case (void)
@@ -176,3 +176,4 @@ bt_song_info_example_case (void)
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return tc;
 }
+

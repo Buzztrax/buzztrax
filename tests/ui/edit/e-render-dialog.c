@@ -57,8 +57,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_render_dialog_create (BT_TEST_ARGS)
+START_TEST (test_bt_render_dialog_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -70,7 +69,7 @@ test_bt_render_dialog_create (BT_TEST_ARGS)
   dialog = GTK_WIDGET (bt_render_dialog_new ());
 
   GST_INFO ("-- assert --");
-  fail_unless (dialog != NULL, NULL);
+  ck_assert (dialog != NULL);
   gtk_widget_show_all (dialog);
   check_make_widget_screenshot (GTK_WIDGET (dialog), NULL);
 
@@ -78,6 +77,7 @@ test_bt_render_dialog_create (BT_TEST_ARGS)
   gtk_widget_destroy (dialog);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_render_dialog_example_case (void)

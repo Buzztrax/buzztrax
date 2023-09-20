@@ -70,8 +70,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_machine_canvas_item_create (BT_TEST_ARGS)
+START_TEST (test_bt_machine_canvas_item_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -86,7 +85,7 @@ test_bt_machine_canvas_item_create (BT_TEST_ARGS)
       bt_machine_canvas_item_new (machines_page, machine, 100.0, 100.0, 1.0);
 
   GST_INFO ("-- assert --");
-  fail_unless (item != NULL, NULL);
+  ck_assert (item != NULL);
 
   GST_INFO ("-- cleanup --");
   flush_main_loop ();
@@ -94,9 +93,9 @@ test_bt_machine_canvas_item_create (BT_TEST_ARGS)
   g_object_unref (machines_page);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_canvas_item_show_analyzer (BT_TEST_ARGS)
+START_TEST (test_bt_machine_canvas_item_show_analyzer)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -115,7 +114,7 @@ test_bt_machine_canvas_item_show_analyzer (BT_TEST_ARGS)
 
   GST_INFO ("-- assert --");
   g_object_get (item, "analysis-dialog", &dialog, NULL);
-  fail_unless (dialog != NULL, NULL);
+  ck_assert (dialog != NULL);
 
   GST_INFO ("-- cleanup --");
   flush_main_loop ();
@@ -124,9 +123,9 @@ test_bt_machine_canvas_item_show_analyzer (BT_TEST_ARGS)
   g_object_unref (machines_page);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_canvas_item_show_preferences (BT_TEST_ARGS)
+START_TEST (test_bt_machine_canvas_item_show_preferences)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -144,7 +143,7 @@ test_bt_machine_canvas_item_show_preferences (BT_TEST_ARGS)
 
   GST_INFO ("-- assert --");
   g_object_get (item, "preferences-dialog", &dialog, NULL);
-  fail_unless (dialog != NULL, NULL);
+  ck_assert (dialog != NULL);
 
   GST_INFO ("-- cleanup --");
   flush_main_loop ();
@@ -153,9 +152,9 @@ test_bt_machine_canvas_item_show_preferences (BT_TEST_ARGS)
   g_object_unref (machines_page);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_machine_canvas_item_show_properties (BT_TEST_ARGS)
+START_TEST (test_bt_machine_canvas_item_show_properties)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -173,7 +172,7 @@ test_bt_machine_canvas_item_show_properties (BT_TEST_ARGS)
 
   GST_INFO ("-- assert --");
   g_object_get (item, "properties-dialog", &dialog, NULL);
-  fail_unless (dialog != NULL, NULL);
+  ck_assert (dialog != NULL);
 
   GST_INFO ("-- cleanup --");
   flush_main_loop ();
@@ -182,6 +181,7 @@ test_bt_machine_canvas_item_show_properties (BT_TEST_ARGS)
   g_object_unref (machines_page);
   BT_TEST_END;
 }
+END_TEST
 
 
 TCase *

@@ -45,8 +45,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_audio_session_singleton (BT_TEST_ARGS)
+START_TEST (test_bt_audio_session_singleton)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -56,16 +55,16 @@ test_bt_audio_session_singleton (BT_TEST_ARGS)
   BtAudioSession *session2 = bt_audio_session_new ();
 
   GST_INFO ("-- assert --");
-  fail_unless (session1 == session2, NULL);
+  ck_assert (session1 == session2);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (session2);
   ck_g_object_final_unref (session1);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_audio_session_no_session_element_for_fakesink (BT_TEST_ARGS)
+START_TEST (test_bt_audio_session_no_session_element_for_fakesink)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -75,12 +74,13 @@ test_bt_audio_session_no_session_element_for_fakesink (BT_TEST_ARGS)
   GstElement *e = bt_audio_session_get_sink_for ("fakesink", NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (e == NULL, NULL);
+  ck_assert (e == NULL);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (session);
   BT_TEST_END;
 }
+END_TEST
 
 
 TCase *

@@ -36,20 +36,19 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_translate_str_null (BT_TEST_ARGS)
+START_TEST (test_translate_str_null)
 {
   BT_TEST_START;
   GstBtToneConversion *n2f;
   gdouble frq;
 
   n2f = gstbt_tone_conversion_new (GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT);
-  fail_unless (n2f != NULL, NULL);
+  ck_assert (n2f != NULL);
   g_log_set_always_fatal (g_log_set_always_fatal (G_LOG_FATAL_MASK) &
       ~G_LOG_LEVEL_CRITICAL);
 
   frq = gstbt_tone_conversion_translate_from_string (n2f, NULL);
-  fail_unless (frq == 0.0, NULL);
+  ck_assert (frq == 0.0);
 
   g_log_set_always_fatal (g_log_set_always_fatal (G_LOG_FATAL_MASK) |
       G_LOG_LEVEL_CRITICAL);
@@ -57,27 +56,27 @@ test_translate_str_null (BT_TEST_ARGS)
   ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_translate_str_length (BT_TEST_ARGS)
+START_TEST (test_translate_str_length)
 {
   BT_TEST_START;
   GstBtToneConversion *n2f;
   gdouble frq;
 
   n2f = gstbt_tone_conversion_new (GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT);
-  fail_unless (n2f != NULL, NULL);
+  ck_assert (n2f != NULL);
   g_log_set_always_fatal (g_log_set_always_fatal (G_LOG_FATAL_MASK) &
       ~G_LOG_LEVEL_CRITICAL);
 
   frq = gstbt_tone_conversion_translate_from_string (n2f, "x");
-  fail_unless (frq == 0.0, NULL);
+  ck_assert (frq == 0.0);
 
   frq = gstbt_tone_conversion_translate_from_string (n2f, "x-");
-  fail_unless (frq == 0.0, NULL);
+  ck_assert (frq == 0.0);
 
   frq = gstbt_tone_conversion_translate_from_string (n2f, "x-000");
-  fail_unless (frq == 0.0, NULL);
+  ck_assert (frq == 0.0);
 
   g_log_set_always_fatal (g_log_set_always_fatal (G_LOG_FATAL_MASK) |
       G_LOG_LEVEL_CRITICAL);
@@ -85,21 +84,21 @@ test_translate_str_length (BT_TEST_ARGS)
   ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_translate_str_delim (BT_TEST_ARGS)
+START_TEST (test_translate_str_delim)
 {
   BT_TEST_START;
   GstBtToneConversion *n2f;
   gdouble frq;
 
   n2f = gstbt_tone_conversion_new (GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT);
-  fail_unless (n2f != NULL, NULL);
+  ck_assert (n2f != NULL);
   g_log_set_always_fatal (g_log_set_always_fatal (G_LOG_FATAL_MASK) &
       ~G_LOG_LEVEL_CRITICAL);
 
   frq = gstbt_tone_conversion_translate_from_string (n2f, "C+3");
-  fail_unless (frq == 0.0, NULL);
+  ck_assert (frq == 0.0);
 
   g_log_set_always_fatal (g_log_set_always_fatal (G_LOG_FATAL_MASK) |
       G_LOG_LEVEL_CRITICAL);
@@ -107,21 +106,21 @@ test_translate_str_delim (BT_TEST_ARGS)
   ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_translate_enum_range (BT_TEST_ARGS)
+START_TEST (test_translate_enum_range)
 {
   BT_TEST_START;
   GstBtToneConversion *n2f;
   gdouble frq;
 
   n2f = gstbt_tone_conversion_new (GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT);
-  fail_unless (n2f != NULL, NULL);
+  ck_assert (n2f != NULL);
   g_log_set_always_fatal (g_log_set_always_fatal (G_LOG_FATAL_MASK) &
       ~G_LOG_LEVEL_CRITICAL);
 
   frq = gstbt_tone_conversion_translate_from_number (n2f, 1 + (16 * 10));
-  fail_unless (frq == 0.0, NULL);
+  ck_assert (frq == 0.0);
 
   g_log_set_always_fatal (g_log_set_always_fatal (G_LOG_FATAL_MASK) |
       G_LOG_LEVEL_CRITICAL);
@@ -129,6 +128,7 @@ test_translate_enum_range (BT_TEST_ARGS)
   ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 gst_buzztrax_toneconversion_test_case (void)

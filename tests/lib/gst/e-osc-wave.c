@@ -70,8 +70,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_osc_wave_create_obj (BT_TEST_ARGS)
+START_TEST (test_osc_wave_create_obj)
 {
   BT_TEST_START;
   GstBtOscWave *osc;
@@ -81,16 +80,16 @@ test_osc_wave_create_obj (BT_TEST_ARGS)
   osc = gstbt_osc_wave_new ();
 
   GST_INFO ("-- assert --");
-  fail_unless (osc != NULL, NULL);
-  fail_unless (G_OBJECT (osc)->ref_count == 1, NULL);
+  ck_assert (osc != NULL);
+  ck_assert (G_OBJECT (osc)->ref_count == 1);
 
   GST_INFO ("-- cleanup --");
   ck_gst_object_final_unref (osc);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_osc_wave_is_configured (BT_TEST_ARGS)
+START_TEST (test_osc_wave_is_configured)
 {
   BT_TEST_START;
   GstBtOscWave *osc;
@@ -103,15 +102,15 @@ test_osc_wave_is_configured (BT_TEST_ARGS)
   g_object_set (osc, "wave-callbacks", wave_callbacks, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (osc->process != NULL, NULL);
+  ck_assert (osc->process != NULL);
 
   GST_INFO ("-- cleanup --");
   ck_gst_object_final_unref (osc);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_osc_wave_reconfigure (BT_TEST_ARGS)
+START_TEST (test_osc_wave_reconfigure)
 {
   BT_TEST_START;
   GstBtOscWave *osc;
@@ -127,15 +126,15 @@ test_osc_wave_reconfigure (BT_TEST_ARGS)
   g_object_set (osc, "wave-callbacks", stereo_wave_callbacks, NULL);
 
   GST_INFO ("-- assert --");
-  fail_if (osc->process == mono_process_fn, NULL);
+  ck_assert (osc->process != mono_process_fn);
 
   GST_INFO ("-- cleanup --");
   ck_gst_object_final_unref (osc);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_osc_wave_reconfigure_resets (BT_TEST_ARGS)
+START_TEST (test_osc_wave_reconfigure_resets)
 {
   BT_TEST_START;
   GstBtOscWave *osc;
@@ -150,15 +149,15 @@ test_osc_wave_reconfigure_resets (BT_TEST_ARGS)
   g_object_set (osc, "wave-callbacks", no_wave_callbacks, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (osc->process == NULL, NULL);
+  ck_assert (osc->process == NULL);
 
   GST_INFO ("-- cleanup --");
   ck_gst_object_final_unref (osc);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_osc_wave_create_mono (BT_TEST_ARGS)
+START_TEST (test_osc_wave_create_mono)
 {
   BT_TEST_START;
   GstBtOscWave *osc;
@@ -182,9 +181,9 @@ test_osc_wave_create_mono (BT_TEST_ARGS)
   ck_gst_object_final_unref (osc);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_osc_wave_create_stereo (BT_TEST_ARGS)
+START_TEST (test_osc_wave_create_stereo)
 {
   BT_TEST_START;
   GstBtOscWave *osc;
@@ -208,9 +207,9 @@ test_osc_wave_create_stereo (BT_TEST_ARGS)
   ck_gst_object_final_unref (osc);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_osc_wave_create_mono_beyond_size (BT_TEST_ARGS)
+START_TEST (test_osc_wave_create_mono_beyond_size)
 {
   BT_TEST_START;
   GstBtOscWave *osc;
@@ -233,9 +232,9 @@ test_osc_wave_create_mono_beyond_size (BT_TEST_ARGS)
   ck_gst_object_final_unref (osc);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_osc_wave_create_stereo_beyond_size (BT_TEST_ARGS)
+START_TEST (test_osc_wave_create_stereo_beyond_size)
 {
   BT_TEST_START;
   GstBtOscWave *osc;
@@ -258,6 +257,7 @@ test_osc_wave_create_stereo_beyond_size (BT_TEST_ARGS)
   ck_gst_object_final_unref (osc);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 gst_buzztrax_osc_wave_example_case (void)

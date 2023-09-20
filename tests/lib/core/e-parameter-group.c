@@ -56,8 +56,12 @@ case_teardown (void)
 BtParameterGroup *
 get_mono_parameter_group (void)
 {
+  BtMachineConstructorParams cparams;
+  cparams.id = "id";
+  cparams.song = song;
+  
   machine =
-      BT_MACHINE (bt_source_machine_new (song, "id",
+      BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0, NULL));
   return bt_machine_get_global_param_group (machine);
 }
@@ -65,8 +69,7 @@ get_mono_parameter_group (void)
 
 //-- tests
 
-static void
-test_bt_parameter_group_param (BT_TEST_ARGS)
+START_TEST (test_bt_parameter_group_param)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -78,29 +81,30 @@ test_bt_parameter_group_param (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_parameter_group_size (BT_TEST_ARGS)
+START_TEST (test_bt_parameter_group_size)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtParameterGroup *pg = get_mono_parameter_group ();
 
   /* act && assert */
-  ck_assert_gobject_glong_eq (pg, "num-params", 6);
+  ck_assert_gobject_glong_eq (pg, "num-params", 6L);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
 /* try describe on a machine that does not implement the interface */
-static void
-test_bt_parameter_group_describe (BT_TEST_ARGS)
+START_TEST (test_bt_parameter_group_describe)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtParameterGroup *pg = get_mono_parameter_group ();
-  GValue val = { 0, };
+  GValue val = { 0, }
+END_TEST;
   g_value_init (&val, G_TYPE_ULONG);
   g_value_set_ulong (&val, 1L);
 
@@ -108,15 +112,15 @@ test_bt_parameter_group_describe (BT_TEST_ARGS)
   gchar *str = bt_parameter_group_describe_param_value (pg, 0, &val);
 
   GST_INFO ("-- assert --");
-  fail_unless (str == NULL, NULL);
+  ck_assert (str == NULL);
 
   GST_INFO ("-- cleanup --");
   g_value_unset (&val);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_parameter_group_get_trigger_param (BT_TEST_ARGS)
+START_TEST (test_bt_parameter_group_get_trigger_param)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -131,9 +135,9 @@ test_bt_parameter_group_get_trigger_param (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_parameter_group_get_wave_param (BT_TEST_ARGS)
+START_TEST (test_bt_parameter_group_get_wave_param)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -148,16 +152,17 @@ test_bt_parameter_group_get_wave_param (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_parameter_group_set_value (BT_TEST_ARGS)
+START_TEST (test_bt_parameter_group_set_value)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtParameterGroup *pg = get_mono_parameter_group ();
   GstObject *element =
       (GstObject *) check_gobject_get_object_property (machine, "machine");
-  GValue val = { 0, };
+  GValue val = { 0, }
+END_TEST;
   g_value_init (&val, G_TYPE_ULONG);
   g_value_set_ulong (&val, 10L);
 
@@ -172,10 +177,10 @@ test_bt_parameter_group_set_value (BT_TEST_ARGS)
   g_value_unset (&val);
   BT_TEST_END;
 }
+END_TEST
 
 /* test setting a new default */
-static void
-test_bt_parameter_group_set_default (BT_TEST_ARGS)
+START_TEST (test_bt_parameter_group_set_default)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -197,9 +202,9 @@ test_bt_parameter_group_set_default (BT_TEST_ARGS)
   gst_object_unref (element);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_parameter_group_set_default_trigger (BT_TEST_ARGS)
+START_TEST (test_bt_parameter_group_set_default_trigger)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -221,9 +226,9 @@ test_bt_parameter_group_set_default_trigger (BT_TEST_ARGS)
   gst_object_unref (element);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_parameter_group_set_defaults (BT_TEST_ARGS)
+START_TEST (test_bt_parameter_group_set_defaults)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -245,9 +250,9 @@ test_bt_parameter_group_set_defaults (BT_TEST_ARGS)
   gst_object_unref (element);
   BT_TEST_END;
 }
+END_TEST
 
-static void
-test_bt_parameter_group_reset_all (BT_TEST_ARGS)
+START_TEST (test_bt_parameter_group_reset_all)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -267,6 +272,7 @@ test_bt_parameter_group_reset_all (BT_TEST_ARGS)
   gst_object_unref (element);
   BT_TEST_END;
 }
+END_TEST
 
 
 TCase *

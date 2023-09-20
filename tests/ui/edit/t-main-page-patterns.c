@@ -77,8 +77,7 @@ move_cursor_to (GtkWidget * w, guint group, guint param, guint digit, guint row)
 //-- tests
 
 // show pattern page with empty pattern and emit key-presses
-static void
-test_bt_main_page_patterns_key_press_in_empty_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_patterns_key_press_in_empty_pattern)
 {
   BT_TEST_START;
   BtMainPagePatterns *pattern_page;
@@ -86,8 +85,11 @@ test_bt_main_page_patterns_key_press_in_empty_pattern (BT_TEST_ARGS)
   GtkWidget *pattern_editor;
 
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
   machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "fakesrc", 0, NULL));
+      BT_MACHINE (bt_source_machine_new (&cparams, "fakesrc", 0, NULL));
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_machine (pattern_page, machine);
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
@@ -103,10 +105,11 @@ test_bt_main_page_patterns_key_press_in_empty_pattern (BT_TEST_ARGS)
   g_object_unref (pattern_page);
   BT_TEST_END;
 }
+END_TEST
+END_TEST
 
 // show pattern page with empty pattern and emit mouse clicks
-static void
-test_bt_main_page_patterns_mouse_click_in_empty_pattern (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_patterns_mouse_click_in_empty_pattern)
 {
   BT_TEST_START;
   BtMainPagePatterns *pattern_page;
@@ -114,8 +117,11 @@ test_bt_main_page_patterns_mouse_click_in_empty_pattern (BT_TEST_ARGS)
   GtkWidget *pattern_editor;
 
   GST_INFO ("-- arrange --");
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
   machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "fakesrc", 0, NULL));
+      BT_MACHINE (bt_source_machine_new (&cparams, "fakesrc", 0, NULL));
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_machine (pattern_page, machine);
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
@@ -130,16 +136,20 @@ test_bt_main_page_patterns_mouse_click_in_empty_pattern (BT_TEST_ARGS)
   g_object_unref (pattern_page);
   BT_TEST_END;
 }
+END_TEST
+END_TEST
 
 // test entering non note key
-static void
-test_bt_main_page_patterns_non_note_key_press (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_patterns_non_note_key_press)
 {
   BT_TEST_START;
   BtMainPagePatterns *pattern_page;
 
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
@@ -159,16 +169,20 @@ test_bt_main_page_patterns_non_note_key_press (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
+END_TEST
 
 // test that cursor pos stays unchanged on invalid key presses
-static void
-test_bt_main_page_patterns_cursor_pos_on_non_note_key (BT_TEST_ARGS)
+START_TEST (test_bt_main_page_patterns_cursor_pos_on_non_note_key)
 {
   BT_TEST_START;
   BtMainPagePatterns *pattern_page;
 
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachineConstructorParams cparams;
+  cparams.song = song;
+  cparams.id = "gen";
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
@@ -190,6 +204,8 @@ test_bt_main_page_patterns_cursor_pos_on_non_note_key (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
+END_TEST
+END_TEST
 
 
 TCase *

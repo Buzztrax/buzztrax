@@ -57,8 +57,7 @@ case_teardown (void)
 
 //-- tests
 
-static void
-test_bt_object_list_model_add_entry (BT_TEST_ARGS)
+START_TEST (test_bt_object_list_model_add_entry)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -72,13 +71,14 @@ test_bt_object_list_model_add_entry (BT_TEST_ARGS)
   bt_object_list_model_append (model, (GObject *) b);
 
   GST_INFO ("-- assert --");
-  fail_unless (check_has_error_trapped (), NULL);
+  ck_assert (check_has_error_trapped ());
 
   GST_INFO ("-- cleanup --");
   g_object_unref (b);
   g_object_unref (model);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_object_list_model_test_case (void)

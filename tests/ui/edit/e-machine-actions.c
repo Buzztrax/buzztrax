@@ -80,8 +80,7 @@ leave_dialog (gpointer user_data)
 }
 
 // create app and then unconditionally destroy window
-static void
-test_bt_machine_actions_about_dialog (BT_TEST_ARGS)
+START_TEST (test_bt_machine_actions_about_dialog)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -102,7 +101,7 @@ test_bt_machine_actions_about_dialog (BT_TEST_ARGS)
   bt_machine_action_about (machine, main_window);
 
   GST_INFO ("-- assert --");
-  fail_unless (dialog_data.dialog != NULL, NULL);
+  ck_assert (dialog_data.dialog != NULL);
 
   GST_INFO ("-- cleanup --");
   gst_object_unref (machine);
@@ -110,6 +109,7 @@ test_bt_machine_actions_about_dialog (BT_TEST_ARGS)
   g_object_unref (song);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_machine_actions_example_case (void)

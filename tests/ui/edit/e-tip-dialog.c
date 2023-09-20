@@ -58,8 +58,7 @@ case_teardown (void)
 //-- tests
 
 // create app and then unconditionally destroy window
-static void
-test_bt_tip_dialog_create (BT_TEST_ARGS)
+START_TEST (test_bt_tip_dialog_create)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -68,7 +67,7 @@ test_bt_tip_dialog_create (BT_TEST_ARGS)
   GtkWidget *dialog = GTK_WIDGET (bt_tip_dialog_new ());
 
   GST_INFO ("-- assert --");
-  fail_unless (dialog != NULL, NULL);
+  ck_assert (dialog != NULL);
   gtk_widget_show_all (dialog);
   check_make_widget_screenshot (GTK_WIDGET (dialog), NULL);
 
@@ -76,6 +75,7 @@ test_bt_tip_dialog_create (BT_TEST_ARGS)
   gtk_widget_destroy (dialog);
   BT_TEST_END;
 }
+END_TEST
 
 TCase *
 bt_tip_dialog_example_case (void)
