@@ -107,3 +107,17 @@ activate some logging info that can help while testing:
     BT_TEST_DEBUG=1 make check
 
 The tests make use of Xvfb (X Virtual Frame Buffer) to create UI in a headless scenario; if installed, it will be used. Sometimes it's useful to be able to see the UI when writing or debugging tests, though. You can set `BT_CHECK_NO_XVFB=1` to disable use of XVfb. You will then see UI windows created on your desktop directly during test runs.
+
+To debug a test with gdb, try:
+
+    BT_CHECKS="test_bt_edit_app*" make bt_edit.gdb
+
+To run Valgrind's memcheck over the test:
+
+    BT_CHECKS="test_bt_edit_app*" make bt_edit.valgrind
+    
+The Valgrind log file will be found at /tmp/<test_name>.valgrind.<pid>. Logs without errors are deleted automatically after test execution.
+
+You may find that you need to tweak the location of the Valgrind suppression files for your OS (the 'default.supp' file is found there.) If you have that issue, try this:
+
+    VALSUPP=/usr/libexec/valgrind BT_CHECKS="test_bt_edit_app*" make -e bt_edit.valgrind

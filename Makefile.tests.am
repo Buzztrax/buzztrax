@@ -37,7 +37,7 @@ CHECK_REGISTRY = $(top_builddir)/tests/test-registry.reg
 # for gtk/x11 issues
 #    GDK_SYNCHRONIZE=1
 #
-AM_TESTS_ENVIRONMENT = \
+AM_TESTS_ENVIRONMENT_VARS = \
 	CK_DEFAULT_TIMEOUT=20 \
 	LANG=C \
 	XDG_CACHE_HOME=$(abs_top_builddir) \
@@ -49,8 +49,10 @@ AM_TESTS_ENVIRONMENT = \
 	GST_REGISTRY_1_0=$(CHECK_REGISTRY) \
 	GST_PLUGIN_SYSTEM_PATH_1_0= \
 	GST_PLUGIN_PATH_1_0=$(abs_top_builddir)/.libs:$(GST_PLUGINS_DIR) \
-	BML_PATH=$(top_builddir)/.libs \
-	$(LIBTOOL) --mode=execute
+	BML_PATH=$(top_builddir)/.libs
+
+AM_TESTS_ENVIRONMENT = \
+	$(AM_TESTS_ENVIRONMENT_VARS) $(LIBTOOL) --mode=execute
 
 # This should make the icon theme look here for icons too, but instead it breaks tons of things
 #	XDG_DATA_DIRS=$XDG_DATA_DIRS:$(abs_top_srcdir)
@@ -516,17 +518,17 @@ if USE_VALGRIND
 # LIBOVERLAY_SCROLLBAR=0
 
 VALPREFIX = \
+	$(AM_TESTS_ENVIRONMENT_VARS) \
 	CK_FORK=no CK_DEFAULT_TIMEOUT=500 \
-	LANG=C XDG_CACHE_HOME=$(abs_builddir) \
 	G_SLICE=always-malloc G_DEBUG=gc-friendly \
 	GLIBCPP_FORCE_NEW=1 GLIBCXX_FORCE_NEW=1
 VALDEFAULT = @VALGRIND@/bin/valgrind
 VALSUPP = @VALGRIND@/lib/x86_64-linux-gnu/valgrind
 VALSUPPRESSIONDEF = --suppressions=$(VALSUPP)/default.supp
-VALSUPPRESSIONOWN = --suppressions=$(top_builddir)/buzztrax.supp \
-	--suppressions=$(top_builddir)/gst.supp \
-	--suppressions=$(top_builddir)/gtk.supp \
-	--suppressions=$(top_builddir)/clutter.supp
+VALSUPPRESSIONOWN = --suppressions=$(top_srcdir)/buzztrax.supp \
+	--suppressions=$(top_srcdir)/gst.supp \
+	--suppressions=$(top_srcdir)/gtk.supp \
+	--suppressions=$(top_srcdir)/clutter.supp
 VALSUPPRESSION = $(VALSUPPRESSIONDEF) $(VALSUPPRESSIONOWN)
 VALOPTIONS = --trace-children=yes --num-callers=30 --read-var-info=yes \
   --tool=memcheck --leak-check=full --leak-resolution=high --track-origins=yes
