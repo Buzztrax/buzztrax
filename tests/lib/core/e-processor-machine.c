@@ -117,7 +117,7 @@ START_TEST (test_bt_processor_machine_pattern)
 
   GST_INFO ("-- assert --");
   ck_assert (pattern != NULL);
-  ck_assert_gobject_gulong_eq (pattern, "voices", 0);
+  ck_assert_gobject_gulong_eq (pattern, "voices", 0L);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
