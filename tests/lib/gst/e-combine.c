@@ -48,8 +48,8 @@ START_TEST (test_create_obj)
   GstBtCombine *mix = gstbt_combine_new ();
 
   GST_INFO ("-- assert --");
-  fail_unless (mix != NULL, NULL);
-  fail_unless (G_OBJECT (mix)->ref_count == 1, NULL);
+  ck_assert (mix != NULL);
+  ck_assert (G_OBJECT (mix)->ref_count == 1);
 
   GST_INFO ("-- cleanup --");
   ck_gst_object_final_unref (mix);

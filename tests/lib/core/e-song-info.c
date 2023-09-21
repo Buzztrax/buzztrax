@@ -63,7 +63,7 @@ START_TEST (test_bt_song_info_date_stamps)
   gchar *create_dts = check_gobject_get_str_property (song_info, "create-dts");
 
   GST_INFO ("-- assert --");
-  fail_unless (create_dts != NULL, NULL);
+  ck_assert (create_dts != NULL);
   ck_assert_gobject_str_eq (song_info, "change-dts", create_dts);
 
   GST_INFO ("-- cleanup --");

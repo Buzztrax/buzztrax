@@ -272,7 +272,7 @@ START_TEST (test_bt_song_io_native_new)
       bt_song_io_from_file (check_get_test_song_path ("simple2.xml"), NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (song_io != NULL, NULL);
+  ck_assert (song_io != NULL);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (song_io);
@@ -291,7 +291,7 @@ START_TEST (test_bt_song_io_native_formats)
   BtSongIO *song_io = bt_song_io_from_file (song_path, NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (song_io != NULL, NULL);
+  ck_assert (song_io != NULL);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (song_io);
@@ -310,7 +310,7 @@ START_TEST (test_bt_song_io_native_load)
   GST_INFO ("-- act --");
 
   GST_INFO ("-- assert --");
-  fail_unless (bt_song_io_load (song_io, song, NULL) == TRUE, NULL);
+  ck_assert (bt_song_io_load (song_io, song, NULL) == TRUE);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (song_io);
@@ -497,7 +497,7 @@ START_TEST (test_bt_song_io_write_song)
   GST_INFO ("-- act --");
   BtSongIO *song_io = bt_song_io_from_file (song_path, NULL);
   gboolean res = bt_song_io_save (song_io, song, NULL);
-  fail_unless (res == TRUE, NULL);
+  ck_assert (res == TRUE);
 
   ck_g_object_final_unref (song_io);
   ck_g_object_final_unref (song);
@@ -507,7 +507,7 @@ START_TEST (test_bt_song_io_write_song)
   GST_INFO ("-- assert --");
   song_io = bt_song_io_from_file (song_path, NULL);
   res = bt_song_io_load (song_io, song, NULL);
-  fail_unless (res == TRUE, NULL);
+  ck_assert (res == TRUE);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (song_io);
@@ -533,7 +533,7 @@ START_TEST (test_bt_song_io_native_load_legacy_0_7)
   BtMachine *machine = bt_setup_get_machine_by_id (setup, "beep");
   BtCmdPattern *pattern1 = bt_machine_get_pattern_by_name (machine, "beeps");
   BtCmdPattern *pattern2 = bt_sequence_get_pattern (sequence, 0, 0);
-  fail_unless (pattern1 == pattern2, NULL);
+  ck_assert (pattern1 == pattern2);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern1);

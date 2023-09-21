@@ -346,7 +346,7 @@ START_TEST (test_bt_sink_bin_new)
   GstElement *bin = gst_element_factory_make ("bt-sink-bin", NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (bin != NULL, NULL);
+  ck_assert (bin != NULL);
 
   GST_INFO ("-- cleanup --");
   gst_object_unref (bin);

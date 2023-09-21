@@ -602,9 +602,7 @@ _bt_check_run_test_func (const gchar * func_name)
 
   /* only run specified functions, regexps would be nice */
   for (f = funcs; f != NULL && *f != NULL; ++f) {
-    g_warning("BT_CHECK_RUN_TEST_FUNC %s == %s", *f, func_name);
     if (g_pattern_match_simple (*f, func_name)) {
-      g_warning("MATCH");
       return TRUE;
     }
   }

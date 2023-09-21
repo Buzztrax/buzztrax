@@ -305,9 +305,10 @@ gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);
 #define ck_assert_gobject_object_eq(O, X, Y) _ck_assert_gobject(O, X, ==, Y)
 #define ck_assert_gobject_object_ne(O, X, Y) _ck_assert_gobject(O, X, !=, Y)
 
+// Note: check for NULL below is only to silence GCC "%s format specifier is NULL" warning.
 #define _ck_assert_str_and_free(F, X, C, Y) do { \
   gchar *__ck = (X); \
-  ck_assert_msg(F(__ck, (Y)), "Assertion '"#X#C#Y"' failed: "#X"==\"%s\", "#Y"==\"%s\"", __ck, Y); \
+  ck_assert_msg(F(__ck, (Y)), "Assertion '"#X#C#Y"' failed: "#X"==\"%s\", "#Y"==\"%s\"", __ck, (Y) == NULL ? "" : Y); \
   g_free(__ck); \
 } while(0)
 #define ck_assert_str_eq_and_free(X, Y) _ck_assert_str_and_free(!g_strcmp0, X, ==, Y)

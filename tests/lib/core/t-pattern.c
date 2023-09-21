@@ -151,8 +151,7 @@ START_TEST (test_bt_pattern_get_group_by_null_paramgroup)
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 1L, machine);
 
   /* act && assert */
-  fail_unless (bt_pattern_get_group_by_parameter_group (pattern, NULL) == NULL,
-      NULL);
+  ck_assert (bt_pattern_get_group_by_parameter_group (pattern, NULL) == NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);

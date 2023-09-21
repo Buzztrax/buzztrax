@@ -241,8 +241,8 @@ START_TEST (test_bt_pattern_copy)
   GST_INFO ("-- assert --");
   ck_assert (pattern2 != NULL);
   ck_assert (pattern2 != pattern1);
-  ck_assert_gobject_gulong_eq (pattern2, "voices", 2);
-  ck_assert_gobject_gulong_eq (pattern2, "length", 8);
+  ck_assert_gobject_gulong_eq (pattern2, "voices", 2L);
+  ck_assert_gobject_gulong_eq (pattern2, "length", 8L);
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern2, 0, 0), "5");
 
   GST_INFO ("-- cleanup --");
@@ -297,7 +297,7 @@ START_TEST (test_bt_pattern_enlarge_length)
   g_object_set (pattern, "length", 16L, NULL);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (pattern, "length", 16);
+  ck_assert_gobject_gulong_eq (pattern, "length", 16L);
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), "5");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 4, 0), "10");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 10, 0),
@@ -327,7 +327,7 @@ START_TEST (test_bt_pattern_shrink_length)
   g_object_set (pattern, "length", 8L, NULL);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (pattern, "length", 8);
+  ck_assert_gobject_gulong_eq (pattern, "length", 8L);
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), "5");
 
   GST_INFO ("-- cleanup --");
@@ -354,7 +354,7 @@ START_TEST (test_bt_pattern_enlarge_voices)
   g_object_set (machine, "voices", 2L, NULL);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (pattern, "voices", 2);
+  ck_assert_gobject_gulong_eq (pattern, "voices", 2L);
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), "5");
   ck_assert_str_eq_and_free (bt_pattern_get_voice_event (pattern, 4, 0, 0),
       "10");
@@ -385,7 +385,7 @@ START_TEST (test_bt_pattern_shrink_voices)
   g_object_set (machine, "voices", 1L, NULL);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (pattern, "voices", 1);
+  ck_assert_gobject_gulong_eq (pattern, "voices", 1L);
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), "5");
   ck_assert_str_eq_and_free (bt_pattern_get_voice_event (pattern, 4, 0, 0),
       "10");

@@ -309,7 +309,7 @@ START_TEST (test_bt_sequence_enlarge_length)
   g_object_set (sequence, "length", 8L, NULL);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (sequence, "length", 8);
+  ck_assert_gobject_gulong_eq (sequence, "length", 8L);
 
   GST_INFO ("-- cleanup --");
   g_object_try_unref (sequence);
@@ -383,7 +383,7 @@ START_TEST (test_bt_sequence_shrink_length)
   g_object_set (sequence, "length", 8L, NULL);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (sequence, "length", 8);
+  ck_assert_gobject_gulong_eq (sequence, "length", 8L);
 
   GST_INFO ("-- cleanup --");
   g_object_try_unref (sequence);
@@ -409,7 +409,7 @@ START_TEST (test_bt_sequence_enlarge_track)
   bt_sequence_add_track (sequence, machine, -1);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (sequence, "tracks", 2);
+  ck_assert_gobject_gulong_eq (sequence, "tracks", 2L);
 
   GST_INFO ("-- cleanup --");
   g_object_try_unref (sequence);
@@ -435,7 +435,7 @@ START_TEST (test_bt_sequence_enlarge_track_vals)
   g_object_set (sequence, "tracks", 2L, NULL);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (sequence, "tracks", 2);
+  ck_assert_gobject_gulong_eq (sequence, "tracks", 2L);
   ck_assert_gobject_eq_and_unref (bt_sequence_get_machine (sequence, 0),
       machine);
   ck_assert_gobject_eq_and_unref (bt_sequence_get_machine (sequence, 1), NULL);
@@ -464,7 +464,7 @@ START_TEST (test_bt_sequence_shrink_track)
 
   GST_INFO ("-- act --");
   bt_sequence_remove_track_by_ix (sequence, 0);
-  ck_assert_gobject_gulong_eq (sequence, "tracks", 1);
+  ck_assert_gobject_gulong_eq (sequence, "tracks", 1L);
   ck_assert_gobject_eq_and_unref (bt_sequence_get_machine (sequence, 0),
       machine);
 
@@ -651,8 +651,8 @@ START_TEST (test_bt_sequence_default_loop)
   g_object_set (sequence, "loop", TRUE, NULL);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_glong_eq (sequence, "loop-start", 0);
-  ck_assert_gobject_glong_eq (sequence, "loop-end", 16);
+  ck_assert_gobject_glong_eq (sequence, "loop-start", 0L);
+  ck_assert_gobject_glong_eq (sequence, "loop-end", 16L);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (sequence);
@@ -673,8 +673,8 @@ START_TEST (test_bt_sequence_enlarging_length_enlarges_loop)
   g_object_set (sequence, "length", 24L, NULL);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_glong_eq (sequence, "loop-start", 0);
-  ck_assert_gobject_glong_eq (sequence, "loop-end", 24);
+  ck_assert_gobject_glong_eq (sequence, "loop-start", 0L);
+  ck_assert_gobject_glong_eq (sequence, "loop-end", 24L);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (sequence);
@@ -696,8 +696,8 @@ START_TEST (test_bt_sequence_enlarging_length_keeps_loop)
   g_object_set (sequence, "length", 12L, NULL);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_glong_eq (sequence, "loop-start", 0);
-  ck_assert_gobject_glong_eq (sequence, "loop-end", 8);
+  ck_assert_gobject_glong_eq (sequence, "loop-start", 0L);
+  ck_assert_gobject_glong_eq (sequence, "loop-end", 8L);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (sequence);
@@ -718,8 +718,8 @@ START_TEST (test_bt_sequence_shortening_length_truncates_loop)
   g_object_set (sequence, "length", 8L, NULL);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_glong_eq (sequence, "loop-start", 0);
-  ck_assert_gobject_glong_eq (sequence, "loop-end", 8);
+  ck_assert_gobject_glong_eq (sequence, "loop-start", 0L);
+  ck_assert_gobject_glong_eq (sequence, "loop-end", 8L);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (sequence);
@@ -969,7 +969,7 @@ START_TEST (test_bt_sequence_duration)
       gst_element_query_duration (sink_bin, GST_FORMAT_TIME, &duration);
 
   GST_INFO ("-- assert --");
-  fail_unless (res, NULL);
+  ck_assert (res);
   ck_assert_int64_ne (duration, G_GINT64_CONSTANT (-1));
   ck_assert_uint64_eq (duration, 16L * tick_time);
 
@@ -1011,7 +1011,7 @@ START_TEST (test_bt_sequence_duration_play)
       gst_element_query_duration (sink_bin, GST_FORMAT_TIME, &duration);
 
   GST_INFO ("-- assert --");
-  fail_unless (res, NULL);
+  ck_assert (res);
   ck_assert_int64_ne (duration, G_GINT64_CONSTANT (-1));
   ck_assert_uint64_eq (duration, 16L * tick_time);
 

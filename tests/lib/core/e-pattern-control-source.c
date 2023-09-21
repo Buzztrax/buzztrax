@@ -81,7 +81,7 @@ START_TEST (test_bt_pattern_control_source_new)
       sequence, song_info, machine, pg);
 
   GST_INFO ("-- assert --");
-  fail_unless (pcs != NULL, NULL);
+  ck_assert (pcs != NULL);
 
   GST_INFO ("-- cleanup --");
   gst_object_unref (pcs);

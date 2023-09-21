@@ -67,8 +67,8 @@ START_TEST (test_bt_source_machine_new)
       bt_source_machine_new (&cparams, "buzztrax-test-mono-source", 0, &err);
 
   GST_INFO ("-- assert --");
-  fail_unless (machine != NULL, NULL);
-  fail_unless (err == NULL, NULL);
+  ck_assert (machine != NULL);
+  ck_assert (err == NULL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
@@ -90,7 +90,7 @@ START_TEST (test_bt_source_machine_def_patterns)
   GList *list = (GList *) check_gobject_get_ptr_property (machine, "patterns");
 
   GST_INFO ("-- assert --");
-  fail_unless (list != NULL, NULL);
+  ck_assert (list != NULL);
   ck_assert_int_eq (g_list_length (list), 3);   /* break+mute+solo */
 
   GST_INFO ("-- cleanup --");
@@ -116,8 +116,8 @@ START_TEST (test_bt_source_machine_pattern)
       BT_MACHINE (machine));
 
   GST_INFO ("-- assert --");
-  fail_unless (pattern != NULL, NULL);
-  ck_assert_gobject_gulong_eq (pattern, "voices", 0);
+  ck_assert (pattern != NULL);
+  ck_assert_gobject_gulong_eq (pattern, "voices", 0L);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
@@ -165,7 +165,7 @@ START_TEST (test_bt_source_machine_pattern_by_index)
       BT_SOURCE_MACHINE_PATTERN_INDEX_MUTE);
 
   GST_INFO ("-- assert --");
-  fail_unless (pattern != NULL, NULL);
+  ck_assert (pattern != NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
@@ -191,7 +191,7 @@ START_TEST (test_bt_source_machine_pattern_by_list)
   GList *node = g_list_last (list);
 
   GST_INFO ("-- assert --");
-  fail_unless (node->data == pattern, NULL);
+  ck_assert (node->data == pattern);
 
   GST_INFO ("-- cleanup --");
   g_list_foreach (list, (GFunc) g_object_unref, NULL);
@@ -223,7 +223,7 @@ START_TEST (test_bt_source_machine_change_voices)
   g_object_set (machine, "voices", 4, NULL);
 
   /* verify */
-  ck_assert_gobject_gulong_eq (pattern, "voices", 4);
+  ck_assert_gobject_gulong_eq (pattern, "voices", 4L);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
