@@ -98,8 +98,17 @@ run all the tests:
 
     make check
 
+run all the tests in one suite:
+
+    make bt_cmd.check
+    make bt_core.check
+    make bt_edit.check
+    make bt_gst.check
+    make bt_ic.check
+
 select tests to run:
 
+    BT_CHECKS="test_bt_edit_app*" make check
     BT_CHECKS="test_bt_edit_app*" make bt_edit.check
     
 activate some logging info that can help while testing:
@@ -108,11 +117,11 @@ activate some logging info that can help while testing:
 
 The tests make use of Xvfb (X Virtual Frame Buffer) to create UI in a headless scenario; if installed, it will be used. Sometimes it's useful to be able to see the UI when writing or debugging tests, though. You can set `BT_CHECK_NO_XVFB=1` to disable use of XVfb. You will then see UI windows created on your desktop directly during test runs.
 
-To debug a test with gdb, try:
+To debug a test suite with gdb, try:
 
     BT_CHECKS="test_bt_edit_app*" make bt_edit.gdb
 
-To run Valgrind's memcheck over the test:
+To run Valgrind's memcheck over a test suite:
 
     BT_CHECKS="test_bt_edit_app*" make bt_edit.valgrind
     
