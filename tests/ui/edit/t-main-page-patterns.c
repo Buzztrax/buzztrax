@@ -106,7 +106,6 @@ START_TEST (test_bt_main_page_patterns_key_press_in_empty_pattern)
   BT_TEST_END;
 }
 END_TEST
-END_TEST
 
 // show pattern page with empty pattern and emit mouse clicks
 START_TEST (test_bt_main_page_patterns_mouse_click_in_empty_pattern)
@@ -136,7 +135,6 @@ START_TEST (test_bt_main_page_patterns_mouse_click_in_empty_pattern)
   g_object_unref (pattern_page);
   BT_TEST_END;
 }
-END_TEST
 END_TEST
 
 // test entering non note key
@@ -169,7 +167,6 @@ START_TEST (test_bt_main_page_patterns_non_note_key_press)
   g_object_unref (pattern);
   BT_TEST_END;
 }
-END_TEST
 END_TEST
 
 // test that cursor pos stays unchanged on invalid key presses
@@ -204,7 +201,6 @@ START_TEST (test_bt_main_page_patterns_cursor_pos_on_non_note_key)
   g_object_unref (pattern);
   BT_TEST_END;
 }
-END_TEST
 END_TEST
 
 
