@@ -137,6 +137,9 @@ START_TEST (test_bt_song_play_null)
 END_TEST
 
 // load a new song while the first plays
+//
+// dbeswick: this test has been observed to succeed when run individually,
+// but segfault during a suite run.
 START_TEST (test_bt_song_play_and_load_new)
 {
   BT_TEST_START;

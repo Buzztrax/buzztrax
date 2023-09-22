@@ -127,20 +127,32 @@ bt_init_post (void)
     arg_experiments = NULL;
   }
 
-  extern gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin);
-  gst_plugin_register_static (GST_VERSION_MAJOR,
-      GST_VERSION_MINOR,
-      "bt-sink-bin",
-      "buzztrax sink bin - encapsulates play and record functionality",
-      bt_sink_bin_plugin_init,
-      VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztrax.org");
+  // dbeswick: During tests, a single process destroys and re-initializes an application
+  // repeatedly. When the plugin was being repeatedly re-registered, I found that
+  // segfaults were occurring as factories returned from elements seemed to have
+  // been corrupted and weren't recognized as GObjects. It's probably not good to
+  // register static GST plugins multiple times over the life of a single process.
+  static gboolean plugin_inited = FALSE;
+  if (plugin_inited) {
+    GST_INFO ("bt-sink-bin plugin already registered, so doing nothing");
+  } else {
+    GST_INFO ("Registering bt-sink-bin plugin");
+    extern gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin);
+    gst_plugin_register_static (GST_VERSION_MAJOR,
+        GST_VERSION_MINOR,
+        "bt-sink-bin",
+        "buzztrax sink bin - encapsulates play and record functionality",
+        bt_sink_bin_plugin_init,
+        VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztrax.org");
 
-  bt_default_caps = gst_caps_new_simple ("audio/x-raw",
-      "format", G_TYPE_STRING, GST_AUDIO_NE (F32),
-      "layout", G_TYPE_STRING, "interleaved",
-      "rate", GST_TYPE_INT_RANGE, 1, G_MAXINT,
-      "channels", GST_TYPE_INT_RANGE, 1, 2, NULL);
+    bt_default_caps = gst_caps_new_simple ("audio/x-raw",
+        "format", G_TYPE_STRING, GST_AUDIO_NE (F32),
+        "layout", G_TYPE_STRING, "interleaved",
+        "rate", GST_TYPE_INT_RANGE, 1, G_MAXINT,
+        "channels", GST_TYPE_INT_RANGE, 1, 2, NULL);
 
+    plugin_inited = TRUE;
+  }
   GST_DEBUG ("init xml");
   //-- initialize libxml
   // set own error handler

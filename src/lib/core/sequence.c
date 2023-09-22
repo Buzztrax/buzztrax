@@ -339,7 +339,16 @@ bt_sequence_get_machine_unchecked (const BtSequence * const self,
  * Return the length of the sequence minus any trailing rows that are totally
  * null/empty. Includes all available patterns, even those beyond the "end"
  * of the song.
- * 
+ *
+ * dbeswick: This function will be called whenever the sequence length is set,
+ * as part of https://github.com/Buzztrax/buzztrax/pull/109.
+ * It counts down from the max sequence length to try to find the last non-null
+ * pattern. This takes a long time if you happen to actually want a sequence that
+ * large, and tests were timing out, so I limited the max sequence size to 2**31.
+ *
+ * There are smarter ways to deal with this, but in the meantime I figure 2**31
+ * should be enough for anyone?
+ *
  * Returns 0 if all rows are null or sequence length is zero.
  */
 static gulong
@@ -1933,9 +1942,12 @@ bt_sequence_class_init (BtSequenceClass * const klass)
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   // loop-pos are LONG as well
+  //
+  // The max value here was previously G_MAXULONG. Please see the docs for 
+  // "bt_sequence_get_nonnull_length" for the reason it was changed.
   g_object_class_install_property (gobject_class, SEQUENCE_LENGTH,
       g_param_spec_ulong ("length", "length prop",
-          "length of the sequence in timeline bars", 0, G_MAXLONG, 0,
+          "length of the sequence in timeline bars", 0, G_MAXINT, 0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SEQUENCE_LEN_PATTERNS,

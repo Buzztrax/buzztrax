@@ -1149,7 +1149,7 @@ check_readwrite_property (GParamSpec * paramspec, GObject * toCheck)
   return ret;
 }
 
-/* test gobject properties
+/* check_gobject_properties
  * @toCheck: the object to examine
  *
  * The function runs tests against all registered properties of the given
@@ -1162,7 +1162,6 @@ check_readwrite_property (GParamSpec * paramspec, GObject * toCheck)
  * - test more type
  * - use test more often :)
  */
-
 gboolean
 check_gobject_properties (GObject * toCheck)
 {

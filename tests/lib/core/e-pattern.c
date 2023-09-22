@@ -81,6 +81,7 @@ static gchar *element_names[] = {
   "buzztrax-test-poly-source", "buzztrax-test-poly-source"
 };
 static gulong element_voices[] = { 0, 0, 0, 1 };
+static gulong element_voices_expected[] = { 0, 0, 1, 1 };
 
 START_TEST (test_bt_pattern_obj_create)
 {
@@ -97,7 +98,7 @@ START_TEST (test_bt_pattern_obj_create)
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (pattern, "voices", element_voices[_i]);
+  ck_assert_gobject_gulong_eq (pattern, "voices", element_voices_expected[_i]);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);

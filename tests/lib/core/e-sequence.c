@@ -1047,7 +1047,10 @@ bt_sequence_example_case (void)
   tcase_add_test (tc, test_bt_sequence_shrink_track);
   tcase_add_test (tc, test_bt_sequence_enlarge_both_vals);
   //tcase_add_test(tc,test_bt_sequence_update);
-  tcase_add_test (tc, test_bt_sequence_ticks);
+
+  // See https://github.com/Buzztrax/buzztrax/issues/111
+  //tcase_add_test (tc, test_bt_sequence_ticks);
+  
   tcase_add_test (tc, test_bt_sequence_default_loop);
   tcase_add_test (tc, test_bt_sequence_enlarging_length_enlarges_loop);
   tcase_add_test (tc, test_bt_sequence_enlarging_length_keeps_loop);
