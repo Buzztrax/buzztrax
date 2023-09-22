@@ -103,8 +103,8 @@ START_TEST (test_bt_parameter_group_describe)
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtParameterGroup *pg = get_mono_parameter_group ();
-  GValue val = { 0, }
-END_TEST;
+  GValue val = { 0, };
+  
   g_value_init (&val, G_TYPE_ULONG);
   g_value_set_ulong (&val, 1L);
 
@@ -161,8 +161,8 @@ START_TEST (test_bt_parameter_group_set_value)
   BtParameterGroup *pg = get_mono_parameter_group ();
   GstObject *element =
       (GstObject *) check_gobject_get_object_property (machine, "machine");
-  GValue val = { 0, }
-END_TEST;
+  GValue val = { 0, };
+  
   g_value_init (&val, G_TYPE_ULONG);
   g_value_set_ulong (&val, 10L);
 
