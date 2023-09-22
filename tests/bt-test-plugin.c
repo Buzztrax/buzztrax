@@ -368,12 +368,22 @@ bt_test_poly_source_get_property (GObject * object, guint property_id,
   }
 }
 
+static void 
+bt_test_poly_source_add_voice (BtTestPolySource *self) {
+  BtTestMonoSource *voice = g_object_new (BT_TYPE_TEST_MONO_SOURCE, NULL);
+  self->voices = g_list_append (self->voices, voice);
+  GST_DEBUG (" adding voice %" G_OBJECT_REF_COUNT_FMT,
+             G_OBJECT_LOG_REF_COUNT (voice));
+  gst_object_set_parent (GST_OBJECT (voice), GST_OBJECT (self));
+  GST_DEBUG (" parented voice %" G_OBJECT_REF_COUNT_FMT,
+             G_OBJECT_LOG_REF_COUNT (voice));
+}
+
 static void
 bt_test_poly_source_set_property (GObject * object, guint property_id,
     const GValue * value, GParamSpec * pspec)
 {
   BtTestPolySource *self = BT_TEST_POLY_SOURCE (object);
-  BtTestMonoSource *voice;
   gulong i, num_voices;
 
   switch (property_id) {
@@ -384,17 +394,11 @@ bt_test_poly_source_set_property (GObject * object, guint property_id,
           num_voices, self->num_voices);
       if (self->num_voices > num_voices) {
         for (i = num_voices; i < self->num_voices; i++) {
-          voice = g_object_new (BT_TYPE_TEST_MONO_SOURCE, NULL);
-          self->voices = g_list_append (self->voices, voice);
-          GST_DEBUG (" adding voice %" G_OBJECT_REF_COUNT_FMT,
-              G_OBJECT_LOG_REF_COUNT (voice));
-          gst_object_set_parent (GST_OBJECT (voice), GST_OBJECT (self));
-          GST_DEBUG (" parented voice %" G_OBJECT_REF_COUNT_FMT,
-              G_OBJECT_LOG_REF_COUNT (voice));
+          bt_test_poly_source_add_voice (self);
         }
       } else if (self->num_voices < num_voices) {
         for (i = num_voices; i > self->num_voices; i--) {
-          voice = g_list_nth_data (self->voices, (i - 1));
+          BtTestMonoSource *voice = g_list_nth_data (self->voices, (i - 1));
           self->voices = g_list_remove (self->voices, voice);
           gst_object_unparent (GST_OBJECT (voice));
         }
@@ -468,6 +472,9 @@ bt_test_poly_source_init (BtTestPolySource * self)
       gst_pad_new_from_template (gst_element_class_get_pad_template (klass,
           "src"), "src");
   gst_element_add_pad (GST_ELEMENT (self), src_pad);
+
+  bt_test_poly_source_add_voice (self);
+  self->num_voices = 1;
 }
 
 static void

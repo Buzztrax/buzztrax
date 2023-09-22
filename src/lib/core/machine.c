@@ -723,6 +723,10 @@ bt_machine_resize_voices (const BtMachine * const self, const gulong old_voices)
       (BtParameterGroup **) g_renew (gpointer, self->priv->voice_param_groups,
       new_voices);
   if (old_voices < new_voices) {
+    // Voices with zero parameters don't make sense, so something has gone wrong
+    // prior to this point.
+    g_assert (voice_params != 0);
+    
     GObject *voice_child;
     gulong v;
 
@@ -1421,6 +1425,14 @@ bt_machine_init_voice_params (const BtMachine * const self)
       g_object_unref (voice_child);
     } else {
       GST_WARNING_OBJECT (self, "  can't get first voice child!");
+
+      // This condition will currently lead to segfaults later on, so the program
+      // should try to avoid getting to this point (i.e. by always ensuring a
+      // minimum number of voices.
+      //
+      // Currently, machine authors should ensure that at least one voice is
+      // available immediately after their machine subclass' init function has run.
+      g_assert (FALSE);
     }
   } else {
     GST_INFO ("  instance is monophonic!");
