@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2014 Buzztrax team <buzztrax-devel@buzztrax.org> -->
-<application>
-  <id type="desktop">buzztrax-edit.desktop</id>
+  <component type="desktop-application">
+  <id>org.buzztrax.desktop</id>
+  <name>buzztrax</name>
   <metadata_license>CC0</metadata_license>
   <project_license>LGPL-2.0+</project_license>
-  <_summary>Fully integrated music composer.</_summary>
+  <_summary>Fully integrated music composer</_summary>
+  <content_rating type="oars-1.1" />
   <description>
     <!-- don't translate 'tracker' -->
     <_p>
@@ -12,9 +14,13 @@
       modelled after the windows only, closed source application called Buzz.
     </_p>
   </description>
+  <launchable type="desktop-id">org.buzztrax.bt-edit.desktop</launchable>
   <screenshots>
-    <screenshot type="default" width="1127" height="720">http://buzztrax.org/wp-content/gallery/featured-screenshots/bt-edit-0-6-0-01.png</screenshot>
+    <screenshot type="default">
+      <image>https://www.buzztrax.org/assets/images/bt-edit-0-6-0-01.png</image>
+      <caption>The machine editor with a spectrum analyzer.</caption>
+    </screenshot>
   </screenshots>
-  <url type="homepage">http://buzztrax.org/</url>
-  <updatecontact>buzztrax-devel@buzztrax.org</updatecontact>
-</application>
+  <url type="homepage">https://www.buzztrax.org/</url>
+  <update_contact>buzztrax-devel@buzztrax.org</update_contact>
+</component>
