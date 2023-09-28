@@ -198,6 +198,110 @@ START_TEST (test_bt_sequence_length1)
 }
 END_TEST
 
+/*
+ * test_bt_sequence_length_reduce:
+ *
+ * A sequence has both a "nominal" length and a "pattern" length. The former
+ * dictates when the song stops playing, and the latter represents the index at
+ * which the final non-null piece of sequence data is found. This case asserts
+ * some expected behaviour around setting the nominal song length to be less
+ * than the pattern length, i.e. when the user uses "CTRL-E" to set the song end
+ * to be halfway through an existing song. If the implementation is incorrect,
+ * then sequence data will be truncated.
+ */
+START_TEST (test_bt_sequence_length_reduce)
+{
+  BT_TEST_START;
+  
+  BtSequence *sequence =
+      (BtSequence *) check_gobject_get_object_property (song, "sequence");
+  g_object_set (sequence, "length", 8L, NULL);
+  
+  BtMachineConstructorParams cparams;
+  cparams.id = "genm";
+  cparams.song = song;
+  
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (&cparams,
+          "buzztrax-test-mono-source", 0L, NULL));
+
+  BtCmdPattern *pattern =
+      (BtCmdPattern *) bt_pattern_new (song, "pattern-name", 8L, machine);
+  
+  bt_sequence_add_track (sequence, machine, -1);
+ 
+  for (gint i = 0; i < 8; ++i) {
+    bt_sequence_set_pattern (sequence, i, 0, pattern);
+  }
+  
+  /* Set the nominal length to be half the pattern length, and check that length
+     values are correctly updated and that no sequence data has been lost. */
+  GST_INFO ("-- act --");
+  g_object_set (sequence, "length", 4L, NULL);
+  g_object_set (sequence, "len-patterns", 8L, NULL);
+
+  GST_INFO ("-- assert --");
+
+  glong length = -1;
+  g_object_get (sequence, "length", &length, NULL);
+  ck_assert_int_eq (length, 4);
+
+  for (gint i = 0; i < 8; ++i) {
+    BtCmdPattern *pattern_test = bt_sequence_get_pattern (sequence, i, 0);
+    ck_assert_ptr_eq (pattern_test, pattern);
+    g_object_unref (pattern_test);
+  }
+
+  // 10 refs = pattern * 8 + machine + 1 ref for sequence->priv->pattern_usage (bt_sequence_use_pattern)
+  ck_g_object_remaining_unref (pattern, 10);
+  ck_g_object_remaining_unref (sequence, 1);    // 1 ref = song
+
+  
+  /* Also test persistence. Persist the above result and load it again, and
+     again check that length values are correct and no data has been lost. */
+  GST_INFO ("-- act --");
+  
+  xmlDocPtr const doc = xmlNewDoc (XML_CHAR_PTR ("1.0"));
+  xmlNodePtr node = bt_persistence_save (BT_PERSISTENCE (song), NULL, NULL);
+  xmlDocSetRootElement (doc, node);
+
+  xmlChar* xml;
+  xmlDocDumpFormatMemory (doc, &xml, NULL, TRUE);
+  GST_INFO ("Persisted song XML:\n %s", xml);
+  xmlFree (xml);
+
+  // Finish with the song and sequence from the previous step, and create a new song.
+  ck_g_object_final_unref (sequence);
+  ck_g_object_final_unref (song);
+  
+  song = bt_song_new (app);
+  bt_persistence_load (G_OBJECT_TYPE (song), BT_PERSISTENCE (song), node, NULL);
+  
+  GST_INFO ("-- assert --");
+  sequence =
+    (BtSequence *) check_gobject_get_object_property (song, "sequence");
+
+  g_object_get (sequence, "length", &length, NULL);
+  ck_assert_int_eq (length, 4);
+
+  glong len_patterns = -1;
+  g_object_get (sequence, "len-patterns", &len_patterns, NULL);
+  ck_assert_int_eq (len_patterns, 8);
+  
+  for (gint i = 0; i < 8; ++i) {
+    BtCmdPattern *pattern_test = bt_sequence_get_pattern (sequence, i, 0);
+    ck_assert_msg (pattern_test != NULL, "Loaded sequence must have a pattern present at time %d", i);
+    g_object_unref (pattern_test);
+  }
+  
+  GST_INFO ("-- cleanup --");
+  
+  xmlFreeDoc (doc);
+  ck_g_object_remaining_unref (sequence, 1);    // 1 ref = song
+  
+  BT_TEST_END;
+}
+END_TEST
+
 START_TEST (test_bt_sequence_pattern1)
 {
   BT_TEST_START;
@@ -279,6 +383,7 @@ bt_sequence_test_case (void)
   tcase_add_test (tc, test_bt_sequence_rem_track1);
   tcase_add_test (tc, test_bt_sequence_rem_track2);
   tcase_add_test (tc, test_bt_sequence_length1);
+  tcase_add_test (tc, test_bt_sequence_length_reduce);
   tcase_add_test (tc, test_bt_sequence_pattern1);
   tcase_add_test (tc, test_bt_sequence_pattern2);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);

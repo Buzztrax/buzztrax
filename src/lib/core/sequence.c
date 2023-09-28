@@ -1466,9 +1466,10 @@ bt_sequence_persistence_load (const GType type,
 
   GST_DEBUG ("PERSISTENCE::sequence");
   g_assert (node);
+  g_assert (self);
 
   xmlChar *const length_str = xmlGetProp (node, XML_CHAR_PTR ("length"));
-  xmlChar *const len_patterns_str = xmlGetProp (node, XML_CHAR_PTR ("len_patterns"));
+  xmlChar *const len_patterns_str = xmlGetProp (node, XML_CHAR_PTR ("len-patterns"));
   xmlChar *const tracks_str = xmlGetProp (node, XML_CHAR_PTR ("tracks"));
   xmlChar *const loop_str = xmlGetProp (node, XML_CHAR_PTR ("loop"));
   xmlChar *const loop_start_str =
