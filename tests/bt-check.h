@@ -142,6 +142,7 @@ __bt_tcase_add_test (TCase * tc, const TTest * ttest, int signal,
 
 void bt_check_init(void);
 
+// Unref the GObject, then assert that the object was destroyed (now has zero refs.)
 #define ck_g_object_final_unref(obj) \
 {\
   gpointer __objref=obj;\
@@ -153,6 +154,8 @@ void bt_check_init(void);
   ck_assert_msg(__objref == NULL, "%d ref(s) left",__objrefct-1);\
 }
 
+// Unref the GObject, then assert that the object was not destroyed and has an
+// expected 'n' number of refs remaining.
 #define ck_g_object_remaining_unref(obj, n) \
 {\
   gpointer __objref=obj;\

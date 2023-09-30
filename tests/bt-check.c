@@ -316,8 +316,14 @@ check_gst_log_handler (GstDebugCategory * category,
   const gchar *level_str, *cat_str;
   GstClockTime elapsed;
 
-  //-- print the log message unconditionally to stderr if BT_TEST_DEBUG is set
-  if (g_getenv ("BT_TEST_DEBUG") && category == GST_CAT_DEFAULT)
+  //-- print the log message to stderr if: 
+  //-- * BT_TEST_DEBUG is defined in the environment
+  //-- * The log category is default, or the category name starts with 'bt-'
+  //-- dbeswick: this is just aiming to get a good balance of spam vs. relevant
+  //-- debug messages from tests, but something more appropriate could be done here.
+  if (g_getenv ("BT_TEST_DEBUG") &&
+      (category == GST_CAT_DEFAULT ||
+       g_str_has_prefix (gst_debug_category_get_name (category), "bt-")))
     fprintf (stderr, "%s:%d:%s: %s\n", file, line, function, message);
   
   //-- check message contents
