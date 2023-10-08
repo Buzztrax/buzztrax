@@ -363,7 +363,7 @@ bt_sequence_grid_model_new (BtSequence * sequence, BtSongInfo * song_info,
       G_CALLBACK (on_song_info_tpb_changed), (gpointer) self, 0);
 
   // follow sequence grid size changes
-  g_signal_connect_object (sequence, "notify::length",
+  g_signal_connect_object (sequence, "notify::len-patterns",
       G_CALLBACK (on_sequence_length_changed), (gpointer) self, 0);
   g_signal_connect_object (sequence, "notify::tracks",
       G_CALLBACK (on_sequence_tracks_changed), (gpointer) self, 0);

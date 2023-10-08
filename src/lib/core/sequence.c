@@ -57,6 +57,9 @@
 
 #include "core_private.h"
 
+//-- forward declarations
+static void bt_sequence_limit_play_pos_internal (const BtSequence * const self);
+
 //-- signal ids
 
 enum
@@ -438,6 +441,29 @@ bt_sequence_resize_data_length (const BtSequence * const self, const gulong leng
   }
 
   self->priv->len_patterns = new_length;
+  self->priv->length = MIN (self->priv->length, self->priv->len_patterns);
+
+  if (self->priv->loop_end != -1) {
+    // clip loopend to length or extend loop-end as well if loop_end was
+    // old length
+    if ((self->priv->loop_end > self->priv->length) ||
+        (self->priv->loop_end == length)) {
+      self->priv->play_end = self->priv->loop_end = self->priv->length;
+      g_object_notify ((GObject *) self, "loop-end");
+      if (self->priv->loop_end <= self->priv->loop_start) {
+        self->priv->loop_start = self->priv->loop_end = -1;
+        self->priv->loop = FALSE;
+        g_object_notify ((GObject *) self, "loop-start");
+        g_object_notify ((GObject *) self, "loop");
+      }
+    }
+  } else {
+    self->priv->play_end = self->priv->length;
+  }
+  
+  bt_sequence_limit_play_pos_internal (self);
+  
+  g_object_notify ((GObject *) self, "len-patterns");
 }
 
 /*
@@ -1683,24 +1709,6 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
       if (length != self->priv->length) {
         GST_DEBUG ("set the length for sequence: %lu", self->priv->length);
         bt_sequence_resize_data_length (self, self->priv->length);
-        if (self->priv->loop_end != -1) {
-          // clip loopend to length or extend loop-end as well if loop_end was
-          // old length
-          if ((self->priv->loop_end > self->priv->length) ||
-              (self->priv->loop_end == length)) {
-            self->priv->play_end = self->priv->loop_end = self->priv->length;
-            g_object_notify ((GObject *) self, "loop-end");
-            if (self->priv->loop_end <= self->priv->loop_start) {
-              self->priv->loop_start = self->priv->loop_end = -1;
-              self->priv->loop = FALSE;
-              g_object_notify ((GObject *) self, "loop-start");
-              g_object_notify ((GObject *) self, "loop");
-            }
-          }
-        } else {
-          self->priv->play_end = self->priv->length;
-        }
-        bt_sequence_limit_play_pos_internal (self);
       }
       break;
     }
@@ -1778,6 +1786,17 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
           -1) ? self->priv->loop_end : self->priv->length;
       bt_sequence_limit_play_pos_internal (self);
       break;
+    case SEQUENCE_LEN_PATTERNS:{
+      // TODO(ensonic): remove or better stop the song
+      // if(self->priv->is_playing) bt_sequence_stop(self);
+      // prepare new data
+      const gulong len_patterns_in = g_value_get_ulong (value);
+      if (len_patterns_in != self->priv->len_patterns) {
+        GST_DEBUG ("set the pattern length for sequence: %lu", len_patterns_in);
+        bt_sequence_resize_data_length (self, len_patterns_in);
+      }
+      break;
+    }
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -1948,13 +1967,13 @@ bt_sequence_class_init (BtSequenceClass * const klass)
   // "bt_sequence_get_nonnull_length" for the reason it was changed.
   g_object_class_install_property (gobject_class, SEQUENCE_LENGTH,
       g_param_spec_ulong ("length", "length prop",
-          "length of the sequence in timeline bars", 0, G_MAXINT, 0,
+          "song end position of the sequence in timeline bars", 0, G_MAXINT, 0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SEQUENCE_LEN_PATTERNS,
       g_param_spec_ulong ("len-patterns", "patterns length prop",
-          "total length of non-null patterns in timeline bars", 0, G_MAXLONG, 0,
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+          "total length of sequence in timeline bars", 0, G_MAXLONG, 0,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
   
   g_object_class_install_property (gobject_class, SEQUENCE_TRACKS,
       g_param_spec_ulong ("tracks",
