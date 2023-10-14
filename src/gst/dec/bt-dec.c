@@ -910,7 +910,7 @@ plugin_init (GstPlugin * plugin)
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-dec",
       GST_DEBUG_FG_WHITE | GST_DEBUG_BG_BLACK, "buzztrax song renderer");
 
-  if (!bt_init_check (NULL, NULL, NULL)) {
+  if (!bt_init_check (NULL, NULL, NULL, NULL)) {
     GST_WARNING ("failed to init buzztrax library");
     return FALSE;
   }

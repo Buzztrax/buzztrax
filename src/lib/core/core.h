@@ -58,8 +58,8 @@
 
 GOptionGroup *bt_init_get_option_group(void);
 void bt_init_add_option_groups(GOptionContext * const ctx);
-gboolean bt_init_check(gint *argc, gchar **argv[], GError **err);
-void bt_init(gint *argc, gchar **argv[]);
+gboolean bt_init_check(GOptionContext *ctx,  gint *argc, gchar **argv[], GError **err);
+void bt_init(GOptionContext * const ctx, gint *argc, gchar **argv[]);
 void bt_deinit(void);
 
 void bt_setup_for_local_install();

@@ -790,9 +790,39 @@ bt_g_type_get_base_type (GType type)
   return type;
 }
 
+static GHashTable* bt_g_object_idle_obj = NULL;
+
+void
+bt_g_object_idle_add_init ()
+{
+  // This function shouldn't be called multiple times.
+  g_assert (!bt_g_object_idle_obj);
+  bt_g_object_idle_obj = g_hash_table_new (g_direct_hash, g_direct_equal);
+}
+
+void
+bt_g_object_idle_add_cleanup ()
+{
+  if (bt_g_object_idle_obj) {
+    GHashTableIter iter;
+    gpointer key, value;
+
+    g_hash_table_iter_init (&iter, bt_g_object_idle_obj);
+    while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      g_source_remove (GPOINTER_TO_UINT (value));
+    }
+
+    g_hash_table_unref (bt_g_object_idle_obj);
+    bt_g_object_idle_obj = NULL;
+  }
+}
+
 /*
  * on_object_weak_unref:
- * @user_data: the #GSource id
+ * @user_data: the #GSource id, with the high bit indicating whether the idle
+ * function has already been removed or not (by returning FALSE from the
+ * callback.)
  * @obj: the old #GObject
  *
  * Use this with g_idle_add to detach handlers when the object is disposed.
@@ -800,14 +830,25 @@ bt_g_type_get_base_type (GType type)
 static void
 on_object_weak_unref (gpointer user_data, GObject * obj)
 {
-  g_source_remove (GPOINTER_TO_UINT (user_data));
+  gpointer id;
+  
+  if (g_hash_table_lookup_extended (bt_g_object_idle_obj, obj, NULL, &id)) {
+    g_source_remove (GPOINTER_TO_UINT (id));
+    g_hash_table_remove (bt_g_object_idle_obj, obj);
+  }
+}
+
+static void
+bt_g_object_idle_on_callback_removed (gpointer data)
+{
+  g_hash_table_remove (bt_g_object_idle_obj, data);
 }
 
 /**
  * bt_g_object_idle_add:
  * @obj: the old #GObject
  * @pri: the priority of the idle source, e.g. %G_PRIORITY_DEFAULT_IDLE
- * @func: (scope async): the callback
+ * @func: (scope async): the callback, to which @obj will be passed.
  *
  * A g_idle_add_full() variant, that passes @obj as user_data and detaches the
  * handler when @obj gets destroyed.
@@ -817,9 +858,18 @@ on_object_weak_unref (gpointer user_data, GObject * obj)
 guint
 bt_g_object_idle_add (GObject * obj, gint pri, GSourceFunc func)
 {
-  guint id = g_idle_add_full (pri, func, obj, NULL);
+  g_assert (bt_g_object_idle_obj); // bt_init not called
+  
+  guint id =
+    g_idle_add_full (pri, func, obj,
+        bt_g_object_idle_on_callback_removed);
 
-  g_object_weak_ref (obj, on_object_weak_unref, GUINT_TO_POINTER (id));
+  g_hash_table_insert (bt_g_object_idle_obj,
+     obj,
+     GUINT_TO_POINTER (id));
+                       
+  g_object_weak_ref (obj, on_object_weak_unref, NULL);
+  
   return id;
 }
 

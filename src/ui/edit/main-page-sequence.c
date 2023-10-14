@@ -2614,10 +2614,11 @@ static void
 on_sequence_table_cursor_changed (GtkTreeView * treeview, gpointer user_data)
 {
   g_return_if_fail (user_data);
+  BtMainPageSequence* main_page_sequence = BT_MAIN_PAGE_SEQUENCE (user_data);
 
   GST_INFO ("delay processing ...");
   /* delay the action */
-  bt_g_object_idle_add (user_data, G_PRIORITY_HIGH_IDLE,
+  bt_g_object_idle_add ((GObject *) main_page_sequence, G_PRIORITY_HIGH_IDLE,
       on_sequence_table_cursor_changed_idle);
 }
 

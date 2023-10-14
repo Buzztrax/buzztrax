@@ -262,6 +262,7 @@ bt_init_add_option_groups (GOptionContext * const ctx)
 
 /**
  * bt_init_check:
+ * @ctx: (allow-none): optional option context to use
  * @argc: (inout) (allow-none): pointer to application's argc
  * @argv: (inout) (array length=argc) (allow-none): pointer to application's argv
  * @err: pointer to a #GError to which a message will be posted on error
@@ -275,20 +276,33 @@ bt_init_add_option_groups (GOptionContext * const ctx)
  * Returns: %TRUE if Buzztrax core could be initialized.
  */
 gboolean
-bt_init_check (gint * argc, gchar ** argv[], GError ** err)
+bt_init_check (GOptionContext * ctx, gint * argc, gchar ** argv[], GError ** err)
 {
-  GOptionContext *ctx;
+  const gboolean is_new_ctx = ctx == NULL;
   gboolean res;
 
-  ctx = g_option_context_new (NULL);
-  bt_init_add_option_groups (ctx);
+  if (is_new_ctx) {
+    ctx = g_option_context_new (NULL);
+    bt_init_add_option_groups (ctx);
+  }
+  
   res = g_option_context_parse (ctx, argc, argv, err);
-  g_option_context_free (ctx);
+
+  if (is_new_ctx)
+    g_option_context_free (ctx);
+  
+  bt_g_object_idle_add_init ();
+  
+  if (atexit (bt_deinit) != 0) {
+    GST_ERROR ("failed to set bt_deinit as exit function");
+  }
+  
   return res;
 }
 
 /**
  * bt_init:
+ * @ctx: (allow-none): optional option context to use
  * @argc: (inout) (allow-none): pointer to application's argc
  * @argv: (inout) (array length=argc) (allow-none): pointer to application's argv
  *
@@ -306,11 +320,11 @@ bt_init_check (gint * argc, gchar ** argv[], GError ** err)
  * abort program execution.
  */
 void
-bt_init (gint * argc, gchar ** argv[])
+bt_init (GOptionContext* const ctx, gint * argc, gchar ** argv[])
 {
   GError *err = NULL;
 
-  if (!bt_init_check (argc, argv, &err)) {
+  if (!bt_init_check (ctx, argc, argv, &err)) {
     g_print ("Could not initialized Buzztrax core: %s\n",
         err ? err->message : "unknown error occurred");
     if (err) {
@@ -335,6 +349,7 @@ bt_deinit (void)
   gst_caps_replace (&bt_default_caps, NULL);
   // deinit libraries
   gst_deinit ();
+  bt_g_object_idle_add_cleanup ();
 }
 
 

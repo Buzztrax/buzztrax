@@ -20,6 +20,11 @@
 
 #include <gst/gst.h>
 
+//-- init/cleanup
+// Typically called by bt_init/deinit
+void bt_g_object_idle_add_init();
+void bt_g_object_idle_add_cleanup();
+
 //-- gst registry
 
 GList *bt_gst_registry_get_element_factories_matching_all_categories(const gchar *class_filter);
