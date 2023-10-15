@@ -791,18 +791,35 @@ bt_g_type_get_base_type (GType type)
 }
 
 static GHashTable* bt_g_object_idle_obj = NULL;
+static GMutex bt_g_object_idle_obj_mutex;
 
+/**
+ * bt_g_object_idle_add_init:
+ *
+ * Initialize resources required for the "bt_g_object_idle_add" function.
+ * Usually called by bt_init.
+ * This method must be able to be called multiple times safely, because use of
+ * Buzztrax in a plugin will call bt_init multiple times.
+ *
+ * Returns: the handler id
+ */
 void
 bt_g_object_idle_add_init ()
 {
-  // This function shouldn't be called multiple times.
-  g_assert (!bt_g_object_idle_obj);
-  bt_g_object_idle_obj = g_hash_table_new (g_direct_hash, g_direct_equal);
+  g_mutex_lock (&bt_g_object_idle_obj_mutex);
+  
+  if (!bt_g_object_idle_obj) {
+    bt_g_object_idle_obj = g_hash_table_new (g_direct_hash, g_direct_equal);
+  }
+
+  g_mutex_unlock (&bt_g_object_idle_obj_mutex);
 }
 
 void
 bt_g_object_idle_add_cleanup ()
 {
+  g_mutex_lock (&bt_g_object_idle_obj_mutex);
+  
   if (bt_g_object_idle_obj) {
     GHashTableIter iter;
     gpointer key, value;
@@ -816,6 +833,8 @@ bt_g_object_idle_add_cleanup ()
     g_hash_table_unref (bt_g_object_idle_obj);
     bt_g_object_idle_obj = NULL;
   }
+  
+  g_mutex_unlock (&bt_g_object_idle_obj_mutex);
 }
 
 /*
@@ -832,16 +851,24 @@ on_object_weak_unref (gpointer user_data, GObject * obj)
 {
   gpointer id;
   
+  g_mutex_lock (&bt_g_object_idle_obj_mutex);
+  
   if (g_hash_table_lookup_extended (bt_g_object_idle_obj, obj, NULL, &id)) {
     g_source_remove (GPOINTER_TO_UINT (id));
     g_hash_table_remove (bt_g_object_idle_obj, obj);
   }
+  
+  g_mutex_unlock (&bt_g_object_idle_obj_mutex);
 }
 
 static void
 bt_g_object_idle_on_callback_removed (gpointer data)
 {
+  g_mutex_lock (&bt_g_object_idle_obj_mutex);
+  
   g_hash_table_remove (bt_g_object_idle_obj, data);
+
+  g_mutex_unlock (&bt_g_object_idle_obj_mutex);
 }
 
 /**
@@ -864,10 +891,14 @@ bt_g_object_idle_add (GObject * obj, gint pri, GSourceFunc func)
     g_idle_add_full (pri, func, obj,
         bt_g_object_idle_on_callback_removed);
 
+  g_mutex_lock (&bt_g_object_idle_obj_mutex);
+  
   g_hash_table_insert (bt_g_object_idle_obj,
      obj,
      GUINT_TO_POINTER (id));
                        
+  g_mutex_unlock (&bt_g_object_idle_obj_mutex);
+  
   g_object_weak_ref (obj, on_object_weak_unref, NULL);
   
   return id;

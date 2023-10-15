@@ -273,6 +273,9 @@ bt_init_add_option_groups (GOptionContext * const ctx)
  * for some reason.  If you want your program to fail fatally,
  * use bt_init() instead.
  *
+ * This method must be able to be called multiple times safely, because use of
+ * Buzztrax in a plugin will call bt_init multiple times.
+ *
  * Returns: %TRUE if Buzztrax core could be initialized.
  */
 gboolean
@@ -292,11 +295,13 @@ bt_init_check (GOptionContext * ctx, gint * argc, gchar ** argv[], GError ** err
     g_option_context_free (ctx);
   
   bt_g_object_idle_add_init ();
-  
+
+  // Note: multiple registrations of the same atexit function should result in
+  // the function being called only once on exit.
   if (atexit (bt_deinit) != 0) {
     GST_ERROR ("failed to set bt_deinit as exit function");
   }
-  
+
   return res;
 }
 
@@ -347,8 +352,6 @@ bt_deinit (void)
 {
   // release some static ressources
   gst_caps_replace (&bt_default_caps, NULL);
-  // deinit libraries
-  gst_deinit ();
   bt_g_object_idle_add_cleanup ();
 }
 

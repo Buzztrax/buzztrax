@@ -61,7 +61,7 @@ START_TEST (test_bt_core_init_bad_arg_value)
   gint test_argc = G_N_ELEMENTS (test_argv);
 
   GST_INFO ("-- act --");
-  bt_init (&test_argc, &test_argvptr);
+  bt_init (NULL, &test_argc, &test_argvptr);
 
   GST_INFO ("-- assert --");
   BT_TEST_END;
@@ -101,7 +101,7 @@ START_TEST (test_bt_core_init_bad_arg_exits)
   gint test_argc = G_N_ELEMENTS (test_argv);
 
   GST_INFO ("-- act --");
-  bt_init (&test_argc, &test_argvptr);
+  bt_init (NULL, &test_argc, &test_argvptr);
 
   GST_INFO ("-- assert --");
   BT_TEST_END;
