@@ -1028,7 +1028,7 @@ bt_sequence_set_pattern (const BtSequence * const self, const gulong time,
     const gulong track, const BtCmdPattern * const pattern)
 {
   g_return_if_fail (BT_IS_SEQUENCE (self));
-  g_return_if_fail (time < self->priv->length);
+  g_return_if_fail (time < self->priv->len_patterns);
   g_return_if_fail (track < self->priv->tracks);
   g_return_if_fail (self->priv->machines[track]);
 
