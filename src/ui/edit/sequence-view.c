@@ -35,7 +35,8 @@ enum
   SEQUENCE_VIEW_PLAY_POSITION = 1,
   SEQUENCE_VIEW_LOOP_START,
   SEQUENCE_VIEW_LOOP_END,
-  SEQUENCE_VIEW_VISIBLE_ROWS
+  SEQUENCE_VIEW_VISIBLE_ROWS,
+  SEQUENCE_VIEW_SONG_END_ROWS
 };
 
 
@@ -53,8 +54,8 @@ struct _BtSequenceViewPrivate
   /* position of loop range from 0.0 ... 1.0 */
   gdouble loop_start, loop_end;
 
-  /* number of visible rows, the height of one row */
-  gulong visible_rows, row_height;
+  /* number of visible rows, the height of one row, number of rows till song end */
+  gulong visible_rows, row_height, song_end_rows;
 
   /* cache some ressources */
   GdkWindow *window;
@@ -76,7 +77,7 @@ bt_sequence_view_invalidate (const BtSequenceView * self, gdouble old_pos,
     gdouble new_pos)
 {
   GtkWidget *widget = (GtkWidget *) self;
-  gdouble h = (gdouble) (self->priv->visible_rows * self->priv->row_height);
+  gdouble h = (gdouble) (self->priv->song_end_rows * self->priv->row_height);
   GdkRectangle vr;
   gdouble y;
 
@@ -174,9 +175,10 @@ bt_sequence_view_draw (GtkWidget * widget, cairo_t * c)
 
   w = (gdouble) gtk_widget_get_allocated_width (widget);
   h = (gdouble) (self->priv->visible_rows * self->priv->row_height);
+  gdouble h_song = (gdouble) (self->priv->song_end_rows * self->priv->row_height);
 
   // draw play-pos
-  y = 0.5 + floor ((self->priv->play_pos * h) - vr.y);
+  y = 0.5 + floor ((self->priv->play_pos * h_song) - vr.y);
   if ((y >= 0) && (y < vr.height)) {
     gdk_cairo_set_source_rgba (c, &self->priv->play_line_color);
     cairo_set_line_width (c, 2.0);
@@ -255,6 +257,12 @@ bt_sequence_view_set_property (GObject * object, guint property_id,
         gtk_widget_queue_draw (GTK_WIDGET (self));
       }
       break;
+    case SEQUENCE_VIEW_SONG_END_ROWS:
+      self->priv->song_end_rows = g_value_get_ulong (value);
+      if (gtk_widget_get_realized (GTK_WIDGET (self))) {
+        gtk_widget_queue_draw (GTK_WIDGET (self));
+      }
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -317,5 +325,11 @@ bt_sequence_view_class_init (BtSequenceViewClass * klass)
       g_param_spec_ulong ("visible-rows",
           "visible rows prop.",
           "The number of currntly visible sequence rows",
+          0, G_MAXULONG, 0, G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, SEQUENCE_VIEW_SONG_END_ROWS,
+      g_param_spec_ulong ("song-end-rows",
+          "song end rows prop.",
+          "The number of rows until the song end marker",
           0, G_MAXULONG, 0, G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 }

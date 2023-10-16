@@ -553,18 +553,20 @@ sequence_model_get_store (const BtMainPageSequence * self)
 static void
 sequence_calculate_visible_lines (const BtMainPageSequence * self)
 {
-  gulong visible_rows, sequence_length;
+  gulong visible_rows, sequence_length, song_length;
   glong loop_start_pos, loop_end_pos;
   gdouble loop_start, loop_end;
 
-  g_object_get (self->priv->sequence, "len-patterns", &sequence_length, "loop-start",
-      &loop_start_pos, "loop-end", &loop_end_pos, NULL);
+  g_object_get (self->priv->sequence, "len-patterns", &sequence_length,
+      "length", &song_length,
+      "loop-start", &loop_start_pos, "loop-end", &loop_end_pos, NULL);
 
   if (self->priv->sequence_length < sequence_length) {
     self->priv->sequence_length = sequence_length;
   }
 
   visible_rows = sequence_length / self->priv->bars;
+  gulong song_end_rows = song_length / self->priv->bars;
   loop_start =
       (loop_start_pos >
       -1) ? (gdouble) loop_start_pos / (gdouble) sequence_length : 0.0;
@@ -574,8 +576,10 @@ sequence_calculate_visible_lines (const BtMainPageSequence * self)
   GST_INFO ("visible_rows=%lu = %lu / %lu", visible_rows, sequence_length,
       self->priv->bars);
   g_object_set (self->priv->sequence_table, "visible-rows", visible_rows,
+      "song-end-rows", song_end_rows,
       "loop-start", loop_start, "loop-end", loop_end, NULL);
   g_object_set (self->priv->sequence_pos_table, "visible-rows", visible_rows,
+      "song-end-rows", song_end_rows,
       "loop-start", loop_start, "loop-end", loop_end, NULL);
 }
 
