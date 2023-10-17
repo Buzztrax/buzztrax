@@ -57,6 +57,9 @@
 
 #include "core_private.h"
 
+//-- forward declarations
+static void bt_sequence_limit_play_pos_internal (const BtSequence * const self);
+
 //-- signal ids
 
 enum
@@ -438,6 +441,29 @@ bt_sequence_resize_data_length (const BtSequence * const self, const gulong leng
   }
 
   self->priv->len_patterns = new_length;
+  self->priv->length = MIN (self->priv->length, self->priv->len_patterns);
+
+  if (self->priv->loop_end != -1) {
+    // clip loopend to length or extend loop-end as well if loop_end was
+    // old length
+    if ((self->priv->loop_end > self->priv->length) ||
+        (self->priv->loop_end == length)) {
+      self->priv->play_end = self->priv->loop_end = self->priv->length;
+      g_object_notify ((GObject *) self, "loop-end");
+      if (self->priv->loop_end <= self->priv->loop_start) {
+        self->priv->loop_start = self->priv->loop_end = -1;
+        self->priv->loop = FALSE;
+        g_object_notify ((GObject *) self, "loop-start");
+        g_object_notify ((GObject *) self, "loop");
+      }
+    }
+  } else {
+    self->priv->play_end = self->priv->length;
+  }
+  
+  bt_sequence_limit_play_pos_internal (self);
+  
+  g_object_notify ((GObject *) self, "len-patterns");
 }
 
 /*
@@ -1002,7 +1028,7 @@ bt_sequence_set_pattern (const BtSequence * const self, const gulong time,
     const gulong track, const BtCmdPattern * const pattern)
 {
   g_return_if_fail (BT_IS_SEQUENCE (self));
-  g_return_if_fail (time < self->priv->length);
+  g_return_if_fail (time < self->priv->len_patterns);
   g_return_if_fail (track < self->priv->tracks);
   g_return_if_fail (self->priv->machines[track]);
 
@@ -1683,24 +1709,6 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
       if (length != self->priv->length) {
         GST_DEBUG ("set the length for sequence: %lu", self->priv->length);
         bt_sequence_resize_data_length (self, self->priv->length);
-        if (self->priv->loop_end != -1) {
-          // clip loopend to length or extend loop-end as well if loop_end was
-          // old length
-          if ((self->priv->loop_end > self->priv->length) ||
-              (self->priv->loop_end == length)) {
-            self->priv->play_end = self->priv->loop_end = self->priv->length;
-            g_object_notify ((GObject *) self, "loop-end");
-            if (self->priv->loop_end <= self->priv->loop_start) {
-              self->priv->loop_start = self->priv->loop_end = -1;
-              self->priv->loop = FALSE;
-              g_object_notify ((GObject *) self, "loop-start");
-              g_object_notify ((GObject *) self, "loop");
-            }
-          }
-        } else {
-          self->priv->play_end = self->priv->length;
-        }
-        bt_sequence_limit_play_pos_internal (self);
       }
       break;
     }
@@ -1778,6 +1786,17 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
           -1) ? self->priv->loop_end : self->priv->length;
       bt_sequence_limit_play_pos_internal (self);
       break;
+    case SEQUENCE_LEN_PATTERNS:{
+      // TODO(ensonic): remove or better stop the song
+      // if(self->priv->is_playing) bt_sequence_stop(self);
+      // prepare new data
+      const gulong len_patterns_in = g_value_get_ulong (value);
+      if (len_patterns_in != self->priv->len_patterns) {
+        GST_DEBUG ("set the pattern length for sequence: %lu", len_patterns_in);
+        bt_sequence_resize_data_length (self, len_patterns_in);
+      }
+      break;
+    }
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -1942,19 +1961,50 @@ bt_sequence_class_init (BtSequenceClass * const klass)
           "Set song object, the sequence belongs to", BT_TYPE_SONG,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
+  /**
+   * A note on "length" and "len-patterns".
+   *
+   * There are two concepts relating to sequence length. The first is the
+   * "length" of the song in ticks, which marks the point at which the
+   * playback stops because the author has marked that point as the song's
+   * end.
+   *
+   * The second concept is "len-patterns". While authoring the song, the
+   * "length" may be set at different points in the song, but there may still
+   * be sequence data present past this end point as the author moves the
+   * end point around. This data should not be lost if the end point is moved,
+   * as the author may change their mind and decide to move the end point again.
+   * If the song is saved, this sequence data should also be persisted and
+   * restored along with the song. "len-patterns" represents the furthest tick
+   * at which sequence data could be found.
+   *
+   * Different logic will be interested in the different properties. "length"
+   * is the correct property to look at when executing logic interested in where
+   * "playback" ends, such as checking if the song's loop end point needs to be
+   * adjusted because the song's end point has been moved backward, or knowing
+   * when the song has finished and recording may be stopped, or calculating the
+   * length of the playback segment.
+   *
+   * "len-patterns" is relevant to program logic when operating on sequence data.
+   * For example, knowing if pasted data will extend beyond the end of the
+   * sequence buffer to check if a resize is necessary, or whether a point clicked
+   * in the sequence editor contains a pattern value or not, or knowing how many
+   * rows must be drawn in the sequence editor tree view.
+   **/
+   
   // loop-pos are LONG as well
   //
   // The max value here was previously G_MAXULONG. Please see the docs for 
   // "bt_sequence_get_nonnull_length" for the reason it was changed.
   g_object_class_install_property (gobject_class, SEQUENCE_LENGTH,
       g_param_spec_ulong ("length", "length prop",
-          "length of the sequence in timeline bars", 0, G_MAXINT, 0,
+          "song end position of the sequence in timeline bars", 0, G_MAXINT, 0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SEQUENCE_LEN_PATTERNS,
       g_param_spec_ulong ("len-patterns", "patterns length prop",
-          "total length of non-null patterns in timeline bars", 0, G_MAXLONG, 0,
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+          "total length of sequence in timeline bars", 0, G_MAXLONG, 0,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
   
   g_object_class_install_property (gobject_class, SEQUENCE_TRACKS,
       g_param_spec_ulong ("tracks",

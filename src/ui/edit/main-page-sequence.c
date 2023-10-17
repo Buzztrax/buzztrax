@@ -553,18 +553,20 @@ sequence_model_get_store (const BtMainPageSequence * self)
 static void
 sequence_calculate_visible_lines (const BtMainPageSequence * self)
 {
-  gulong visible_rows, sequence_length;
+  gulong visible_rows, sequence_length, song_length;
   glong loop_start_pos, loop_end_pos;
   gdouble loop_start, loop_end;
 
-  g_object_get (self->priv->sequence, "length", &sequence_length, "loop-start",
-      &loop_start_pos, "loop-end", &loop_end_pos, NULL);
+  g_object_get (self->priv->sequence, "len-patterns", &sequence_length,
+      "length", &song_length,
+      "loop-start", &loop_start_pos, "loop-end", &loop_end_pos, NULL);
 
   if (self->priv->sequence_length < sequence_length) {
     self->priv->sequence_length = sequence_length;
   }
 
   visible_rows = sequence_length / self->priv->bars;
+  gulong song_end_rows = song_length / self->priv->bars;
   loop_start =
       (loop_start_pos >
       -1) ? (gdouble) loop_start_pos / (gdouble) sequence_length : 0.0;
@@ -574,8 +576,10 @@ sequence_calculate_visible_lines (const BtMainPageSequence * self)
   GST_INFO ("visible_rows=%lu = %lu / %lu", visible_rows, sequence_length,
       self->priv->bars);
   g_object_set (self->priv->sequence_table, "visible-rows", visible_rows,
+      "song-end-rows", song_end_rows,
       "loop-start", loop_start, "loop-end", loop_end, NULL);
   g_object_set (self->priv->sequence_pos_table, "visible-rows", visible_rows,
+      "song-end-rows", song_end_rows,
       "loop-start", loop_start, "loop-end", loop_end, NULL);
 }
 
@@ -682,7 +686,7 @@ sequence_range_copy (const BtMainPageSequence * self, glong track_beg,
   gchar *id, *str;
   gulong sequence_length;
 
-  g_object_get (sequence, "length", &sequence_length, NULL);
+  g_object_get (sequence, "len-patterns", &sequence_length, NULL);
 
   /* label-track */
   col = track_beg;
@@ -1156,7 +1160,7 @@ on_sequence_label_edited (GtkCellRendererText * cellrenderertext,
         gulong old_length, new_length = 0;
 
         GST_INFO ("label changed");
-        g_object_get (self->priv->sequence, "length", &old_length, NULL);
+        g_object_get (self->priv->sequence, "len-patterns", &old_length, NULL);
 
         // update the sequence
 
@@ -1164,7 +1168,7 @@ on_sequence_label_edited (GtkCellRendererText * cellrenderertext,
 
         if (pos >= old_length) {
           new_length = pos + self->priv->bars;
-          g_object_set (self->priv->sequence, "length", new_length, NULL);
+          g_object_set (self->priv->sequence, "len-patterns", new_length, NULL);
           sequence_calculate_visible_lines (self);
           sequence_update_model_length (self);
 
@@ -2699,7 +2703,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
     gulong modifier =
         (gulong) event->state & gtk_accelerator_get_default_mod_mask ();
 
-    g_object_get (self->priv->sequence, "length", &length, "tracks", &tracks,
+    g_object_get (self->priv->sequence, "len-patterns", &length, "tracks", &tracks,
         NULL);
 
     GST_DEBUG ("cursor pos : %lu/%lu, %lu/%lu", row, length, track, tracks);
@@ -2870,7 +2874,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
         gulong sequence_length;
 
         GST_INFO ("insert pressed, row %lu, track %ld", row, col);
-        g_object_get (self->priv->sequence, "length", &sequence_length, NULL);
+        g_object_get (self->priv->sequence, "len-patterns", &sequence_length, NULL);
         sequence_range_copy (self, track, track, row, sequence_length - 1,
             old_data);
         bt_sequence_insert_rows (self->priv->sequence, row, col,
@@ -2889,7 +2893,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
         gchar *undo_str, *redo_str;
 
         GST_INFO ("shift-insert pressed, row %lu", row);
-        g_object_get (self->priv->sequence, "length", &sequence_length,
+        g_object_get (self->priv->sequence, "len-patterns", &sequence_length,
             "tracks", &number_of_tracks, NULL);
         sequence_length += self->priv->bars;
 
@@ -2929,7 +2933,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
         gulong sequence_length;
 
         GST_INFO ("delete pressed, row %lu, track %ld", row, col);
-        g_object_get (self->priv->sequence, "length", &sequence_length, NULL);
+        g_object_get (self->priv->sequence, "len-patterns", &sequence_length, NULL);
         sequence_range_copy (self, track, track, row, sequence_length - 1,
             old_data);
         bt_sequence_delete_rows (self->priv->sequence, row, col,
@@ -2948,7 +2952,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
         gchar *undo_str, *redo_str;
 
         GST_INFO ("shift-delete pressed, row %lu", row);
-        g_object_get (self->priv->sequence, "length", &sequence_length,
+        g_object_get (self->priv->sequence, "len-patterns", &sequence_length,
             "tracks", &number_of_tracks, NULL);
 
         sequence_range_copy (self, 0, number_of_tracks, row,
@@ -2997,7 +3001,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
 
           if (row >= length) {
             new_length = row + self->priv->bars;
-            g_object_set (self->priv->sequence, "length", new_length, NULL);
+            g_object_set (self->priv->sequence, "len-patterns", new_length, NULL);
             sequence_calculate_visible_lines (self);
             sequence_update_model_length (self);
           }
@@ -3382,7 +3386,7 @@ on_track_removed (BtSequence * sequence, BtMachine * machine, gulong track,
 
   /* handle undo/redo */
   g_object_get (machine, "id", &mid, NULL);
-  g_object_get (self->priv->sequence, "length", &sequence_length, NULL);
+  g_object_get (self->priv->sequence, "len-patterns", &sequence_length, NULL);
 
   bt_change_log_start_group (self->priv->change_log);
 
@@ -4198,10 +4202,13 @@ sequence_deserialize_pattern_track (BtMainPageSequence * self,
         gint j = 1;
         gulong sequence_length;
 
-        g_object_get (sequence, "length", &sequence_length, NULL);
+        g_object_get (sequence, "len-patterns", &sequence_length, NULL);
 
         while ((row < sequence_length) && fields[j] && *fields[j] && res) {
-          if (*fields[j] != ' ') {
+          
+          // Note: fields[j] may be a pattern name, " " for empty cell,
+          // "   break" for a pattern break...
+          if (strcmp (fields[j], " ") != 0) {
             pattern = bt_machine_get_pattern_by_name (machine, fields[j]);
             if (!pattern) {
               GST_WARNING ("machine %p on track %lu, has no pattern with id %s",
@@ -4258,9 +4265,10 @@ sequence_deserialize_label_track (BtMainPageSequence * self,
     gint j = 1;
     gulong sequence_length;
 
-    g_object_get (sequence, "length", &sequence_length, NULL);
+    g_object_get (sequence, "len-patterns", &sequence_length, NULL);
 
     while ((row < sequence_length) && fields[j] && *fields[j] && res) {
+      
       if (*fields[j] != ' ') {
         str = fields[j];
       } else {
@@ -4310,14 +4318,17 @@ sequence_clipboard_received_func (GtkClipboard * clipboard,
     gchar **fields;
     gboolean res = TRUE;
 
-    g_object_get (self->priv->sequence, "length", &sequence_length, NULL);
+    g_object_get (self->priv->sequence, "len-patterns", &sequence_length, NULL);
 
     ticks = atol (lines[0]);
     sequence_length--;
     // paste from self->priv->cursor_row to MIN(self->priv->cursor_row+ticks,sequence_length)
     beg = self->priv->cursor_row;
     end = beg + ticks;
-    end = MIN (end, sequence_length);
+
+    if (end > sequence_length)
+      g_object_set (self->priv->sequence, "len-patterns", end, NULL);
+    
     GST_INFO ("pasting from row %d to %d", beg, end);
 
     if ((store = sequence_model_get_store (self))) {
@@ -4327,6 +4338,8 @@ sequence_clipboard_received_func (GtkClipboard * clipboard,
         // process each line (= pattern column)
         while (lines[i] && *lines[i]
             && (self->priv->cursor_row + (i - 1) <= end) && res) {
+
+          // result should be <machine_id>,<pattern_name | " " | "   break">,...
           fields = g_strsplit_set (lines[i], ",", 0);
 
           if ((self->priv->cursor_column + (i - 2)) >= 0) {
@@ -4350,6 +4363,9 @@ sequence_clipboard_received_func (GtkClipboard * clipboard,
     }
   }
   g_strfreev (lines);
+  
+  sequence_calculate_visible_lines (self);
+  sequence_update_model_length (self);
 }
 
 
@@ -4358,7 +4374,6 @@ sequence_clipboard_received_func (GtkClipboard * clipboard,
  * @self: the sequence subpage
  *
  * Paste at the top of the selected area.
- * <note>not yet working</note>
  */
 void
 bt_main_page_sequence_paste_selection (const BtMainPageSequence * self)
