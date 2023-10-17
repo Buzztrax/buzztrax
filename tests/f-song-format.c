@@ -23,7 +23,7 @@ LLVMFuzzerTestOneInput (const uint8_t * data, size_t len)
   static int init_done = FALSE;
   if (!init_done) {
     bt_setup_for_local_install ();
-    bt_init (NULL, NULL);
+    bt_init (NULL, NULL, NULL);
     init_done = TRUE;
   }
 

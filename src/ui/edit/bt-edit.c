@@ -118,7 +118,7 @@ main (gint argc, gchar ** argv)
   g_option_context_add_group (ctx, clutter_get_option_group_without_init ());
   g_option_context_add_group (ctx, gtk_clutter_get_option_group ());
 
-  if (!g_option_context_parse (ctx, &argc, &argv, &err)) {
+  if (!bt_init_check (ctx, &argc, &argv, &err)) {
     g_print ("Error initializing: %s\n", safe_string (err->message));
     g_error_free (err);
     goto Done;

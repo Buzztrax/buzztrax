@@ -56,7 +56,7 @@ START_TEST (test_bt_core_init_no_args)
 {
   BT_TEST_START;
   GST_INFO ("-- act --");
-  bt_init (&test_argc, &test_argvptr);
+  bt_init (NULL, &test_argc, &test_argvptr);
   BT_TEST_END;
 }
 END_TEST
@@ -66,7 +66,7 @@ START_TEST (test_bt_core_init_nullptr_args)
 {
   BT_TEST_START;
   GST_INFO ("-- act --");
-  bt_init (NULL, NULL);
+  bt_init (NULL, NULL, NULL);
   BT_TEST_END;
 }
 END_TEST
@@ -81,7 +81,7 @@ START_TEST (test_bt_core_init_args)
   gint test_argc = G_N_ELEMENTS (test_argv);
 
   GST_INFO ("-- act --");
-  bt_init (&test_argc, &test_argvptr);
+  bt_init (NULL, &test_argc, &test_argvptr);
 
   GST_INFO ("-- assert --");
   ck_assert_int_eq (test_argc, 1);

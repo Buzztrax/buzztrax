@@ -119,7 +119,7 @@ bt_edit_setup (void)
 
   if (gtk_clutter_init (&test_argc, &test_argvptr) != CLUTTER_INIT_SUCCESS)
     exit (1);
-  bt_init (&test_argc, &test_argvptr);
+  bt_init (NULL, &test_argc, &test_argvptr);
   btic_init (&test_argc, &test_argvptr);
   /* TODO(ensonic): we need to ensure icons are found when running uninstalled
    * one problem is that we have them under "pixmaps" and not "icons"

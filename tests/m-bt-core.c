@@ -70,7 +70,7 @@ main (gint argc, gchar ** argv)
   gst_init (NULL, NULL);
 
   bt_check_init ();
-  bt_init (&test_argc, &test_argvptr);
+  bt_init (NULL, &test_argc, &test_argvptr);
 
   sr = srunner_create (bt_application_suite ());
   srunner_add_suite (sr, bt_audio_session_suite ());
