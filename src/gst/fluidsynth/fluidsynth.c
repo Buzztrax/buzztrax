@@ -247,10 +247,13 @@ settings_foreach_func (void *data, const char *name, int type)
 #endif
 {
   ForeachBag *bag = (ForeachBag *) data;
-  GParamSpec *spec;
+  GParamSpec *spec = NULL;
   double dmin, dmax, ddef;
   int imin, imax, idef;
-  char *defstr;
+  char *defstr, *pname;
+
+  pname = g_strdup (name);
+  g_strcanon (pname, G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '-');
 
   switch (type) {
     case FLUID_NUM_TYPE:
@@ -260,7 +263,7 @@ settings_foreach_func (void *data, const char *name, int type)
 #else
       if (fluid_settings_getnum_default (bag->settings, name, &ddef) != FLUID_OK) ddef = 0;
 #endif
-      spec = g_param_spec_double (name, name, name, dmin, dmax, ddef,
+      spec = g_param_spec_double (pname, name, name, dmin, dmax, ddef,
           G_PARAM_READWRITE);
       break;
     case FLUID_INT_TYPE:
@@ -270,7 +273,7 @@ settings_foreach_func (void *data, const char *name, int type)
 #else
       if (fluid_settings_getint_default (bag->settings, name, &idef) != FLUID_OK) idef = 0;
 #endif
-      spec = g_param_spec_int (name, name, name, imin, imax, idef,
+      spec = g_param_spec_int (pname, name, name, imin, imax, idef,
           G_PARAM_READWRITE);
       break;
     case FLUID_STR_TYPE:
@@ -279,13 +282,18 @@ settings_foreach_func (void *data, const char *name, int type)
 #else
       if (fluid_settings_getstr_default (bag->settings, name,&defstr) != FLUID_OK) defstr = 0;
 #endif
-      spec = g_param_spec_string (name, name, name, defstr, G_PARAM_READWRITE);
+      spec = g_param_spec_string (pname, name, name, defstr, G_PARAM_READWRITE);
       break;
     case FLUID_SET_TYPE:
-      g_warning ("Enum not handled for property '%s'", name);
-      return;
+      GST_WARNING ("Enum not handled for property '%s'", name);
+      break;
     default:
-      return;
+      GST_WARNING ("Type %d not handled for property '%s'", type, name);
+      break;
+  }
+  g_free(pname);
+  if (!spec) {
+    return;
   }
 
   /* install the property */
