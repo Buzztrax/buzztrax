@@ -16,10 +16,10 @@ env:
   CONFIGURE_OPTS: "--enable-debug --enable-coverage --disable-debug"
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
-    - uses: action/checkout@v4
+    - uses: actions/checkout@v4
 
     - name: Install dependencies
       run: |
@@ -32,7 +32,7 @@ jobs:
         make
         make check
 
-    - uses: action/upload-artifact@v4
+    - uses: actions/upload-artifact@v4
       with:
         path: |
           test-suite.log
