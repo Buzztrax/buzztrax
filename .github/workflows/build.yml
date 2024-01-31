@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 env:
-  CONFIGURE_OPTS: "--enable-debug --enable-coverage --disable-debug"
+  CONFIGURE_OPTS: "--enable-debug --enable-coverage"
 
 jobs:
   build:
