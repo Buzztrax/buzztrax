@@ -29,7 +29,7 @@ jobs:
 
     - name: Set locale
       run: |
-        sudo localectl en_US.UTF-8
+        sudo locale-gen en_US.UTF-8
         sudo update-locale LANG=en_US.UTF-8
 
     - name: autogen.sh
