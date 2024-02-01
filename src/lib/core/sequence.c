@@ -1961,36 +1961,34 @@ bt_sequence_class_init (BtSequenceClass * const klass)
           "Set song object, the sequence belongs to", BT_TYPE_SONG,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  /**
-   * A note on "length" and "len-patterns".
-   *
-   * There are two concepts relating to sequence length. The first is the
-   * "length" of the song in ticks, which marks the point at which the
-   * playback stops because the author has marked that point as the song's
-   * end.
-   *
-   * The second concept is "len-patterns". While authoring the song, the
-   * "length" may be set at different points in the song, but there may still
-   * be sequence data present past this end point as the author moves the
-   * end point around. This data should not be lost if the end point is moved,
-   * as the author may change their mind and decide to move the end point again.
-   * If the song is saved, this sequence data should also be persisted and
-   * restored along with the song. "len-patterns" represents the furthest tick
-   * at which sequence data could be found.
-   *
-   * Different logic will be interested in the different properties. "length"
-   * is the correct property to look at when executing logic interested in where
-   * "playback" ends, such as checking if the song's loop end point needs to be
-   * adjusted because the song's end point has been moved backward, or knowing
-   * when the song has finished and recording may be stopped, or calculating the
-   * length of the playback segment.
-   *
-   * "len-patterns" is relevant to program logic when operating on sequence data.
-   * For example, knowing if pasted data will extend beyond the end of the
-   * sequence buffer to check if a resize is necessary, or whether a point clicked
-   * in the sequence editor contains a pattern value or not, or knowing how many
-   * rows must be drawn in the sequence editor tree view.
-   **/
+  // A note on "length" and "len-patterns".
+  //
+  // There are two concepts relating to sequence length. The first is the
+  // "length" of the song in ticks, which marks the point at which the
+  // playback stops because the author has marked that point as the song's
+  // end.
+  //
+  // The second concept is "len-patterns". While authoring the song, the
+  // "length" may be set at different points in the song, but there may still
+  // be sequence data present past this end point as the author moves the
+  // end point around. This data should not be lost if the end point is moved,
+  // as the author may change their mind and decide to move the end point again.
+  // If the song is saved, this sequence data should also be persisted and
+  // restored along with the song. "len-patterns" represents the furthest tick
+  // at which sequence data could be found.
+  //
+  // Different logic will be interested in the different properties. "length"
+  // is the correct property to look at when executing logic interested in where
+  // "playback" ends, such as checking if the song's loop end point needs to be
+  // adjusted because the song's end point has been moved backward, or knowing
+  // when the song has finished and recording may be stopped, or calculating the
+  // length of the playback segment.
+  //
+  // "len-patterns" is relevant to program logic when operating on sequence data.
+  // For example, knowing if pasted data will extend beyond the end of the
+  // sequence buffer to check if a resize is necessary, or whether a point clicked
+  // in the sequence editor contains a pattern value or not, or knowing how many
+  // rows must be drawn in the sequence editor tree view.
    
   // loop-pos are LONG as well
   //
