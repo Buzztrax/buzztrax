@@ -1,12 +1,13 @@
 ## Process this file with automake to produce Makefile.in
 
 # AM_GNU_GETTEXT requires po in SUBDIRS
-SUBDIRS = po docs/help/bt-edit
+SUBDIRS = po
 # see fake subdir rules
 FAKE_SUBDIRS = \
+  docs/help/bt-edit \
   docs/reference/bt-core docs/reference/bt-ic \
   docs/reference/bt-cmd docs/reference/bt-edit \
-  docs/reference/bt-gst
+  docs/reference/bt-gst \
 DIST_SUBDIRS = $(SUBDIRS) $(FAKE_SUBDIRS)
 
 ACLOCAL_AMFLAGS = -I m4
@@ -87,7 +88,7 @@ appdata_in_files = buzztrax.appdata.xml.in
 
 #-- fake subdir rules
 
-docs: docs-bt-core docs-bt-ic docs-bt-cmd docs-bt-edit docs-bt-gst
+docs: help-bt-edit docs-bt-core docs-bt-ic docs-bt-cmd docs-bt-edit docs-bt-gst
 
 docs/reference/version.entities:
 	@cp docs/version.entities docs/reference/
@@ -103,6 +104,9 @@ docs-bt-cmd: libbtcmd.la libbuzztrax-ic.la libbuzztrax-core.la docs/reference/ve
 
 docs-bt-edit: libbtedit.la libbuzztrax-ic.la libbuzztrax-core.la docs/reference/version.entities | docs-bt-core docs-bt-ic
 	@$(MAKE) -C docs/reference/bt-edit
+
+help-bt-edit: docs/reference/version.entities
+	@$(MAKE) -C docs/help/bt-edit
 
 if FLUIDSYNTH_SUPPORT
 FLUIDSYNTH_LA = libgstfluidsynth.la
