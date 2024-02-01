@@ -58,7 +58,7 @@
 #include "core_private.h"
 
 //-- forward declarations
-static void bt_sequence_limit_play_pos_internal(const BtSequence *const self);
+static void bt_sequence_limit_play_pos_internal (const BtSequence * const self);
 
 //-- signal ids
 
@@ -97,7 +97,7 @@ struct _BtSequencePrivate
 
   /* the position of the song end */
   gulong length;
-
+  
   /* the total number of timeline entries */
   gulong len_patterns;
 
@@ -137,19 +137,18 @@ struct _BtSequencePrivate
   GstToc *toc;
 };
 
-static guint signals[LAST_SIGNAL] = {
-    0,
-};
+static guint signals[LAST_SIGNAL] = { 0, };
 
 //-- the class
 
-static void bt_sequence_persistence_interface_init(gpointer const g_iface,
-                                                   gpointer const iface_data);
+static void bt_sequence_persistence_interface_init (gpointer const g_iface,
+    gpointer const iface_data);
 
-G_DEFINE_TYPE_WITH_CODE(BtSequence, bt_sequence, G_TYPE_OBJECT,
-                        G_ADD_PRIVATE(BtSequence)
-                            G_IMPLEMENT_INTERFACE(BT_TYPE_PERSISTENCE,
-                                                  bt_sequence_persistence_interface_init));
+G_DEFINE_TYPE_WITH_CODE (BtSequence, bt_sequence, G_TYPE_OBJECT,
+    G_ADD_PRIVATE(BtSequence)
+    G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
+        bt_sequence_persistence_interface_init));
+
 
 //-- helper methods
 
@@ -162,55 +161,50 @@ G_DEFINE_TYPE_WITH_CODE(BtSequence, bt_sequence, G_TYPE_OBJECT,
  * Returns: the toc, unref when done.
  */
 static GstToc *
-bt_sequence_get_toc(const BtSequence *const self)
+bt_sequence_get_toc (const BtSequence * const self)
 {
-  if (!self->priv->toc)
-  {
+  if (!self->priv->toc) {
     GstTocEntry *entry, *subentry, *prev_entry = NULL;
     GstTagList *tags;
-    GstClockTime duration, tick_duration, start = G_GUINT64_CONSTANT(0), stop;
+    GstClockTime duration, tick_duration, start = G_GUINT64_CONSTANT (0), stop;
     gchar *id;
     gulong i;
 
-    self->priv->toc = gst_toc_new(GST_TOC_SCOPE_GLOBAL);
+    self->priv->toc = gst_toc_new (GST_TOC_SCOPE_GLOBAL);
 
-    bt_child_proxy_get(self->priv->song, "song-info::tick-duration",
-                       &tick_duration, NULL);
+    bt_child_proxy_get (self->priv->song, "song-info::tick-duration",
+        &tick_duration, NULL);
     duration = tick_duration * self->priv->length;
 
-    entry = gst_toc_entry_new(GST_TOC_ENTRY_TYPE_EDITION, "cue");
-    gst_toc_entry_set_start_stop_times(entry, 0, duration);
-    gst_toc_append_entry(self->priv->toc, entry);
+    entry = gst_toc_entry_new (GST_TOC_ENTRY_TYPE_EDITION, "cue");
+    gst_toc_entry_set_start_stop_times (entry, 0, duration);
+    gst_toc_append_entry (self->priv->toc, entry);
 
-    for (i = 0; i < self->priv->length; i++)
-    {
+    for (i = 0; i < self->priv->length; i++) {
       const gchar *const label = self->priv->labels[i];
-      if (label)
-      {
-        id = g_strdup_printf("%08lx", i);
-        subentry = gst_toc_entry_new(GST_TOC_ENTRY_TYPE_TRACK, id);
-        g_free(id);
-        tags = gst_tag_list_new_empty();
-        gst_tag_list_add(tags, GST_TAG_MERGE_APPEND, GST_TAG_TITLE, label,
-                         NULL);
-        gst_toc_entry_set_tags(subentry, tags);
-        gst_toc_entry_append_sub_entry(entry, subentry);
+      if (label) {
+        id = g_strdup_printf ("%08lx", i);
+        subentry = gst_toc_entry_new (GST_TOC_ENTRY_TYPE_TRACK, id);
+        g_free (id);
+        tags = gst_tag_list_new_empty ();
+        gst_tag_list_add (tags, GST_TAG_MERGE_APPEND, GST_TAG_TITLE, label,
+            NULL);
+        gst_toc_entry_set_tags (subentry, tags);
+        gst_toc_entry_append_sub_entry (entry, subentry);
 
         stop = tick_duration * i;
-        if (prev_entry)
-        {
-          gst_toc_entry_set_start_stop_times(prev_entry, start, stop);
+        if (prev_entry) {
+          gst_toc_entry_set_start_stop_times (prev_entry, start, stop);
         }
         prev_entry = subentry;
         start = stop;
       }
     }
-    if (prev_entry)
-    {
-      gst_toc_entry_set_start_stop_times(prev_entry, start, duration);
+    if (prev_entry) {
+      gst_toc_entry_set_start_stop_times (prev_entry, start, duration);
     }
   }
-  return gst_toc_ref(self->priv->toc);
+  return gst_toc_ref (self->priv->toc);
 }
 
 /*
@@ -220,11 +214,10 @@ bt_sequence_get_toc(const BtSequence *const self)
  * Release the cached toc. Use this when the sequence labels change.
  */
 static void
-bt_sequence_release_toc(const BtSequence *const self)
+bt_sequence_release_toc (const BtSequence * const self)
 {
-  if (self->priv->toc)
-  {
-    gst_toc_unref(self->priv->toc);
+  if (self->priv->toc) {
+    gst_toc_unref (self->priv->toc);
     self->priv->toc = NULL;
   }
 }
@@ -239,11 +232,11 @@ bt_sequence_release_toc(const BtSequence *const self)
  * Returns: the pattern count
  */
 static inline gulong
-bt_sequence_get_number_of_pattern_uses(const BtSequence *const self,
-                                       const BtPattern *const pattern)
+bt_sequence_get_number_of_pattern_uses (const BtSequence * const self,
+    const BtPattern * const pattern)
 {
-  return GPOINTER_TO_UINT(g_hash_table_lookup(self->priv->pattern_usage,
-                                              pattern));
+  return GPOINTER_TO_UINT (g_hash_table_lookup (self->priv->pattern_usage,
+          pattern));
 }
 
 /*
@@ -258,8 +251,8 @@ bt_sequence_get_number_of_pattern_uses(const BtSequence *const self,
  * Returns: %TRUE if there is a pattern at the given location
  */
 static inline gboolean
-bt_sequence_test_pattern(const BtSequence *const self, const gulong time,
-                         const gulong track)
+bt_sequence_test_pattern (const BtSequence * const self, const gulong time,
+    const gulong track)
 {
   /*g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
      g_return_val_if_fail(time<self->priv->length,FALSE);
@@ -269,81 +262,77 @@ bt_sequence_test_pattern(const BtSequence *const self, const gulong time,
 }
 
 static void
-bt_sequence_use_pattern(const BtSequence *const self,
-                        BtCmdPattern *cmd_pattern)
+bt_sequence_use_pattern (const BtSequence * const self,
+    BtCmdPattern * cmd_pattern)
 {
   BtPattern *pattern;
   guint count;
 
-  if (!BT_IS_PATTERN(cmd_pattern))
+  if (!BT_IS_PATTERN (cmd_pattern))
     return;
-  pattern = (BtPattern *)cmd_pattern;
+  pattern = (BtPattern *) cmd_pattern;
 
-  GST_DEBUG("init for new pattern %p", pattern);
+  GST_DEBUG ("init for new pattern %p", pattern);
 
   // update use count
-  count = bt_sequence_get_number_of_pattern_uses(self, pattern);
-  g_hash_table_insert(self->priv->pattern_usage, (gpointer)pattern,
-                      GUINT_TO_POINTER(count + 1));
+  count = bt_sequence_get_number_of_pattern_uses (self, pattern);
+  g_hash_table_insert (self->priv->pattern_usage, (gpointer) pattern,
+      GUINT_TO_POINTER (count + 1));
   // check if this is the first usage
-  if (count == 0)
-  {
+  if (count == 0) {
     // take one shared ref
-    g_object_ref(pattern);
+    g_object_ref (pattern);
 
-    GST_DEBUG("first use of pattern %p", pattern);
-    g_signal_emit((gpointer)self, signals[PATTERN_ADDED_EVENT], 0, pattern);
+    GST_DEBUG ("first use of pattern %p", pattern);
+    g_signal_emit ((gpointer) self, signals[PATTERN_ADDED_EVENT], 0, pattern);
   }
 }
 
 static void
-bt_sequence_unuse_pattern(const BtSequence *const self,
-                          BtCmdPattern *cmd_pattern)
+bt_sequence_unuse_pattern (const BtSequence * const self,
+    BtCmdPattern * cmd_pattern)
 {
   BtPattern *pattern;
   guint count;
 
-  if (!BT_IS_PATTERN(cmd_pattern))
+  if (!BT_IS_PATTERN (cmd_pattern))
     return;
-  pattern = (BtPattern *)cmd_pattern;
+  pattern = (BtPattern *) cmd_pattern;
 
-  GST_DEBUG("clean up for pattern %p", pattern);
+  GST_DEBUG ("clean up for pattern %p", pattern);
 
-  count = bt_sequence_get_number_of_pattern_uses(self, pattern);
+  count = bt_sequence_get_number_of_pattern_uses (self, pattern);
   // check if this is the last usage
-  if (count == 1)
-  {
-    g_signal_emit((gpointer)self, signals[PATTERN_REMOVED_EVENT], 0, pattern);
+  if (count == 1) {
+    g_signal_emit ((gpointer) self, signals[PATTERN_REMOVED_EVENT], 0, pattern);
     // release the shared ref
-    g_object_unref(pattern);
+    g_object_unref (pattern);
   }
   // update use count
-  if (count > 0)
-  {
-    g_hash_table_insert(self->priv->pattern_usage, pattern,
-                        GUINT_TO_POINTER(count - 1));
-  }
-  else
-  {
-    GST_WARNING("use count for pattern %p, is 0 while we were expecting it to be >0",
-                pattern);
+  if (count > 0) {
+    g_hash_table_insert (self->priv->pattern_usage, pattern,
+        GUINT_TO_POINTER (count - 1));
+  } else {
+    GST_WARNING
+        ("use count for pattern %p, is 0 while we were expecting it to be >0",
+        pattern);
   }
 }
 
 static BtCmdPattern *
-bt_sequence_get_pattern_unchecked(const BtSequence *const self,
-                                  const gulong time, const gulong track)
+bt_sequence_get_pattern_unchecked (const BtSequence * const self,
+    const gulong time, const gulong track)
 {
-  // GST_DEBUG("get pattern at time %d, track %d",time, track);
+  //GST_DEBUG("get pattern at time %d, track %d",time, track);
   return self->priv->patterns[time * self->priv->tracks + track];
 }
 
 static BtMachine *
-bt_sequence_get_machine_unchecked(const BtSequence *const self,
-                                  const gulong track)
+bt_sequence_get_machine_unchecked (const BtSequence * const self,
+    const gulong track)
 {
-  // GST_DEBUG("getting machine : %" G_OBJECT_REF_COUNT_FMT,
-  //     G_OBJECT_LOG_REF_COUNT(self->priv->machines[track]));
+  //GST_DEBUG("getting machine : %" G_OBJECT_REF_COUNT_FMT,
+  //    G_OBJECT_LOG_REF_COUNT(self->priv->machines[track]));
   return self->priv->machines[track];
 }
 
@@ -366,18 +355,14 @@ bt_sequence_get_machine_unchecked(const BtSequence *const self,
  * Returns 0 if all rows are null or sequence length is zero.
  */
 static gulong
-bt_sequence_get_nonnull_length(const BtSequence *const self)
-{
+bt_sequence_get_nonnull_length (const BtSequence * const self) {
   if (self->priv->len_patterns == 0)
     return 0;
-
-  for (gulong i = self->priv->len_patterns; i-- > 0;)
-  {
-    for (gulong j = 0; j < self->priv->tracks; j++)
-    {
-      if (bt_sequence_test_pattern(self, i, j))
-      {
-        return i + 1;
+  
+  for (gulong i = self->priv->len_patterns; i-- > 0; ) {
+    for (gulong j = 0; j < self->priv->tracks; j++) {
+      if (bt_sequence_test_pattern(self, i, j)) {
+        return i+1;
       }
     }
   }
@@ -392,16 +377,16 @@ bt_sequence_get_nonnull_length(const BtSequence *const self)
  * Resizes the pattern data grid to the new length. Keeps previous values.
  */
 static void
-bt_sequence_resize_data_length(const BtSequence *const self, const gulong length)
+bt_sequence_resize_data_length (const BtSequence * const self, const gulong length)
 {
   const gulong tracks = self->priv->tracks;
 
   const gulong old_length = self->priv->len_patterns;
-
+  
   // try to shrink the pattern up to the row having the final non-empty pattern cell
   const gulong new_length =
-      MAX(length, bt_sequence_get_nonnull_length(self));
-
+      MAX(length, bt_sequence_get_nonnull_length (self));
+  
   const gulong old_data_count = old_length * tracks;
   const gulong new_data_count = new_length * tracks;
   BtCmdPattern **const patterns = self->priv->patterns;
@@ -412,90 +397,73 @@ bt_sequence_resize_data_length(const BtSequence *const self, const gulong length
 
   // there is a need to grow or shrink pattern/label space; allocate new space
   if ((self->priv->patterns =
-           (BtCmdPattern **)g_try_new0(gpointer, new_data_count)))
-  {
-    if (patterns)
-    {
-      const gulong count = MIN(old_data_count, new_data_count);
+          (BtCmdPattern **) g_try_new0 (gpointer, new_data_count))) {
+    if (patterns) {
+      const gulong count = MIN (old_data_count, new_data_count);
       // copy old values over
-      memcpy(self->priv->patterns, patterns, count * sizeof(gpointer));
+      memcpy (self->priv->patterns, patterns, count * sizeof (gpointer));
       // free old data
-      if (old_length > new_length)
-      {
+      if (old_length > new_length) {
         gulong i, j, k;
         k = new_data_count;
-        for (i = new_length; i < old_length; i++)
-        {
-          for (j = 0; j < tracks; j++, k++)
-          {
+        for (i = new_length; i < old_length; i++) {
+          for (j = 0; j < tracks; j++, k++) {
             if (patterns[k])
-              bt_sequence_unuse_pattern(self, patterns[k]);
+              bt_sequence_unuse_pattern (self, patterns[k]);
           }
         }
       }
-      g_free(patterns);
+      g_free (patterns);
     }
-  }
-  else
-  {
-    GST_INFO("extending sequence length from %lu to %lu failed : data_count=%lu = length=%lu * tracks=%lu",
-             old_length, new_length, new_data_count, new_length, self->priv->tracks);
+  } else {
+    GST_INFO
+        ("extending sequence length from %lu to %lu failed : data_count=%lu = length=%lu * tracks=%lu",
+        old_length, new_length, new_data_count, new_length, self->priv->tracks);
   }
   // allocate new space
-  if ((self->priv->labels = (gchar **)g_try_new0(gpointer, new_length)))
-  {
-    if (labels)
-    {
-      const gulong count = MIN(old_length, new_length);
+  if ((self->priv->labels = (gchar **) g_try_new0 (gpointer, new_length))) {
+    if (labels) {
+      const gulong count = MIN (old_length, new_length);
       // copy old values over
-      memcpy(self->priv->labels, labels, count * sizeof(gpointer));
+      memcpy (self->priv->labels, labels, count * sizeof (gpointer));
       // free old data
-      if (old_length > new_length)
-      {
-        for (gulong i = new_length; i < old_length; i++)
-        {
-          g_free(labels[i]);
+      if (old_length > new_length) {
+        for (gulong i = new_length; i < old_length; i++) {
+          g_free (labels[i]);
         }
       }
-      g_free(labels);
+      g_free (labels);
     }
-    bt_sequence_release_toc(self);
-  }
-  else
-  {
-    GST_INFO("extending sequence labels from %lu to %lu failed", old_length,
-             new_length);
+    bt_sequence_release_toc (self);
+  } else {
+    GST_INFO ("extending sequence labels from %lu to %lu failed", old_length,
+        new_length);
   }
 
   self->priv->len_patterns = new_length;
-  self->priv->length = MIN(self->priv->length, self->priv->len_patterns);
+  self->priv->length = MIN (self->priv->length, self->priv->len_patterns);
 
-  if (self->priv->loop_end != -1)
-  {
+  if (self->priv->loop_end != -1) {
     // clip loopend to length or extend loop-end as well if loop_end was
     // old length
     if ((self->priv->loop_end > self->priv->length) ||
-        (self->priv->loop_end == length))
-    {
+        (self->priv->loop_end == length)) {
       self->priv->play_end = self->priv->loop_end = self->priv->length;
-      g_object_notify((GObject *)self, "loop-end");
-      if (self->priv->loop_end <= self->priv->loop_start)
-      {
+      g_object_notify ((GObject *) self, "loop-end");
+      if (self->priv->loop_end <= self->priv->loop_start) {
         self->priv->loop_start = self->priv->loop_end = -1;
         self->priv->loop = FALSE;
-        g_object_notify((GObject *)self, "loop-start");
-        g_object_notify((GObject *)self, "loop");
+        g_object_notify ((GObject *) self, "loop-start");
+        g_object_notify ((GObject *) self, "loop");
       }
     }
-  }
-  else
-  {
+  } else {
     self->priv->play_end = self->priv->length;
   }
-
-  bt_sequence_limit_play_pos_internal(self);
-
-  g_object_notify((GObject *)self, "len-patterns");
+  
+  bt_sequence_limit_play_pos_internal (self);
+  
+  g_object_notify ((GObject *) self, "len-patterns");
 }
 
 /*
@@ -507,92 +475,77 @@ bt_sequence_resize_data_length(const BtSequence *const self, const gulong length
  * at the end). Keeps previous values.
  */
 static void
-bt_sequence_resize_data_tracks(const BtSequence *const self,
-                               const gulong old_tracks)
+bt_sequence_resize_data_tracks (const BtSequence * const self,
+    const gulong old_tracks)
 {
   const gulong length = self->priv->length;
   const gulong new_tracks = self->priv->tracks;
-  // gulong old_data_count=length*old_tracks;
+  //gulong old_data_count=length*old_tracks;
   const gulong new_data_count = length * new_tracks;
   BtCmdPattern **const patterns = self->priv->patterns;
   BtMachine **const machines = self->priv->machines;
-  const gulong count = MIN(old_tracks, self->priv->tracks);
+  const gulong count = MIN (old_tracks, self->priv->tracks);
 
-  GST_DEBUG("resize tracks %lu -> %lu to new_data_count=%lu", old_tracks,
-            new_tracks, new_data_count);
+  GST_DEBUG ("resize tracks %lu -> %lu to new_data_count=%lu", old_tracks,
+      new_tracks, new_data_count);
 
   // allocate new space
   if ((self->priv->patterns =
-           (BtCmdPattern **)g_try_new0(GValue, new_data_count)))
-  {
-    if (patterns)
-    {
+          (BtCmdPattern **) g_try_new0 (GValue, new_data_count))) {
+    if (patterns) {
       gulong i;
       BtCmdPattern **src, **dst;
 
       // copy old values over
       src = patterns;
       dst = self->priv->patterns;
-      for (i = 0; i < length; i++)
-      {
-        memcpy(dst, src, count * sizeof(gpointer));
+      for (i = 0; i < length; i++) {
+        memcpy (dst, src, count * sizeof (gpointer));
         src = &src[old_tracks];
         dst = &dst[self->priv->tracks];
       }
       // free old data
-      if (old_tracks > new_tracks)
-      {
+      if (old_tracks > new_tracks) {
         gulong j, k;
-        for (i = 0; i < length; i++)
-        {
+        for (i = 0; i < length; i++) {
           k = i * old_tracks + new_tracks;
-          for (j = new_tracks; j < old_tracks; j++, k++)
-          {
+          for (j = new_tracks; j < old_tracks; j++, k++) {
             if (patterns[k])
-              bt_sequence_unuse_pattern(self, patterns[k]);
+              bt_sequence_unuse_pattern (self, patterns[k]);
           }
         }
       }
-      g_free(patterns);
+      g_free (patterns);
     }
-  }
-  else
-  {
-    GST_INFO("extending sequence tracks from %lu to %lu failed : data_count=%lu = length=%lu * tracks=%lu",
-             old_tracks, new_tracks, new_data_count, self->priv->length, new_tracks);
+  } else {
+    GST_INFO
+        ("extending sequence tracks from %lu to %lu failed : data_count=%lu = length=%lu * tracks=%lu",
+        old_tracks, new_tracks, new_data_count, self->priv->length, new_tracks);
   }
   // allocate new space
-  if (new_tracks)
-  {
+  if (new_tracks) {
     if ((self->priv->machines =
-             (BtMachine **)g_try_new0(gpointer, new_tracks)))
-    {
-      if (machines)
-      {
+            (BtMachine **) g_try_new0 (gpointer, new_tracks))) {
+      if (machines) {
         // copy old values over
-        memcpy(self->priv->machines, machines, count * sizeof(gpointer));
+        memcpy (self->priv->machines, machines, count * sizeof (gpointer));
         // free old data
-        if (old_tracks > new_tracks)
-        {
+        if (old_tracks > new_tracks) {
           gulong i;
-          for (i = new_tracks; i < old_tracks; i++)
-          {
-            GST_INFO_OBJECT(machines[i],
-                            "release machine %" G_OBJECT_REF_COUNT_FMT " for track %lu",
-                            G_OBJECT_LOG_REF_COUNT(machines[i]), i);
-            g_object_try_unref(machines[i]);
+          for (i = new_tracks; i < old_tracks; i++) {
+            GST_INFO_OBJECT (machines[i],
+                "release machine %" G_OBJECT_REF_COUNT_FMT " for track %lu",
+                G_OBJECT_LOG_REF_COUNT (machines[i]), i);
+            g_object_try_unref (machines[i]);
           }
         }
-        g_free(machines);
+        g_free (machines);
       }
-    }
-    else
+    } else
       self->priv->machines = NULL;
-  }
-  else
-  {
-    GST_INFO("extending sequence machines from %lu to %lu failed", old_tracks,
-             new_tracks);
+  } else {
+    GST_INFO ("extending sequence machines from %lu to %lu failed", old_tracks,
+        new_tracks);
   }
 }
 
@@ -604,17 +557,16 @@ bt_sequence_resize_data_tracks(const BtSequence *const self,
  * bounds if there is no loop.
  */
 static void
-bt_sequence_limit_play_pos_internal(const BtSequence *const self)
+bt_sequence_limit_play_pos_internal (const BtSequence * const self)
 {
   gulong old_play_pos, new_play_pos;
 
-  g_object_get(self->priv->song, "play-pos", &old_play_pos, NULL);
-  new_play_pos = bt_sequence_limit_play_pos(self, old_play_pos);
-  if (new_play_pos != old_play_pos)
-  {
-    GST_DEBUG("limit play pos: %lu -> %lu : [%lu ... %lu]", old_play_pos,
-              new_play_pos, self->priv->play_start, self->priv->play_end);
-    g_object_set(self->priv->song, "play-pos", new_play_pos, NULL);
+  g_object_get (self->priv->song, "play-pos", &old_play_pos, NULL);
+  new_play_pos = bt_sequence_limit_play_pos (self, old_play_pos);
+  if (new_play_pos != old_play_pos) {
+    GST_DEBUG ("limit play pos: %lu -> %lu : [%lu ... %lu]", old_play_pos,
+        new_play_pos, self->priv->play_start, self->priv->play_end);
+    g_object_set (self->priv->song, "play-pos", new_play_pos, NULL);
   }
 }
 
@@ -634,9 +586,9 @@ bt_sequence_limit_play_pos_internal(const BtSequence *const self)
  * Returns: the new instance or %NULL in case of an error
  */
 BtSequence *
-bt_sequence_new(const BtSong *const song)
+bt_sequence_new (const BtSong * const song)
 {
-  return BT_SEQUENCE(g_object_new(BT_TYPE_SEQUENCE, "song", song, NULL));
+  return BT_SEQUENCE (g_object_new (BT_TYPE_SEQUENCE, "song", song, NULL));
 }
 
 //-- methods
@@ -654,17 +606,16 @@ bt_sequence_new(const BtSong *const song)
  *
  * Since: 0.6
  */
-glong bt_sequence_get_track_by_machine(const BtSequence *const self,
-                                       const BtMachine *const machine, gulong track)
+glong
+bt_sequence_get_track_by_machine (const BtSequence * const self,
+    const BtMachine * const machine, gulong track)
 {
   const gulong tracks = self->priv->tracks;
   BtMachine **machines = self->priv->machines;
 
-  for (; track < tracks; track++)
-  {
-    if (machines[track] == machine)
-    {
-      return (glong)track;
+  for (; track < tracks; track++) {
+    if (machines[track] == machine) {
+      return (glong) track;
     }
   }
   return -1;
@@ -684,19 +635,18 @@ glong bt_sequence_get_track_by_machine(const BtSequence *const self,
  *
  * Since: 0.6
  */
-glong bt_sequence_get_tick_by_pattern(const BtSequence *const self, gulong track,
-                                      const BtCmdPattern *const pattern, gulong tick)
+glong
+bt_sequence_get_tick_by_pattern (const BtSequence * const self, gulong track,
+    const BtCmdPattern * const pattern, gulong tick)
 {
   const gulong length = self->priv->length;
   const gulong tracks = self->priv->tracks;
   gulong pos = tick * tracks + track;
   BtCmdPattern **patterns = self->priv->patterns;
 
-  for (; tick < length; tick++, pos += tracks)
-  {
-    if (patterns[pos] == pattern)
-    {
-      return (glong)tick;
+  for (; tick < length; tick++, pos += tracks) {
+    if (patterns[pos] == pattern) {
+      return (glong) tick;
     }
   }
   return -1;
@@ -713,21 +663,19 @@ glong bt_sequence_get_tick_by_pattern(const BtSequence *const self, gulong track
  * case of an error. Unref when done.
  */
 BtMachine *
-bt_sequence_get_machine(const BtSequence *const self, const gulong track)
+bt_sequence_get_machine (const BtSequence * const self, const gulong track)
 {
-  g_return_val_if_fail(BT_IS_SEQUENCE(self), NULL);
+  g_return_val_if_fail (BT_IS_SEQUENCE (self), NULL);
 
   if (track >= self->priv->tracks)
     return NULL;
 
-  BtMachine *machine = bt_sequence_get_machine_unchecked(self, track);
-  if (machine)
-  {
-    GST_DEBUG_OBJECT(machine, "getting machine : %" G_OBJECT_REF_COUNT_FMT " for track %lu", G_OBJECT_LOG_REF_COUNT(machine), track);
-    return g_object_ref(machine);
-  }
-  else
-  {
+  BtMachine *machine = bt_sequence_get_machine_unchecked (self, track);
+  if (machine) {
+    GST_DEBUG_OBJECT (machine, "getting machine : %" G_OBJECT_REF_COUNT_FMT
+        " for track %lu", G_OBJECT_LOG_REF_COUNT (machine), track);
+    return g_object_ref (machine);
+  } else {
     /* TODO(ensonic): shouldn't we better make self->priv->tracks a readonly property
      * and offer methods to insert/remove tracks as it should not be allowed to change
      * the machine later on
@@ -747,27 +695,26 @@ bt_sequence_get_machine(const BtSequence *const self, const gulong track)
  * Returns: %TRUE for success
  */
 gboolean
-bt_sequence_add_track(const BtSequence *const self,
-                      const BtMachine *const machine, const glong ix)
+bt_sequence_add_track (const BtSequence * const self,
+    const BtMachine * const machine, const glong ix)
 {
-  g_return_val_if_fail(BT_IS_SEQUENCE(self), FALSE);
-  g_return_val_if_fail(BT_IS_MACHINE(machine), FALSE);
+  g_return_val_if_fail (BT_IS_SEQUENCE (self), FALSE);
+  g_return_val_if_fail (BT_IS_MACHINE (machine), FALSE);
 
   BtMachine **machines;
   gulong tracks = self->priv->tracks + 1;
   const gulong pos = (ix == -1) ? self->priv->tracks : ix;
 
-  g_return_val_if_fail(ix <= (glong)self->priv->tracks, FALSE);
+  g_return_val_if_fail (ix <= (glong) self->priv->tracks, FALSE);
 
-  GST_INFO_OBJECT(machine,
-                  "add track for machine %" G_OBJECT_REF_COUNT_FMT "at %lu",
-                  G_OBJECT_LOG_REF_COUNT(machine), pos);
+  GST_INFO_OBJECT (machine,
+      "add track for machine %" G_OBJECT_REF_COUNT_FMT "at %lu",
+      G_OBJECT_LOG_REF_COUNT (machine), pos);
 
   // enlarge
-  g_object_set((gpointer)self, "tracks", tracks, NULL);
+  g_object_set ((gpointer) self, "tracks", tracks, NULL);
   machines = self->priv->machines;
-  if (pos != (tracks - 1))
-  {
+  if (pos != (tracks - 1)) {
     // shift tracks to the right
     BtCmdPattern **src, **dst;
     const gulong count = tracks - pos;
@@ -776,22 +723,21 @@ bt_sequence_add_track(const BtSequence *const self,
 
     src = &self->priv->patterns[pos];
     dst = &self->priv->patterns[pos + 1];
-    for (i = 0; i < length; i++)
-    {
-      memmove(dst, src, count * sizeof(gpointer));
+    for (i = 0; i < length; i++) {
+      memmove (dst, src, count * sizeof (gpointer));
       src[count - 1] = NULL;
       src = &src[tracks];
       dst = &dst[tracks];
     }
-    memmove(&machines[pos + 1], &machines[pos], count * sizeof(gpointer));
+    memmove (&machines[pos + 1], &machines[pos], count * sizeof (gpointer));
   }
-  machines[pos] = g_object_ref((gpointer)machine);
+  machines[pos] = g_object_ref ((gpointer) machine);
 
-  g_signal_emit((gpointer)self, signals[TRACK_ADDED_EVENT], 0, machine, pos);
+  g_signal_emit ((gpointer) self, signals[TRACK_ADDED_EVENT], 0, machine, pos);
 
-  GST_INFO_OBJECT(machine,
-                  ".. added track for machine %" G_OBJECT_REF_COUNT_FMT " at %lu",
-                  G_OBJECT_LOG_REF_COUNT(machine), pos);
+  GST_INFO_OBJECT (machine,
+      ".. added track for machine %" G_OBJECT_REF_COUNT_FMT " at %lu",
+      G_OBJECT_LOG_REF_COUNT (machine), pos);
   return TRUE;
 }
 
@@ -805,7 +751,7 @@ bt_sequence_add_track(const BtSequence *const self,
  * Returns: %TRUE for success
  */
 gboolean
-bt_sequence_remove_track_by_ix(const BtSequence *const self, const gulong ix)
+bt_sequence_remove_track_by_ix (const BtSequence * const self, const gulong ix)
 {
   const gulong tracks = self->priv->tracks;
   const gulong length = self->priv->length;
@@ -814,46 +760,42 @@ bt_sequence_remove_track_by_ix(const BtSequence *const self, const gulong ix)
   BtMachine *machine;
   gulong i;
 
-  g_return_val_if_fail(BT_IS_SEQUENCE(self), FALSE);
-  g_return_val_if_fail(ix < tracks, FALSE);
+  g_return_val_if_fail (BT_IS_SEQUENCE (self), FALSE);
+  g_return_val_if_fail (ix < tracks, FALSE);
 
   const gulong count = (tracks - 1) - ix;
   machine = machines[ix];
-  GST_INFO("remove track %lu/%lu (shift %lu tracks)", ix, tracks, count);
+  GST_INFO ("remove track %lu/%lu (shift %lu tracks)", ix, tracks, count);
 
-  g_signal_emit((gpointer)self, signals[TRACK_REMOVED_EVENT], 0, machine, ix);
+  g_signal_emit ((gpointer) self, signals[TRACK_REMOVED_EVENT], 0, machine, ix);
 
   src = &self->priv->patterns[ix + 1];
   dst = &self->priv->patterns[ix];
-  for (i = 0; i < length; i++)
-  {
+  for (i = 0; i < length; i++) {
     // unref patterns
-    if (*dst)
-    {
-      GST_INFO("unref pattern: %" G_OBJECT_REF_COUNT_FMT " at timeline %lu",
-               G_OBJECT_LOG_REF_COUNT(*dst), i);
-      bt_sequence_unuse_pattern(self, *dst);
+    if (*dst) {
+      GST_INFO ("unref pattern: %" G_OBJECT_REF_COUNT_FMT " at timeline %lu",
+          G_OBJECT_LOG_REF_COUNT (*dst), i);
+      bt_sequence_unuse_pattern (self, *dst);
     }
-    if (count)
-    {
-      memmove(dst, src, count * sizeof(gpointer));
+    if (count) {
+      memmove (dst, src, count * sizeof (gpointer));
     }
     src[count - 1] = NULL;
     src = &src[tracks];
     dst = &dst[tracks];
   }
-  if (count)
-  {
-    memmove(&machines[ix], &machines[ix + 1], count * sizeof(gpointer));
+  if (count) {
+    memmove (&machines[ix], &machines[ix + 1], count * sizeof (gpointer));
   }
   machines[tracks - 1] = NULL;
 
   // this will resize the arrays
-  g_object_set((gpointer)self, "tracks", (gulong)(tracks - 1), NULL);
+  g_object_set ((gpointer) self, "tracks", (gulong) (tracks - 1), NULL);
 
-  GST_INFO_OBJECT(machine, "release machine %" G_OBJECT_REF_COUNT_FMT,
-                  G_OBJECT_LOG_REF_COUNT(machine));
-  g_object_unref(machine);
+  GST_INFO_OBJECT (machine, "release machine %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
+  g_object_unref (machine);
   return TRUE;
 }
 
@@ -867,7 +809,7 @@ bt_sequence_remove_track_by_ix(const BtSequence *const self, const gulong ix)
  * Returns: %TRUE for success
  */
 gboolean
-bt_sequence_move_track_left(const BtSequence *const self, const gulong track)
+bt_sequence_move_track_left (const BtSequence * const self, const gulong track)
 {
   const gulong tracks = self->priv->tracks;
   const gulong length = self->priv->length;
@@ -877,10 +819,9 @@ bt_sequence_move_track_left(const BtSequence *const self, const gulong track)
   BtMachine *machine;
   gulong i, ix = track;
 
-  g_return_val_if_fail(track > 0, FALSE);
+  g_return_val_if_fail (track > 0, FALSE);
 
-  for (i = 0; i < length; i++)
-  {
+  for (i = 0; i < length; i++) {
     pattern = patterns[ix];
     patterns[ix] = patterns[ix - 1];
     patterns[ix - 1] = pattern;
@@ -903,7 +844,7 @@ bt_sequence_move_track_left(const BtSequence *const self, const gulong track)
  * Returns: %TRUE for success
  */
 gboolean
-bt_sequence_move_track_right(const BtSequence *const self, const gulong track)
+bt_sequence_move_track_right (const BtSequence * const self, const gulong track)
 {
   const gulong tracks = self->priv->tracks;
   const gulong length = self->priv->length;
@@ -913,10 +854,9 @@ bt_sequence_move_track_right(const BtSequence *const self, const gulong track)
   BtMachine *machine;
   gulong i, ix = track;
 
-  g_return_val_if_fail(track < (tracks - 1), FALSE);
+  g_return_val_if_fail (track < (tracks - 1), FALSE);
 
-  for (i = 0; i < length; i++)
-  {
+  for (i = 0; i < length; i++) {
     pattern = patterns[ix];
     patterns[ix] = patterns[ix + 1];
     patterns[ix + 1] = pattern;
@@ -939,25 +879,26 @@ bt_sequence_move_track_right(const BtSequence *const self, const gulong track)
  * Returns: %TRUE for success
  */
 gboolean
-bt_sequence_remove_track_by_machine(const BtSequence *const self,
-                                    const BtMachine *const machine)
+bt_sequence_remove_track_by_machine (const BtSequence * const self,
+    const BtMachine * const machine)
 {
   gboolean res = TRUE;
   glong track = 0;
 
-  g_return_val_if_fail(BT_IS_SEQUENCE(self), FALSE);
-  g_return_val_if_fail(BT_IS_MACHINE(machine), FALSE);
+  g_return_val_if_fail (BT_IS_SEQUENCE (self), FALSE);
+  g_return_val_if_fail (BT_IS_MACHINE (machine), FALSE);
 
-  GST_INFO_OBJECT(machine, "remove tracks for machine %" G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT(machine));
+  GST_INFO_OBJECT (machine, "remove tracks for machine %"
+      G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (machine));
 
   // do bt_sequence_remove_track_by_ix() for each occurance
   while (((track =
-               bt_sequence_get_track_by_machine(self, machine, track)) > -1) &&
-         res)
-  {
-    res = bt_sequence_remove_track_by_ix(self, (gulong)track);
+              bt_sequence_get_track_by_machine (self, machine, track)) > -1)
+      && res) {
+    res = bt_sequence_remove_track_by_ix (self, (gulong) track);
   }
-  GST_INFO_OBJECT(machine, "removed tracks for machine %" G_OBJECT_REF_COUNT_FMT " res=%d", G_OBJECT_LOG_REF_COUNT(machine), res);
+  GST_INFO_OBJECT (machine, "removed tracks for machine %"
+      G_OBJECT_REF_COUNT_FMT " res=%d", G_OBJECT_LOG_REF_COUNT (machine), res);
   return res;
 }
 
@@ -971,12 +912,12 @@ bt_sequence_remove_track_by_machine(const BtSequence *const self,
  * Returns: a copy of the label or %NULL in case of an error
  */
 gchar *
-bt_sequence_get_label(const BtSequence *const self, const gulong time)
+bt_sequence_get_label (const BtSequence * const self, const gulong time)
 {
-  g_return_val_if_fail(BT_IS_SEQUENCE(self), NULL);
-  g_return_val_if_fail(time < self->priv->len_patterns, NULL);
+  g_return_val_if_fail (BT_IS_SEQUENCE (self), NULL);
+  g_return_val_if_fail (time < self->priv->len_patterns, NULL);
 
-  return g_strdup(self->priv->labels[time]);
+  return g_strdup (self->priv->labels[time]);
 }
 
 /**
@@ -987,20 +928,21 @@ bt_sequence_get_label(const BtSequence *const self, const gulong time)
  *
  * Sets a new label for the respective @time position.
  */
-void bt_sequence_set_label(const BtSequence *const self, const gulong time,
-                           const gchar *const label)
+void
+bt_sequence_set_label (const BtSequence * const self, const gulong time,
+    const gchar * const label)
 {
-  g_return_if_fail(BT_IS_SEQUENCE(self));
-  g_return_if_fail(time < self->priv->length);
+  g_return_if_fail (BT_IS_SEQUENCE (self));
+  g_return_if_fail (time < self->priv->length);
 
-  GST_DEBUG("set label for time %lu", time);
+  GST_DEBUG ("set label for time %lu", time);
 
-  g_free(self->priv->labels[time]);
-  self->priv->labels[time] = g_strdup(label);
-  bt_sequence_release_toc(self);
+  g_free (self->priv->labels[time]);
+  self->priv->labels[time] = g_strdup (label);
+  bt_sequence_release_toc (self);
 
-  g_signal_emit((gpointer)self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
-                time);
+  g_signal_emit ((gpointer) self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
+      time);
 }
 
 /**
@@ -1015,16 +957,16 @@ void bt_sequence_set_label(const BtSequence *const self, const gulong time,
  * empty. Unref when done.
  */
 BtCmdPattern *
-bt_sequence_get_pattern(const BtSequence *const self, const gulong time,
-                        const gulong track)
+bt_sequence_get_pattern (const BtSequence * const self, const gulong time,
+    const gulong track)
 {
-  g_return_val_if_fail(BT_IS_SEQUENCE(self), NULL);
-  g_return_val_if_fail(time < self->priv->len_patterns, NULL);
-  g_return_val_if_fail(track < self->priv->tracks, NULL);
+  g_return_val_if_fail (BT_IS_SEQUENCE (self), NULL);
+  g_return_val_if_fail (time < self->priv->len_patterns, NULL);
+  g_return_val_if_fail (track < self->priv->tracks, NULL);
 
-  // GST_DEBUG("get pattern at time %d, track %d",time, track);
-  return (g_object_try_ref(bt_sequence_get_pattern_unchecked(self, time,
-                                                             track)));
+  //GST_DEBUG("get pattern at time %d, track %d",time, track);
+  return (g_object_try_ref (bt_sequence_get_pattern_unchecked (self, time,
+              track)));
 }
 
 /**
@@ -1042,35 +984,33 @@ bt_sequence_get_pattern(const BtSequence *const self, const gulong time,
  * Since: 0.5
  */
 gboolean
-bt_sequence_set_pattern_quick(const BtSequence *const self, const gulong time,
-                              const gulong track, const BtCmdPattern *const pattern)
+bt_sequence_set_pattern_quick (const BtSequence * const self, const gulong time,
+    const gulong track, const BtCmdPattern * const pattern)
 {
   gboolean changed = FALSE;
   const gulong index = time * self->priv->tracks + track;
   BtCmdPattern *old_pattern = self->priv->patterns[index];
 
-  GST_DEBUG("set pattern from %p to %p for time %lu, track %lu",
-            self->priv->patterns[index], pattern, time, track);
+  GST_DEBUG ("set pattern from %p to %p for time %lu, track %lu",
+      self->priv->patterns[index], pattern, time, track);
 
   // take out the old pattern
-  if (old_pattern)
-  {
-    bt_sequence_unuse_pattern(self, old_pattern);
+  if (old_pattern) {
+    bt_sequence_unuse_pattern (self, old_pattern);
 
     changed = TRUE;
     self->priv->patterns[index] = NULL;
   }
-  if (pattern)
-  {
-    bt_sequence_use_pattern(self, (BtCmdPattern *)pattern);
+  if (pattern) {
+    bt_sequence_use_pattern (self, (BtCmdPattern *) pattern);
     // enter the new pattern
-    self->priv->patterns[index] = g_object_ref((gpointer)pattern);
-    // g_object_add_weak_pointer((gpointer)pattern,(gpointer *)(&self->priv->patterns[index]));
+    self->priv->patterns[index] = g_object_ref ((gpointer) pattern);
+    //g_object_add_weak_pointer((gpointer)pattern,(gpointer *)(&self->priv->patterns[index]));
     changed = TRUE;
   }
-  g_signal_emit((gpointer)self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
-                time);
-  GST_DEBUG("done: %d", changed);
+  g_signal_emit ((gpointer) self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
+      time);
+  GST_DEBUG ("done: %d", changed);
   return changed;
 }
 
@@ -1083,33 +1023,32 @@ bt_sequence_set_pattern_quick(const BtSequence *const self, const gulong time,
  *
  * Sets the #BtCmdPattern for the respective @time and @track position.
  */
-void bt_sequence_set_pattern(const BtSequence *const self, const gulong time,
-                             const gulong track, const BtCmdPattern *const pattern)
+void
+bt_sequence_set_pattern (const BtSequence * const self, const gulong time,
+    const gulong track, const BtCmdPattern * const pattern)
 {
-  g_return_if_fail(BT_IS_SEQUENCE(self));
-  g_return_if_fail(time < self->priv->len_patterns);
-  g_return_if_fail(track < self->priv->tracks);
-  g_return_if_fail(self->priv->machines[track]);
+  g_return_if_fail (BT_IS_SEQUENCE (self));
+  g_return_if_fail (time < self->priv->len_patterns);
+  g_return_if_fail (track < self->priv->tracks);
+  g_return_if_fail (self->priv->machines[track]);
 
 #ifndef G_DISABLE_ASSERT
-  if (pattern)
-  {
+  if (pattern) {
     BtMachine *const machine;
 
-    g_return_if_fail(BT_IS_CMD_PATTERN(pattern));
-    g_object_get((gpointer)pattern, "machine", &machine, NULL);
-    if (self->priv->machines[track] != machine)
-    {
-      GST_WARNING("adding a pattern to a track with different machine!");
-      g_object_unref(machine);
+    g_return_if_fail (BT_IS_CMD_PATTERN (pattern));
+    g_object_get ((gpointer) pattern, "machine", &machine, NULL);
+    if (self->priv->machines[track] != machine) {
+      GST_WARNING ("adding a pattern to a track with different machine!");
+      g_object_unref (machine);
       return;
     }
-    g_object_unref(machine);
+    g_object_unref (machine);
   }
 #endif
 
-  bt_sequence_set_pattern_quick(self, time, track, pattern);
-  // TODO(ensonic): change bt_sequence_set_pattern_quick() to bt_sequence_set_pattern_unchecked
+  bt_sequence_set_pattern_quick (self, time, track, pattern);
+//TODO(ensonic): change bt_sequence_set_pattern_quick() to bt_sequence_set_pattern_unchecked
 }
 
 /**
@@ -1121,13 +1060,13 @@ void bt_sequence_set_pattern(const BtSequence *const self, const gulong time,
  * Returns: the length of the song loop in ticks
  */
 gulong
-bt_sequence_get_loop_length(const BtSequence *const self)
+bt_sequence_get_loop_length (const BtSequence * const self)
 {
-  g_return_val_if_fail(BT_IS_SEQUENCE(self), 0);
+  g_return_val_if_fail (BT_IS_SEQUENCE (self), 0);
   BtSequencePrivate *p = self->priv;
 
-  GST_DEBUG("%lu .. %lu = %lu", p->play_start, p->play_end,
-            (p->play_end - p->play_start));
+  GST_DEBUG ("%lu .. %lu = %lu", p->play_start, p->play_end,
+      (p->play_end - p->play_start));
 
   return p->play_end - p->play_start;
 }
@@ -1143,14 +1082,12 @@ bt_sequence_get_loop_length(const BtSequence *const self)
  * Returns: the new @play_pos
  */
 gulong
-bt_sequence_limit_play_pos(const BtSequence *const self, gulong play_pos)
+bt_sequence_limit_play_pos (const BtSequence * const self, gulong play_pos)
 {
-  if (play_pos > self->priv->play_end)
-  {
+  if (play_pos > self->priv->play_end) {
     play_pos = self->priv->play_end;
   }
-  if (play_pos < self->priv->play_start)
-  {
+  if (play_pos < self->priv->play_start) {
     play_pos = self->priv->play_start;
   }
   return play_pos;
@@ -1166,13 +1103,13 @@ bt_sequence_limit_play_pos(const BtSequence *const self, gulong play_pos)
  * Returns: %TRUE if @pattern is used.
  */
 gboolean
-bt_sequence_is_pattern_used(const BtSequence *const self,
-                            const BtPattern *const pattern)
+bt_sequence_is_pattern_used (const BtSequence * const self,
+    const BtPattern * const pattern)
 {
-  g_return_val_if_fail(BT_IS_SEQUENCE(self), 0);
-  g_return_val_if_fail(BT_IS_PATTERN(pattern), 0);
+  g_return_val_if_fail (BT_IS_SEQUENCE (self), 0);
+  g_return_val_if_fail (BT_IS_PATTERN (pattern), 0);
 
-  return (bt_sequence_get_number_of_pattern_uses(self, pattern) > 0);
+  return (bt_sequence_get_number_of_pattern_uses (self, pattern) > 0);
 }
 
 /*
@@ -1185,8 +1122,8 @@ bt_sequence_is_pattern_used(const BtSequence *const self,
  * Insert empty @rows for given @track.
  */
 static void
-insert_rows(const BtSequence *const self, const gulong time,
-            const gulong track, const gulong rows)
+insert_rows (const BtSequence * const self, const gulong time,
+    const gulong track, const gulong rows)
 {
   BtSequencePrivate *p = self->priv;
   const gulong tracks = p->tracks;
@@ -1208,18 +1145,15 @@ insert_rows(const BtSequence *const self, const gulong time,
    */
 
   /* we're pushing out the last @rows rows */
-  for (i = 0; i < rows; i++)
-  {
-    if (*clr)
-    {
-      bt_sequence_unuse_pattern(self, *clr);
+  for (i = 0; i < rows; i++) {
+    if (*clr) {
+      bt_sequence_unuse_pattern (self, *clr);
       *clr = NULL;
     }
     clr += tracks;
   }
   /* copy patterns and move upwards */
-  for (i = (length - 1); i >= (time + rows); i--)
-  {
+  for (i = (length - 1); i >= (time + rows); i--) {
     *dst = *src;
     *src = NULL;
     src -= tracks;
@@ -1238,39 +1172,35 @@ insert_rows(const BtSequence *const self, const gulong time,
  *
  * Since: 0.3
  */
-void bt_sequence_insert_rows(const BtSequence *const self, const gulong time,
-                             const glong track, const gulong rows)
+void
+bt_sequence_insert_rows (const BtSequence * const self, const gulong time,
+    const glong track, const gulong rows)
 {
-  g_return_if_fail(BT_IS_SEQUENCE(self));
+  g_return_if_fail (BT_IS_SEQUENCE (self));
 
   const gulong length = self->priv->length;
 
-  GST_INFO("insert %lu rows at %lu,%ld", rows, time, track);
+  GST_INFO ("insert %lu rows at %lu,%ld", rows, time, track);
 
-  if (track > -1)
-  {
-    insert_rows(self, time, track, rows);
-  }
-  else
-  {
+  if (track > -1) {
+    insert_rows (self, time, track, rows);
+  } else {
     gulong j = 0;
     gchar **const labels = self->priv->labels;
 
     // shift label down
-    for (j = length - rows; j < length; j++)
-    {
-      g_free(labels[j]);
+    for (j = length - rows; j < length; j++) {
+      g_free (labels[j]);
     }
-    memmove(&labels[time + rows], &labels[time],
-            ((length - rows) - time) * sizeof(gpointer));
-    for (j = 0; j < rows; j++)
-    {
+    memmove (&labels[time + rows], &labels[time],
+        ((length - rows) - time) * sizeof (gpointer));
+    for (j = 0; j < rows; j++) {
       labels[time + j] = NULL;
     }
-    bt_sequence_release_toc(self);
+    bt_sequence_release_toc (self);
   }
-  g_signal_emit((gpointer)self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
-                length);
+  g_signal_emit ((gpointer) self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
+      length);
 }
 
 /**
@@ -1283,35 +1213,34 @@ void bt_sequence_insert_rows(const BtSequence *const self, const gulong time,
  *
  * Since: 0.3
  */
-void bt_sequence_insert_full_rows(const BtSequence *const self, const gulong time,
-                                  const gulong rows)
+void
+bt_sequence_insert_full_rows (const BtSequence * const self, const gulong time,
+    const gulong rows)
 {
-  g_return_if_fail(BT_IS_SEQUENCE(self));
+  g_return_if_fail (BT_IS_SEQUENCE (self));
 
   const gulong tracks = self->priv->tracks;
   const gulong length = self->priv->length;
   gulong j = 0;
-  gchar **labels; // don't take the pointer yet, we realloc
+  gchar **labels;               // don't take the pointer yet, we realloc
 
-  GST_DEBUG("insert %lu full-rows at %lu / %lu", rows, time, length);
+  GST_DEBUG ("insert %lu full-rows at %lu / %lu", rows, time, length);
 
-  g_object_set((gpointer)self, "length", length + rows, NULL);
+  g_object_set ((gpointer) self, "length", length + rows, NULL);
 
   // shift label down
   labels = self->priv->labels;
-  memmove(&labels[time + rows], &labels[time],
-          ((length - rows) - time) * sizeof(gpointer));
-  for (j = 0; j < rows; j++)
-  {
+  memmove (&labels[time + rows], &labels[time],
+      ((length - rows) - time) * sizeof (gpointer));
+  for (j = 0; j < rows; j++) {
     labels[time + j] = NULL;
   }
-  for (j = 0; j < tracks; j++)
-  {
-    insert_rows(self, time, j, rows);
+  for (j = 0; j < tracks; j++) {
+    insert_rows (self, time, j, rows);
   }
-  bt_sequence_release_toc(self);
-  g_signal_emit((gpointer)self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
-                length + rows);
+  bt_sequence_release_toc (self);
+  g_signal_emit ((gpointer) self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
+      length + rows);
 }
 
 /*
@@ -1324,8 +1253,8 @@ void bt_sequence_insert_full_rows(const BtSequence *const self, const gulong tim
  * Delete @rows for given @track.
  */
 static void
-delete_rows(const BtSequence *const self, const gulong time,
-            const gulong track, const gulong rows)
+delete_rows (const BtSequence * const self, const gulong time,
+    const gulong track, const gulong rows)
 {
   const gulong tracks = self->priv->tracks;
   const gulong length = self->priv->length;
@@ -1356,21 +1285,18 @@ delete_rows(const BtSequence *const self, const gulong time,
    */
 
   /* we're overwriting these */
-  for (i = 0; i < rows; i++)
-  {
+  for (i = 0; i < rows; i++) {
     if (dst[i * tracks])
-      bt_sequence_unuse_pattern(self, dst[i * tracks]);
+      bt_sequence_unuse_pattern (self, dst[i * tracks]);
   }
   /* copy patterns and move downwards */
-  for (i = time; i < (length - rows); i++)
-  {
+  for (i = time; i < (length - rows); i++) {
     *dst = *src;
     //*src=NULL;
     src += tracks;
     dst += tracks;
   }
-  for (i = 0; i < rows; i++)
-  {
+  for (i = 0; i < rows; i++) {
     *dst = NULL;
     dst += tracks;
   }
@@ -1387,39 +1313,35 @@ delete_rows(const BtSequence *const self, const gulong time,
  *
  * Since: 0.3
  */
-void bt_sequence_delete_rows(const BtSequence *const self, const gulong time,
-                             const glong track, const gulong rows)
+void
+bt_sequence_delete_rows (const BtSequence * const self, const gulong time,
+    const glong track, const gulong rows)
 {
-  g_return_if_fail(BT_IS_SEQUENCE(self));
+  g_return_if_fail (BT_IS_SEQUENCE (self));
 
   const gulong length = self->priv->length;
 
-  GST_INFO("delete %lu rows at %lu,%ld", rows, time, track);
+  GST_INFO ("delete %lu rows at %lu,%ld", rows, time, track);
 
-  if (track > -1)
-  {
-    delete_rows(self, time, track, rows);
-  }
-  else
-  {
+  if (track > -1) {
+    delete_rows (self, time, track, rows);
+  } else {
     gulong j = 0;
     gchar **const labels = self->priv->labels;
 
     // shift label up
-    for (j = 0; j < rows; j++)
-    {
-      g_free(labels[time + j]);
+    for (j = 0; j < rows; j++) {
+      g_free (labels[time + j]);
     }
-    memmove(&labels[time], &labels[time + rows],
-            ((length - rows) - time) * sizeof(gpointer));
-    for (j = length - rows; j < length; j++)
-    {
+    memmove (&labels[time], &labels[time + rows],
+        ((length - rows) - time) * sizeof (gpointer));
+    for (j = length - rows; j < length; j++) {
       labels[j] = NULL;
     }
-    bt_sequence_release_toc(self);
+    bt_sequence_release_toc (self);
   }
-  g_signal_emit((gpointer)self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
-                rows);
+  g_signal_emit ((gpointer) self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
+      rows);
 }
 
 /**
@@ -1432,49 +1354,47 @@ void bt_sequence_delete_rows(const BtSequence *const self, const gulong time,
  *
  * Since: 0.3
  */
-void bt_sequence_delete_full_rows(const BtSequence *const self, const gulong time,
-                                  const gulong rows)
+void
+bt_sequence_delete_full_rows (const BtSequence * const self, const gulong time,
+    const gulong rows)
 {
-  g_return_if_fail(BT_IS_SEQUENCE(self));
+  g_return_if_fail (BT_IS_SEQUENCE (self));
 
   const gulong tracks = self->priv->tracks;
   const gulong length = self->priv->length;
   gulong j = 0;
   gchar **const labels = self->priv->labels;
 
-  GST_DEBUG("delete %lu full-rows at %lu / %lu", rows, time, length);
+  GST_DEBUG ("delete %lu full-rows at %lu / %lu", rows, time, length);
 
   // shift label up
-  for (j = 0; j < rows; j++)
-  {
-    g_free(labels[time + j]);
+  for (j = 0; j < rows; j++) {
+    g_free (labels[time + j]);
   }
-  memmove(&labels[time], &labels[time + rows],
-          ((length - rows) - time) * sizeof(gpointer));
-  for (j = length - rows; j < length; j++)
-  {
+  memmove (&labels[time], &labels[time + rows],
+      ((length - rows) - time) * sizeof (gpointer));
+  for (j = length - rows; j < length; j++) {
     labels[j] = NULL;
   }
-  for (j = 0; j < tracks; j++)
-  {
-    bt_sequence_delete_rows(self, time, j, rows);
+  for (j = 0; j < tracks; j++) {
+    bt_sequence_delete_rows (self, time, j, rows);
   }
 
   // don't make it shorter because of loop-end ?
-  g_object_set((gpointer)self, "length", length - rows, NULL);
+  g_object_set ((gpointer) self, "length", length - rows, NULL);
 
-  bt_sequence_release_toc(self);
-  g_signal_emit((gpointer)self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
-                length - rows);
+  bt_sequence_release_toc (self);
+  g_signal_emit ((gpointer) self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
+      length - rows);
 }
 
 //-- io interface
 
 static xmlNodePtr
-bt_sequence_persistence_save(const BtPersistence *const persistence,
-                             xmlNodePtr const parent_node, gpointer const userdata)
+bt_sequence_persistence_save (const BtPersistence * const persistence,
+    xmlNodePtr const parent_node, gpointer const userdata)
 {
-  BtSequence *const self = BT_SEQUENCE(persistence);
+  BtSequence *const self = BT_SEQUENCE (persistence);
   const gulong tracks = self->priv->tracks;
   const gulong length = self->priv->len_patterns;
   BtCmdPattern **patterns = self->priv->patterns;
@@ -1484,91 +1404,77 @@ bt_sequence_persistence_save(const BtPersistence *const persistence,
   xmlNodePtr child_node, child_node2, child_node3;
   gulong i, j;
 
-  GST_DEBUG("PERSISTENCE::sequence");
+  GST_DEBUG ("PERSISTENCE::sequence");
 
-  if ((node = xmlNewChild(parent_node, NULL, XML_CHAR_PTR("sequence"), NULL)))
-  {
-    xmlNewProp(node, XML_CHAR_PTR("length"),
-               XML_CHAR_PTR(bt_str_format_ulong(self->priv->length)));
-    xmlNewProp(node, XML_CHAR_PTR("len-patterns"),
-               XML_CHAR_PTR(bt_str_format_ulong(self->priv->len_patterns)));
-    xmlNewProp(node, XML_CHAR_PTR("tracks"),
-               XML_CHAR_PTR(bt_str_format_ulong(self->priv->tracks)));
-    if (self->priv->loop)
-    {
-      xmlNewProp(node, XML_CHAR_PTR("loop"), XML_CHAR_PTR("on"));
-      xmlNewProp(node, XML_CHAR_PTR("loop-start"),
-                 XML_CHAR_PTR(bt_str_format_long(self->priv->loop_start)));
-      xmlNewProp(node, XML_CHAR_PTR("loop-end"),
-                 XML_CHAR_PTR(bt_str_format_long(self->priv->loop_end)));
+  if ((node = xmlNewChild (parent_node, NULL, XML_CHAR_PTR ("sequence"), NULL))) {
+    xmlNewProp (node, XML_CHAR_PTR ("length"),
+        XML_CHAR_PTR (bt_str_format_ulong (self->priv->length)));
+    xmlNewProp (node, XML_CHAR_PTR ("len-patterns"),
+        XML_CHAR_PTR (bt_str_format_ulong (self->priv->len_patterns)));
+    xmlNewProp (node, XML_CHAR_PTR ("tracks"),
+        XML_CHAR_PTR (bt_str_format_ulong (self->priv->tracks)));
+    if (self->priv->loop) {
+      xmlNewProp (node, XML_CHAR_PTR ("loop"), XML_CHAR_PTR ("on"));
+      xmlNewProp (node, XML_CHAR_PTR ("loop-start"),
+          XML_CHAR_PTR (bt_str_format_long (self->priv->loop_start)));
+      xmlNewProp (node, XML_CHAR_PTR ("loop-end"),
+          XML_CHAR_PTR (bt_str_format_long (self->priv->loop_end)));
     }
-    if ((child_node = xmlNewChild(node, NULL, XML_CHAR_PTR("labels"), NULL)))
-    {
+    if ((child_node = xmlNewChild (node, NULL, XML_CHAR_PTR ("labels"), NULL))) {
       // iterate over timelines
-      for (i = 0; i < length; i++)
-      {
+      for (i = 0; i < length; i++) {
         const gchar *const label = labels[i];
-        if (label)
-        {
+        if (label) {
           child_node2 =
-              xmlNewChild(child_node, NULL, XML_CHAR_PTR("label"), NULL);
-          xmlNewProp(child_node2, XML_CHAR_PTR("name"), XML_CHAR_PTR(label));
-          xmlNewProp(child_node2, XML_CHAR_PTR("time"),
-                     XML_CHAR_PTR(bt_str_format_ulong(i)));
+              xmlNewChild (child_node, NULL, XML_CHAR_PTR ("label"), NULL);
+          xmlNewProp (child_node2, XML_CHAR_PTR ("name"), XML_CHAR_PTR (label));
+          xmlNewProp (child_node2, XML_CHAR_PTR ("time"),
+              XML_CHAR_PTR (bt_str_format_ulong (i)));
         }
       }
-    }
-    else
+    } else
       goto Error;
-    if ((child_node = xmlNewChild(node, NULL, XML_CHAR_PTR("tracks"), NULL)))
-    {
+    if ((child_node = xmlNewChild (node, NULL, XML_CHAR_PTR ("tracks"), NULL))) {
       gchar *const machine_id, *const pattern_name;
       BtMachine *machine;
       BtCmdPattern *pattern;
 
       // iterate over tracks
-      for (j = 0; j < tracks; j++)
-      {
+      for (j = 0; j < tracks; j++) {
         child_node2 =
-            xmlNewChild(child_node, NULL, XML_CHAR_PTR("track"), NULL);
+            xmlNewChild (child_node, NULL, XML_CHAR_PTR ("track"), NULL);
         machine = machines[j];
-        g_object_get(machine, "id", &machine_id, NULL);
-        xmlNewProp(child_node2, XML_CHAR_PTR("index"),
-                   XML_CHAR_PTR(bt_str_format_ulong(j)));
-        xmlNewProp(child_node2, XML_CHAR_PTR("machine"),
-                   XML_CHAR_PTR(machine_id));
-        g_free(machine_id);
+        g_object_get (machine, "id", &machine_id, NULL);
+        xmlNewProp (child_node2, XML_CHAR_PTR ("index"),
+            XML_CHAR_PTR (bt_str_format_ulong (j)));
+        xmlNewProp (child_node2, XML_CHAR_PTR ("machine"),
+            XML_CHAR_PTR (machine_id));
+        g_free (machine_id);
         // iterate over timelines
-        for (i = 0; i < length; i++)
-        {
+        for (i = 0; i < length; i++) {
           // get pattern
           pattern = patterns[i * tracks + j];
-          if (pattern)
-          {
-            g_object_get(pattern, "name", &pattern_name, NULL);
+          if (pattern) {
+            g_object_get (pattern, "name", &pattern_name, NULL);
             child_node3 =
-                xmlNewChild(child_node2, NULL, XML_CHAR_PTR("position"),
-                            NULL);
-            xmlNewProp(child_node3, XML_CHAR_PTR("time"),
-                       XML_CHAR_PTR(bt_str_format_ulong(i)));
-            xmlNewProp(child_node3, XML_CHAR_PTR("pattern"),
-                       XML_CHAR_PTR(pattern_name));
-            g_free(pattern_name);
+                xmlNewChild (child_node2, NULL, XML_CHAR_PTR ("position"),
+                NULL);
+            xmlNewProp (child_node3, XML_CHAR_PTR ("time"),
+                XML_CHAR_PTR (bt_str_format_ulong (i)));
+            xmlNewProp (child_node3, XML_CHAR_PTR ("pattern"),
+                XML_CHAR_PTR (pattern_name));
+            g_free (pattern_name);
           }
         }
       }
-    }
-    else
+    } else
       goto Error;
-    if (g_hash_table_size(self->priv->properties))
-    {
+    if (g_hash_table_size (self->priv->properties)) {
       if ((child_node =
-               xmlNewChild(node, NULL, XML_CHAR_PTR("properties"), NULL)))
-      {
-        if (!bt_persistence_save_hashtable(self->priv->properties, child_node))
+              xmlNewChild (node, NULL, XML_CHAR_PTR ("properties"), NULL))) {
+        if (!bt_persistence_save_hashtable (self->priv->properties, child_node))
           goto Error;
-      }
-      else
+      } else
         goto Error;
     }
   }
@@ -1577,165 +1483,143 @@ Error:
 }
 
 static BtPersistence *
-bt_sequence_persistence_load(const GType type,
-                             const BtPersistence *const persistence, xmlNodePtr node, GError **err,
-                             va_list var_args)
+bt_sequence_persistence_load (const GType type,
+    const BtPersistence * const persistence, xmlNodePtr node, GError ** err,
+    va_list var_args)
 {
-  BtSequence *const self = BT_SEQUENCE(persistence);
+  BtSequence *const self = BT_SEQUENCE (persistence);
   xmlNodePtr child_node, child_node2;
 
-  GST_DEBUG("PERSISTENCE::sequence");
-  g_assert(node);
-  g_assert(self);
+  GST_DEBUG ("PERSISTENCE::sequence");
+  g_assert (node);
+  g_assert (self);
 
-  xmlChar *const length_str = xmlGetProp(node, XML_CHAR_PTR("length"));
-  xmlChar *const len_patterns_str = xmlGetProp(node, XML_CHAR_PTR("len-patterns"));
-  xmlChar *const tracks_str = xmlGetProp(node, XML_CHAR_PTR("tracks"));
-  xmlChar *const loop_str = xmlGetProp(node, XML_CHAR_PTR("loop"));
+  xmlChar *const length_str = xmlGetProp (node, XML_CHAR_PTR ("length"));
+  xmlChar *const len_patterns_str = xmlGetProp (node, XML_CHAR_PTR ("len-patterns"));
+  xmlChar *const tracks_str = xmlGetProp (node, XML_CHAR_PTR ("tracks"));
+  xmlChar *const loop_str = xmlGetProp (node, XML_CHAR_PTR ("loop"));
   xmlChar *const loop_start_str =
-      xmlGetProp(node, XML_CHAR_PTR("loop-start"));
-  xmlChar *const loop_end_str = xmlGetProp(node, XML_CHAR_PTR("loop-end"));
+      xmlGetProp (node, XML_CHAR_PTR ("loop-start"));
+  xmlChar *const loop_end_str = xmlGetProp (node, XML_CHAR_PTR ("loop-end"));
 
-  const gulong length = length_str ? atol((char *)length_str) : 0;
-  const gulong tracks = tracks_str ? atol((char *)tracks_str) : 0;
+  const gulong length = length_str ? atol ((char *) length_str) : 0;
+  const gulong tracks = tracks_str ? atol ((char *) tracks_str) : 0;
   const gulong loop_start =
-      loop_start_str ? atol((char *)loop_start_str) : -1;
-  const gulong loop_end = loop_end_str ? atol((char *)loop_end_str) : -1;
+      loop_start_str ? atol ((char *) loop_start_str) : -1;
+  const gulong loop_end = loop_end_str ? atol ((char *) loop_end_str) : -1;
   const gboolean loop =
-      loop_str ? !strncasecmp((char *)loop_str, "on\0", 3) : FALSE;
+      loop_str ? !strncasecmp ((char *) loop_str, "on\0", 3) : FALSE;
 
   // also sets self->priv->len_patterns
-  bt_sequence_resize_data_length(self,
-                                 len_patterns_str ? atol((char *)len_patterns_str) : length);
+  bt_sequence_resize_data_length (self,
+      len_patterns_str ? atol ((char *) len_patterns_str) : length);
 
   // Can't set the "length" object property here, because pattern resizing logic will also
   // run. As track data is empty so far, the sequence will be truncated if any patterns
   // exist beyond "length". Regardless, set self->priv->length in case any logic that runs
   // during deserialization needs it.
   self->priv->length = length;
+  
+  g_object_set (self, "tracks", tracks, "loop", loop, "loop-start", loop_start,
+      "loop-end", loop_end, NULL);
+  xmlFree (length_str);
+  xmlFree (tracks_str);
+  xmlFree (loop_str);
+  xmlFree (loop_start_str);
+  xmlFree (loop_end_str);
 
-  g_object_set(self, "tracks", tracks, "loop", loop, "loop-start", loop_start,
-               "loop-end", loop_end, NULL);
-  xmlFree(length_str);
-  xmlFree(tracks_str);
-  xmlFree(loop_str);
-  xmlFree(loop_start_str);
-  xmlFree(loop_end_str);
-
-  for (node = node->children; node; node = node->next)
-  {
-    if (!xmlNodeIsText(node))
-    {
-      if (!strncmp((gchar *)node->name, "labels\0", 7))
-      {
+  for (node = node->children; node; node = node->next) {
+    if (!xmlNodeIsText (node)) {
+      if (!strncmp ((gchar *) node->name, "labels\0", 7)) {
         for (child_node = node->children; child_node;
-             child_node = child_node->next)
-        {
-          if ((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name, "label\0", 6)))
-          {
+            child_node = child_node->next) {
+          if ((!xmlNodeIsText (child_node))
+              && (!strncmp ((char *) child_node->name, "label\0", 6))) {
             xmlChar *const time_str =
-                xmlGetProp(child_node, XML_CHAR_PTR("time"));
+                xmlGetProp (child_node, XML_CHAR_PTR ("time"));
             xmlChar *const name =
-                xmlGetProp(child_node, XML_CHAR_PTR("name"));
-            bt_sequence_set_label(self, atol((const char *)time_str),
-                                  (const gchar *)name);
-            xmlFree(time_str);
-            xmlFree(name);
+                xmlGetProp (child_node, XML_CHAR_PTR ("name"));
+            bt_sequence_set_label (self, atol ((const char *) time_str),
+                (const gchar *) name);
+            xmlFree (time_str);
+            xmlFree (name);
           }
         }
-      }
-      else if (!strncmp((const gchar *)node->name, "tracks\0", 7))
-      {
+      } else if (!strncmp ((const gchar *) node->name, "tracks\0", 7)) {
         BtSetup *const setup;
 
-        g_object_get(self->priv->song, "setup", &setup, NULL);
+        g_object_get (self->priv->song, "setup", &setup, NULL);
 
         for (child_node = node->children; child_node;
-             child_node = child_node->next)
-        {
-          if ((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name, "track\0", 6)))
-          {
+            child_node = child_node->next) {
+          if ((!xmlNodeIsText (child_node))
+              && (!strncmp ((char *) child_node->name, "track\0", 6))) {
             xmlChar *const machine_id =
-                xmlGetProp(child_node, XML_CHAR_PTR("machine"));
+                xmlGetProp (child_node, XML_CHAR_PTR ("machine"));
             xmlChar *const index_str =
-                xmlGetProp(child_node, XML_CHAR_PTR("index"));
-            const gulong index = index_str ? atol((char *)index_str) : 0;
+                xmlGetProp (child_node, XML_CHAR_PTR ("index"));
+            const gulong index = index_str ? atol ((char *) index_str) : 0;
             BtMachine *const machine =
-                bt_setup_get_machine_by_id(setup, (gchar *)machine_id);
+                bt_setup_get_machine_by_id (setup, (gchar *) machine_id);
 
-            if (machine)
-            {
-              GST_INFO("add track for machine %" G_OBJECT_REF_COUNT_FMT
-                       " at position %lu",
-                       G_OBJECT_LOG_REF_COUNT(machine), index);
-              if (index < tracks)
-              {
+            if (machine) {
+              GST_INFO ("add track for machine %" G_OBJECT_REF_COUNT_FMT
+                  " at position %lu", G_OBJECT_LOG_REF_COUNT (machine), index);
+              if (index < tracks) {
                 self->priv->machines[index] = machine;
-                g_signal_emit((gpointer)self, signals[TRACK_ADDED_EVENT], 0,
-                              machine, index);
-                GST_DEBUG("loading track with index=%s for machine=\"%s\"",
-                          index_str, machine_id);
+                g_signal_emit ((gpointer) self, signals[TRACK_ADDED_EVENT], 0,
+                    machine, index);
+                GST_DEBUG ("loading track with index=%s for machine=\"%s\"",
+                    index_str, machine_id);
                 for (child_node2 = child_node->children; child_node2;
-                     child_node2 = child_node2->next)
-                {
-                  if ((!xmlNodeIsText(child_node2)) && (!strncmp((char *)child_node2->name, "position\0",
-                                                                 9)))
-                  {
+                    child_node2 = child_node2->next) {
+                  if ((!xmlNodeIsText (child_node2))
+                      && (!strncmp ((char *) child_node2->name, "position\0",
+                              9))) {
                     xmlChar *const time_str =
-                        xmlGetProp(child_node2, XML_CHAR_PTR("time"));
+                        xmlGetProp (child_node2, XML_CHAR_PTR ("time"));
                     xmlChar *const pattern_name =
-                        xmlGetProp(child_node2, XML_CHAR_PTR("pattern"));
-                    GST_DEBUG("  at %s, machinepattern \"%s\"", time_str,
-                              safe_string(pattern_name));
-                    if (pattern_name)
-                    {
+                        xmlGetProp (child_node2, XML_CHAR_PTR ("pattern"));
+                    GST_DEBUG ("  at %s, machinepattern \"%s\"", time_str,
+                        safe_string (pattern_name));
+                    if (pattern_name) {
                       BtCmdPattern *pattern =
-                          bt_machine_get_pattern_by_name(machine,
-                                                         (gchar *)pattern_name);
+                          bt_machine_get_pattern_by_name (machine,
+                          (gchar *) pattern_name);
                       // support for pre-0.7 songs
-                      if (!pattern)
-                      {
-                        pattern = bt_machine_get_pattern_by_id(machine,
-                                                               (gchar *)pattern_name);
+                      if (!pattern) {
+                        pattern = bt_machine_get_pattern_by_id (machine,
+                            (gchar *) pattern_name);
                       }
-                      if (pattern)
-                      {
+                      if (pattern) {
                         // this refs the pattern
-                        bt_sequence_set_pattern_quick(self,
-                                                      atol((char *)time_str), index, pattern);
-                        g_object_unref(pattern);
+                        bt_sequence_set_pattern_quick (self,
+                            atol ((char *) time_str), index, pattern);
+                        g_object_unref (pattern);
+                      } else {
+                        GST_WARNING ("  unknown pattern \"%s\"", pattern_name);
                       }
-                      else
-                      {
-                        GST_WARNING("  unknown pattern \"%s\"", pattern_name);
-                      }
-                      xmlFree(pattern_name);
+                      xmlFree (pattern_name);
                     }
-                    xmlFree(time_str);
+                    xmlFree (time_str);
                   }
                 }
                 // we keep the ref in self->priv->machines[index]
+              } else {
+                GST_WARNING ("index beyond tracks: %lu>=%lu", index, tracks);
+                g_object_unref (machine);
               }
-              else
-              {
-                GST_WARNING("index beyond tracks: %lu>=%lu", index, tracks);
-                g_object_unref(machine);
-              }
+            } else {
+              GST_INFO ("invalid or missing machine %s referenced at track %lu",
+                  (gchar *) machine_id, index);
             }
-            else
-            {
-              GST_INFO("invalid or missing machine %s referenced at track %lu",
-                       (gchar *)machine_id, index);
-            }
-            xmlFree(index_str);
-            xmlFree(machine_id);
+            xmlFree (index_str);
+            xmlFree (machine_id);
           }
         }
-        g_object_unref(setup);
-      }
-      else if (!strncmp((gchar *)node->name, "properties\0", 11))
-      {
-        bt_persistence_load_hashtable(self->priv->properties, node);
+        g_object_unref (setup);
+      } else if (!strncmp ((gchar *) node->name, "properties\0", 11)) {
+        bt_persistence_load_hashtable (self->priv->properties, node);
       }
     }
   }
@@ -1743,13 +1627,13 @@ bt_sequence_persistence_load(const GType type,
   // Finally, set the "length" prop to run any logic that needs to when this
   // prop is set. This is important to avoid truncating patterns that exist
   // beyond the song end (aka "length").
-  g_object_set(self, "length", length, NULL);
-  return BT_PERSISTENCE(persistence);
+  g_object_set (self, "length", length, NULL);
+  return BT_PERSISTENCE (persistence);
 }
 
 static void
-bt_sequence_persistence_interface_init(gpointer const g_iface,
-                                       gpointer const iface_data)
+bt_sequence_persistence_interface_init (gpointer const g_iface,
+    gpointer const iface_data)
 {
   BtPersistenceInterface *const iface = g_iface;
 
@@ -1764,189 +1648,165 @@ bt_sequence_persistence_interface_init(gpointer const g_iface,
 //-- g_object overrides
 
 static void
-bt_sequence_get_property(GObject *const object, const guint property_id,
-                         GValue *const value, GParamSpec *const pspec)
+bt_sequence_get_property (GObject * const object, const guint property_id,
+    GValue * const value, GParamSpec * const pspec)
 {
-  const BtSequence *const self = BT_SEQUENCE(object);
-  return_if_disposed();
-  switch (property_id)
-  {
-  case SEQUENCE_SONG:
-    g_value_set_object(value, self->priv->song);
-    break;
-  case SEQUENCE_LENGTH:
-    g_value_set_ulong(value, self->priv->length);
-    break;
-  case SEQUENCE_TRACKS:
-    g_value_set_ulong(value, self->priv->tracks);
-    break;
-  case SEQUENCE_LOOP:
-    g_value_set_boolean(value, self->priv->loop);
-    break;
-  case SEQUENCE_LOOP_START:
-    g_value_set_long(value, self->priv->loop_start);
-    break;
-  case SEQUENCE_LOOP_END:
-    g_value_set_long(value, self->priv->loop_end);
-    break;
-  case SEQUENCE_PROPERTIES:
-    g_value_set_pointer(value, self->priv->properties);
-    break;
-  case SEQUENCE_TOC:
-    g_value_set_pointer(value, bt_sequence_get_toc(self));
-    break;
-  case SEQUENCE_LEN_PATTERNS:
-    g_value_set_ulong(value, self->priv->len_patterns);
-    break;
-  default:
-    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
-    break;
+  const BtSequence *const self = BT_SEQUENCE (object);
+  return_if_disposed ();
+  switch (property_id) {
+    case SEQUENCE_SONG:
+      g_value_set_object (value, self->priv->song);
+      break;
+    case SEQUENCE_LENGTH:
+      g_value_set_ulong (value, self->priv->length);
+      break;
+    case SEQUENCE_TRACKS:
+      g_value_set_ulong (value, self->priv->tracks);
+      break;
+    case SEQUENCE_LOOP:
+      g_value_set_boolean (value, self->priv->loop);
+      break;
+    case SEQUENCE_LOOP_START:
+      g_value_set_long (value, self->priv->loop_start);
+      break;
+    case SEQUENCE_LOOP_END:
+      g_value_set_long (value, self->priv->loop_end);
+      break;
+    case SEQUENCE_PROPERTIES:
+      g_value_set_pointer (value, self->priv->properties);
+      break;
+    case SEQUENCE_TOC:
+      g_value_set_pointer (value, bt_sequence_get_toc (self));
+      break;
+    case SEQUENCE_LEN_PATTERNS:
+      g_value_set_ulong (value, self->priv->len_patterns);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
   }
 }
 
 static void
-bt_sequence_set_property(GObject *const object, const guint property_id,
-                         const GValue *const value, GParamSpec *const pspec)
+bt_sequence_set_property (GObject * const object, const guint property_id,
+    const GValue * const value, GParamSpec * const pspec)
 {
-  const BtSequence *const self = BT_SEQUENCE(object);
+  const BtSequence *const self = BT_SEQUENCE (object);
 
-  return_if_disposed();
-  switch (property_id)
-  {
-  case SEQUENCE_SONG:
-    self->priv->song = BT_SONG(g_value_get_object(value));
-    g_object_try_weak_ref(self->priv->song);
-    GST_DEBUG("set the song: %p", self->priv->song);
-    break;
-  case SEQUENCE_LENGTH:
-  {
-    // TODO(ensonic): remove or better stop the song
-    // if(self->priv->is_playing) bt_sequence_stop(self);
-    // prepare new data
-    const gulong length = self->priv->length;
-    self->priv->length = g_value_get_ulong(value);
-    if (length != self->priv->length)
-    {
-      GST_DEBUG("set the length for sequence: %lu", self->priv->length);
-      bt_sequence_resize_data_length(self, self->priv->length);
-    }
-    break;
-  }
-  case SEQUENCE_TRACKS:
-  {
-    // TODO(ensonic): remove or better stop the song
-    // if(self->priv->is_playing) bt_sequence_stop(self);
-    // prepare new data
-    const gulong tracks = self->priv->tracks;
-    self->priv->tracks = g_value_get_ulong(value);
-    if (tracks != self->priv->tracks)
-    {
-      GST_DEBUG("set the tracks for sequence: %lu -> %lu", tracks,
-                self->priv->tracks);
-      bt_sequence_resize_data_tracks(self, tracks);
-    }
-    break;
-  }
-  case SEQUENCE_LOOP:
-    self->priv->loop = g_value_get_boolean(value);
-    GST_DEBUG("set the loop for sequence: %d", self->priv->loop);
-    if (self->priv->loop)
-    {
-      if (self->priv->loop_start == -1)
-      {
-        self->priv->loop_start = 0;
-        g_object_notify(G_OBJECT(self), "loop-start");
+  return_if_disposed ();
+  switch (property_id) {
+    case SEQUENCE_SONG:
+      self->priv->song = BT_SONG (g_value_get_object (value));
+      g_object_try_weak_ref (self->priv->song);
+      GST_DEBUG ("set the song: %p", self->priv->song);
+      break;
+    case SEQUENCE_LENGTH:{
+      // TODO(ensonic): remove or better stop the song
+      // if(self->priv->is_playing) bt_sequence_stop(self);
+      // prepare new data
+      const gulong length = self->priv->length;
+      self->priv->length = g_value_get_ulong (value);
+      if (length != self->priv->length) {
+        GST_DEBUG ("set the length for sequence: %lu", self->priv->length);
+        bt_sequence_resize_data_length (self, self->priv->length);
       }
-      self->priv->play_start = self->priv->loop_start;
-      if (self->priv->loop_end == -1)
-      {
-        self->priv->loop_end = self->priv->length;
-        g_object_notify(G_OBJECT(self), "loop-end");
-      }
-      self->priv->play_end = self->priv->loop_end;
-      bt_sequence_limit_play_pos_internal(self);
+      break;
     }
-    else
-    {
-      self->priv->play_start = 0;
-      self->priv->play_end = self->priv->length;
-      bt_sequence_limit_play_pos_internal(self);
+    case SEQUENCE_TRACKS:{
+      // TODO(ensonic): remove or better stop the song
+      //if(self->priv->is_playing) bt_sequence_stop(self);
+      // prepare new data
+      const gulong tracks = self->priv->tracks;
+      self->priv->tracks = g_value_get_ulong (value);
+      if (tracks != self->priv->tracks) {
+        GST_DEBUG ("set the tracks for sequence: %lu -> %lu", tracks,
+            self->priv->tracks);
+        bt_sequence_resize_data_tracks (self, tracks);
+      }
+      break;
     }
-    break;
-  case SEQUENCE_LOOP_START:
-    self->priv->loop_start = g_value_get_long(value);
-    if (self->priv->loop_start != -1)
-    {
-      // make sure its less then loop_end/length
-      if (self->priv->loop_end > 0)
-      {
-        if (self->priv->loop_start >= self->priv->loop_end)
-          self->priv->loop_start = self->priv->loop_end - 1;
-      }
-      else if (self->priv->length > 0)
-      {
-        if (self->priv->loop_start >= self->priv->length)
-          self->priv->loop_start = self->priv->length - 1;
-      }
-      else
-        self->priv->loop_start = -1;
-    }
-    GST_DEBUG("set the loop-start for sequence: %ld",
-              self->priv->loop_start);
-    self->priv->play_start =
-        (self->priv->loop_start != -1) ? self->priv->loop_start : 0;
-    bt_sequence_limit_play_pos_internal(self);
-    break;
-  case SEQUENCE_LOOP_END:
-    self->priv->loop_end = g_value_get_long(value);
-    if (self->priv->loop_end != -1)
-    {
-      // make sure its more then loop-start
-      if (self->priv->loop_start > -1)
-      {
-        if (self->priv->loop_end < self->priv->loop_start)
-          self->priv->loop_end = self->priv->loop_start + 1;
-      }
-      // make sure its less then or equal to length
-      if (self->priv->length > 0)
-      {
-        if (self->priv->loop_end > self->priv->length)
+    case SEQUENCE_LOOP:
+      self->priv->loop = g_value_get_boolean (value);
+      GST_DEBUG ("set the loop for sequence: %d", self->priv->loop);
+      if (self->priv->loop) {
+        if (self->priv->loop_start == -1) {
+          self->priv->loop_start = 0;
+          g_object_notify (G_OBJECT (self), "loop-start");
+        }
+        self->priv->play_start = self->priv->loop_start;
+        if (self->priv->loop_end == -1) {
           self->priv->loop_end = self->priv->length;
+          g_object_notify (G_OBJECT (self), "loop-end");
+        }
+        self->priv->play_end = self->priv->loop_end;
+        bt_sequence_limit_play_pos_internal (self);
+      } else {
+        self->priv->play_start = 0;
+        self->priv->play_end = self->priv->length;
+        bt_sequence_limit_play_pos_internal (self);
       }
-      else
-        self->priv->loop_end = -1;
+      break;
+    case SEQUENCE_LOOP_START:
+      self->priv->loop_start = g_value_get_long (value);
+      if (self->priv->loop_start != -1) {
+        // make sure its less then loop_end/length
+        if (self->priv->loop_end > 0) {
+          if (self->priv->loop_start >= self->priv->loop_end)
+            self->priv->loop_start = self->priv->loop_end - 1;
+        } else if (self->priv->length > 0) {
+          if (self->priv->loop_start >= self->priv->length)
+            self->priv->loop_start = self->priv->length - 1;
+        } else
+          self->priv->loop_start = -1;
+      }
+      GST_DEBUG ("set the loop-start for sequence: %ld",
+          self->priv->loop_start);
+      self->priv->play_start =
+          (self->priv->loop_start != -1) ? self->priv->loop_start : 0;
+      bt_sequence_limit_play_pos_internal (self);
+      break;
+    case SEQUENCE_LOOP_END:
+      self->priv->loop_end = g_value_get_long (value);
+      if (self->priv->loop_end != -1) {
+        // make sure its more then loop-start
+        if (self->priv->loop_start > -1) {
+          if (self->priv->loop_end < self->priv->loop_start)
+            self->priv->loop_end = self->priv->loop_start + 1;
+        }
+        // make sure its less then or equal to length
+        if (self->priv->length > 0) {
+          if (self->priv->loop_end > self->priv->length)
+            self->priv->loop_end = self->priv->length;
+        } else
+          self->priv->loop_end = -1;
+      }
+      GST_DEBUG ("set the loop-end for sequence: %ld", self->priv->loop_end);
+      self->priv->play_end =
+          (self->priv->loop_end !=
+          -1) ? self->priv->loop_end : self->priv->length;
+      bt_sequence_limit_play_pos_internal (self);
+      break;
+    case SEQUENCE_LEN_PATTERNS:{
+      // TODO(ensonic): remove or better stop the song
+      // if(self->priv->is_playing) bt_sequence_stop(self);
+      // prepare new data
+      const gulong len_patterns_in = g_value_get_ulong (value);
+      if (len_patterns_in != self->priv->len_patterns) {
+        GST_DEBUG ("set the pattern length for sequence: %lu", len_patterns_in);
+        bt_sequence_resize_data_length (self, len_patterns_in);
+      }
+      break;
     }
-    GST_DEBUG("set the loop-end for sequence: %ld", self->priv->loop_end);
-    self->priv->play_end =
-        (self->priv->loop_end !=
-         -1)
-            ? self->priv->loop_end
-            : self->priv->length;
-    bt_sequence_limit_play_pos_internal(self);
-    break;
-  case SEQUENCE_LEN_PATTERNS:
-  {
-    // TODO(ensonic): remove or better stop the song
-    // if(self->priv->is_playing) bt_sequence_stop(self);
-    // prepare new data
-    const gulong len_patterns_in = g_value_get_ulong(value);
-    if (len_patterns_in != self->priv->len_patterns)
-    {
-      GST_DEBUG("set the pattern length for sequence: %lu", len_patterns_in);
-      bt_sequence_resize_data_length(self, len_patterns_in);
-    }
-    break;
-  }
-  default:
-    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
-    break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
   }
 }
 
 static void
-bt_sequence_dispose(GObject *const object)
+bt_sequence_dispose (GObject * const object)
 {
-  BtSequence *const self = BT_SEQUENCE(object);
+  BtSequence *const self = BT_SEQUENCE (object);
   const gulong tracks = self->priv->tracks;
   const gulong length = self->priv->len_patterns;
   BtCmdPattern **patterns = self->priv->patterns;
@@ -1954,76 +1814,72 @@ bt_sequence_dispose(GObject *const object)
   gchar **const labels = self->priv->labels;
   gulong i, j, k;
 
-  return_if_disposed();
+  return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p", self);
-  g_object_try_weak_unref(self->priv->song);
+  GST_DEBUG ("!!!! self=%p", self);
+  g_object_try_weak_unref (self->priv->song);
   // unref the machines
-  GST_DEBUG("unref %lu machines", tracks);
-  for (i = 0; i < tracks; i++)
-  {
-    GST_INFO("releasing machine %" G_OBJECT_REF_COUNT_FMT,
-             G_OBJECT_LOG_REF_COUNT(machines[i]));
-    g_object_try_unref(machines[i]);
+  GST_DEBUG ("unref %lu machines", tracks);
+  for (i = 0; i < tracks; i++) {
+    GST_INFO ("releasing machine %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (machines[i]));
+    g_object_try_unref (machines[i]);
   }
   // free the labels
-  for (i = 0; i < length; i++)
-  {
-    g_free(labels[i]);
+  for (i = 0; i < length; i++) {
+    g_free (labels[i]);
   }
   // unref the patterns
-  for (k = i = 0; i < length; i++)
-  {
-    for (j = 0; j < tracks; j++, k++)
-    {
+  for (k = i = 0; i < length; i++) {
+    for (j = 0; j < tracks; j++, k++) {
       if (patterns[k])
-        bt_sequence_unuse_pattern(self, patterns[k]);
+        bt_sequence_unuse_pattern (self, patterns[k]);
     }
   }
 
-  bt_sequence_release_toc(self);
+  bt_sequence_release_toc (self);
 
-  GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(bt_sequence_parent_class)->dispose(object);
-  GST_DEBUG("  done");
+  GST_DEBUG ("  chaining up");
+  G_OBJECT_CLASS (bt_sequence_parent_class)->dispose (object);
+  GST_DEBUG ("  done");
 }
 
 static void
-bt_sequence_finalize(GObject *const object)
+bt_sequence_finalize (GObject * const object)
 {
-  const BtSequence *const self = BT_SEQUENCE(object);
+  const BtSequence *const self = BT_SEQUENCE (object);
 
-  GST_DEBUG("!!!! self=%p", self);
+  GST_DEBUG ("!!!! self=%p", self);
 
-  g_free(self->priv->machines);
-  g_free(self->priv->labels);
-  g_free(self->priv->patterns);
-  g_hash_table_destroy(self->priv->pattern_usage);
-  g_hash_table_destroy(self->priv->properties);
+  g_free (self->priv->machines);
+  g_free (self->priv->labels);
+  g_free (self->priv->patterns);
+  g_hash_table_destroy (self->priv->pattern_usage);
+  g_hash_table_destroy (self->priv->properties);
 
-  GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(bt_sequence_parent_class)->finalize(object);
-  GST_DEBUG("  done");
+  GST_DEBUG ("  chaining up");
+  G_OBJECT_CLASS (bt_sequence_parent_class)->finalize (object);
+  GST_DEBUG ("  done");
 }
 
 //-- class internalsbt_sequence_get_toc
 
 static void
-bt_sequence_init(BtSequence *self)
+bt_sequence_init (BtSequence * self)
 {
   self->priv = bt_sequence_get_instance_private(self);
   self->priv->loop_start = -1;
   self->priv->loop_end = -1;
-  self->priv->pattern_usage = g_hash_table_new(NULL, NULL);
+  self->priv->pattern_usage = g_hash_table_new (NULL, NULL);
   self->priv->properties =
-      g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+      g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 }
 
 static void
-bt_sequence_class_init(BtSequenceClass *const klass)
+bt_sequence_class_init (BtSequenceClass * const klass)
 {
-  GObjectClass *const gobject_class = G_OBJECT_CLASS(klass);
+  GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
 
   gobject_class->set_property = bt_sequence_set_property;
   gobject_class->get_property = bt_sequence_get_property;
@@ -2038,9 +1894,9 @@ bt_sequence_class_init(BtSequenceClass *const klass)
    * A pattern has been used in the sequence for the first time.
    */
   signals[PATTERN_ADDED_EVENT] =
-      g_signal_new("pattern-added", G_TYPE_FROM_CLASS(klass),
-                   G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
-                   NULL, g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, BT_TYPE_PATTERN);
+      g_signal_new ("pattern-added", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, BT_TYPE_PATTERN);
 
   /**
    * BtSequence::pattern-removed:
@@ -2050,9 +1906,9 @@ bt_sequence_class_init(BtSequenceClass *const klass)
    * The last occurance of pattern has been removed from the sequence.
    */
   signals[PATTERN_REMOVED_EVENT] =
-      g_signal_new("pattern-removed", G_TYPE_FROM_CLASS(klass),
-                   G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
-                   NULL, g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, BT_TYPE_PATTERN);
+      g_signal_new ("pattern-removed", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, BT_TYPE_PATTERN);
 
   /**
    * BtSequence::rows-changed:
@@ -2065,10 +1921,10 @@ bt_sequence_class_init(BtSequenceClass *const klass)
    * Since: 0.6
    */
   signals[SEQUENCE_ROWS_CHANGED_EVENT] =
-      g_signal_new("rows-changed", G_TYPE_FROM_CLASS(klass),
-                   G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
-                   NULL, bt_marshal_VOID__ULONG_ULONG, G_TYPE_NONE, 2, G_TYPE_ULONG,
-                   G_TYPE_ULONG);
+      g_signal_new ("rows-changed", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, bt_marshal_VOID__ULONG_ULONG, G_TYPE_NONE, 2, G_TYPE_ULONG,
+      G_TYPE_ULONG);
 
   /**
    * BtSequence::track-added:
@@ -2081,10 +1937,10 @@ bt_sequence_class_init(BtSequenceClass *const klass)
    * Since: 0.6
    */
   signals[TRACK_ADDED_EVENT] =
-      g_signal_new("track-added", G_TYPE_FROM_CLASS(klass),
-                   G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
-                   NULL, bt_marshal_VOID__OBJECT_ULONG, G_TYPE_NONE, 2, BT_TYPE_MACHINE,
-                   G_TYPE_ULONG);
+      g_signal_new ("track-added", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, bt_marshal_VOID__OBJECT_ULONG, G_TYPE_NONE, 2, BT_TYPE_MACHINE,
+      G_TYPE_ULONG);
 
   /**
    * BtSequence::track-removed:
@@ -2096,90 +1952,92 @@ bt_sequence_class_init(BtSequenceClass *const klass)
    *
    * Since: 0.6
    */
-  signals[TRACK_REMOVED_EVENT] = g_signal_new("track-removed", G_TYPE_FROM_CLASS(klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL, NULL, // acc data
-                                              bt_marshal_VOID__OBJECT_ULONG, G_TYPE_NONE,
-                                              2, BT_TYPE_MACHINE, G_TYPE_ULONG);
+  signals[TRACK_REMOVED_EVENT] = g_signal_new ("track-removed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL, NULL,  // acc data
+      bt_marshal_VOID__OBJECT_ULONG, G_TYPE_NONE,
+      2, BT_TYPE_MACHINE, G_TYPE_ULONG);
 
-  g_object_class_install_property(gobject_class, SEQUENCE_SONG,
-                                  g_param_spec_object("song", "song contruct prop",
-                                                      "Set song object, the sequence belongs to", BT_TYPE_SONG,
-                                                      G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SEQUENCE_SONG,
+      g_param_spec_object ("song", "song contruct prop",
+          "Set song object, the sequence belongs to", BT_TYPE_SONG,
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  // A note on "length" and "len-patterns".
-  //
-  // There are two concepts relating to sequence length. The first is the
-  // "length" of the song in ticks, which marks the point at which the
-  // playback stops because the author has marked that point as the song's
-  // end.
-  //
-  // The second concept is "len-patterns". While authoring the song, the
-  // "length" may be set at different points in the song, but there may still
-  // be sequence data present past this end point as the author moves the
-  // end point around. This data should not be lost if the end point is moved,
-  // as the author may change their mind and decide to move the end point again.
-  // If the song is saved, this sequence data should also be persisted and
-  // restored along with the song. "len-patterns" represents the furthest tick
-  // at which sequence data could be found.
-  //
-  // Different logic will be interested in the different properties. "length"
-  // is the correct property to look at when executing logic interested in where
-  // "playback" ends, such as checking if the song's loop end point needs to be
-  // adjusted because the song's end point has been moved backward, or knowing
-  // when the song has finished and recording may be stopped, or calculating the
-  // length of the playback segment.
-  //
-  // "len-patterns" is relevant to program logic when operating on sequence
-  // data. For example, knowing if pasted data will extend beyond the end of the
-  // sequence buffer to check if a resize is necessary, or whether a point
-  // clicked in the sequence editor contains a pattern value or not, or knowing
-  // how many rows must be drawn in the sequence editor tree view.
-
+  /**
+   * A note on "length" and "len-patterns".
+   *
+   * There are two concepts relating to sequence length. The first is the
+   * "length" of the song in ticks, which marks the point at which the
+   * playback stops because the author has marked that point as the song's
+   * end.
+   *
+   * The second concept is "len-patterns". While authoring the song, the
+   * "length" may be set at different points in the song, but there may still
+   * be sequence data present past this end point as the author moves the
+   * end point around. This data should not be lost if the end point is moved,
+   * as the author may change their mind and decide to move the end point again.
+   * If the song is saved, this sequence data should also be persisted and
+   * restored along with the song. "len-patterns" represents the furthest tick
+   * at which sequence data could be found.
+   *
+   * Different logic will be interested in the different properties. "length"
+   * is the correct property to look at when executing logic interested in where
+   * "playback" ends, such as checking if the song's loop end point needs to be
+   * adjusted because the song's end point has been moved backward, or knowing
+   * when the song has finished and recording may be stopped, or calculating the
+   * length of the playback segment.
+   *
+   * "len-patterns" is relevant to program logic when operating on sequence data.
+   * For example, knowing if pasted data will extend beyond the end of the
+   * sequence buffer to check if a resize is necessary, or whether a point clicked
+   * in the sequence editor contains a pattern value or not, or knowing how many
+   * rows must be drawn in the sequence editor tree view.
+   **/
+   
   // loop-pos are LONG as well
   //
-  // The max value here was previously G_MAXULONG. Please see the docs for
+  // The max value here was previously G_MAXULONG. Please see the docs for 
   // "bt_sequence_get_nonnull_length" for the reason it was changed.
-  g_object_class_install_property(gobject_class, SEQUENCE_LENGTH,
-                                  g_param_spec_ulong("length", "length prop",
-                                                     "song end position of the sequence in timeline bars", 0, G_MAXINT, 0,
-                                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SEQUENCE_LENGTH,
+      g_param_spec_ulong ("length", "length prop",
+          "song end position of the sequence in timeline bars", 0, G_MAXINT, 0,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class, SEQUENCE_LEN_PATTERNS,
-                                  g_param_spec_ulong("len-patterns", "patterns length prop",
-                                                     "total length of sequence in timeline bars", 0, G_MAXLONG, 0,
-                                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SEQUENCE_LEN_PATTERNS,
+      g_param_spec_ulong ("len-patterns", "patterns length prop",
+          "total length of sequence in timeline bars", 0, G_MAXLONG, 0,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  
+  g_object_class_install_property (gobject_class, SEQUENCE_TRACKS,
+      g_param_spec_ulong ("tracks",
+          "tracks prop",
+          "number of tracks in the sequence",
+          0, G_MAXULONG, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class, SEQUENCE_TRACKS,
-                                  g_param_spec_ulong("tracks",
-                                                     "tracks prop",
-                                                     "number of tracks in the sequence",
-                                                     0, G_MAXULONG, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SEQUENCE_LOOP,
+      g_param_spec_boolean ("loop",
+          "loop prop",
+          "is loop activated",
+          FALSE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class, SEQUENCE_LOOP,
-                                  g_param_spec_boolean("loop",
-                                                       "loop prop",
-                                                       "is loop activated",
-                                                       FALSE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SEQUENCE_LOOP_START,
+      g_param_spec_long ("loop-start",
+          "loop-start prop",
+          "start of the repeat sequence on the timeline",
+          -1, G_MAXLONG, -1, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class, SEQUENCE_LOOP_START,
-                                  g_param_spec_long("loop-start",
-                                                    "loop-start prop",
-                                                    "start of the repeat sequence on the timeline",
-                                                    -1, G_MAXLONG, -1, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SEQUENCE_LOOP_END,
+      g_param_spec_long ("loop-end",
+          "loop-end prop",
+          "end of the repeat sequence on the timeline",
+          -1, G_MAXLONG, -1, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class, SEQUENCE_LOOP_END,
-                                  g_param_spec_long("loop-end",
-                                                    "loop-end prop",
-                                                    "end of the repeat sequence on the timeline",
-                                                    -1, G_MAXLONG, -1, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SEQUENCE_PROPERTIES,
+      g_param_spec_pointer ("properties",
+          "properties prop",
+          "hashtable of sequence properties",
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class, SEQUENCE_PROPERTIES,
-                                  g_param_spec_pointer("properties",
-                                                       "properties prop",
-                                                       "hashtable of sequence properties",
-                                                       G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property(gobject_class, SEQUENCE_TOC,
-                                  g_param_spec_pointer("toc", "toc prop",
-                                                       "TOC containing the labels",
-                                                       G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SEQUENCE_TOC,
+      g_param_spec_pointer ("toc", "toc prop",
+          "TOC containing the labels",
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }
