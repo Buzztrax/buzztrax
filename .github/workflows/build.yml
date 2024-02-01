@@ -30,7 +30,7 @@ jobs:
 
     - name: configure
       run: |
-        ./configure --enable-debug --enable-coverage
+        ./configure --enable-coverage --enable-debug --enable-gtk-doc --enable-man --disable-silent-rules
 
     - name: make
       run: |
