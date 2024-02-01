@@ -30,7 +30,7 @@ jobs:
 
     - name: configure
       run: |
-        ./configure --enable-coverage --enable-debug --enable-gtk-doc --enable-man
+        ./configure --enable-coverage --enable-gtk-doc --enable-man
 
     - name: make
       run: |
@@ -39,7 +39,7 @@ jobs:
     - name: make check
       id: check
       run: |
-        make check
+        make -k check
 
     - name: Rerun failed tests under gdb and get backtraces
       if: steps.check.outcome == 'failure'
