@@ -42,7 +42,7 @@ jobs:
         make -k check
 
     - name: Rerun failed tests under gdb and get backtraces
-      if: steps.check.outcome == 'failure'
+      if: always() && steps.check.outcome == 'failure'
       run: |
         cat ./bt_edit.log ./test-suite.log
         scripts/gdbtests.sh ./test-suite.log
