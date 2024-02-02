@@ -42,12 +42,14 @@ jobs:
         make -k check
 
     - name: Rerun failed tests under gdb and get backtraces
+      id: rerun_tests
       if: always() && steps.check.outcome == 'failure'
       run: |
         cat ./bt_edit.log ./test-suite.log
         scripts/gdbtests.sh ./test-suite.log
 
     - uses: actions/upload-artifact@v4
+      if: always() && steps.check.outcome == 'failure' && steps.rerun_tests.outcome == 'success'
       with:
         path: |
           test-suite.log
