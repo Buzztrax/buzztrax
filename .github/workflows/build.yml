@@ -1,11 +1,62 @@
 name: Build
 
 on:
+  push:
+    branches:
+    - 'master'
   pull_request:
-    branches: 'master'
+    branches:
+    - 'master'
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - run: echo 'pass'
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt update -y
+        sudo apt upgrade -y
+        sudo apt install -y gdb gtk-doc-tools libglib2.0-dev libgsf-1-dev libgtk-3-dev libclutter-1.0-dev libclutter-gtk-1.0-dev libgirepository1.0-dev gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-alsa libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgudev-1.0-dev liborc-dev libasound2-dev check libfluidsynth-dev libxml2-utils libgstreamer1.0-dev libglib2.0-dev libunwind-dev yelp-tools intltool autopoint valgrind
+
+    - name: autogen.sh
+      run: |
+        ./autogen.sh --noconfigure
+
+    - name: configure
+      run: |
+        ./configure --enable-coverage --enable-gtk-doc --enable-man
+
+    - name: make
+      run: |
+        make V=1
+
+    - name: make check
+      id: check
+      run: |
+        make -k check
+
+    - name: Rerun failed tests under gdb and get backtraces
+      id: rerun_tests
+      if: always() && steps.check.outcome == 'failure'
+      run: |
+        cat ./bt_edit.log ./test-suite.log
+        scripts/gdbtests.sh ./test-suite.log
+
+    - uses: actions/upload-artifact@v4
+      if: always() && steps.check.outcome == 'failure' && steps.rerun_tests.outcome == 'success'
+      with:
+        path: |
+          test-suite.log
+          bml.tar.bz2
+          bt_cmd.tar.bz2
+          bt_core.tar.bz2
+          bt_edit.tar.bz2
+          bt_gst.tar.bz2
+          bt_ic.tar.bz2
+          /tmp/record.*
