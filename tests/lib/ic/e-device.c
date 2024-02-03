@@ -116,7 +116,6 @@ START_TEST (test_btic_device_get_control_by_id)
   ck_assert (control != NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_unref (control);
   g_object_unref (device);
   BT_TEST_END;
 }
