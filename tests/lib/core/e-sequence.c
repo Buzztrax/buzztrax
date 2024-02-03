@@ -666,8 +666,7 @@ START_TEST (test_bt_sequence_enlarging_length_enlarges_loop)
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  g_object_set (sequence, "length", 16L, NULL);
-  g_object_set (sequence, "loop", TRUE, NULL);
+  g_object_set (sequence, "length", 16L, "loop", TRUE, NULL);
 
   GST_INFO ("-- act --");
   g_object_set (sequence, "length", 24L, NULL);
@@ -688,9 +687,7 @@ START_TEST (test_bt_sequence_enlarging_length_keeps_loop)
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  g_object_set (sequence, "length", 16L, NULL);
-  g_object_set (sequence, "loop", TRUE, NULL);
-  g_object_set (sequence, "loop-end", 8L, NULL);
+  g_object_set (sequence, "length", 16L, "loop", TRUE, "loop-end", 8L, NULL);
 
   GST_INFO ("-- act --");
   g_object_set (sequence, "length", 12L, NULL);
@@ -711,8 +708,7 @@ START_TEST (test_bt_sequence_shortening_length_truncates_loop)
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  g_object_set (sequence, "length", 16L, NULL);
-  g_object_set (sequence, "loop", TRUE, NULL);
+  g_object_set (sequence, "length", 16L, "loop", TRUE, NULL);
 
   GST_INFO ("-- act --");
   g_object_set (sequence, "length", 8L, NULL);
@@ -733,9 +729,7 @@ START_TEST (test_bt_sequence_shortening_length_disables_loop)
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  g_object_set (sequence, "length", 24L, NULL);
-  g_object_set (sequence, "loop", TRUE, NULL);
-  g_object_set (sequence, "loop-start", 16L, NULL);
+  g_object_set (sequence, "length", 24L, "loop", TRUE, "loop-start", 16L, NULL);
 
   GST_INFO ("-- act --");
   g_object_set (sequence, "length", 12L, NULL);
