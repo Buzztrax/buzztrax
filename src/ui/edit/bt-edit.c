@@ -38,7 +38,6 @@
 #define BT_EDIT_C
 
 #include "bt-edit.h"
-#include <clutter-gtk/clutter-gtk.h>
 #include <glib/gprintf.h>
 
 #ifdef ENABLE_NLS
@@ -50,35 +49,10 @@
 #endif
 #endif
 
-static void
-usage (int argc, char **argv, GOptionContext * ctx)
-{
-  gchar *help = g_option_context_get_help (ctx, TRUE, NULL);
-  puts (help);
-  g_free (help);
-}
-
-// see if(arg_version) comment in main() below
-static gboolean
-parse_goption_arg (const gchar * opt, const gchar * arg, gpointer data,
-    GError ** err)
-{
-  if (!strcmp (opt, "--version")) {
-    g_printf ("%s from " PACKAGE_STRING "\n", (gchar *) data);
-    exit (0);
-  }
-  return TRUE;
-}
-
 gint
 main (gint argc, gchar ** argv)
 {
-  gboolean res = FALSE;
-  gchar *command = NULL, *input_file_name = NULL;
-  BtEditApplication *app;
-  GOptionContext *ctx = NULL;
-  GOptionGroup *group;
-  GError *err = NULL;
+  bt_setup_for_local_install ();
 
 #ifdef ENABLE_NLS
   setlocale (LC_ALL, "");
@@ -89,50 +63,20 @@ main (gint argc, gchar ** argv)
 
   bt_setup_for_local_install ();
 
-  GOptionEntry options[] = {
-    {"version", '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK,
-        (gpointer) parse_goption_arg, N_("Print application version"), NULL}
-    ,
-    {"command", 'c', 0, G_OPTION_ARG_STRING, &command, N_("Command name"),
-        "{load}"}
-    ,
-    {"input-file", 'i', 0, G_OPTION_ARG_FILENAME, &input_file_name,
-        N_("Input file name"), N_("<songfile>")}
-    ,
-    {NULL}
-  };
-
-  // init libraries
-  ctx = g_option_context_new (NULL);
-  //g_option_context_add_main_entries (ctx, options, GETTEXT_PACKAGE);
-  group =
-      g_option_group_new ("main", _("buzztrax-edit options"),
-      _("Show buzztrax-edit options"), argv[0], NULL);
-  g_option_group_add_entries (group, options);
-  g_option_group_set_translation_domain (group, GETTEXT_PACKAGE);
-  g_option_context_set_main_group (ctx, group);
-
-  bt_init_add_option_groups (ctx);
-  g_option_context_add_group (ctx, btic_init_get_option_group ());
-  g_option_context_add_group (ctx, gtk_get_option_group (TRUE));
-  g_option_context_add_group (ctx, clutter_get_option_group_without_init ());
-  g_option_context_add_group (ctx, gtk_clutter_get_option_group ());
-
-  if (!bt_init_check (ctx, &argc, &argv, &err)) {
-    g_print ("Error initializing: %s\n", safe_string (err->message));
-    g_error_free (err);
-    goto Done;
-  }
-
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-edit", 0,
       "music production environment / editor ui");
 
-  // give some global context info
-  g_set_prgname ("buzztrax-edit");
   g_set_application_name ("Buzztrax");
+  g_set_prgname ("buzztrax-edit");
   gtk_window_set_default_icon_name ("buzztrax");
+  
+  // give some global context info
   g_setenv ("PULSE_PROP_media.role", "production", TRUE);
 
+  GST_INFO ("starting: thread=%p", g_thread_self ());
+  
+  gst_init (&argc, &argv);
+  
   extern gboolean bt_memory_audio_src_plugin_init (GstPlugin * const plugin);
   gst_plugin_register_static (GST_VERSION_MAJOR,
       GST_VERSION_MINOR,
@@ -141,41 +85,9 @@ main (gint argc, gchar ** argv)
       bt_memory_audio_src_plugin_init,
       VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztrax.org");
 
-  GST_INFO ("starting: thread=%p", g_thread_self ());
-
-  app = bt_edit_application_new ();
-
-  // set a default command, if a file is given
-  if (!command && BT_IS_STRING (input_file_name)) {
-    command = g_strdup ("l");
-  }
-
-  if (command) {
-    // depending on the options call the correct method
-    if (!strcmp (command, "l") || !strcmp (command, "load")) {
-      if (!BT_IS_STRING (input_file_name)) {
-        usage (argc, argv, ctx);
-        // if commandline options where wrong, just start
-        res = bt_edit_application_run (app);
-      } else {
-        res = bt_edit_application_load_and_run (app, input_file_name);
-      }
-    } else {
-      usage (argc, argv, ctx);
-      // if commandline options where wrong, just start
-      res = bt_edit_application_run (app);
-    }
-  } else {
-    res = bt_edit_application_run (app);
-  }
-
-  // free application
-  GST_INFO ("app %" G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (app));
+  BtAdwAppEdit *app = bt_adw_app_edit_new ();
+  int result = g_application_run (G_APPLICATION (app), argc, argv);
   g_object_unref (app);
-
-Done:
-  g_free (command);
-  g_free (input_file_name);
-  g_option_context_free (ctx);
-  return !res;
+  
+  return result;
 }

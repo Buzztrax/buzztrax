@@ -24,19 +24,6 @@
 #include "pattern.h"
 #include "machine.h"
 
-#define BT_TYPE_SEQUENCE            (bt_sequence_get_type ())
-#define BT_SEQUENCE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SEQUENCE, BtSequence))
-#define BT_SEQUENCE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SEQUENCE, BtSequenceClass))
-#define BT_IS_SEQUENCE(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_SEQUENCE))
-#define BT_IS_SEQUENCE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SEQUENCE))
-#define BT_SEQUENCE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SEQUENCE, BtSequenceClass))
-
-/* type macros */
-
-typedef struct _BtSequence BtSequence;
-typedef struct _BtSequenceClass BtSequenceClass;
-typedef struct _BtSequencePrivate BtSequencePrivate;
-
 /**
  * BtSequence:
  *
@@ -44,46 +31,38 @@ typedef struct _BtSequencePrivate BtSequencePrivate;
  * Holds a series of array of #BtCmdPatterns for time and tracks, which define the
  * events that are sent to a #BtMachine at a time.
  */
-struct _BtSequence {
-  const GObject parent;
-  
-  /*< private >*/
-  BtSequencePrivate *priv;
-};
+G_DECLARE_FINAL_TYPE(BtSequence, bt_sequence, BT, SEQUENCE, GObject);
 
-struct _BtSequenceClass {
-  const GObjectClass parent;
-};
-
-GType bt_sequence_get_type(void) G_GNUC_CONST;
+#define BT_TYPE_SEQUENCE            (bt_sequence_get_type ())
 
 BtSequence *bt_sequence_new(const BtSong * const song);
 
-glong bt_sequence_get_track_by_machine(const BtSequence * const self,const BtMachine * const machine,gulong track);
-glong bt_sequence_get_tick_by_pattern(const BtSequence * const self,gulong track, const BtCmdPattern * const pattern,gulong tick);
+glong bt_sequence_get_track_by_machine(BtSequence * const self,const BtMachine * const machine,gulong track);
+glong bt_sequence_get_tick_by_pattern(BtSequence * const self,gulong track, const BtCmdPattern * const pattern,gulong tick);
 
-BtMachine *bt_sequence_get_machine(const BtSequence * const self,const gulong track);
+BtMachine *bt_sequence_get_machine(BtSequence * const self,const gulong track);
 
-gboolean bt_sequence_add_track(const BtSequence * const self,const BtMachine * const machine, const glong ix);
-gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gulong ix);
-gboolean bt_sequence_remove_track_by_machine(const BtSequence * const self,const BtMachine * const machine);
-gboolean bt_sequence_move_track_left(const BtSequence * const self, const gulong track);
-gboolean bt_sequence_move_track_right(const BtSequence * const self, const gulong track);
+gboolean bt_sequence_add_track(BtSequence * const self,const BtMachine * const machine, const glong ix);
+gboolean bt_sequence_remove_track_by_ix(BtSequence * const self, const gulong ix);
+gboolean bt_sequence_remove_track_by_machine(BtSequence * const self,const BtMachine * const machine);
+gboolean bt_sequence_move_track_left(BtSequence * const self, const gulong track);
+gboolean bt_sequence_move_track_right(BtSequence * const self, const gulong track);
 
-gchar *bt_sequence_get_label(const BtSequence * const self, const gulong time);
-void bt_sequence_set_label(const BtSequence * const self, const gulong time, const gchar * const label);
-BtCmdPattern *bt_sequence_get_pattern(const BtSequence * const self, const gulong time, const gulong track);
-gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulong time, const gulong track, const BtCmdPattern * const pattern);
-void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, const gulong track, const BtCmdPattern * const pattern);
+gboolean bt_sequence_has_label(BtSequence * const self, const gulong time);
+gchar *bt_sequence_get_label(BtSequence * const self, const gulong time);
+void bt_sequence_set_label(BtSequence * const self, const gulong time, const gchar * const label);
+BtCmdPattern *bt_sequence_get_pattern(BtSequence * const self, const gulong time, const gulong track);
+gboolean bt_sequence_set_pattern_quick(BtSequence * const self, const gulong time, const gulong track, const BtCmdPattern * const pattern);
+void bt_sequence_set_pattern(BtSequence * const self, const gulong time, const gulong track, const BtCmdPattern * const pattern);
 
-gulong bt_sequence_get_loop_length(const BtSequence * const self);
-gulong bt_sequence_limit_play_pos(const BtSequence * const self, const gulong play_pos);
+gulong bt_sequence_get_loop_length(BtSequence * const self);
+gulong bt_sequence_limit_play_pos(BtSequence * const self, const gulong play_pos);
 
-gboolean bt_sequence_is_pattern_used(const BtSequence * const self,const BtPattern * const pattern);
+gboolean bt_sequence_is_pattern_used(BtSequence * const self,const BtPattern * const pattern);
 
-void bt_sequence_insert_rows(const BtSequence * const self, const gulong time, const glong track, const gulong rows);
-void bt_sequence_insert_full_rows(const BtSequence * const self, const gulong time, const gulong rows);
-void bt_sequence_delete_rows(const BtSequence * const self, const gulong time, const glong track, const gulong rows);
-void bt_sequence_delete_full_rows(const BtSequence * const self, const gulong time, const gulong rows);
+void bt_sequence_insert_rows(BtSequence * const self, const gulong time, const glong track, const gulong rows);
+void bt_sequence_insert_full_rows(BtSequence * const self, const gulong time, const gulong rows);
+void bt_sequence_delete_rows(BtSequence * const self, const gulong time, const glong track, const gulong rows);
+void bt_sequence_delete_full_rows(BtSequence * const self, const gulong time, const gulong rows);
 
 #endif // BT_SEQUENCE_H

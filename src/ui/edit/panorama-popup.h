@@ -27,43 +27,19 @@
 
 G_BEGIN_DECLS
 
-#define BT_TYPE_PANORAMA_POPUP          (bt_panorama_popup_get_type ())
-#define BT_PANORAMA_POPUP(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_PANORAMA_POPUP, BtPanoramaPopup))
-#define BT_IS_PANORAMA_POPUP(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_PANORAMA_POPUP))
-#define BT_PANORAMA_POPUP_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  BT_TYPE_PANORAMA_POPUP, BtPanoramaPopupClass))
-#define BT_IS_PANORAMA_POPUP_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  BT_TYPE_PANORAMA_POPUP))
-
-typedef struct _BtPanoramaPopup      BtPanoramaPopup;
-typedef struct _BtPanoramaPopupClass BtPanoramaPopupClass;
-
 /**
  * BtPanoramaPopup:
  *
  * a volume popup widget
  */
-struct _BtPanoramaPopup {
-  GtkWindow parent;
+G_DECLARE_FINAL_TYPE(BtPanoramaPopup, bt_panorama_popup, BT, PANORAMA_POPUP, GtkPopover);
 
-  /* us */
-  GtkRange *scale;
-  GtkButton *plus, *minus;
-
-  /* timeout for buttons */
-  guint timeout;
-  /* for +/- buttons */
-  gint direction;
-};
-
-struct _BtPanoramaPopupClass {
-  GtkWindowClass klass;
-};
+#define BT_TYPE_PANORAMA_POPUP          (bt_panorama_popup_get_type ())
 
 GtkWidget *bt_panorama_popup_new(GtkAdjustment *adj);
 
 void bt_panorama_popup_show(BtPanoramaPopup *self);
 void bt_panorama_popup_hide(BtPanoramaPopup *self);
-
-GType bt_panorama_popup_get_type(void) G_GNUC_CONST;
 
 G_END_DECLS
 

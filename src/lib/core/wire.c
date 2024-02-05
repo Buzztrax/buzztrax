@@ -1054,7 +1054,7 @@ Error:
 
 static BtPersistence *
 bt_wire_persistence_load (const GType type,
-    const BtPersistence * const persistence, xmlNodePtr node, GError ** err,
+    BtPersistence * const persistence, xmlNodePtr node, GError ** err,
     va_list var_args)
 {
   BtWire *self;

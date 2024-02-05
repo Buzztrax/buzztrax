@@ -40,15 +40,14 @@ typedef struct _BtInteractionControllerMenuPrivate BtInteractionControllerMenuPr
  * the machine selection sub-menu for the canvas page context menu
  */
 struct _BtInteractionControllerMenu {
-  GtkMenu parent;
+  GObject parent;
 
   /*< private >*/
   BtInteractionControllerMenuPrivate *priv;
 };
 
 struct _BtInteractionControllerMenuClass {
-  GtkMenuClass parent;
-
+  GObjectClass parent;
 };
 
 /**
@@ -72,5 +71,8 @@ GType bt_interaction_controller_menu_get_type(void) G_GNUC_CONST;
 
 
 BtInteractionControllerMenu *bt_interaction_controller_menu_new(BtInteractionControllerMenuType type, BtMachine *machine);
+
+GMenu* bt_interaction_controller_menu_get_menu(BtInteractionControllerMenu* self);
+GtkPopoverMenu* bt_interaction_controller_menu_get_popover(BtInteractionControllerMenu* self);
 
 #endif // BT_INTERACTION_CONTROLLER_MENU_H

@@ -62,7 +62,7 @@ GType bt_change_log_get_type(void) G_GNUC_CONST;
 
 #include "change-logger.h"
 
-BtChangeLog *bt_change_log_new(void);
+BtChangeLog *bt_change_log_new();
 
 gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name);
 

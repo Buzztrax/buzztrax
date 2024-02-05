@@ -20,35 +20,16 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <adwaita.h>
 
-#define BT_TYPE_MACHINE_PROPERTIES_DIALOG             (bt_machine_properties_dialog_get_type ())
-#define BT_MACHINE_PROPERTIES_DIALOG(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MACHINE_PROPERTIES_DIALOG, BtMachinePropertiesDialog))
-#define BT_MACHINE_PROPERTIES_DIALOG_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MACHINE_PROPERTIES_DIALOG, BtMachinePropertiesDialogClass))
-#define BT_IS_MACHINE_PROPERTIES_DIALOG(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MACHINE_PROPERTIES_DIALOG))
-#define BT_IS_MACHINE_PROPERTIES_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MACHINE_PROPERTIES_DIALOG))
-#define BT_MACHINE_PROPERTIES_DIALOG_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MACHINE_PROPERTIES_DIALOG, BtMachinePropertiesDialogClass))
+#include "core/machine.h"
 
-/* type macros */
+G_DECLARE_FINAL_TYPE(BtMachinePropertiesDialog, bt_machine_properties_dialog, BT, MACHINE_PROPERTIES_DIALOG, AdwWindow);
 
-typedef struct _BtMachinePropertiesDialog BtMachinePropertiesDialog;
-typedef struct _BtMachinePropertiesDialogClass BtMachinePropertiesDialogClass;
-typedef struct _BtMachinePropertiesDialogPrivate BtMachinePropertiesDialogPrivate;
-
-/**
- * BtMachinePropertiesDialog:
- *
- * the root window for the editor application
- */
-struct _BtMachinePropertiesDialog {
-  GtkWindow parent;
-  
-  /*< private >*/
-  BtMachinePropertiesDialogPrivate *priv;
-};
+#define BT_TYPE_MACHINE_PROPERTIES_DIALOG bt_machine_properties_dialog_get_type()
 
 struct _BtMachinePropertiesDialogClass {
-  GtkWindowClass parent;
-  
+  AdwWindowClass parent;
 };
 
 GType bt_machine_properties_dialog_get_type(void) G_GNUC_CONST;

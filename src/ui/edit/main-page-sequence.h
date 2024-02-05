@@ -20,46 +20,22 @@
 
 #include <glib.h>
 #include <glib-object.h>
-
-#define BT_TYPE_MAIN_PAGE_SEQUENCE            (bt_main_page_sequence_get_type ())
-#define BT_MAIN_PAGE_SEQUENCE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_PAGE_SEQUENCE, BtMainPageSequence))
-#define BT_MAIN_PAGE_SEQUENCE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_PAGE_SEQUENCE, BtMainPageSequenceClass))
-#define BT_IS_MAIN_PAGE_SEQUENCE(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MAIN_PAGE_SEQUENCE))
-#define BT_IS_MAIN_PAGE_SEQUENCE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MAIN_PAGE_SEQUENCE))
-#define BT_MAIN_PAGE_SEQUENCE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MAIN_PAGE_SEQUENCE, BtMainPageSequenceClass))
-
-/* type macros */
-
-typedef struct _BtMainPageSequence BtMainPageSequence;
-typedef struct _BtMainPageSequenceClass BtMainPageSequenceClass;
-typedef struct _BtMainPageSequencePrivate BtMainPageSequencePrivate;
+#include <gtk/gtk.h>
 
 /**
  * BtMainPageSequence:
  *
  * the sequence page for the editor application
  */
-struct _BtMainPageSequence {
-  GtkBox parent;
-  
-  /*< private >*/
-  BtMainPageSequencePrivate *priv;
-};
+G_DECLARE_FINAL_TYPE(BtMainPageSequence, bt_main_page_sequence, BT, MAIN_PAGE_SEQUENCE, GtkBox);
 
-struct _BtMainPageSequenceClass {
-  GtkBoxClass parent;
-  
-};
-
-GType bt_main_page_sequence_get_type(void) G_GNUC_CONST;
+#define BT_TYPE_MAIN_PAGE_SEQUENCE            (bt_main_page_sequence_get_type ())
 
 #include "main-pages.h"
 
-BtMainPageSequence *bt_main_page_sequence_new(const BtMainPages *pages);
-
-void bt_main_page_sequence_delete_selection(const BtMainPageSequence *self);
-void bt_main_page_sequence_cut_selection(const BtMainPageSequence *self);
-void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self);
-void bt_main_page_sequence_paste_selection(const BtMainPageSequence *self);
+void bt_main_page_sequence_delete_selection(BtMainPageSequence *self);
+void bt_main_page_sequence_cut_selection(BtMainPageSequence *self);
+void bt_main_page_sequence_copy_selection(BtMainPageSequence *self);
+void bt_main_page_sequence_paste_selection(BtMainPageSequence *self);
 
 #endif // BT_MAIN_PAGE_SEQUENCE_H

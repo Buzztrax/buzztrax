@@ -92,6 +92,7 @@ GType btic_device_get_type(void) G_GNUC_CONST;
 void btic_device_add_control(const BtIcDevice *self, const BtIcControl *control);
 BtIcControl *btic_device_get_control_by_id(const BtIcDevice *self,guint id);
 BtIcControl *btic_device_get_control_by_name(const BtIcDevice * self, const gchar *name);
+const gchar *btic_device_get_name(const BtIcDevice *self);
 gboolean btic_device_has_controls(const BtIcDevice *self);
 gboolean btic_device_start(const BtIcDevice *self);
 gboolean btic_device_stop(const BtIcDevice *self);

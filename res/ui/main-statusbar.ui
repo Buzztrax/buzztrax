@@ -1,0 +1,40 @@
+<interface>
+  <template class="BtMainStatusbar" parent="GtkBox">
+    <property name="orientation">vertical</property>
+    
+    <child>
+      <object class="GtkStatusbar" id="status" />
+    </child>
+
+    <child>
+      <object class="GtkBox">
+        <child>
+          <object class="GtkProgressBar" id="cpu_load">
+            <property name="tooltip-text" translatable="yes">CPU Load</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkLabel" id="elapsed">
+            <property name="label">00:00.000</property>
+            <property name="tooltip-text" translatable="yes">Playback time</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkLabel" id="current">
+            <property name="label">00:00.000</property>
+            <property name="tooltip-text" translatable="yes">Playback position</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkLabel" id="loop">
+            <property name="label">00:00.000</property>
+            <property name="tooltip-text" translatable="yes">Playback length</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

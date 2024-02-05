@@ -40,21 +40,21 @@ typedef struct _BtMachineCanvasItemPrivate BtMachineCanvasItemPrivate;
  * the root window for the editor application
  */
 struct _BtMachineCanvasItem {
-  ClutterActor parent;
+  GtkWidget parent;
   
   /*< private >*/
   BtMachineCanvasItemPrivate *priv;
 };
 
 struct _BtMachineCanvasItemClass {
-  ClutterActorClass parent;
+  GtkWidgetClass parent;
 };
 
 GType bt_machine_canvas_item_get_type(void) G_GNUC_CONST;
 
 #include "main-page-machines.h"
 
-BtMachineCanvasItem *bt_machine_canvas_item_new(const BtMainPageMachines *main_page_machines,BtMachine *machine,gdouble xpos,gdouble ypos,gdouble zoom);
+BtMachineCanvasItem *bt_machine_canvas_item_new(const BtMainPageMachines *main_page_machines,BtMachine *machine,gdouble zoom);
 
 void bt_machine_show_properties_dialog(BtMachine *machine);
 void bt_machine_show_preferences_dialog(BtMachine *machine);

@@ -20,6 +20,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <gtk/gtk.h>
 
 #define BT_TYPE_CRASH_RECOVER_DIALOG            (bt_crash_recover_dialog_get_type ())
 #define BT_CRASH_RECOVER_DIALOG(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_CRASH_RECOVER_DIALOG, BtCrashRecoverDialog))
@@ -40,7 +41,7 @@ typedef struct _BtCrashRecoverDialogPrivate BtCrashRecoverDialogPrivate;
  * the about dialog for the editor application
  */
 struct _BtCrashRecoverDialog {
-  GtkDialog parent;
+  GtkWindow parent;
   
   /*< private >*/
   BtCrashRecoverDialogPrivate *priv;

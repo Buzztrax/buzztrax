@@ -2003,7 +2003,7 @@ Error:
 
 static BtPersistence *
 bt_setup_persistence_load (const GType type,
-    const BtPersistence * const persistence, xmlNodePtr node, GError ** err,
+    BtPersistence * const persistence, xmlNodePtr node, GError ** err,
     va_list var_args)
 {
   BtSetup *const self = BT_SETUP (persistence);

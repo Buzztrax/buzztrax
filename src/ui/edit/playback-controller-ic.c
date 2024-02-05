@@ -234,12 +234,12 @@ settings_listen (BtPlaybackControllerIc * self)
 
   g_object_get (self->priv->app, "settings", &settings, "ic-registry",
       &ic_registry, NULL);
-  g_signal_connect (settings, "notify::ic-playback-active",
-      G_CALLBACK (on_settings_active_notify), (gpointer) self);
-  g_signal_connect (settings, "notify::ic-playback-spec",
-      G_CALLBACK (on_settings_spec_notify), (gpointer) self);
-  g_signal_connect (ic_registry, "notify::devices",
-      G_CALLBACK (on_ic_registry_devices_changed), (gpointer) self);
+  g_signal_connect_object (settings, "notify::ic-playback-active",
+      G_CALLBACK (on_settings_active_notify), (gpointer) self, 0);
+  g_signal_connect_object (settings, "notify::ic-playback-spec",
+      G_CALLBACK (on_settings_spec_notify), (gpointer) self, 0);
+  g_signal_connect_object (ic_registry, "notify::devices",
+      G_CALLBACK (on_ic_registry_devices_changed), (gpointer) self, 0);
   on_settings_active_notify (settings, NULL, (gpointer) self);
   g_object_unref (settings);
   g_object_unref (ic_registry);

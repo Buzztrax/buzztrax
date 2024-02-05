@@ -4,12 +4,12 @@
 @define-color row_even_color @theme_base_color;
 @define-color row_odd_color shade (@row_even_color, 0.9);
 
-@define-color playline_color #0000FF;
+@define-color playline_color  #0000FF;
 @define-color loopline_color #FFBF00;
 @define-color endline_color #FF4C33;
 
 @define-color cursor_color #C4C433;
-@define-color selection1_color #AAAA66;
+@define-color selection1_color #FFFF99;
 @define-color selection2_color shade (@selection1_color, 0.9);
 
 @define-color spectrum_cross_hair_color #FFBF00;
@@ -19,23 +19,25 @@
 @define-color grid_lines_color #7F7F7F;
 
 @define-color source_machine_base #F57900;
-@define-color source_machine_shade2 #CE5C00;
-@define-color source_machine_shade1 mix (@source_machine_base, @source_machine_shade2, 0.5);
+@define-color source_machine_shade1 #FFD699;
+@define-color source_machine_shade2 mix (@source_machine_base, @source_machine_shade1, 0.5);
 
 @define-color processor_machine_base #73D216;
-@define-color processor_machine_shade2 #4E9A06;
-@define-color processor_machine_shade1 mix (@processor_machine_base, @processor_machine_shade2, 0.5);
+@define-color processor_machine_shade1 #CBFF99;
+@define-color processor_machine_shade2 mix (@processor_machine_base, @processor_machine_shade1, 0.5);
 
 @define-color sink_machine_base #3465A4;
-@define-color sink_machine_shade2 #204A87;
-@define-color sink_machine_shade1 mix (@sink_machine_base, @sink_machine_shade2, 0.5);
+@define-color sink_machine_shade1 #99CAFF;
+@define-color sink_machine_shade2 mix (@sink_machine_base, @sink_machine_shade1, 0.5);
 
 /* like sink machine */
-@define-color wave_color shade (@sink_machine_base, 1.5);
-@define-color peak_color darker (@sink_machine_shade2);
+.waveform-viewer {
+    fill: darker (@sink_machine_shade2);
+    stroke: shade (@sink_machine_base, 1.5);
+}
 
-@define-color new_wire_good #00AA00;
-@define-color new_wire_bad #AA0000;
-@define-color wire_line #AAAAAA;
+@define-color new_wire_good #33FF33;
+@define-color new_wire_bad #FF3333;
+@define-color wire_line #000000;
 
 @define-color machine_view_bg_color @theme_base_color;

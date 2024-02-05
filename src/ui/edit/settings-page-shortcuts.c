@@ -119,7 +119,6 @@ bt_settings_page_shortcuts_new (GtkWidget * pages)
       BT_SETTINGS_PAGE_SHORTCUTS (g_object_new (BT_TYPE_SETTINGS_PAGE_SHORTCUTS,
           NULL));
   bt_settings_page_shortcuts_init_ui (self, pages);
-  gtk_widget_show_all (GTK_WIDGET (self));
   return self;
 }
 

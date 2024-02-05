@@ -1,0 +1,128 @@
+<interface>
+  <template class="BtMachinePropertiesDialog" parent="AdwWindow">
+    <property name="content">
+      <object class="AdwOverlaySplitView" id="split_view">
+        <property name="collapsed">true</property>
+
+        <!-- Parameters -->
+        <property name="content">
+          <object class="GtkBox">
+            <child>
+              <!-- Main Toolbar -->
+              <object class="GtkBox">
+                <style>
+                  <class name="toolbar"/>
+                </style>
+
+                <child>
+                  <object class="GtkButton">
+                    <property name="icon-name">help-about</property>
+                    <property name="action-name">machine.about</property>
+                    <property name="tooltip-text" translatable="yes">Info about this machine</property>
+                  </object>
+                </child>
+                
+                <child>
+                  <object class="GtkButton">
+                    <property name="icon-name">help-browser</property>
+                    <property name="action-name">machine.help</property>
+                    <property name="tooltip-text" translatable="yes">Help for this machine</property>
+                  </object>
+                </child>
+                
+                <child>
+                  <object class="GtkButton">
+                    <property name="icon-name">document-new</property>
+                    <property name="action-name">machine.randomize</property>
+                    <property name="tooltip-text" translatable="yes">Randomize parameters</property>
+                  </object>
+                </child>
+                
+                <child>
+                  <object class="GtkButton">
+                    <property name="icon-name">edit-undo</property>
+                    <property name="action-name">machine.reset</property>
+                    <property name="tooltip-text" translatable="yes">Reset parameters to defaults</property>
+                  </object>
+                </child>
+                
+                <child>
+                  <object class="GtkToggleButton" id="presets_toggle">
+                    <property name="label" translatable="true">Presets</property>
+                    <property name="tooltip-text" translatable="yes">Show/Hide preset pane</property>
+                    <signal name="clicked" handler="on_toolbar_show_hide_clicked" swapped="no" />
+                  </object>
+                </child>
+
+              </object>
+            </child>
+
+            <!-- Parameters -->
+            <child>
+              <object class="GtkScrolledWindow">
+                <child>
+                  <object class="GtkBox" id="param_group_box">
+                    <property name="orientation">vertical</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </property>
+        
+        <!-- Presets -->
+        <property name="sidebar">
+          <object class="GtkBox" id="presets_box">
+            <property name="width-request">135</property>
+            <property name="orientation">vertical</property>
+            
+            <!-- Presets Toolbar -->
+            <child>
+              <object class="GtkBox" id="presets_toolbar">
+                <style>
+                  <class name="toolbar"/>
+                </style>
+                
+                <child>
+                  <object class="GtkButton">
+                    <property name="icon-name">list-add</property>
+                    <property name="action-name">machine.preset.add</property>
+                    <property name="tooltip-text" translatable="yes">Add new preset</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkButton" id="remove_tool_button">
+                    <property name="icon-name">list-remove</property>
+                    <property name="action-name">machine.preset.remove</property>
+                    <property name="tooltip-text" translatable="yes">Remove preset</property>
+                  </object>
+                </child>
+                
+                <child>
+                  <object class="GtkButton" id="edit_tool_button">
+                    <property name="icon-name">gtk-edit</property>
+                    <property name="action-name">machine.preset.edit</property>
+                    <property name="tooltip-text" translatable="yes">Edit</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <!-- Presets list -->
+            <child>
+              <object class="GtkScrolledWindow">
+                <child>
+                  <object class="GtkListView" id="preset_list">
+                    <signal name="activate" handler="on_preset_list_row_activated" object="BtMachinePropertiesDialog" swapped="no" />
+                  </object>
+                </child>
+              </object>
+            </child>
+            
+          </object>
+        </property>
+      </object>
+    </property>
+  </template>
+</interface>

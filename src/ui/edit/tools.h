@@ -20,17 +20,17 @@
 
 #include <gtk/gtk.h>
 
-/* pixbuf helpers */
-GdkPixbuf *gdk_pixbuf_new_from_theme(const gchar *name, gint size);
+/* theme helpers */
+GdkPaintable *gdk_paintable_new_from_theme(const gchar *name, gint size, GdkDisplay* display);
 
 /* gtk toolbar helper */
-GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name);
+/// GTK4 GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name);
 
 /* save focus grab */
 void gtk_widget_grab_focus_savely(GtkWidget *widget);
 
 /* gtk clipboard helper */
-GtkTargetEntry *gtk_target_table_make(GdkAtom format_atom,gint *n_targets);
+/// GTK4 GtkTargetEntry *gtk_target_table_make(GdkAtom format_atom,gint *n_targets);
 
 /* gtk help helper */
 void gtk_show_uri_simple(GtkWidget *widget, const gchar *uri);
@@ -50,11 +50,11 @@ gboolean bt_label_value_changed(GBinding * binding, const GValue * from_value, G
 gboolean bt_pointer_to_boolean(GBinding * binding, const GValue * from_value, GValue * to_value, gpointer user_data);
 
 /* tool bar icon helper */
-GtkToolItem *gtk_tool_button_new_from_icon_name(const gchar *icon_name, const gchar *label);
-GtkToolItem *gtk_toggle_tool_button_new_from_icon_name(const gchar *icon_name, const gchar *label);
+GtkWidget *gtk_tool_button_new_from_icon_name(const gchar *icon_name, const gchar *label);
+GtkWidget *gtk_toggle_tool_button_new_from_icon_name(const gchar *icon_name, const gchar *label);
 
 /* menu accel helper */
-void gtk_menu_item_add_accel(GtkMenuItem *mi, const gchar *path, guint accel_key, GdkModifierType accel_mods);
+/// GTK4 void gtk_menu_item_add_accel(GtkMenuItem *mi, const gchar *path, guint accel_key, GdkModifierType accel_mods);
 
 /* notify main-loop dispatch helper */
 
@@ -68,9 +68,6 @@ void gtk_menu_item_add_accel(GtkMenuItem *mi, const gchar *path, guint accel_key
  */
 typedef void (*BtNotifyFunc)(GObject *object, GParamSpec *pspec, gpointer user_data);
 void bt_notify_idle_dispatch (GObject *object, GParamSpec *pspec, gpointer user_data, BtNotifyFunc func);
-
-/* gtk compat helper */
-void bt_gtk_workarea_size (gint * max_width, gint * max_height);
 
 
 char *bt_strjoin_list (GList *list);

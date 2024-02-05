@@ -21,35 +21,14 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BT_TYPE_MAIN_STATUSBAR            (bt_main_statusbar_get_type ())
-#define BT_MAIN_STATUSBAR(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_STATUSBAR, BtMainStatusbar))
-#define BT_MAIN_STATUSBAR_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_STATUSBAR, BtMainStatusbarClass))
-#define BT_IS_MAIN_STATUSBAR(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MAIN_STATUSBAR))
-#define BT_IS_MAIN_STATUSBAR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MAIN_STATUSBAR))
-#define BT_MAIN_STATUSBAR_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MAIN_STATUSBAR, BtMainStatusbarClass))
-
-/* type macros */
-
-typedef struct _BtMainStatusbar BtMainStatusbar;
-typedef struct _BtMainStatusbarClass BtMainStatusbarClass;
-typedef struct _BtMainStatusbarPrivate BtMainStatusbarPrivate;
-
 /**
  * BtMainStatusbar:
  *
  * the root window for the editor application
  */
-struct _BtMainStatusbar {
-  GtkBox parent;
-  
-  /*< private >*/
-  BtMainStatusbarPrivate *priv;
-};
+G_DECLARE_FINAL_TYPE(BtMainStatusbar, bt_main_statusbar, BT, MAIN_STATUSBAR, GtkBox);
 
-struct _BtMainStatusbarClass {
-  GtkBoxClass parent;
-  
-};
+#define BT_TYPE_MAIN_STATUSBAR            (bt_main_statusbar_get_type ())
 
 /**
  * BT_MAIN_STATUSBAR_DEFAULT:
@@ -57,8 +36,6 @@ struct _BtMainStatusbarClass {
  * Default text to display when idle.
  */
 #define BT_MAIN_STATUSBAR_DEFAULT _("Ready to rock!")
-
-GType bt_main_statusbar_get_type(void) G_GNUC_CONST;
 
 BtMainStatusbar *bt_main_statusbar_new(void);
 

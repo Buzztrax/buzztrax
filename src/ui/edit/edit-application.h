@@ -20,6 +20,8 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <adwaita.h>
+#include "core/application.h"
 
 #define BT_TYPE_EDIT_APPLICATION            (bt_edit_application_get_type ())
 #define BT_EDIT_APPLICATION(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_EDIT_APPLICATION, BtEditApplication))
@@ -62,9 +64,9 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
 
 gboolean bt_edit_application_run(const BtEditApplication *self);
 gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const gchar *input_file_name);
-gboolean bt_edit_application_quit(const BtEditApplication *self);
+void bt_edit_application_quit(const BtEditApplication *self);
 
-void bt_edit_application_show_about(const BtEditApplication *self);
+void bt_edit_application_show_about(BtEditApplication *self);
 void bt_edit_application_show_tip(const BtEditApplication *self);
 
 void bt_edit_application_crash_log_recover(const BtEditApplication *self);
@@ -76,5 +78,16 @@ void bt_edit_application_ui_unlock(const BtEditApplication *self);
 
 gboolean bt_edit_application_is_song_unsaved(const BtEditApplication *self);
 void bt_edit_application_set_song_unsaved(const BtEditApplication *self);
+
+
+/**
+ * BtAdwAppEdit:
+ *
+ * AdwApplication subclass for the gtk editor application, used to leverage the GTK4 way of application lifecycle
+ * management.
+ */
+G_DECLARE_FINAL_TYPE(BtAdwAppEdit, bt_adw_app_edit, BT, ADW_APP_EDIT, AdwApplication);
+
+BtAdwAppEdit* bt_adw_app_edit_new ();
 
 #endif // BT_EDIT_APPLICATION_H

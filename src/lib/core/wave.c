@@ -97,7 +97,7 @@ struct _BtWavePrivate
   BtWaveLoopMode loop_mode;
   guint channels;               /* number of channels (1,2) */
 
-  GList *wavelevels;            // each entry points to a BtWavelevel
+  GListStore *wavelevels;            // each entry points to a BtWavelevel
 
   /* wave loader */
   gint fd, ext_fd;
@@ -409,9 +409,10 @@ bt_wave_save_to_fd (const BtWave * const self)
     goto Error;
   }
   // the data is in the wave-level :/
-  wavelevel = BT_WAVELEVEL (self->priv->wavelevels->data);
+  wavelevel = BT_WAVELEVEL (g_list_model_get_object (G_LIST_MODEL (self->priv->wavelevels), 0));
   g_object_get (wavelevel,
       "data", &data, "length", &length, "rate", &srate, NULL);
+  g_object_unref (wavelevel);
   size = length * self->priv->channels * sizeof (gint16);
   GST_INFO ("about to format data as wav to fd=%d, %lu bytes to write",
       self->priv->ext_fd, size);
@@ -569,19 +570,18 @@ bt_wave_new (const BtSong * const song, const gchar * const name,
  */
 gboolean
 bt_wave_add_wavelevel (const BtWave * const self,
-    const BtWavelevel * const wavelevel)
+    BtWavelevel * const wavelevel)
 {
   gboolean ret = FALSE;
 
   g_assert (BT_IS_WAVE (self));
   g_assert (BT_IS_WAVELEVEL (wavelevel));
 
-  if (!g_list_find (self->priv->wavelevels, wavelevel)) {
+  guint pos;
+  
+  if (!g_list_store_find (self->priv->wavelevels, wavelevel, &pos)) {
     ret = TRUE;
-    self->priv->wavelevels =
-        g_list_append (self->priv->wavelevels,
-        g_object_ref ((gpointer) wavelevel));
-    //g_signal_emit((gpointer)self,signals[WAVELEVEL_ADDED_EVENT], 0, wavelevel);
+    g_list_store_append (self->priv->wavelevels, wavelevel);
   } else {
     GST_WARNING ("trying to add wavelevel again");
   }
@@ -603,12 +603,11 @@ bt_wave_add_wavelevel (const BtWave * const self,
 BtWavelevel *
 bt_wave_get_level_by_index (const BtWave * const self, const gulong index)
 {
-  BtWavelevel *wavelevel;
+  return BT_WAVELEVEL (g_list_model_get_object (G_LIST_MODEL (self->priv->wavelevels), index));
+}
 
-  if ((wavelevel = g_list_nth_data (self->priv->wavelevels, index))) {
-    return g_object_ref (wavelevel);
-  }
-  return NULL;
+const gchar* bt_wave_get_name(const BtWave* self) {
+  return self->priv->name;
 }
 
 //-- io interface
@@ -659,7 +658,7 @@ bt_wave_persistence_save (const BtPersistence * const persistence,
     // save wavelevels
     if ((child_node =
             xmlNewChild (node, NULL, XML_CHAR_PTR ("wavelevels"), NULL))) {
-      bt_persistence_save_list (self->priv->wavelevels, child_node, NULL);
+      bt_persistence_save_list_model (G_LIST_MODEL (self->priv->wavelevels), child_node, NULL);
     }
   }
   return node;
@@ -667,7 +666,7 @@ bt_wave_persistence_save (const BtPersistence * const persistence,
 
 static BtPersistence *
 bt_wave_persistence_load (const GType type,
-    const BtPersistence * const persistence, xmlNodePtr node, GError ** err,
+    BtPersistence * const persistence, xmlNodePtr node, GError ** err,
     va_list var_args)
 {
   BtWave *self;
@@ -771,10 +770,11 @@ bt_wave_persistence_load (const GType type,
   if (!bt_wave_load_from_uri (self, uri)) {
     goto WaveLoadingError;
   } else {
-    GList *lnode = self->priv->wavelevels;
+    g_object_unref (self->priv->wavelevels);
+    guint idx = 0;
     xmlNodePtr child_node;
 
-    GST_INFO ("loading wavelevels : %p", lnode);
+    GST_INFO ("loading wavelevels");
 
     for (node = node->children; node; node = node->next) {
       if ((!xmlNodeIsText (node))
@@ -786,12 +786,15 @@ bt_wave_persistence_load (const GType type,
             /* loading the wave might have already created wave-levels,
              * here we just want to override e.g. loop, sampling-rate
              */
-            if (lnode) {
-              BtWavelevel *const wave_level = BT_WAVELEVEL (lnode->data);
+            GObject* item = g_list_model_get_object (G_LIST_MODEL (self->priv->wavelevels), idx);
+            if (item) {
+              BtWavelevel *const wave_level = BT_WAVELEVEL (item);
 
               bt_persistence_load (BT_TYPE_WAVELEVEL,
                   BT_PERSISTENCE (wave_level), child_node, NULL, NULL);
-              lnode = g_list_next (lnode);
+              ++idx;
+
+              g_object_unref (item);
             } else {
               GST_WARNING ("no wavelevel");
             }
@@ -875,7 +878,7 @@ bt_wave_get_property (GObject * const object, const guint property_id,
       g_value_set_object (value, self->priv->song);
       break;
     case WAVE_WAVELEVELS:
-      g_value_set_pointer (value, g_list_copy (self->priv->wavelevels));
+      g_value_set_object (value, self->priv->wavelevels);
       break;
     case WAVE_INDEX:
       g_value_set_ulong (value, self->priv->index);
@@ -947,7 +950,6 @@ static void
 bt_wave_dispose (GObject * const object)
 {
   const BtWave *const self = BT_WAVE (object);
-  GList *node;
 
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
@@ -955,13 +957,7 @@ bt_wave_dispose (GObject * const object)
   GST_DEBUG ("!!!! self=%p", self);
 
   g_object_try_weak_unref (self->priv->song);
-  // unref list of wavelevels
-  for (node = self->priv->wavelevels; node; node = g_list_next (node)) {
-    GST_DEBUG ("  free wavelevels : %" G_OBJECT_REF_COUNT_FMT,
-        G_OBJECT_LOG_REF_COUNT (node->data));
-    g_object_try_unref (node->data);
-    node->data = NULL;
-  }
+  g_object_unref (self->priv->wavelevels);
   wave_io_free (self);
 
   G_OBJECT_CLASS (bt_wave_parent_class)->dispose (object);
@@ -974,11 +970,6 @@ bt_wave_finalize (GObject * const object)
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  // free list of wavelevels
-  if (self->priv->wavelevels) {
-    g_list_free (self->priv->wavelevels);
-    self->priv->wavelevels = NULL;
-  }
   g_free (self->priv->name);
   g_free (self->priv->uri);
 
@@ -1015,9 +1006,10 @@ bt_wave_class_init (BtWaveClass * const klass)
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WAVE_WAVELEVELS,
-      g_param_spec_pointer ("wavelevels",
+      g_param_spec_object ("wavelevels",
           "wavelevels list prop",
-          "A copy of the list of wavelevels",
+          "A list of wavelevels",
+          G_TYPE_LIST_STORE,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WAVE_INDEX,

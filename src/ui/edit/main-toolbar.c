@@ -40,6 +40,10 @@
 #define MAX_VUMETER 2
 #define LOW_VUMETER_VAL -90.0
 
+// If more channels are needed for VU meters in future, then this data can be
+// stored somewhere else and referenced via a notify.
+static const int NUM_CHANNELS = 2;
+
 struct _BtMainToolbarPrivate
 {
   /* used to validate if dispose has run */
@@ -52,7 +56,6 @@ struct _BtMainToolbarPrivate
   GtkVUMeter *vumeter[MAX_VUMETER];
   GstElement *level;
   GstClock *clock;
-  gint num_channels;
 
   /* the volume gain */
   GtkScale *volume;
@@ -71,7 +74,6 @@ struct _BtMainToolbarPrivate
 
   /* playback state */
   gboolean is_playing;
-  gboolean has_error;
   gdouble playback_rate;
 
   /* lock for multithreaded access */
@@ -80,25 +82,24 @@ struct _BtMainToolbarPrivate
 
 static GQuark bus_msg_level_quark = 0;
 
+static void vumeter_on_song_level_change(GstBus *bus, GstMessage *message,
+    gpointer user_data);
+
+#if 0 /// GTK4
 static void on_toolbar_play_clicked (GtkButton * button, gpointer user_data);
 static void reset_playback_rate (BtMainToolbar * self);
 static void on_song_volume_changed (GstElement * gain, GParamSpec * arg,
     gpointer user_data);
 
-//-- the class
-
-G_DEFINE_TYPE_WITH_CODE (BtMainToolbar, bt_main_toolbar, GTK_TYPE_TOOLBAR, 
-    G_ADD_PRIVATE(BtMainToolbar));
-
-
 //-- event handler
 
 static gboolean
-on_song_playback_update (gpointer user_data)
+on_song_playback_update (BtSong* gpointer user_data)
 {
   return bt_song_update_playback_position (BT_SONG (user_data));
 }
 
+#if 0
 static void
 on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
     gpointer user_data)
@@ -158,6 +159,7 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->stop_button), TRUE);
   }
 }
+#endif
 
 static void
 on_toolbar_new_clicked (GtkButton * button, gpointer user_data)
@@ -383,106 +385,43 @@ on_toolbar_forward_released (GtkWidget * widget, GdkEventButton * event,
 
   return FALSE;
 }
-
-static void
-on_song_error (const GstBus * const bus, GstMessage * message,
-    gconstpointer user_data)
-{
-  const BtMainToolbar *const self = BT_MAIN_TOOLBAR (user_data);
-
-  if (!self->priv->has_error) {
-    BtSong *song;
-    BtMainWindow *main_window;
-    gchar *msg, *desc;
-
-    BT_GST_LOG_MESSAGE_ERROR (message, &msg, &desc);
-
-    // get song from app
-    g_object_get (self->priv->app, "song", &song, "main-window", &main_window,
-        NULL);
-    // debug the state
-    GST_INFO ("stopping");
-    bt_song_write_to_lowlevel_dot_file (song);
-    bt_song_stop (song);
-
-    bt_dialog_message (main_window, _("Error"), msg, desc);
-
-    // release the reference
-    g_object_unref (song);
-    g_object_unref (main_window);
-    g_free (msg);
-    g_free (desc);
-  } else {
-    BT_GST_LOG_MESSAGE_ERROR (message, NULL, NULL);
-  }
-
-  self->priv->has_error = TRUE;
-}
-
-static void
-on_song_warning (const GstBus * const bus, GstMessage * message,
-    gconstpointer user_data)
-{
-  const BtMainToolbar *const self = BT_MAIN_TOOLBAR (user_data);
-
-  if (!self->priv->has_error) {
-    BtMainWindow *main_window;
-    gchar *msg, *desc;
-
-    BT_GST_LOG_MESSAGE_WARNING (message, &msg, &desc);
-
-    g_object_get (self->priv->app, "main-window", &main_window, NULL);
-    bt_dialog_message (main_window, _("Warning"), msg, desc);
-    g_object_unref (main_window);
-  } else {
-    BT_GST_LOG_MESSAGE_WARNING (message, NULL, NULL);
-  }
-}
+#endif
 
 #define g_value_array_get_ix(va,ix) (va->values + ix)
 
 static gboolean
 on_delayed_idle_song_level_change (gpointer user_data)
 {
-  gconstpointer *const params = (gconstpointer *) user_data;
-  BtMainToolbar *self = (BtMainToolbar *) params[0];
-  GstMessage *message = (GstMessage *) params[1];
+  GtkVUMeter *vumeter = GTK_VUMETER (user_data);
+  GstMessage *message = GST_MESSAGE (
+      g_object_get_data (G_OBJECT (vumeter), "bt-vumeter-message"));
 
-  if (self) {
-    const GstStructure *structure = gst_message_get_structure (message);
-    const GValue *values;
-    GValueArray *decay_arr, *peak_arr;
-    gdouble decay, peak;
-    guint i, size;
+  const GstStructure *structure = gst_message_get_structure (message);
+  const GValue *values;
+  GValueArray *decay_arr, *peak_arr;
+  gdouble decay, peak;
+  guint i, size;
 
-    g_mutex_lock (&self->priv->lock);
-    g_object_remove_weak_pointer ((gpointer) self, (gpointer *) & params[0]);
-    g_mutex_unlock (&self->priv->lock);
+  /// GTK4 I have removed this state, still needed?
+  // if (!self->priv->is_playing)
+  //  goto done;
 
-    if (!self->priv->is_playing)
-      goto done;
-
-    values = (GValue *) gst_structure_get_value (structure, "peak");
-    peak_arr = (GValueArray *) g_value_get_boxed (values);
-    values = (GValue *) gst_structure_get_value (structure, "decay");
-    decay_arr = (GValueArray *) g_value_get_boxed (values);
-    size = decay_arr->n_values;
-    for (i = 0; i < size; i++) {
-      decay = g_value_get_double (g_value_array_get_ix (decay_arr, i));
-      peak = g_value_get_double (g_value_array_get_ix (peak_arr, i));
-      if (isinf (decay) || isnan (decay))
-        decay = LOW_VUMETER_VAL;
-      if (isinf (peak) || isnan (peak))
-        peak = LOW_VUMETER_VAL;
+  values = (GValue *) gst_structure_get_value (structure, "peak");
+  peak_arr = (GValueArray *) g_value_get_boxed (values);
+  values = (GValue *) gst_structure_get_value (structure, "decay");
+  decay_arr = (GValueArray *) g_value_get_boxed (values);
+  size = decay_arr->n_values;
+  for (i = 0; i < size; i++) {
+    decay = g_value_get_double (g_value_array_get_ix (decay_arr, i));
+    peak = g_value_get_double (g_value_array_get_ix (peak_arr, i));
+    if (isinf (decay) || isnan (decay))
+      decay = LOW_VUMETER_VAL;
+    if (isinf (peak) || isnan (peak))
+      peak = LOW_VUMETER_VAL;
       //GST_INFO("level.%d  %.3f %.3f", i, peak, decay);
       //gtk_vumeter_set_levels (self->priv->vumeter[i], (gint)decay, (gint)peak);
-      gtk_vumeter_set_levels (self->priv->vumeter[i], (gint) peak,
-          (gint) decay);
-    }
+    gtk_vumeter_set_levels (vumeter, (gint) peak, (gint) decay);
   }
-done:
-  gst_message_unref (message);
-  g_slice_free1 (2 * sizeof (gconstpointer), params);
   return FALSE;
 }
 
@@ -491,54 +430,46 @@ on_delayed_song_level_change (GstClock * clock, GstClockTime time,
     GstClockID id, gpointer user_data)
 {
   // the callback is called from a clock thread
-  if (GST_CLOCK_TIME_IS_VALID (time))
+  if (GST_CLOCK_TIME_IS_VALID (time)) {
     g_idle_add_full (G_PRIORITY_HIGH, on_delayed_idle_song_level_change,
         user_data, NULL);
-  else {
-    gconstpointer *const params = (gconstpointer *) user_data;
-    GstMessage *message = (GstMessage *) params[1];
-    gst_message_unref (message);
-    g_slice_free1 (2 * sizeof (gconstpointer), user_data);
   }
   return TRUE;
 }
 
-
 static void
-on_song_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
+vumeter_on_song_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
 {
   const GstStructure *s = gst_message_get_structure (message);
   const GQuark name_id = gst_structure_get_name_id (s);
+  GtkVUMeter *vumeter = GTK_VUMETER (user_data);
+  GstElement *vumeter_level = GST_ELEMENT (
+      g_object_get_data (G_OBJECT (vumeter), "bt-vumeter-level"));
+  GstClock *clock = GST_CLOCK (
+      g_object_get_data (G_OBJECT (vumeter), "bt-vumeter-clock"));
+
 
   if (name_id == bus_msg_level_quark) {
-    BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
     GstElement *level = GST_ELEMENT (GST_MESSAGE_SRC (message));
 
     // check if its our element (we can have multiple level meters)
-    if (level == self->priv->level) {
+    if (level == vumeter_level) {
       GstClockTime waittime = bt_gst_analyzer_get_waittime (level, s, TRUE);
       if (GST_CLOCK_TIME_IS_VALID (waittime)) {
         gpointer *data = (gpointer *) g_slice_alloc (2 * sizeof (gpointer));
         GstClockID clock_id;
         GstClockReturn clk_ret;
 
-        //GST_WARNING("target %"GST_TIME_FORMAT" %"GST_TIME_FORMAT,
-        //  GST_TIME_ARGS(endtime),GST_TIME_ARGS(waittime));
-
-        data[0] = (gpointer) self;
-        data[1] = (gpointer) gst_message_ref (message);
-        g_mutex_lock (&self->priv->lock);
-        g_object_add_weak_pointer ((gpointer) self, &data[0]);
-        g_mutex_unlock (&self->priv->lock);
+        g_object_set_data_full (G_OBJECT (vumeter), "bt-vumeter-message",
+            gst_message_ref (message), (GDestroyNotify)gst_message_unref);
         waittime += gst_element_get_base_time (level);
-        clock_id = gst_clock_new_single_shot_id (self->priv->clock, waittime);
+        
+        clock_id = gst_clock_new_single_shot_id (clock, waittime);
         if ((clk_ret =
                 gst_clock_id_wait_async (clock_id, on_delayed_song_level_change,
                     (gpointer) data, NULL)) != GST_CLOCK_OK) {
           GST_WARNING_OBJECT (level, "clock wait failed: %d", clk_ret);
           gst_message_unref (message);
-          g_object_remove_weak_pointer ((gpointer) self, &data[0]);
-          g_slice_free1 (2 * sizeof (gpointer), data);
         }
         gst_clock_id_unref (clock_id);
       }
@@ -546,22 +477,7 @@ on_song_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
   }
 }
 
-static gboolean
-update_level_meters (gpointer user_data)
-{
-  BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
-  gint i;
-
-  for (i = 0; i < self->priv->num_channels; i++) {
-    gtk_widget_show (GTK_WIDGET (self->priv->vumeter[i]));
-  }
-  for (i = self->priv->num_channels; i < MAX_VUMETER; i++) {
-    gtk_widget_hide (GTK_WIDGET (self->priv->vumeter[i]));
-  }
-  return FALSE;
-}
-
-
+#if 0 /// GTK4
 static gdouble
 volume_slider2real (gdouble lin)
 {
@@ -687,26 +603,51 @@ on_song_volume_changed (GstElement * gain, GParamSpec * arg, gpointer user_data)
      GST_WARNING("IGN volume-slider notify : %f",nvalue);
      } */
 }
+#endif
 
+static gboolean
+idle_widget_hide(gpointer user_data)
+{
+  GtkWidget *widget = GTK_WIDGET (user_data);
+  gtk_widget_set_visible (widget, FALSE);
+  return G_SOURCE_REMOVE;
+}
+
+static gboolean
+idle_widget_show(gpointer user_data)
+{
+  GtkWidget *widget = GTK_WIDGET (user_data);
+  gtk_widget_set_visible (widget, TRUE);
+  return G_SOURCE_REMOVE;
+}
 
 static void
-on_channels_negotiated (GstPad * pad, GParamSpec * arg, gpointer user_data)
+vumeter_on_channels_negotiated (GstPad * pad, GParamSpec * arg, gpointer user_data)
 {
   GstCaps *caps;
 
   if ((caps = (GstCaps *) gst_pad_get_current_caps (pad))) {
-    BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
-
+    GtkVUMeter *meter = GTK_VUMETER (user_data);
+    
     if (GST_CAPS_IS_SIMPLE (caps)) {
-      gint old_channels = self->priv->num_channels;
+      gint num_channels;
       gst_structure_get_int (gst_caps_get_structure (caps, 0), "channels",
-          &self->priv->num_channels);
-      if (self->priv->num_channels != old_channels) {
-        GST_INFO ("input level src has %d output channels",
-            self->priv->num_channels);
+          &num_channels);
+
+      GST_INFO ("input level src has %d output channels",
+          num_channels);
+      
+      gint meter_channel = *(gint*)g_object_get_data (
+          G_OBJECT (meter), "bt-vumeter-channel-idx");
+      
+      // Use an idle call to update visibility, as call may come from another thread.
+      if (meter_channel >= num_channels) {
+        bt_g_object_idle_add (G_OBJECT (meter), G_PRIORITY_DEFAULT_IDLE,
+            idle_widget_hide);
+      } else {
         // need to call this via g_idle_add as it triggers the redraw
-        bt_g_object_idle_add ((GObject *) self, G_PRIORITY_DEFAULT_IDLE,
-            update_level_meters);
+        bt_g_object_idle_add (G_OBJECT (meter), G_PRIORITY_DEFAULT_IDLE,
+            idle_widget_show);
       }
     } else {
       GST_WARNING_OBJECT (pad, "expecting simple caps");
@@ -715,6 +656,7 @@ on_channels_negotiated (GstPad * pad, GParamSpec * arg, gpointer user_data)
   }
 }
 
+#if 0 /// GTK4
 static void
 on_song_unsaved_changed (const GObject * object, GParamSpec * arg,
     gpointer user_data)
@@ -742,92 +684,123 @@ on_sequence_loop_notify (const BtSequence * sequence, GParamSpec * arg,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       on_toolbar_loop_toggled, (gpointer) self);
 }
+#endif
 
 static void
-on_song_changed (const BtEditApplication * app, GParamSpec * arg,
-    gpointer user_data)
-{
-  BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
+vumeter_on_song_changed(BtEditApplication *app, GParamSpec *arg,
+    gpointer user_data) {
+  
   BtSong *song;
   BtSequence *sequence;
   GstBin *bin;
-  //gboolean loop;
+  GtkVUMeter *vumeter = GTK_VUMETER (user_data);
 
-  GST_INFO ("song has changed : app=%p, toolbar=%p", app, user_data);
-
-  g_object_get (self->priv->app, "song", &song, NULL);
+  g_object_get (app, "song", &song, NULL);
   if (!song)
     return;
   GST_INFO ("song: %" G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (song));
 
-  // get the audio_sink (song->master is a bt_sink_machine) if there is one already
-  g_object_try_weak_unref (self->priv->master);
-  g_object_get (song, "master", &self->priv->master, "sequence", &sequence,
+  BtMachine *master;
+  g_object_get (song, "master", &master, "sequence", &sequence,
       "bin", &bin, NULL);
 
-  if (self->priv->master) {
+  if (master) {
     GstPad *pad;
     GstBus *bus;
 
-    GST_INFO ("connect to input-level: master=%" G_OBJECT_REF_COUNT_FMT,
-        G_OBJECT_LOG_REF_COUNT (self->priv->master));
-    g_object_try_weak_ref (self->priv->master);
-
+    GstElement *level;
     // get the input_level and input_gain properties from audio_sink
-    g_object_try_weak_unref (self->priv->gain);
-    g_object_try_weak_unref (self->priv->level);
-    g_object_get (self->priv->master, "input-post-level", &self->priv->level,
-        "machine", &self->priv->gain, NULL);
-    g_object_try_weak_ref (self->priv->gain);
-    g_object_try_weak_ref (self->priv->level);
+    g_object_get (master, "input-post-level", &level, NULL);
 
+    g_object_set_data_full (G_OBJECT (vumeter), "bt-vumeter-clock",
+        gst_pipeline_get_clock (GST_PIPELINE (bin)), g_object_unref);
+    
+    g_object_set_data_full (G_OBJECT (vumeter), "bt-vumeter-level", level,
+        g_object_unref);
+    
     // connect bus signals
     bus = gst_element_get_bus (GST_ELEMENT (bin));
-    bt_g_signal_connect_object (bus, "message::error",
-        G_CALLBACK (on_song_error), (gpointer) self, 0);
-    bt_g_signal_connect_object (bus, "message::warning",
-        G_CALLBACK (on_song_warning), (gpointer) self, 0);
     bt_g_signal_connect_object (bus, "sync-message::element",
-        G_CALLBACK (on_song_level_change), (gpointer) self, 0);
+        G_CALLBACK (vumeter_on_song_level_change), (gpointer) vumeter, 0);
     gst_object_unref (bus);
-
-    if (self->priv->clock)
-      gst_object_unref (self->priv->clock);
-    self->priv->clock = gst_pipeline_get_clock (GST_PIPELINE (bin));
-
     // get the pad from the input-level and listen there for channel negotiation
-    g_assert (GST_IS_ELEMENT (self->priv->level));
-    if ((pad = gst_element_get_static_pad (self->priv->level, "src"))) {
+    // so that the vumeter can be shown or hidden as appropriate.
+    g_assert (GST_IS_ELEMENT (level));
+    if ((pad = gst_element_get_static_pad (level, "src"))) {
       g_signal_connect_object (pad, "notify::caps",
-          G_CALLBACK (on_channels_negotiated), (gpointer) self, 0);
+          G_CALLBACK (vumeter_on_channels_negotiated), (gpointer) vumeter, 0);
       gst_object_unref (pad);
     }
 
-    g_assert (GST_IS_ELEMENT (self->priv->gain));
-    // get the current input_gain and adjust volume widget
-    on_song_volume_changed (self->priv->gain, NULL, (gpointer) self);
+    // reference to "level" is kept by g_object_set_data, no unref.
+    g_object_unref (master);
+  }
+
+  g_object_unref (song);
+}
+
+static void
+volume_on_song_changed (BtEditApplication * app, GParamSpec * arg,
+    gpointer user_data)
+{
+  BtSong *song;
+  BtSequence *sequence;
+  GstBin *bin;
+  GtkScale *volume_ctrl = GTK_SCALE (user_data);
+
+  GST_INFO ("song has changed : app=%p, toolbar=%p", app, user_data);
+
+  g_object_get (app, "song", &song, NULL);
+  if (!song)
+    return;
+  GST_INFO ("song: %" G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (song));
+
+  BtMachine *master;
+  g_object_get (song, "master", &master, "sequence", &sequence,
+      "bin", &bin, NULL);
+
+  if (master) {
+    GST_INFO ("connect to input-level: master=%" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (master));
+
+    GstElement *gain;
+    // get the input_level and input_gain properties from audio_sink
+    g_object_get (master, "machine", &gain, NULL);
 
     // connect slider changed and volume changed events
-    g_signal_connect (self->priv->volume, "value_changed",
-        G_CALLBACK (on_song_volume_slider_change), (gpointer) self);
-    g_signal_connect (self->priv->volume, "button-press-event",
-        G_CALLBACK (on_song_volume_slider_press_event), (gpointer) self);
-    g_signal_connect (self->priv->volume, "button-release-event",
-        G_CALLBACK (on_song_volume_slider_release_event), (gpointer) self);
-    g_signal_connect_object (self->priv->gain, "notify::master-volume",
-        G_CALLBACK (on_song_volume_changed), (gpointer) self, 0);
+#if 0 /// GTK4
+    // get the current input_gain and adjust volume widget
+    on_song_volume_changed (gain, NULL, (gpointer) volume_ctrl);
 
-    gst_object_unref (self->priv->gain);
-    gst_object_unref (self->priv->level);
-    g_object_unref (self->priv->master);
+    g_signal_connect_object (self->priv->volume, "value_changed",
+        G_CALLBACK (on_song_volume_slider_change),
+        (gpointer) volume_ctrl, 0);
+    
+    g_signal_connect_object (self->priv->volume, "button-press-event",
+        G_CALLBACK (on_song_volume_slider_press_event),
+        (gpointer) volume_ctrl, 0);
+    
+    g_signal_connect_object (self->priv->volume, "button-release-event",
+        G_CALLBACK (on_song_volume_slider_release_event),
+        (gpointer) volume_ctrl, 0);
+    g_signal_connect_object (self->priv->gain, "notify::master-volume",
+        G_CALLBACK (on_song_volume_changed), (gpointer) volume_ctrl, 0);
+#endif
+
+    gst_object_unref (gain);
+    g_object_unref (master);
   } else {
     GST_WARNING ("failed to get the master element of the song");
   }
+
+#if 0 /// GTK4
   g_signal_connect_object (song, "notify::is-playing",
       G_CALLBACK (on_song_is_playing_notify), (gpointer) self, 0);
   on_sequence_loop_notify (sequence, NULL, (gpointer) self);
   g_signal_connect_object (sequence, "notify::loop",
       G_CALLBACK (on_sequence_loop_notify), (gpointer) self, 0);
+#endif
+  
   //-- release the references
   gst_object_unref (bin);
   g_object_unref (sequence);
@@ -836,157 +809,135 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
 
 //-- helper methods
 
-static void
-bt_main_toolbar_init_ui (const BtMainToolbar * self)
+static AdwHeaderBar *
+bt_main_toolbar_init_ui (BtEditApplication *app)
 {
-  BtSettings *settings;
-  GtkToolItem *tool_item;
+  GtkWidget *tool_item;
   GtkWidget *box, *child;
   gulong i;
   BtChangeLog *change_log;
 
-  gtk_widget_set_name (GTK_WIDGET (self), "main toolbar");
+  AdwHeaderBar* header_bar = ADW_HEADER_BAR (adw_header_bar_new ());
 
   //-- file controls
 
   tool_item = gtk_tool_button_new_from_icon_name ("document-new", _("_New"));
-  gtk_tool_item_set_tooltip_text (tool_item, _("Prepare a new empty song"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
-  g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_new_clicked),
-      (gpointer) self);
+  gtk_widget_set_tooltip_text (tool_item, _("Prepare a new empty song"));
+  adw_header_bar_pack_end (header_bar, tool_item);
+  gtk_actionable_set_action_name (GTK_ACTIONABLE (tool_item), "app.new");
 
   tool_item = gtk_tool_button_new_from_icon_name ("document-open", _("_Open"));
-  gtk_tool_item_set_tooltip_text (tool_item, _("Load a new song"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
-  g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_open_clicked),
-      (gpointer) self);
+  gtk_widget_set_tooltip_text (tool_item, _("Load a new song"));
+  adw_header_bar_pack_end (header_bar, tool_item);
+  gtk_actionable_set_action_name (GTK_ACTIONABLE (tool_item), "app.open");
 
   tool_item = gtk_tool_button_new_from_icon_name ("document-save", _("_Save"));
-  gtk_tool_item_set_tooltip_text (tool_item, _("Save this song"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
-  g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_save_clicked),
-      (gpointer) self);
-  self->priv->save_button = GTK_WIDGET (tool_item);
-
-  gtk_toolbar_insert (GTK_TOOLBAR (self), gtk_separator_tool_item_new (), -1);
+  gtk_widget_set_tooltip_text (tool_item, _("Save this song"));
+  adw_header_bar_pack_end (header_bar, tool_item);
+  gtk_actionable_set_action_name (GTK_ACTIONABLE (tool_item), "app.save");
 
   //-- media controls
 
   tool_item = gtk_tool_button_new_from_icon_name ("media-seek-backward",
       _("R_ewind"));
-  gtk_tool_item_set_tooltip_text (tool_item,
+  gtk_widget_set_tooltip_text (tool_item,
       _("Rewind playback position of this song"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
-  child = gtk_bin_get_child (GTK_BIN (tool_item));
-  gtk_widget_add_events (child,
-      GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
-  g_signal_connect (child, "button-press-event",
-      G_CALLBACK (on_toolbar_rewind_pressed), (gpointer) self);
-  g_signal_connect (child, "button-release-event",
-      G_CALLBACK (on_toolbar_rewind_released), (gpointer) self);
+  adw_header_bar_pack_end (header_bar, tool_item);
+  gtk_actionable_set_action_name (GTK_ACTIONABLE (tool_item), "app.song.rewind");
 
   tool_item =
       gtk_toggle_tool_button_new_from_icon_name ("media-playback-start",
       _("_Play"));
-  gtk_tool_item_set_tooltip_text (tool_item, _("Play this song"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
-  g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_play_clicked),
-      (gpointer) self);
-  self->priv->play_button = GTK_WIDGET (tool_item);
+  gtk_widget_set_tooltip_text (tool_item, _("Play this song"));
+  adw_header_bar_pack_end (header_bar, tool_item);
 
   tool_item = gtk_tool_button_new_from_icon_name ("media-seek-forward",
       _("_Forward"));
-  gtk_tool_item_set_tooltip_text (tool_item,
+  gtk_widget_set_tooltip_text (tool_item,
       _("Forward playback position of this song"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
-  child = gtk_bin_get_child (GTK_BIN (tool_item));
-  gtk_widget_add_events (child,
-      GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
-  g_signal_connect (child, "button-press-event",
-      G_CALLBACK (on_toolbar_forward_pressed), (gpointer) self);
-  g_signal_connect (child, "button-release-event",
-      G_CALLBACK (on_toolbar_forward_released), (gpointer) self);
+  adw_header_bar_pack_end (header_bar, tool_item);
+  gtk_actionable_set_action_name (GTK_ACTIONABLE (tool_item), "app.song.forward");
 
   tool_item =
       gtk_tool_button_new_from_icon_name ("media-playback-stop", _("_Stop"));
-  gtk_tool_item_set_tooltip_text (tool_item, _("Stop playback of this song"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
-  g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_stop_clicked),
-      (gpointer) self);
-  self->priv->stop_button = GTK_WIDGET (tool_item);
-  gtk_widget_set_sensitive (self->priv->stop_button, FALSE);
+  gtk_widget_set_tooltip_text (tool_item, _("Stop playback of this song"));
+  adw_header_bar_pack_end (header_bar, tool_item);
+  gtk_actionable_set_action_name (GTK_ACTIONABLE (tool_item), "app.song.stop");
 
   tool_item = gtk_toggle_tool_button_new_from_icon_name ("view-refresh",
       _("Loop"));
-  gtk_tool_item_set_tooltip_text (tool_item, _("Toggle looping of playback"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
-  g_signal_connect (tool_item, "toggled", G_CALLBACK (on_toolbar_loop_toggled),
-      (gpointer) self);
-  self->priv->loop_button = GTK_WIDGET (tool_item);
+  gtk_widget_set_tooltip_text (tool_item, _("Toggle looping of playback"));
+  adw_header_bar_pack_end (header_bar, tool_item);
+  gtk_actionable_set_action_name (GTK_ACTIONABLE (tool_item), "app.song.loop");
 
-  gtk_toolbar_insert (GTK_TOOLBAR (self), gtk_separator_tool_item_new (), -1);
+  adw_header_bar_pack_end (header_bar, gtk_separator_new (GTK_ORIENTATION_VERTICAL));
 
   //-- volume level and control
 
   box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+  adw_header_bar_pack_end (header_bar, box);
   // add gtk_vumeter widgets and update from level_callback
   for (i = 0; i < MAX_VUMETER; i++) {
-    self->priv->vumeter[i] =
-        GTK_VUMETER (gtk_vumeter_new (GTK_ORIENTATION_HORIZONTAL));
+    GtkVUMeter *vumeter = GTK_VUMETER (gtk_vumeter_new (GTK_ORIENTATION_HORIZONTAL));
+    
+    gint *meter_channel = g_malloc (sizeof (gint));
+    *meter_channel = i;
+    g_object_set_data_full (G_OBJECT (vumeter),
+        "bt-vumeter-channel-idx", meter_channel, g_free);
+    
     // @idea have distinct tooltips with channel names
-    gtk_widget_set_tooltip_text (GTK_WIDGET (self->priv->vumeter[i]),
+    gtk_widget_set_tooltip_text (GTK_WIDGET (vumeter),
         _("playback volume"));
-    gtk_vumeter_set_min_max (self->priv->vumeter[i], LOW_VUMETER_VAL, 0);
-    gtk_vumeter_set_levels (self->priv->vumeter[i], LOW_VUMETER_VAL,
+    gtk_vumeter_set_min_max (vumeter, LOW_VUMETER_VAL, 0);
+    gtk_vumeter_set_levels (vumeter, LOW_VUMETER_VAL,
         LOW_VUMETER_VAL);
     // no falloff in widget, we have falloff in GstLevel
     //gtk_vumeter_set_peaks_falloff(self->priv->vumeter[i], GTK_VUMETER_PEAKS_FALLOFF_MEDIUM);
-    gtk_vumeter_set_scale (self->priv->vumeter[i], GTK_VUMETER_SCALE_LINEAR);
-    gtk_widget_set_no_show_all (GTK_WIDGET (self->priv->vumeter[i]), TRUE);
-    if (i < self->priv->num_channels) {
-      gtk_widget_show (GTK_WIDGET (self->priv->vumeter[i]));
-    } else {
-      gtk_widget_hide (GTK_WIDGET (self->priv->vumeter[i]));
-    }
-    gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (self->priv->vumeter[i]),
-        TRUE, TRUE, 0);
+    gtk_vumeter_set_scale (vumeter, GTK_VUMETER_SCALE_LINEAR);
+    gtk_widget_set_visible (GTK_WIDGET (vumeter), i < NUM_CHANNELS);
+    gtk_box_prepend (GTK_BOX (box), GTK_WIDGET (vumeter));
+
+    g_signal_connect_object (app, "notify::song",
+        G_CALLBACK (vumeter_on_song_changed), (gpointer) vumeter, 0);
   }
 
   // add gain-control
-  self->priv->volume =
+  GtkScale *volume =
       GTK_SCALE (gtk_scale_new_with_range (GTK_ORIENTATION_HORIZONTAL,
           /*min= */ 0.0, /*max= */ 1.0, /*step= */ 0.01));
-  gtk_widget_set_tooltip_text (GTK_WIDGET (self->priv->volume),
+  gtk_widget_set_tooltip_text (GTK_WIDGET (volume),
       _("Change playback volume"));
-  gtk_scale_set_draw_value (self->priv->volume, FALSE);
-  //gtk_range_set_update_policy(GTK_RANGE(self->priv->volume),GTK_UPDATE_DELAYED);
+  gtk_scale_set_draw_value (volume, FALSE);
   gtk_widget_set_size_request (GTK_WIDGET (box), 250, -1);
-  gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (self->priv->volume), TRUE,
-      TRUE, 0);
-  gtk_widget_show_all (GTK_WIDGET (box));
+  gtk_box_prepend (GTK_BOX (box), GTK_WIDGET (volume));
 
-  tool_item = gtk_tool_item_new ();
-  gtk_container_add (GTK_CONTAINER (tool_item), box);
-  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
+  g_signal_connect_object (app, "notify::song",
+      G_CALLBACK (volume_on_song_changed), (gpointer) volume, 0);
 
+#if 0 /// GTK4: do this via action state?
   // register event handlers
-  g_signal_connect (self->priv->app, "notify::song",
-      G_CALLBACK (on_song_changed), (gpointer) self);
-  g_signal_connect (self->priv->app, "notify::unsaved",
-      G_CALLBACK (on_song_unsaved_changed), (gpointer) self);
+  g_signal_connect_object (self->priv->app, "notify::unsaved",
+      G_CALLBACK (on_song_unsaved_changed), (gpointer) self, 0);
 
   change_log = bt_change_log_new ();
-  g_signal_connect (change_log, "notify::can-undo",
-      G_CALLBACK (on_song_unsaved_changed), (gpointer) self);
+  g_signal_connect_object (change_log, "notify::can-undo",
+      G_CALLBACK (on_song_unsaved_changed), (gpointer) self, 0);
   g_object_unref (change_log);
-
+#endif
+  
   // let settings control toolbar style
+#if 0 /// GTK4
+  BtSettings *settings;
   g_object_get (self->priv->app, "settings", &settings, NULL);
+  
   g_object_bind_property_full (settings, "toolbar-style", (GObject *) self,
       "toolbar-style", G_BINDING_SYNC_CREATE, bt_toolbar_style_changed, NULL,
       NULL, NULL);
+  
   g_object_unref (settings);
+#endif
+
+  return header_bar;
 }
 
 //-- constructor methods
@@ -998,73 +949,8 @@ bt_main_toolbar_init_ui (const BtMainToolbar * self)
  *
  * Returns: the new instance
  */
-BtMainToolbar *
-bt_main_toolbar_new (void)
+AdwHeaderBar *
+bt_main_toolbar_new (BtEditApplication *app)
 {
-  BtMainToolbar *self;
-
-  self = BT_MAIN_TOOLBAR (g_object_new (BT_TYPE_MAIN_TOOLBAR, NULL));
-  bt_main_toolbar_init_ui (self);
-  return self;
-}
-
-//-- methods
-
-
-//-- class internals
-
-static void
-bt_main_toolbar_dispose (GObject * object)
-{
-  BtMainToolbar *self = BT_MAIN_TOOLBAR (object);
-
-  return_if_disposed ();
-  self->priv->dispose_has_run = TRUE;
-
-  GST_DEBUG ("!!!! self=%p", self);
-
-  g_object_try_weak_unref (self->priv->master);
-  g_object_try_weak_unref (self->priv->gain);
-  g_object_try_weak_unref (self->priv->level);
-
-  if (self->priv->clock)
-    gst_object_unref (self->priv->clock);
-
-  g_object_unref (self->priv->app);
-
-  G_OBJECT_CLASS (bt_main_toolbar_parent_class)->dispose (object);
-}
-
-static void
-bt_main_toolbar_finalize (GObject * object)
-{
-  BtMainToolbar *self = BT_MAIN_TOOLBAR (object);
-
-  GST_DEBUG ("!!!! self=%p", self);
-  g_mutex_clear (&self->priv->lock);
-
-  G_OBJECT_CLASS (bt_main_toolbar_parent_class)->finalize (object);
-}
-
-static void
-bt_main_toolbar_init (BtMainToolbar * self)
-{
-  self->priv = bt_main_toolbar_get_instance_private(self);
-  GST_DEBUG ("!!!! self=%p", self);
-  self->priv->app = bt_edit_application_new ();
-  g_mutex_init (&self->priv->lock);
-  self->priv->playback_rate = 1.0;
-  self->priv->num_channels = 2;
-}
-
-static void
-bt_main_toolbar_class_init (BtMainToolbarClass * klass)
-{
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  bus_msg_level_quark = g_quark_from_static_string ("level");
-
-  gobject_class->dispose = bt_main_toolbar_dispose;
-  gobject_class->finalize = bt_main_toolbar_finalize;
-
+  return bt_main_toolbar_init_ui (app);
 }

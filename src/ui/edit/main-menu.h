@@ -18,40 +18,14 @@
 #ifndef BT_MAIN_MENU_H
 #define BT_MAIN_MENU_H
 
-#include <glib.h>
-#include <glib-object.h>
+#include <gtk/gtk.h>
 
-#define BT_TYPE_MAIN_MENU             (bt_main_menu_get_type ())
-#define BT_MAIN_MENU(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_MENU, BtMainMenu))
-#define BT_MAIN_MENU_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_MENU, BtMainMenuClass))
-#define BT_IS_MAIN_MENU(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MAIN_MENU))
-#define BT_IS_MAIN_MENU_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MAIN_MENU))
-#define BT_MAIN_MENU_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MAIN_MENU, BtMainMenuClass))
+G_DECLARE_FINAL_TYPE (BtMainMenu, bt_main_menu, BT, MAIN_MENU, GtkWidget);
+#define BT_TYPE_MAIN_MENU (bt_main_menu_get_type())
 
-/* type macros */
 
-typedef struct _BtMainMenu BtMainMenu;
-typedef struct _BtMainMenuClass BtMainMenuClass;
-typedef struct _BtMainMenuPrivate BtMainMenuPrivate;
+typedef struct _BtEditApplication BtEditApplication;
 
-/**
- * BtMainMenu:
- *
- * the main menu inside the #BtMainWindow
- */
-struct _BtMainMenu {
-  GtkMenuBar parent;
-  
-  /*< private >*/
-  BtMainMenuPrivate *priv;
-};
-
-struct _BtMainMenuClass {
-  GtkMenuBarClass parent;
-};
-
-GType bt_main_menu_get_type(void) G_GNUC_CONST;
-
-BtMainMenu *bt_main_menu_new(void);
+GtkWidget *bt_main_menu_new(BtEditApplication * app);
 
 #endif // BT_MAIN_MENU_H

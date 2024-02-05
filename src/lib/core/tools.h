@@ -109,6 +109,8 @@ guint bt_cpu_load_get_current(void);
  * #GObjectClass.dispose().
  */
 #define return_if_disposed() if(self->priv->dispose_has_run) return
+#define return_if_disposed_self() if(self->dispose_has_run) return
+
 /**
  * return_val_if_disposed:
  * @a: return value

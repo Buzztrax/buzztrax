@@ -1,0 +1,4 @@
+<interface>
+  <template class="BtPatternEditor" parent="GtkWidget">
+  </template>
+</interface>

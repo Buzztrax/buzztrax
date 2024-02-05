@@ -61,8 +61,11 @@ struct _BtInteractionControllerMenuPrivate
   BtParameterGroup *selected_pg;
   gchar *selected_property_name;
 
+  GMenu *menu;
+  GtkPopoverMenu *popover;
+  
   /* sub menu (needed to update the menu) */
-  GtkWidget *device_menu;
+  GMenu *device_menu;
 
   /* actions */
   GtkWidget *item_unbind, *item_unbind_all;
@@ -82,7 +85,7 @@ extern GQuark bt_machine_property_name;
 //-- the class
 
 G_DEFINE_TYPE_WITH_CODE (BtInteractionControllerMenu, bt_interaction_controller_menu,
-    GTK_TYPE_MENU, 
+    G_TYPE_OBJECT, 
     G_ADD_PRIVATE(BtInteractionControllerMenu));
 
 //-- prototypes
@@ -172,48 +175,8 @@ on_machine_notify_id (BtMachine * const machine,
   g_object_notify (user_data, "bound");
 }
 
-static void
-on_control_notify_bound (BtIcControl * const control,
-    const GParamSpec * const arg, gpointer user_data)
-{
-  BtInteractionControllerMenu *self =
-      BT_INTERACTION_CONTROLLER_MENU (user_data);
-  GObject *menuitem =
-      G_OBJECT (g_hash_table_lookup (self->priv->control_to_menuitem,
-          (gpointer) control));
-  BtMachine *machine;
-  gchar *desc = build_label_for_control (control);
-
-  g_object_set (menuitem, "label", desc, NULL);
-  g_free (desc);
-
-  machine = g_object_get_qdata ((GObject *) control, bt_machine_machine);
-  if (machine) {
-    g_signal_connect_object (machine, "notify::id",
-        G_CALLBACK (on_machine_notify_id), (gpointer) control, 0);
-  }
-}
-
-static void
-on_control_bind (GtkMenuItem * menuitem, gpointer user_data)
-{
-  BtInteractionControllerMenu *self =
-      BT_INTERACTION_CONTROLLER_MENU (user_data);
-  BtIcControl *control =
-      BTIC_CONTROL (g_hash_table_lookup (self->priv->menuitem_to_control,
-          (gpointer) menuitem));
-
-  if (bt_machine_is_polyphonic (self->priv->machine) &&
-      !GST_IS_CHILD_PROXY (self->priv->selected_object)) {
-    bt_machine_bind_poly_parameter_control (self->priv->machine,
-        self->priv->selected_property_name, control, self->priv->selected_pg);
-  } else {
-    bt_machine_bind_parameter_control (self->priv->machine,
-        self->priv->selected_object, self->priv->selected_property_name,
-        control, self->priv->selected_pg);
-  }
-}
-
+/// GTK4
+#if 0
 static void
 on_control_learn (GtkMenuItem * menuitem, gpointer user_data)
 {
@@ -257,7 +220,10 @@ on_control_learn (GtkMenuItem * menuitem, gpointer user_data)
   }
   GST_INFO ("learn function activated on device");
 }
+#endif
 
+/// GTK4
+#if 0
 static void
 on_control_unbind (GtkMenuItem * menuitem, gpointer user_data)
 {
@@ -267,7 +233,9 @@ on_control_unbind (GtkMenuItem * menuitem, gpointer user_data)
   bt_machine_unbind_parameter_control (self->priv->machine,
       self->priv->selected_object, self->priv->selected_property_name);
 }
+#endif
 
+#if 0 /// GTK4
 static void
 on_control_unbind_all (GtkMenuItem * menuitem, gpointer user_data)
 {
@@ -276,31 +244,25 @@ on_control_unbind_all (GtkMenuItem * menuitem, gpointer user_data)
 
   bt_machine_unbind_parameter_controls (self->priv->machine);
 }
+#endif
 
 //-- helper methods
 
-static GtkWidget *
+static GMenu *
 bt_interaction_controller_menu_init_control_menu (const
     BtInteractionControllerMenu * self, BtIcDevice * device)
 {
   BtIcControl *control;
-  GtkWidget *menu_item;
   BtMachine *machine;
   GList *node, *list;
-  gchar *str, *desc;
-  GtkWidget *submenu = NULL;
+  GMenu *submenu = NULL;
   gboolean is_bound;
-
+  glong pg_idx = bt_machine_get_voice_param_group_idx (self->priv->machine, self->priv->selected_pg);
+  
   // add learn function entry for device which implement the BtIcLearn interface
   if (BTIC_IS_LEARN (device)) {
-    submenu = gtk_menu_new ();
-    menu_item = gtk_menu_item_new_with_label (_("Learn…"));
-    gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menu_item);
-    gtk_widget_show (menu_item);
-    // connect handler
-    g_hash_table_insert (self->priv->menuitem_to_device, menu_item, device);
-    g_signal_connect (menu_item, "activate",
-        G_CALLBACK (on_control_learn), (gpointer) self);
+    submenu = g_menu_new ();
+    g_menu_append (submenu, _("Learn…"), "tbd"); /// GTK4
   }
   // get list of controls per device
   g_object_get (device, "controls", &list, NULL);
@@ -319,25 +281,33 @@ bt_interaction_controller_menu_init_control_menu (const
         break;
     }
 
-    g_object_get (control, "name", &str, "bound", &is_bound, NULL);
-    GST_INFO ("  Add control '%s'", str);
+    g_object_get (control, "bound", &is_bound, NULL);
+    GST_INFO ("  Add control '%s'", btic_control_get_name (control));
 
     if (!submenu) {
-      submenu = gtk_menu_new ();
+      submenu = g_menu_new ();
     }
+    
+    gchar *desc;
     desc = build_label_for_control (control);
-    menu_item = gtk_menu_item_new_with_label (desc);
-    gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menu_item);
-    gtk_widget_show (menu_item);
-    g_free (desc);
+    
+    GMenuItem* item;
+    item = g_menu_item_new (desc, NULL);
+  
+    g_menu_item_set_action_and_target (
+      item,
+      "app.ic.param.bind",
+      "sisss",
+      bt_machine_get_id (self->priv->machine),
+      pg_idx,
+      self->priv->selected_property_name,
+      btic_device_get_name (device),
+      btic_control_get_name (control));
 
-    // connect handlers
-    g_hash_table_insert (self->priv->menuitem_to_control, menu_item, control);
-    g_hash_table_insert (self->priv->control_to_menuitem, control, menu_item);
-    g_signal_connect (menu_item, "activate", G_CALLBACK (on_control_bind),
-        (gpointer) self);
-    g_signal_connect_object (control, "notify::bound",
-        G_CALLBACK (on_control_notify_bound), (gpointer) self, 0);
+    g_menu_append_item (submenu, item);
+    g_object_unref (item);
+    
+    g_free (desc);
 
     machine = g_object_get_qdata ((GObject *) control, bt_machine_machine);
     if (machine) {
@@ -371,16 +341,11 @@ bt_interaction_controller_menu_init_device_menu (const
   }
   g_object_unref (ic_registry);
   if (list) {
-    GtkWidget *menu_item, *submenu, *parentmenu;
+    GMenu *submenu, *parentmenu;
     BtIcDevice *device;
     GList *node;
-    gchar *str;
 
-    submenu = gtk_menu_new ();
-    gtk_widget_set_name (submenu, "interaction controller submenu");
-    gtk_menu_item_set_submenu (GTK_MENU_ITEM (self->priv->device_menu),
-        submenu);
-    gtk_widget_set_sensitive (self->priv->device_menu, TRUE);
+    submenu = g_menu_new ();
 
     for (node = list; node; node = g_list_next (node)) {
       device = BTIC_DEVICE (node->data);
@@ -394,20 +359,13 @@ bt_interaction_controller_menu_init_device_menu (const
       if ((parentmenu =
               bt_interaction_controller_menu_init_control_menu (self,
                   device))) {
-        g_object_get (device, "name", &str, NULL);
-        GST_INFO ("Build control menu for '%s'", str);
+        
+        GST_INFO ("Build control menu for '%s'", btic_device_get_name (device));
 
-        menu_item = gtk_menu_item_new_with_label (str);
-        gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menu_item);
-        gtk_widget_show (menu_item);
-        g_free (str);
-
-        gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), parentmenu);
+        g_menu_append_section (submenu, btic_device_get_name (device), G_MENU_MODEL (parentmenu));
       }
     }
     g_list_free (list);
-  } else {
-    gtk_widget_set_sensitive (self->priv->device_menu, FALSE);
   }
 }
 
@@ -416,29 +374,43 @@ bt_interaction_controller_menu_init_ui (const BtInteractionControllerMenu *
     self)
 {
   BtInteractionControllerMenuPrivate *p = self->priv;
-  GtkWidget *item;
 
-  gtk_widget_set_name (GTK_WIDGET (self), "interaction controller menu");
-
-  p->device_menu = item = gtk_menu_item_new_with_label (_("Bind controller"));
-  gtk_menu_shell_append (GTK_MENU_SHELL (self), item);
-  gtk_widget_show (item);
-
+  GMenu* menu = g_menu_new ();
+  p->device_menu = g_menu_new ();
+  g_menu_append_section (menu, _("Bind controller"), G_MENU_MODEL (p->device_menu));
+  
   // add the device submenu
   bt_interaction_controller_menu_init_device_menu (self);
 
-  p->item_unbind = item = gtk_menu_item_new_with_label (_("Unbind controller"));
-  gtk_menu_shell_append (GTK_MENU_SHELL (self), item);
-  g_signal_connect (item, "activate", G_CALLBACK (on_control_unbind),
-      (gpointer) self);
-  gtk_widget_show (item);
+  GMenuItem* item;
+  item = g_menu_item_new (_("Unbind controller"), NULL);
+  g_menu_item_set_action_and_target (item, "app.ic.param.unbind", "ss",
+                                     bt_machine_get_id (p->machine),
+                                     p->selected_property_name);
+  
+  g_menu_append_item (menu, item);
+  g_object_unref (item);
 
-  p->item_unbind_all = item =
-      gtk_menu_item_new_with_label (_("Unbind all controllers"));
-  gtk_menu_shell_append (GTK_MENU_SHELL (self), item);
-  g_signal_connect (item, "activate", G_CALLBACK (on_control_unbind_all),
-      (gpointer) self);
-  gtk_widget_show (item);
+  g_menu_append (menu, _("Unbind all controllers"), "app.ic.unbind-all");
+  //GTK4: TBD
+  //g_signal_connect (item, "activate", G_CALLBACK (on_control_unbind_all),
+  //    (gpointer) self);
+
+  /// GTK4: store GMenuModel instead?
+  p->popover = GTK_POPOVER_MENU (gtk_popover_menu_new_from_model (G_MENU_MODEL (menu)));
+  g_object_ref_sink (p->popover);
+  p->menu = menu;
+}
+
+GMenu*
+bt_interaction_controller_menu_get_menu(BtInteractionControllerMenu* self) {
+  return self->priv->menu;
+}
+
+/// GTK4: return GMenuModel instead?
+GtkPopoverMenu*
+bt_interaction_controller_menu_get_popover(BtInteractionControllerMenu* self) {
+  return self->priv->popover;
 }
 
 //-- constructor methods
@@ -548,6 +520,8 @@ bt_interaction_controller_menu_dispose (GObject * object)
   g_object_try_unref (self->priv->selected_pg);
   g_object_try_unref (self->priv->machine);
   g_object_unref (self->priv->app);
+  g_object_unref (self->priv->menu);
+  g_object_unref (self->priv->popover);
 
   G_OBJECT_CLASS (bt_interaction_controller_menu_parent_class)->dispose
       (object);

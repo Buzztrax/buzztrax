@@ -34,9 +34,10 @@
 
 //-- structs
 
-struct _BtMachineListModelPrivate
+struct _BtMachineListModel
 {
-  gint stamp;
+  GObject parent;
+  
   BtSetup *setup;
 
   GType param_types[N_COLUMNS];
@@ -45,14 +46,14 @@ struct _BtMachineListModelPrivate
 
 //-- the class
 
-static void bt_machine_list_model_tree_model_init (gpointer const g_iface,
+static void
+bt_machine_list_model_g_list_model_init (gpointer const g_iface,
     gpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtMachineListModel, bt_machine_list_model,
     G_TYPE_OBJECT,
-    G_ADD_PRIVATE(BtMachineListModel)
-    G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL,
-        bt_machine_list_model_tree_model_init));
+    G_IMPLEMENT_INTERFACE (G_TYPE_LIST_MODEL,
+        bt_machine_list_model_g_list_model_init));
 
 //-- helper
 
@@ -111,34 +112,25 @@ model_item_cmp (gconstpointer a, gconstpointer b, gpointer data)
 static void
 bt_machine_list_model_add (BtMachineListModel * model, BtMachine * machine)
 {
-  GSequence *seq = model->priv->seq;
-  GtkTreePath *path;
-  GtkTreeIter iter;
+  GSequence *seq = model->seq;
   gint position;
 
   GST_INFO_OBJECT (machine, "add machine to model");
 
   // insert new entry
-  iter.stamp = model->priv->stamp;
-  iter.user_data =
-      g_sequence_insert_sorted (seq, machine, model_item_cmp, NULL);
-  position = g_sequence_iter_get_position (iter.user_data);
+  GSequenceIter* iter = g_sequence_insert_sorted (seq, machine, model_item_cmp, NULL);
+  position = g_sequence_iter_get_position (iter);
 
   g_signal_connect_object (machine, "notify::id",
       G_CALLBACK (on_machine_id_changed), (gpointer) model, 0);
 
-  // signal to the view/app
-  path = gtk_tree_path_new ();
-  gtk_tree_path_append_index (path, position);
-  gtk_tree_model_row_inserted (GTK_TREE_MODEL (model), path, &iter);
-  gtk_tree_path_free (path);
+  g_list_model_items_changed (G_LIST_MODEL (model), position, 0, 1);
 }
 
 static void
 bt_machine_list_model_rem (BtMachineListModel * model, BtMachine * machine)
 {
-  GSequence *seq = model->priv->seq;
-  GtkTreePath *path;
+  GSequence *seq = model->seq;
   GSequenceIter *iter;
   gint position;
 
@@ -149,11 +141,7 @@ bt_machine_list_model_rem (BtMachineListModel * model, BtMachine * machine)
   position = g_sequence_iter_get_position (iter);
   g_sequence_remove (iter);
 
-  // signal to the view/app
-  path = gtk_tree_path_new ();
-  gtk_tree_path_append_index (path, position);
-  gtk_tree_model_row_deleted (GTK_TREE_MODEL (model), path);
-  gtk_tree_path_free (path);
+  g_list_model_items_changed (G_LIST_MODEL (model), position, 1, 0);
 
   GST_INFO_OBJECT (machine, "removed machine from model at pos %d ", position);
 }
@@ -165,13 +153,11 @@ on_machine_id_changed (BtMachine * machine, GParamSpec * arg,
     gpointer user_data)
 {
   BtMachineListModel *model = BT_MACHINE_LIST_MODEL (user_data);
-  GSequence *seq = model->priv->seq;
-  GtkTreePath *path;
+  GSequence *seq = model->seq;
   GtkTreeIter iter;
   gint pos1, pos2 = -1, len;
 
   // find the item by machine (cannot use model_item_cmp, as id has changed)
-  iter.stamp = model->priv->stamp;
   len = g_sequence_get_length (seq);
   for (pos1 = 0; pos1 < len; pos1++) {
     iter.user_data = g_sequence_get_iter_at_pos (seq, pos1);
@@ -188,19 +174,10 @@ on_machine_id_changed (BtMachine * machine, GParamSpec * arg,
 
   // signal updates
   if (pos1 != pos2) {
-    path = gtk_tree_path_new ();
-    gtk_tree_path_append_index (path, pos1);
-    gtk_tree_model_row_deleted (GTK_TREE_MODEL (model), path);
-    gtk_tree_path_free (path);
-    path = gtk_tree_path_new ();
-    gtk_tree_path_append_index (path, pos2);
-    gtk_tree_model_row_inserted (GTK_TREE_MODEL (model), path, &iter);
-    gtk_tree_path_free (path);
+    g_list_model_items_changed (G_LIST_MODEL (model), pos1, 1, 0);
+    g_list_model_items_changed (G_LIST_MODEL (model), pos2, 0, 1);
   } else {
-    path = gtk_tree_path_new ();
-    gtk_tree_path_append_index (path, pos2);
-    gtk_tree_model_row_changed (GTK_TREE_MODEL (model), path, &iter);
-    gtk_tree_path_free (path);
+    g_list_model_items_changed (G_LIST_MODEL (model), pos2, 0, 1);
   }
 }
 
@@ -227,8 +204,8 @@ on_machine_removed (BtSetup * setup, BtMachine * machine, gpointer user_data)
  * bt_machine_list_model_new:
  * @setup: the setup
  *
- * Creates a list model of machines for the @setup. The model is automatically
- * updated when machines are added, removed or changed.
+ * Creates a list model of machine instances for the @setup. The model is automatically
+ * updated when machines are added to, removed from or changed in the song.
  *
  * Returns: the machine model.
  */
@@ -241,12 +218,12 @@ bt_machine_list_model_new (BtSetup * setup)
 
   self = g_object_new (BT_TYPE_MACHINE_LIST_MODEL, NULL);
 
-  self->priv->setup = setup;
+  self->setup = setup;
   g_object_add_weak_pointer ((GObject *) setup,
-      (gpointer *) & self->priv->setup);
+      (gpointer *) & self->setup);
 
-  self->priv->param_types[BT_MACHINE_LIST_MODEL_ICON] = GDK_TYPE_PIXBUF;
-  self->priv->param_types[BT_MACHINE_LIST_MODEL_LABEL] = G_TYPE_STRING;
+  self->param_types[BT_MACHINE_LIST_MODEL_ICON] = GDK_TYPE_PIXBUF;
+  self->param_types[BT_MACHINE_LIST_MODEL_LABEL] = G_TYPE_STRING;
 
   // get machine list from setup
   g_object_get ((gpointer) setup, "machines", &list, NULL);
@@ -282,193 +259,46 @@ bt_machine_list_model_get_object (BtMachineListModel * model,
   return g_sequence_get (iter->user_data);
 }
 
-//-- tree model interface
+//-- list model interface
 
-static GtkTreeModelFlags
-bt_machine_list_model_tree_model_get_flags (GtkTreeModel * tree_model)
-{
-  return (GTK_TREE_MODEL_ITERS_PERSIST | GTK_TREE_MODEL_LIST_ONLY);
-}
 
-static gint
-bt_machine_list_model_tree_model_get_n_columns (GtkTreeModel * tree_model)
+static gpointer
+bt_machine_list_model_get_item (GListModel* list, guint position)
 {
-  return N_COLUMNS;
+  BtMachineListModel *self = BT_MACHINE_LIST_MODEL (list);
+  
+  g_assert (position < G_MAXINT64);
+  
+  GSequenceIter* it = g_sequence_get_iter_at_pos (self->seq, (gint)position);
+  if (g_sequence_iter_compare (it, g_sequence_get_end_iter (self->seq)) == 0) {
+    return NULL;
+  } else {
+    return g_sequence_get (it);
+  }
 }
 
 static GType
-bt_machine_list_model_tree_model_get_column_type (GtkTreeModel * tree_model,
-    gint index)
+bt_machine_list_model_get_item_type (GListModel* list)
 {
-  BtMachineListModel *model = BT_MACHINE_LIST_MODEL (tree_model);
-
-  g_return_val_if_fail (index < N_COLUMNS, G_TYPE_INVALID);
-
-  return model->priv->param_types[index];
+  return BT_TYPE_MACHINE;
 }
 
-static gboolean
-bt_machine_list_model_tree_model_get_iter (GtkTreeModel * tree_model,
-    GtkTreeIter * iter, GtkTreePath * path)
+static guint
+bt_machine_list_model_get_n_items (GListModel* list)
 {
-  BtMachineListModel *model = BT_MACHINE_LIST_MODEL (tree_model);
-  GSequence *seq = model->priv->seq;
-  gint i = gtk_tree_path_get_indices (path)[0];
-
-  if (i >= g_sequence_get_length (seq))
-    return FALSE;
-
-  iter->stamp = model->priv->stamp;
-  iter->user_data = g_sequence_get_iter_at_pos (seq, i);
-
-  return TRUE;
+  BtMachineListModel *self = BT_MACHINE_LIST_MODEL (list);
+  return g_sequence_get_length (self->seq);
 }
-
-static GtkTreePath *
-bt_machine_list_model_tree_model_get_path (GtkTreeModel * tree_model,
-    GtkTreeIter * iter)
-{
-  BtMachineListModel *model = BT_MACHINE_LIST_MODEL (tree_model);
-  GtkTreePath *path;
-
-  g_return_val_if_fail (iter->stamp == model->priv->stamp, NULL);
-
-  if (g_sequence_iter_is_end (iter->user_data))
-    return NULL;
-
-  path = gtk_tree_path_new ();
-  gtk_tree_path_append_index (path,
-      g_sequence_iter_get_position (iter->user_data));
-
-  return path;
-}
-
+  
 static void
-bt_machine_list_model_tree_model_get_value (GtkTreeModel * tree_model,
-    GtkTreeIter * iter, gint column, GValue * value)
-{
-  BtMachineListModel *model = BT_MACHINE_LIST_MODEL (tree_model);
-  BtMachine *machine;
-
-  g_return_if_fail (column < N_COLUMNS);
-
-  g_value_init (value, model->priv->param_types[column]);
-  if ((machine = g_sequence_get (iter->user_data))) {
-    switch (column) {
-      case BT_MACHINE_LIST_MODEL_ICON:
-        g_value_take_object (value,
-            bt_ui_resources_get_icon_pixbuf_by_machine (machine));
-        break;
-      case BT_MACHINE_LIST_MODEL_LABEL:
-        g_object_get_property ((GObject *) machine, "id", value);
-        break;
-    }
-  }
-}
-
-static gboolean
-bt_machine_list_model_tree_model_iter_next (GtkTreeModel * tree_model,
-    GtkTreeIter * iter)
-{
-  BtMachineListModel *model = BT_MACHINE_LIST_MODEL (tree_model);
-  gboolean res;
-
-  g_return_val_if_fail (model->priv->stamp == iter->stamp, FALSE);
-
-  iter->user_data = g_sequence_iter_next (iter->user_data);
-  if ((res = g_sequence_iter_is_end (iter->user_data)))
-    iter->stamp = 0;
-
-  return !res;
-}
-
-static gboolean
-bt_machine_list_model_tree_model_iter_children (GtkTreeModel * tree_model,
-    GtkTreeIter * iter, GtkTreeIter * parent)
-{
-  BtMachineListModel *model = BT_MACHINE_LIST_MODEL (tree_model);
-
-  /* this is a list, nodes have no children */
-  if (!parent) {
-    if (g_sequence_get_length (model->priv->seq) > 0) {
-      iter->stamp = model->priv->stamp;
-      iter->user_data = g_sequence_get_begin_iter (model->priv->seq);
-      return TRUE;
-    }
-  }
-  iter->stamp = 0;
-  return FALSE;
-}
-
-static gboolean
-bt_machine_list_model_tree_model_iter_has_child (GtkTreeModel * tree_model,
-    GtkTreeIter * iter)
-{
-  return FALSE;
-}
-
-static gint
-bt_machine_list_model_tree_model_iter_n_children (GtkTreeModel * tree_model,
-    GtkTreeIter * iter)
-{
-  BtMachineListModel *model = BT_MACHINE_LIST_MODEL (tree_model);
-
-  if (iter == NULL)
-    return g_sequence_get_length (model->priv->seq);
-
-  g_return_val_if_fail (model->priv->stamp == iter->stamp, -1);
-  return 0;
-}
-
-static gboolean
-bt_machine_list_model_tree_model_iter_nth_child (GtkTreeModel * tree_model,
-    GtkTreeIter * iter, GtkTreeIter * parent, gint n)
-{
-  BtMachineListModel *model = BT_MACHINE_LIST_MODEL (tree_model);
-  GSequenceIter *child;
-
-  iter->stamp = 0;
-
-  if (parent)
-    return FALSE;
-
-  child = g_sequence_get_iter_at_pos (model->priv->seq, n);
-
-  if (g_sequence_iter_is_end (child))
-    return FALSE;
-
-  iter->stamp = model->priv->stamp;
-  iter->user_data = child;
-
-  return TRUE;
-}
-
-static gboolean
-bt_machine_list_model_tree_model_iter_parent (GtkTreeModel * tree_model,
-    GtkTreeIter * iter, GtkTreeIter * child)
-{
-  iter->stamp = 0;
-  return FALSE;
-}
-
-static void
-bt_machine_list_model_tree_model_init (gpointer const g_iface,
+bt_machine_list_model_g_list_model_init (gpointer const g_iface,
     gpointer const iface_data)
 {
-  GtkTreeModelIface *const iface = g_iface;
+  GListModelInterface *const iface = g_iface;
 
-  iface->get_flags = bt_machine_list_model_tree_model_get_flags;
-  iface->get_n_columns = bt_machine_list_model_tree_model_get_n_columns;
-  iface->get_column_type = bt_machine_list_model_tree_model_get_column_type;
-  iface->get_iter = bt_machine_list_model_tree_model_get_iter;
-  iface->get_path = bt_machine_list_model_tree_model_get_path;
-  iface->get_value = bt_machine_list_model_tree_model_get_value;
-  iface->iter_next = bt_machine_list_model_tree_model_iter_next;
-  iface->iter_children = bt_machine_list_model_tree_model_iter_children;
-  iface->iter_has_child = bt_machine_list_model_tree_model_iter_has_child;
-  iface->iter_n_children = bt_machine_list_model_tree_model_iter_n_children;
-  iface->iter_nth_child = bt_machine_list_model_tree_model_iter_nth_child;
-  iface->iter_parent = bt_machine_list_model_tree_model_iter_parent;
+  iface->get_item = bt_machine_list_model_get_item;
+  iface->get_item_type = bt_machine_list_model_get_item_type;
+  iface->get_n_items = bt_machine_list_model_get_n_items;
 }
 
 //-- class internals
@@ -480,12 +310,12 @@ bt_machine_list_model_finalize (GObject * object)
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  if (self->priv->setup) {
-    g_object_remove_weak_pointer ((GObject *) self->priv->setup,
-        (gpointer *) & self->priv->setup);
+  if (self->setup) {
+    g_object_remove_weak_pointer ((GObject *) self->setup,
+        (gpointer *) & self->setup);
   }
 
-  g_sequence_free (self->priv->seq);
+  g_sequence_free (self->seq);
 
   G_OBJECT_CLASS (bt_machine_list_model_parent_class)->finalize (object);
 }
@@ -493,11 +323,9 @@ bt_machine_list_model_finalize (GObject * object)
 static void
 bt_machine_list_model_init (BtMachineListModel * self)
 {
-  self->priv = bt_machine_list_model_get_instance_private(self);
+  self = bt_machine_list_model_get_instance_private(self);
 
-  self->priv->seq = g_sequence_new (NULL);
-  // random int to check whether an iter belongs to our model
-  self->priv->stamp = g_random_int ();
+  self->seq = g_sequence_new (NULL);
 }
 
 static void

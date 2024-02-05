@@ -191,6 +191,10 @@ btic_device_get_control_by_name (const BtIcDevice * self, const gchar * name)
   return node ? g_object_ref (node->data) : NULL;
 }
 
+const gchar *btic_device_get_name(const BtIcDevice *self) {
+  return self->priv->name;
+}
+
 /**
  * btic_device_has_controls:
  * @self: the device

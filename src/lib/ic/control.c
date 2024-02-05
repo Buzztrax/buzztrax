@@ -88,6 +88,11 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (BtIcControl, btic_control, G_TYPE_OBJECT, G_AD
 
 //-- methods
 
+const gchar* btic_control_get_name(const BtIcControl* self)
+{
+  return self->priv->name;
+}
+
 //-- wrapper
 
 //-- class internals

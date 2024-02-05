@@ -21,35 +21,15 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BT_TYPE_RENDER_DIALOG            (bt_render_dialog_get_type ())
-#define BT_RENDER_DIALOG(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_RENDER_DIALOG, BtRenderDialog))
-#define BT_RENDER_DIALOG_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_RENDER_DIALOG, BtRenderDialogClass))
-#define BT_IS_RENDER_DIALOG(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_RENDER_DIALOG))
-#define BT_IS_RENDER_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_RENDER_DIALOG))
-#define BT_RENDER_DIALOG_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_RENDER_DIALOG, BtRenderDialogClass))
-
-/* type macros */
-
-typedef struct _BtRenderDialog BtRenderDialog;
-typedef struct _BtRenderDialogClass BtRenderDialogClass;
-typedef struct _BtRenderDialogPrivate BtRenderDialogPrivate;
 
 /**
  * BtRenderDialog:
  *
  * the song rendering dialog for the editor application
  */
-struct _BtRenderDialog {
-  GtkDialog parent;
+G_DECLARE_FINAL_TYPE(BtRenderDialog, bt_render_dialog, BT, RENDER_DIALOG, AdwWindow);
 
-  /*< private >*/
-  BtRenderDialogPrivate *priv;
-};
-
-struct _BtRenderDialogClass {
-  GtkDialogClass parent;
-
-};
+#define BT_TYPE_RENDER_DIALOG            (bt_render_dialog_get_type ())
 
 #define BT_TYPE_RENDER_MODE       (bt_render_mode_get_type())
 
@@ -66,7 +46,6 @@ typedef enum {
 } BtRenderMode;
 
 
-GType bt_render_dialog_get_type(void) G_GNUC_CONST;
 GType bt_render_mode_get_type(void) G_GNUC_CONST;
 
 BtRenderDialog *bt_render_dialog_new(void);

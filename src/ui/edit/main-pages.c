@@ -28,6 +28,8 @@
 #define BT_MAIN_PAGES_C
 
 #include "bt-edit.h"
+#include "main-page-sequence.h"
+#include "sequence-view.h"
 
 enum
 {
@@ -39,8 +41,10 @@ enum
 };
 
 
-struct _BtMainPagesPrivate
+struct _BtMainPages
 {
+  GtkWidget parent;
+  
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
@@ -61,8 +65,7 @@ struct _BtMainPagesPrivate
 
 //-- the class
 
-G_DEFINE_TYPE_WITH_CODE (BtMainPages, bt_main_pages, GTK_TYPE_NOTEBOOK, 
-    G_ADD_PRIVATE(BtMainPages));
+G_DEFINE_TYPE (BtMainPages, bt_main_pages, GTK_TYPE_WIDGET);
 
 
 //-- event handler
@@ -78,7 +81,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
 
   GST_INFO ("song has changed : app=%p, self=%p", app, self);
   // get song from app
-  g_object_get (self->priv->app, "song", &song, NULL);
+  g_object_get (self->app, "song", &song, NULL);
   if (!song) {
     return;
   }
@@ -87,7 +90,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
   if ((prop = (gchar *) g_hash_table_lookup (properties, "active-page"))) {
     guint page = atoi (prop);
 
-    gtk_notebook_set_current_page (GTK_NOTEBOOK (self), page);
+    /// GTK4 gtk_notebook_set_current_page (self->notebook, page);
     GST_INFO ("reactivate page %d", page);
   }
   // release the reference
@@ -106,7 +109,7 @@ on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
   guint page_num;
 
   // get objects
-  g_object_get (self->priv->app, "song", &song, NULL);
+  g_object_get (self->app, "song", &song, NULL);
   if (!song) {
     return;
   }
@@ -131,85 +134,10 @@ on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
 //-- helper methods
 
 static void
-bt_main_pages_add_tab (const BtMainPages * self, GtkWidget * content,
-    gchar * str, gchar * icon, gchar * tip)
-{
-  GtkWidget *label, *event_box, *box, *image;
-
-  label = gtk_label_new (str);
-  //gtk_label_set_ellipsize(GTK_LABEL(label),PANGO_ELLIPSIZE_END);
-  gtk_widget_set_name (label, str);
-  gtk_widget_show (label);
-
-  image = gtk_image_new_from_icon_name (icon, GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image);
-
-  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, BOX_BORDER);
-  gtk_widget_show (box);
-  //gtk_box_pack_start(GTK_BOX(box),image,FALSE,FALSE,0);
-  //gtk_box_pack_start(GTK_BOX(box),label,TRUE,FALSE,0);
-  gtk_container_add (GTK_CONTAINER (box), image);
-  gtk_container_add (GTK_CONTAINER (box), label);
-
-  event_box = gtk_event_box_new ();
-  g_object_set (event_box, "visible-window", FALSE, NULL);
-  gtk_container_add (GTK_CONTAINER (event_box), box);
-
-  gtk_widget_set_tooltip_text (event_box, tip);
-
-  gtk_notebook_insert_page (GTK_NOTEBOOK (self), content, event_box, -1);
-}
-
-static void
 bt_main_pages_init_ui (const BtMainPages * self)
 {
-  gtk_widget_set_name (GTK_WIDGET (self), "song views");
-
-  GST_INFO ("before creating pages, app: %" G_OBJECT_REF_COUNT_FMT,
-      G_OBJECT_LOG_REF_COUNT (self->priv->app));
-
-  // don't emit notify::page for each add
-  g_object_freeze_notify ((GObject *) self);
-
-  if (!BT_EDIT_UI_CONFIG ("no-machines-page")) {
-    // add wigets for machine view
-    self->priv->machines_page = bt_main_page_machines_new (self);
-    bt_main_pages_add_tab (self, GTK_WIDGET (self->priv->machines_page),
-        _("machines"), "buzztrax_tab_machines",
-        _("machines used in the song and their wires"));
-  }
-  if (!BT_EDIT_UI_CONFIG ("no-patterns-page")) {
-    // add wigets for pattern view
-    self->priv->patterns_page = bt_main_page_patterns_new (self);
-    bt_main_pages_add_tab (self, GTK_WIDGET (self->priv->patterns_page),
-        _("patterns"), "buzztrax_tab_patterns", _("event pattern editor"));
-  }
-  if (!BT_EDIT_UI_CONFIG ("no-sequence-page")) {
-    // add wigets for sequence view
-    self->priv->sequence_page = bt_main_page_sequence_new (self);
-    bt_main_pages_add_tab (self, GTK_WIDGET (self->priv->sequence_page),
-        _("sequence"), "buzztrax_tab_sequence", _("song sequence editor"));
-  }
-  if (!BT_EDIT_UI_CONFIG ("no-wavetable-page")) {
-    // add wigets for waves view
-    self->priv->waves_page = bt_main_page_waves_new (self);
-    bt_main_pages_add_tab (self, GTK_WIDGET (self->priv->waves_page),
-        _("wave table"), "buzztrax_tab_waves", _("sample wave table editor"));
-  }
-  if (!BT_EDIT_UI_CONFIG ("no-info-page")) {
-    // add widgets for song info view
-    self->priv->info_page = bt_main_page_info_new (self);
-    bt_main_pages_add_tab (self, GTK_WIDGET (self->priv->info_page),
-        _("information"), "buzztrax_tab_info", _("song meta data editor"));
-  }
-  // @idea add widgets for machine help view
-  // GTK_STOCK_HELP icon
-  // embed mozilla/gtk-html/webkit-gtk
-
-  g_object_thaw_notify ((GObject *) self);
-
   // register event handlers
-  g_signal_connect_object (self->priv->app, "notify::song",
+  g_signal_connect_object (self->app, "notify::song",
       G_CALLBACK (on_song_changed), (gpointer) self, 0);
   g_signal_connect ((gpointer) self, "notify::page",
       G_CALLBACK (on_page_switched), (gpointer) self);
@@ -247,22 +175,22 @@ bt_main_pages_get_property (GObject * object, guint property_id, GValue * value,
     GParamSpec * pspec)
 {
   BtMainPages *self = BT_MAIN_PAGES (object);
-  return_if_disposed ();
+  return_if_disposed_self ();
   switch (property_id) {
     case MAIN_PAGES_MACHINES_PAGE:
-      g_value_set_object (value, self->priv->machines_page);
+      g_value_set_object (value, self->machines_page);
       break;
     case MAIN_PAGES_PATTERNS_PAGE:
-      g_value_set_object (value, self->priv->patterns_page);
+      g_value_set_object (value, self->patterns_page);
       break;
     case MAIN_PAGES_SEQUENCE_PAGE:
-      g_value_set_object (value, self->priv->sequence_page);
+      g_value_set_object (value, self->sequence_page);
       break;
     case MAIN_PAGES_WAVES_PAGE:
-      g_value_set_object (value, self->priv->waves_page);
+      g_value_set_object (value, self->waves_page);
       break;
     case MAIN_PAGES_INFO_PAGE:
-      g_value_set_object (value, self->priv->info_page);
+      g_value_set_object (value, self->info_page);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -274,12 +202,19 @@ static void
 bt_main_pages_dispose (GObject * object)
 {
   BtMainPages *self = BT_MAIN_PAGES (object);
-  return_if_disposed ();
-  self->priv->dispose_has_run = TRUE;
+
+  // Note: widgets are not disposed correctly if this is placed after
+  // return_if_disposed_self. Possibly, multiple "dispose" calls are required
+  // to break ref cycles.
+  gtk_widget_dispose_template (GTK_WIDGET (self), BT_TYPE_MAIN_PAGES);
+  
+  return_if_disposed_self ();
+  self->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  g_object_unref (self->priv->app);
+  g_object_unref (self->app);
+
   // this disposes the pages for us
   G_OBJECT_CLASS (bt_main_pages_parent_class)->dispose (object);
 }
@@ -287,9 +222,22 @@ bt_main_pages_dispose (GObject * object)
 static void
 bt_main_pages_init (BtMainPages * self)
 {
-  self->priv = bt_main_pages_get_instance_private(self);
+  // Refer to https://developer.gnome.org/documentation/tutorials/widget-templates.html
+  // regarding need for g_type_ensure when using custom widget types in UI builder template files.
+  g_type_ensure (BT_TYPE_MAIN_PAGE_INFO);
+  g_type_ensure (BT_TYPE_MAIN_PAGE_MACHINES);
+  g_type_ensure (BT_TYPE_MAIN_PAGE_PATTERNS);
+  g_type_ensure (BT_TYPE_MAIN_PAGE_SEQUENCE);
+  g_type_ensure (BT_TYPE_MAIN_PAGE_WAVES);
+  g_type_ensure (BT_TYPE_SEQUENCE_VIEW);
+  
+  gtk_widget_init_template (GTK_WIDGET (self));
+  
+  self = bt_main_pages_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
-  self->priv->app = bt_edit_application_new ();
+  self->app = bt_edit_application_new ();
+
+  bt_main_page_machines_set_pages_parent (self->machines_page, self);
 }
 
 static void
@@ -323,4 +271,15 @@ bt_main_pages_class_init (BtMainPagesClass * klass)
   g_object_class_install_property (gobject_class, MAIN_PAGES_INFO_PAGE,
       g_param_spec_object ("info-page", "info page prop", "the info view page",
           BT_TYPE_MAIN_PAGE_INFO, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
+
+  gtk_widget_class_set_template_from_resource (widget_class,
+      "/org/buzztrax/ui/main-pages.ui");
+  
+  gtk_widget_class_bind_template_child (widget_class, BtMainPages, machines_page);
+  gtk_widget_class_bind_template_child (widget_class, BtMainPages, patterns_page);
+  gtk_widget_class_bind_template_child (widget_class, BtMainPages, sequence_page);
+  gtk_widget_class_bind_template_child (widget_class, BtMainPages, waves_page);
+  gtk_widget_class_bind_template_child (widget_class, BtMainPages, info_page);
 }

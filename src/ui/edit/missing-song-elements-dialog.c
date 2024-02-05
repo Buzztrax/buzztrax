@@ -36,8 +36,10 @@ enum
   MISSING_SONG_ELEMENTS_DIALOG_WAVES
 };
 
-struct _BtMissingSongElementsDialogPrivate
+struct _BtMissingSongElementsDialog
 {
+  AdwMessageDialog parent;
+  
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
@@ -47,14 +49,13 @@ struct _BtMissingSongElementsDialogPrivate
   /* list of missing elements */
   GList *machines, *waves;
 
-  GtkWidget *ignore_button;
+  GtkBox *vbox;
 };
 
 //-- the class
 
-G_DEFINE_TYPE_WITH_CODE (BtMissingSongElementsDialog, bt_missing_song_elements_dialog,
-    GTK_TYPE_DIALOG, 
-    G_ADD_PRIVATE(BtMissingSongElementsDialog));
+G_DEFINE_TYPE (BtMissingSongElementsDialog, bt_missing_song_elements_dialog,
+    ADW_TYPE_MESSAGE_DIALOG);
 
 
 //-- event handler
@@ -62,14 +63,14 @@ G_DEFINE_TYPE_WITH_CODE (BtMissingSongElementsDialog, bt_missing_song_elements_d
 //-- helper methods
 
 static void
-make_listview (GtkWidget * vbox, GList * missing_elements, const gchar * msg)
+make_listview (GtkBox * vbox, GList * missing_elements, const gchar * msg)
 {
   GtkWidget *label, *missing_list, *missing_list_view;
   gchar *missing_text;
 
   label = gtk_label_new (msg);
   g_object_set (label, "xalign", 0.0, NULL);
-  gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
+  gtk_box_append (vbox, label);
 
   missing_text = bt_strjoin_list (missing_elements);
 
@@ -79,72 +80,32 @@ make_listview (GtkWidget * vbox, GList * missing_elements, const gchar * msg)
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (missing_list), GTK_WRAP_WORD);
   gtk_text_buffer_set_text (gtk_text_view_get_buffer (GTK_TEXT_VIEW
           (missing_list)), missing_text, -1);
-  gtk_widget_show (missing_list);
   g_free (missing_text);
 
-  missing_list_view = gtk_scrolled_window_new (NULL, NULL);
-  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (missing_list_view),
-      GTK_SHADOW_IN);
+  missing_list_view = gtk_scrolled_window_new ();
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (missing_list_view),
       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_container_add (GTK_CONTAINER (missing_list_view), missing_list);
+  gtk_widget_set_parent (missing_list, missing_list_view);
 
-  gtk_widget_show (missing_list_view);
-  gtk_box_pack_start (GTK_BOX (vbox), missing_list_view, TRUE, TRUE, 0);
+  gtk_box_append (vbox, missing_list_view);
 }
 
 static void
 bt_missing_song_elements_dialog_init_ui (const BtMissingSongElementsDialog *
     self)
 {
-  GtkWidget *label, *icon, *hbox, *vbox;
-  gchar *str;
-  //GdkPixbuf *window_icon=NULL;
-
-  gtk_widget_set_name (GTK_WIDGET (self), "Missing elements in song");
-
-  // create and set window icon
-  /*
-     if((window_icon=bt_ui_resources_get_icon_pixbuf_by_machine(self->priv->machine))) {
-     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
-     g_object_unref(window_icon);
-     }
-   */
-
-  // set dialog title
   gtk_window_set_title (GTK_WINDOW (self), _("Missing elements in song"));
 
-  // add dialog commision widgets (okay, cancel)
-  gtk_dialog_add_button (GTK_DIALOG (self), _("_OK"), GTK_RESPONSE_ACCEPT);
-
-  gtk_dialog_set_default_response (GTK_DIALOG (self), GTK_RESPONSE_ACCEPT);
-
-  hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
-  gtk_container_set_border_width (GTK_CONTAINER (hbox), 6);
-
-  icon = gtk_image_new_from_icon_name ("dialog-warning", GTK_ICON_SIZE_DIALOG);
-  gtk_container_add (GTK_CONTAINER (hbox), icon);
-
-  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
-  label = gtk_label_new (NULL);
-  str = g_strdup_printf ("<big><b>%s</b></big>", _("Missing elements in song"));
-  gtk_label_set_markup (GTK_LABEL (label), str);
-  g_object_set (label, "xalign", 0.0, NULL);
-  g_free (str);
-  gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
-  if (self->priv->machines) {
-    GST_DEBUG ("%d missing machines", g_list_length (self->priv->machines));
-    make_listview (vbox, self->priv->machines,
+  if (self->machines) {
+    GST_DEBUG ("%d missing machines", g_list_length (self->machines));
+    make_listview (self->vbox, self->machines,
         _("The machines listed below are missing or failed to load."));
   }
-  if (self->priv->waves) {
-    GST_DEBUG ("%d missing core elements", g_list_length (self->priv->waves));
-    make_listview (vbox, self->priv->waves,
+  if (self->waves) {
+    GST_DEBUG ("%d missing core elements", g_list_length (self->waves));
+    make_listview (self->vbox, self->waves,
         _("The waves listed below are missing or failed to load."));
   }
-  gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (self))),
-      hbox, TRUE, TRUE, 0);
 }
 
 //-- constructor methods
@@ -182,13 +143,13 @@ bt_missing_song_elements_dialog_set_property (GObject * object,
     guint property_id, const GValue * value, GParamSpec * pspec)
 {
   BtMissingSongElementsDialog *self = BT_MISSING_SONG_ELEMENTS_DIALOG (object);
-  return_if_disposed ();
+  return_if_disposed_self ();
   switch (property_id) {
     case MISSING_SONG_ELEMENTS_DIALOG_MACHINES:
-      self->priv->machines = g_value_get_pointer (value);
+      self->machines = g_value_get_pointer (value);
       break;
     case MISSING_SONG_ELEMENTS_DIALOG_WAVES:
-      self->priv->waves = g_value_get_pointer (value);
+      self->waves = g_value_get_pointer (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -200,13 +161,15 @@ static void
 bt_missing_song_elements_dialog_dispose (GObject * object)
 {
   BtMissingSongElementsDialog *self = BT_MISSING_SONG_ELEMENTS_DIALOG (object);
-  return_if_disposed ();
-  self->priv->dispose_has_run = TRUE;
+  return_if_disposed_self ();
+  self->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  g_object_unref (self->priv->app);
+  g_object_unref (self->app);
 
+  gtk_widget_dispose_template (GTK_WIDGET (self), BT_TYPE_MISSING_SONG_ELEMENTS_DIALOG);
+  
   G_OBJECT_CLASS (bt_missing_song_elements_dialog_parent_class)->dispose
       (object);
 }
@@ -214,9 +177,10 @@ bt_missing_song_elements_dialog_dispose (GObject * object)
 static void
 bt_missing_song_elements_dialog_init (BtMissingSongElementsDialog * self)
 {
-  self->priv = bt_missing_song_elements_dialog_get_instance_private(self);
+  gtk_widget_init_template (GTK_WIDGET (self));
+  
   GST_DEBUG ("!!!! self=%p", self);
-  self->priv->app = bt_edit_application_new ();
+  self->app = bt_edit_application_new ();
 }
 
 static void
@@ -238,4 +202,11 @@ bt_missing_song_elements_dialog_class_init (BtMissingSongElementsDialogClass *
       MISSING_SONG_ELEMENTS_DIALOG_WAVES, g_param_spec_pointer ("waves",
           "waves construct prop", "Set missing waves list, the dialog handles",
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
+
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
+  
+  gtk_widget_class_set_template_from_resource (widget_class,
+      "/org/buzztrax/ui/missing-song-elements-dialog.ui");
+
+  gtk_widget_class_bind_template_child (widget_class, BtMissingSongElementsDialog, vbox);
 }

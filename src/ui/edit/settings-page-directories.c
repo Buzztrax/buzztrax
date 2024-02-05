@@ -48,22 +48,24 @@ static void
 on_folder_changed (GtkFileChooser * chooser, gpointer user_data)
 {
   BtSettingsPageDirectories *self = BT_SETTINGS_PAGE_DIRECTORIES (user_data);
-  gchar *new_folder;
+  GFile *new_folder;
 
   if ((new_folder = gtk_file_chooser_get_current_folder (chooser))) {
     BtSettings *settings;
     const gchar *folder_name = gtk_widget_get_name (GTK_WIDGET (chooser));
     gchar *old_folder;
+    gchar *new_folder_path = g_file_get_path (new_folder);
 
     g_object_get (self->priv->app, "settings", &settings, NULL);
     g_object_get (settings, folder_name, &old_folder, NULL);
-    if (!old_folder || strcmp (old_folder, new_folder)) {
+    if (!old_folder || strcmp (old_folder, new_folder_path)) {
       // store in settings
       g_object_set (settings, folder_name, new_folder, NULL);
     }
-    g_free (new_folder);
+    g_free (new_folder_path);
     g_free (old_folder);
     g_object_unref (settings);
+    g_object_unref (new_folder);
   }
 }
 
@@ -99,6 +101,7 @@ bt_settings_page_directories_init_ui (const BtSettingsPageDirectories * self,
   g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 1, 1, 1, 1);
 
+#if 0 // GTK4
   widget =
       gtk_file_chooser_button_new (_("Select a folder"),
       GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
@@ -108,37 +111,48 @@ bt_settings_page_directories_init_ui (const BtSettingsPageDirectories * self,
       (gpointer) self);
   g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (self), widget, 2, 1, 1, 1);
-
+#endif
+  
   label = gtk_label_new (_("Recordings"));
   g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 1, 2, 1, 1);
 
+  GFile *file;
+
+#if 0 // GTK4  
   widget =
       gtk_file_chooser_button_new (_("Select a folder"),
       GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
   gtk_widget_set_name (widget, "record-folder");
+  file = g_file_new_for_path (record_folder);
   gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (widget),
-      record_folder);
+      file, NULL);
+  g_clear_object (&file);
   g_signal_connect (widget, "selection-changed", G_CALLBACK (on_folder_changed),
       (gpointer) self);
   g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (self), widget, 2, 2, 1, 1);
-
+#endif
+  
   label = gtk_label_new (_("Waveforms"));
   g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 1, 3, 1, 1);
 
+#if 0 // GTK4  
   widget =
       gtk_file_chooser_button_new (_("Select a folder"),
       GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
   gtk_widget_set_name (widget, "sample-folder");
+  file = g_file_new_for_path (sample_folder);
   gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (widget),
-      sample_folder);
+      file, NULL);
+  g_clear_object (&file);
   g_signal_connect (widget, "selection-changed", G_CALLBACK (on_folder_changed),
       (gpointer) self);
   g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (self), widget, 2, 3, 1, 1);
-
+#endif
+  
   g_free (song_folder);
   g_free (record_folder);
   g_free (sample_folder);
@@ -164,7 +178,6 @@ bt_settings_page_directories_new (GtkWidget * pages)
       BT_SETTINGS_PAGE_DIRECTORIES (g_object_new
       (BT_TYPE_SETTINGS_PAGE_DIRECTORIES, NULL));
   bt_settings_page_directories_init_ui (self, pages);
-  gtk_widget_show_all (GTK_WIDGET (self));
   return self;
 }
 

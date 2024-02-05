@@ -20,6 +20,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <gst/gstbin.h>
 
 #include "ic/ic.h"
 
@@ -108,6 +109,8 @@ gboolean bt_machine_enable_output_post_level(BtMachine * const self);
 gboolean bt_machine_enable_input_gain(BtMachine * const self);
 gboolean bt_machine_enable_output_gain(BtMachine * const self);
 
+const gchar *bt_machine_get_id(BtMachine * const self);
+
 gboolean bt_machine_is_cloneable (const BtMachine * const self);
 
 gboolean bt_machine_activate_adder(BtMachine * const self);
@@ -125,6 +128,8 @@ gboolean bt_machine_has_active_spreader(const BtMachine * const self);
 void bt_machine_add_pattern(const BtMachine *self, const BtCmdPattern *pattern);
 void bt_machine_remove_pattern(const BtMachine *self, const BtCmdPattern *pattern);
 
+guint bt_machine_get_patterns_count(const BtMachine * const self);
+guint bt_machine_get_internal_patterns_count(const BtMachine * const self);
 BtCmdPattern *bt_machine_get_pattern_by_name(const BtMachine * const self,const gchar * const name);
 BtCmdPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const gulong index);
 
@@ -140,13 +145,14 @@ void bt_machine_set_param_defaults(const BtMachine *const self);
 BtParameterGroup *bt_machine_get_prefs_param_group(const BtMachine * const self);
 BtParameterGroup *bt_machine_get_global_param_group(const BtMachine * const self);
 BtParameterGroup *bt_machine_get_voice_param_group(const BtMachine * const self, const gulong voice);
+glong bt_machine_get_voice_param_group_idx(const BtMachine * const self, BtParameterGroup * pg);
 
 void bt_machine_update_default_state_value(BtMachine * self);
 void bt_machine_update_default_param_value(BtMachine * self, const gchar * property_name, BtParameterGroup * pg);
 
 //-- interaction control
 
-void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *object, const gchar *property_name, BtIcControl *control, BtParameterGroup *pg);
+void bt_machine_bind_parameter_control(const BtMachine * const self, const gchar *property_name, BtIcControl *control);
 void bt_machine_bind_poly_parameter_control(const BtMachine * const self, const gchar * property_name, BtIcControl * control, BtParameterGroup *pg);
 void bt_machine_unbind_parameter_control(const BtMachine * const self, GstObject *object, const gchar *property_name);
 void bt_machine_unbind_parameter_controls(const BtMachine * const self);

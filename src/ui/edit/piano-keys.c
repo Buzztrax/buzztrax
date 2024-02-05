@@ -23,6 +23,7 @@
  */
 
 #include <string.h>
+#include "cairo.h"
 #include "piano-keys.h"
 
 #define KEY_HEIGHT 35
@@ -47,82 +48,13 @@ G_DEFINE_TYPE (BtPianoKeys, bt_piano_keys, GTK_TYPE_WIDGET);
 
 
 static void
-bt_piano_keys_realize (GtkWidget * widget)
+bt_piano_keys_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 {
   BtPianoKeys *self = BT_PIANO_KEYS (widget);
-  GdkWindow *window;
-  GtkAllocation allocation;
-  GdkWindowAttr attributes;
-  gint attributes_mask;
-
-  gtk_widget_set_realized (widget, TRUE);
-
-  window = gtk_widget_get_parent_window (widget);
-  gtk_widget_set_window (widget, window);
-  g_object_ref (window);
-
-  gtk_widget_get_allocation (widget, &allocation);
-
-  attributes.window_type = GDK_WINDOW_CHILD;
-  attributes.x = allocation.x;
-  attributes.y = allocation.y;
-  attributes.width = allocation.width;
-  attributes.height = allocation.height;
-  attributes.wclass = GDK_INPUT_ONLY;
-  attributes.event_mask = gtk_widget_get_events (widget);
-  attributes.event_mask |= (GDK_EXPOSURE_MASK |
-      GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_ENTER_NOTIFY_MASK |
-      GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_LEAVE_NOTIFY_MASK);
-  attributes_mask = GDK_WA_X | GDK_WA_Y;
-
-  self->window = gdk_window_new (window, &attributes, attributes_mask);
-#if GTK_CHECK_VERSION (3,8,0)
-  gtk_widget_register_window (widget, self->window);
-#else
-  gdk_window_set_user_data (self->window, widget);
-#endif
-}
-
-static void
-bt_piano_keys_unrealize (GtkWidget * widget)
-{
-  BtPianoKeys *self = BT_PIANO_KEYS (widget);
-
-#if GTK_CHECK_VERSION (3,8,0)
-  gtk_widget_unregister_window (widget, self->window);
-#else
-  gdk_window_set_user_data (self->window, NULL);
-#endif
-  gdk_window_destroy (self->window);
-  self->window = NULL;
-  GTK_WIDGET_CLASS (bt_piano_keys_parent_class)->unrealize (widget);
-}
-
-static void
-bt_piano_keys_map (GtkWidget * widget)
-{
-  BtPianoKeys *self = BT_PIANO_KEYS (widget);
-
-  gdk_window_show (self->window);
-
-  GTK_WIDGET_CLASS (bt_piano_keys_parent_class)->map (widget);
-}
-
-static void
-bt_piano_keys_unmap (GtkWidget * widget)
-{
-  BtPianoKeys *self = BT_PIANO_KEYS (widget);
-
-  gdk_window_hide (self->window);
-
-  GTK_WIDGET_CLASS (bt_piano_keys_parent_class)->unmap (widget);
-}
-
-static gboolean
-bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
-{
-  BtPianoKeys *self = BT_PIANO_KEYS (widget);
-  GtkStyleContext *style_ctx;
+  graphene_rect_t rect = GRAPHENE_RECT_INIT(0, 0, gtk_widget_get_width (widget), gtk_widget_get_height (widget));
+  
+  cairo_t* cr = gtk_snapshot_append_cairo (snapshot, &rect);
+  
   gint width, height, left, right, top;
   gint x, k, y;
   gboolean sensitive = gtk_widget_is_sensitive (widget);
@@ -131,14 +63,10 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
   gchar oct[4];
   cairo_text_extents_t ext;
 
-  width = gtk_widget_get_allocated_width (widget);
-  height = gtk_widget_get_allocated_height (widget);
-  style_ctx = gtk_widget_get_style_context (widget);
+  width = rect.size.width;
+  height = rect.size.height;
 
   /* draw border */
-  gtk_render_background (style_ctx, cr, 0, 0, width, height);
-  gtk_render_frame (style_ctx, cr, 0, 0, width, height);
-
   left = self->border.left;
   top = self->border.top;
   width -= self->border.left + self->border.right;
@@ -225,12 +153,14 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
     }
   }
 
+#if 0 /// GTK4
   // draw focus
   if (gtk_widget_has_visible_focus (widget)) {
     gtk_render_focus (style_ctx, cr, 0, 0, width, height);
   }
+#endif
 
-  return TRUE;
+  cairo_destroy (cr);
 }
 
 
@@ -257,54 +187,50 @@ bt_piano_keys_get_preferred_height (GtkWidget * widget,
 }
 
 static void
-bt_piano_keys_size_allocate (GtkWidget * widget, GtkAllocation * allocation)
+bt_piano_keys_measure (GtkWidget* widget, GtkOrientation orientation, int for_size,
+    int* minimum, int* natural, int* minimum_baseline, int* natural_baseline)
 {
   BtPianoKeys *self = BT_PIANO_KEYS (widget);
-  GtkStyleContext *context;
   GtkStateFlags state;
   GtkBorder pad;
-  gint minimal, natural, maximal;
 
-  context = gtk_widget_get_style_context (widget);
   state = gtk_widget_get_state_flags (widget);
-  gtk_style_context_get_border (context, state, &self->border);
-  gtk_style_context_get_padding (context, state, &pad);
   // the default padding is a bit weird :/
   self->border.left += pad.left - 1;
   self->border.right += pad.right - 1;
   self->border.top += pad.top + 1;
   self->border.bottom += pad.bottom + 1;
 
-  // no more than 10 octaves
-  maximal = self->border.left + self->border.right + KEY_WIDTH * 70;
-  bt_piano_keys_get_preferred_width (widget, &minimal, &natural);
-  allocation->width = CLAMP (allocation->width, minimal, maximal);
+  if (orientation == GTK_ORIENTATION_HORIZONTAL) {
+    gint border_padding = self->border.left + self->border.right;
 
-  bt_piano_keys_get_preferred_height (widget, &minimal, &natural);
-  allocation->height = CLAMP (allocation->height, minimal, natural);
+    *minimum = (KEY_WIDTH * 7) + border_padding;    // one octave
+    *natural = (KEY_WIDTH * 70) + border_padding;   // 10 octaves
+  } else {
+    gint border_padding = self->border.top + self->border.bottom;
 
-  gtk_widget_set_allocation (widget, allocation);
-
-  if (gtk_widget_get_realized (widget))
-    gdk_window_move_resize (self->window,
-        allocation->x, allocation->y, allocation->width, allocation->height);
+    *minimum = KEY_HEIGHT + border_padding;
+    *natural = *minimum;
+  }
 }
 
-static gboolean
-bt_piano_keys_button_press (GtkWidget * widget, GdkEventButton * event)
+static void
+bt_piano_keys_button_press (GtkGestureClick* click, gint n_press, gdouble x, gdouble y, gpointer user_data)
 {
-  BtPianoKeys *self = BT_PIANO_KEYS (widget);
+  BtPianoKeys *self = BT_PIANO_KEYS (user_data);
   static const gint wk[] = { 0, 2, 4, 5, 7, 9, 11 };
   static const gint bk[] = { -1, 1, 3, -1, 6, 8, 10 };
 
-  if (!gtk_widget_is_sensitive (widget))
-    return TRUE;
+  if (!gtk_widget_is_sensitive (GTK_WIDGET (self)))
+    return;
 
-  if (event->button == GDK_BUTTON_PRIMARY) {
-    gint k = -1, x = (gint) event->x;
+  guint button = gtk_gesture_single_get_current_button (GTK_GESTURE_SINGLE (click));
+  
+  if (button == GDK_BUTTON_PRIMARY) {
+    gint k = -1, x = (gint) x;
 
     // check black keys
-    if (event->y < BLACK_KEY_HEIGHT) {
+    if (y < BLACK_KEY_HEIGHT) {
       k = bk[((x + (KEY_WIDTH / 2)) / KEY_WIDTH) % 7];
     }
     // check white keys
@@ -316,67 +242,65 @@ bt_piano_keys_button_press (GtkWidget * widget, GdkEventButton * event)
 
     if (k < GSTBT_NOTE_LAST) {
       self->key = k;
-      gtk_widget_queue_draw (widget);
+      gtk_widget_queue_draw (GTK_WIDGET (self));
       g_signal_emit (self, signals[KEY_PRESSED], 0, k);
     }
   }
-  return FALSE;
 }
 
-static gboolean
-bt_piano_keys_button_release (GtkWidget * widget, GdkEventButton * event)
+static void
+bt_piano_keys_button_release (GtkGestureClick* click, gint n_press, gdouble x, gdouble y, gpointer user_data)
 {
-  BtPianoKeys *self = BT_PIANO_KEYS (widget);
+  BtPianoKeys *self = BT_PIANO_KEYS (user_data);
 
-  if (!gtk_widget_is_sensitive (widget))
-    return TRUE;
+  if (!gtk_widget_is_sensitive (GTK_WIDGET (self)))
+    return;
 
   if (self->key != GSTBT_NOTE_NONE) {
-    gtk_widget_queue_draw (widget);
+    gtk_widget_queue_draw (GTK_WIDGET (self));
     g_signal_emit (self, signals[KEY_RELEASED], 0, self->key);
     self->key = GSTBT_NOTE_NONE;
   }
-  return FALSE;
 }
 
-static gboolean
-bt_piano_keys_key_press (GtkWidget * widget, GdkEventKey * event)
+static void
+bt_piano_keys_key_press (GtkEventControllerKey* ctrl, guint keyval,
+    guint keycode, GdkModifierType state, gpointer user_data)
 {
-  BtPianoKeys *self = BT_PIANO_KEYS (widget);
+  BtPianoKeys *self = BT_PIANO_KEYS (user_data);
   //static const char notenames[] = "zsxdcvgbhnjm\t\t\t\tq2w3er5t6y7u\t\t\t\ti9o0p";
   static const gchar notenames[] =
       "\x34\x27\x35\x28\x36\x37\x2a\x38\x2b\x39\x2c\x3a\x3a\x3a\x3a\x3a\x18\x0b\x19\x0c\x1a\x1b\x0e\x1c\x0f\x1d\x10\x1e\x1e\x1e\x1e\x1e\x1f\x12\x20\x13\x21";
   const gchar *p;
 
-  if (!gtk_widget_is_sensitive (widget))
-    return TRUE;
+  if (!gtk_widget_is_sensitive (GTK_WIDGET (self)))
+    return;
 
-  if ((p = strchr (notenames, (char) event->hardware_keycode))) {
+  if ((p = strchr (notenames, (char) keycode))) {
     gint k = GSTBT_NOTE_C_0 + (p - notenames);
     if ((k & 15) <= 12) {
       self->key = k;
-      gtk_widget_queue_draw (widget);
+      gtk_widget_queue_draw (GTK_WIDGET (self));
       g_signal_emit (self, signals[KEY_PRESSED], 0, k);
     }
   }
-  return FALSE;
 }
 
-static gboolean
-bt_piano_keys_key_release (GtkWidget * widget, GdkEventKey * event)
+static void
+bt_piano_keys_key_release (GtkEventControllerKey* ctrl, guint keyval,
+    guint keycode, GdkModifierType state, gpointer user_data)
 {
-  BtPianoKeys *self = BT_PIANO_KEYS (widget);
+  BtPianoKeys *self = BT_PIANO_KEYS (user_data);
 
-  if (!gtk_widget_is_sensitive (widget))
-    return TRUE;
+  if (!gtk_widget_is_sensitive (GTK_WIDGET (self)))
+    return;
 
   // check that we release that key that actually triggered this?
   if (self->key != GSTBT_NOTE_NONE) {
-    gtk_widget_queue_draw (widget);
+    gtk_widget_queue_draw (GTK_WIDGET (self));
     g_signal_emit (self, signals[KEY_RELEASED], 0, self->key);
     self->key = GSTBT_NOTE_NONE;
   }
-  return FALSE;
 }
 
 static void
@@ -384,19 +308,8 @@ bt_piano_keys_class_init (BtPianoKeysClass * klass)
 {
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
 
-  widget_class->realize = bt_piano_keys_realize;
-  widget_class->unrealize = bt_piano_keys_unrealize;
-  widget_class->map = bt_piano_keys_map;
-  widget_class->unmap = bt_piano_keys_unmap;
-  widget_class->draw = bt_piano_keys_draw;
-  widget_class->get_preferred_width = bt_piano_keys_get_preferred_width;
-  widget_class->get_preferred_height = bt_piano_keys_get_preferred_height;
-  widget_class->size_allocate = bt_piano_keys_size_allocate;
-  widget_class->button_press_event = bt_piano_keys_button_press;
-  widget_class->button_release_event = bt_piano_keys_button_release;
-  widget_class->key_press_event = bt_piano_keys_key_press;
-  widget_class->key_release_event = bt_piano_keys_key_release;
-
+  widget_class->snapshot = bt_piano_keys_snapshot;
+  
   /**
    * BtPianoKeys::key-pressed:
    * @self: the piano-keys object that emitted the signal
@@ -425,14 +338,18 @@ bt_piano_keys_class_init (BtPianoKeysClass * klass)
 static void
 bt_piano_keys_init (BtPianoKeys * self)
 {
-  GtkStyleContext *context;
-
-  context = gtk_widget_get_style_context (GTK_WIDGET (self));
-  gtk_style_context_add_class (context, GTK_STYLE_CLASS_FRAME);
-  gtk_style_context_add_class (context, GTK_STYLE_CLASS_BUTTON);
-
   gtk_widget_set_can_focus (GTK_WIDGET (self), TRUE);
-  gtk_widget_set_has_window (GTK_WIDGET (self), FALSE);
+
+  GtkEventController* ctrl;
+  ctrl = GTK_EVENT_CONTROLLER (gtk_gesture_click_new ());
+  gtk_widget_add_controller (GTK_WIDGET (self), ctrl);
+  g_signal_connect_object (ctrl, "pressed", G_CALLBACK (bt_piano_keys_button_press), (gpointer) self, 0);
+  g_signal_connect_object (ctrl, "released", G_CALLBACK (bt_piano_keys_button_release), (gpointer) self, 0);
+  
+  ctrl = gtk_event_controller_key_new ();
+  gtk_widget_add_controller (GTK_WIDGET (self), ctrl);
+  g_signal_connect_object (ctrl, "key-pressed", G_CALLBACK (bt_piano_keys_key_press), (gpointer) self, 0);
+  g_signal_connect_object (ctrl, "key-released", G_CALLBACK (bt_piano_keys_key_press), (gpointer) self, 0);
 }
 
 /**

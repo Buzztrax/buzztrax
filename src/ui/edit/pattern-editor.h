@@ -23,11 +23,9 @@
 
 G_BEGIN_DECLS
 
+G_DECLARE_FINAL_TYPE(BtPatternEditor, bt_pattern_editor, BT, PATTERN_EDITOR, GtkWidget);
+
 #define BT_TYPE_PATTERN_EDITOR          (bt_pattern_editor_get_type())
-#define BT_PATTERN_EDITOR(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_PATTERN_EDITOR, BtPatternEditor))
-#define BT_IS_PATTERN_EDITOR(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_PATTERN_EDITOR))
-#define BT_PATTERN_EDITOR_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  BT_TYPE_PATTERN_EDITOR, BtPatternEditorClass))
-#define BT_IS_PATTERN_EDITOR_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  BT_TYPE_PATTERN_EDITOR))
 
 /**
  * BtPatternEditorColumnType:
@@ -106,10 +104,6 @@ struct _BtPatternEditorCallbacks {
 };
 typedef struct _BtPatternEditorCallbacks BtPatternEditorCallbacks;
 
-typedef struct _BtPatternEditor BtPatternEditor;
-typedef struct _BtPatternEditorClass BtPatternEditorClass;
-typedef struct _BtPatternEditorPrivate BtPatternEditorPrivate;
-
 /**
  * BtPatternEditorSelectionMode:
  * @PESM_COLUMN: a single columns
@@ -134,7 +128,7 @@ struct _BtPatternEditor {
   GtkWidget parent;
 
   /*< private >*/
-  GdkWindow *window;
+  /// GDK4 GdkWindow *window;
   /* cursor position */
   guint row;
   guint group;

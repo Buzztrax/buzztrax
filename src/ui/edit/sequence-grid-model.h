@@ -22,65 +22,30 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include "core/sequence.h"
+#include "list-item-long.h"
 
-#define BT_TYPE_SEQUENCE_GRID_MODEL            (bt_sequence_grid_model_get_type())
-#define BT_SEQUENCE_GRID_MODEL(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SEQUENCE_GRID_MODEL, BtSequenceGridModel))
-#define BT_SEQUENCE_GRID_MODEL_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SEQUENCE_GRID_MODEL, BtSequenceGridModelClass))
-#define BT_IS_SEQUENCE_GRID_MODEL(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_SEQUENCE_GRID_MODEL))
-#define BT_IS_SEQUENCE_GRID_MODEL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SEQUENCE_GRID_MODEL))
-#define BT_SEQUENCE_GRID_MODEL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SEQUENCE_GRID_MODEL, BtSequenceGridModelClass))
-
-/* type macros */
-
-typedef struct _BtSequenceGridModel BtSequenceGridModel;
-typedef struct _BtSequenceGridModelClass BtSequenceGridModelClass;
-typedef struct _BtSequenceGridModelPrivate BtSequenceGridModelPrivate;
 
 /**
  * BtSequenceGridModel:
  *
- * Data model for #GtkTreeView or #GtkComboBox.
+ * List model containing song sequence data and metadata used for display by UI elements.
  */
-struct _BtSequenceGridModel {
-  GObject parent;
+G_DECLARE_FINAL_TYPE(BtSequenceGridModel, bt_sequence_grid_model, BT, SEQUENCE_GRID_MODEL, GObject);
 
-  /*< private >*/
-  BtSequenceGridModelPrivate *priv;
-};
-
-struct _BtSequenceGridModelClass {
-  GObjectClass parent;
-};
-
-enum {
-  BT_SEQUENCE_GRID_MODEL_SHADE=0,
-  BT_SEQUENCE_GRID_MODEL_POS,
-  BT_SEQUENCE_GRID_MODEL_POSSTR,
-  BT_SEQUENCE_GRID_MODEL_LABEL,
-  __BT_SEQUENCE_GRID_MODEL_N_COLUMNS
-};
+#define BT_TYPE_SEQUENCE_GRID_MODEL            (bt_sequence_grid_model_get_type())
 
 
-#define BT_TYPE_SEQUENCE_GRID_MODEL_POS_FORMAT   (bt_sequence_grid_model_pos_format_get_type())
-
-/**
- * BtSequenceGridModelPosFormat:
- * @BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS: show as number of ticks
- * @BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME: show as "min:sec.msec"
- * @BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS: show as "beats.ticks"
- *
- * Format type for time values in the sequencer.
- */
-typedef enum {
-  BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS=0,
-  BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME,
-  BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS
-} BtSequenceGridModelPosFormat;
+glong bt_sequence_grid_model_item_get_tick (BtSequenceGridModel* model, const BtListItemLong* item);
+gboolean bt_sequence_grid_model_item_get_shade (BtSequenceGridModel* model, const BtListItemLong* item, gulong bars);
+glong bt_sequence_grid_model_item_get_pos (BtSequenceGridModel* model, const BtListItemLong* item);
+gchar* bt_sequence_grid_model_item_get_label (BtSequenceGridModel* model, const BtListItemLong* item);
+gboolean bt_sequence_grid_model_item_has_label (BtSequenceGridModel* model, const BtListItemLong* item);
 
 
-GType bt_sequence_grid_model_get_type(void) G_GNUC_CONST;
-GType bt_sequence_grid_model_pos_format_get_type(void) G_GNUC_CONST;
+G_DECLARE_FINAL_TYPE(BtSequenceGridModelItem, bt_sequence_grid_model_item, BT, SEQUENCE_GRID_MODEL_ITEM, GObject);
 
-BtSequenceGridModel *bt_sequence_grid_model_new(BtSequence *sequence,BtSongInfo *song_info,gulong bars);
+BtSequenceGridModel *bt_sequence_grid_model_new(BtSequence *sequence, BtSongInfo *song_info, gulong bars);
+
 
 #endif // BT_SEQUENCE_GRID_MODEL_H

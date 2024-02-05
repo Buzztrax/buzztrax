@@ -41,6 +41,8 @@
 
 #include "bt-edit.h"
 #include <glib/gstdio.h>
+#include "edit-application.h"
+#include "res/gresources.h"
 
 //-- signal ids
 
@@ -88,6 +90,8 @@ struct _BtEditApplicationPrivate
   /* error from loading a song via commandline args or NULL */
   GError *init_err;
   gchar *init_file_name;
+
+  gboolean song_has_error;
 };
 
 static BtEditApplication *singleton = NULL;
@@ -98,6 +102,85 @@ G_DEFINE_TYPE_WITH_CODE (BtEditApplication, bt_edit_application, BT_TYPE_APPLICA
     G_ADD_PRIVATE(BtEditApplication));
 
 //-- event handler
+
+/// GTK4 this function was moved from main-toolbar.c.
+/// It seems like application-level logic, so it seems appropriate to have the app handle it.
+static void
+on_song_error (const GstBus * const bus, GstMessage * message,
+    gpointer user_data)
+{
+  BtEditApplication *self = BT_EDIT_APPLICATION (user_data);
+  
+  if (!self->priv->song_has_error) {
+    BtSong *song = self->priv->song;
+    BtMainWindow *main_window = self->priv->main_window;
+    gchar *msg, *desc;
+
+    BT_GST_LOG_MESSAGE_ERROR (message, &msg, &desc);
+
+    // debug the state
+    GST_INFO ("stopping");
+    bt_song_write_to_lowlevel_dot_file (song);
+    bt_song_stop (song);
+
+    bt_dialog_message (main_window, _("Error"), msg, desc);
+
+    // release the reference
+    g_free (msg);
+    g_free (desc);
+  } else {
+    BT_GST_LOG_MESSAGE_ERROR (message, NULL, NULL);
+  }
+
+  self->priv->song_has_error = TRUE;
+}
+
+/// GTK4 this function was moved from main-toolbar.c.
+static void
+on_song_warning (const GstBus * const bus, GstMessage * message,
+    gconstpointer user_data)
+{
+  BtEditApplication *self = BT_EDIT_APPLICATION (user_data);
+  
+  if (!self->priv->song_has_error) {
+    BtMainWindow *main_window = self->priv->main_window;
+    gchar *msg, *desc;
+
+    BT_GST_LOG_MESSAGE_WARNING (message, &msg, &desc);
+
+    bt_dialog_message (main_window, _("Warning"), msg, desc);
+    g_object_unref (main_window);
+  } else {
+    BT_GST_LOG_MESSAGE_WARNING (message, NULL, NULL);
+  }
+}
+
+/// GTK4 this function was moved from main-toolbar.c.
+static void
+on_song_changed (BtEditApplication * app, GParamSpec * arg,
+    gpointer user_data)
+{
+  BtSong *song = app->priv->song;
+  GstBin *bin;
+
+  GST_INFO ("song has changed : app=%p, toolbar=%p", app, user_data);
+
+  GST_INFO ("song: %" G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (song));
+
+  g_object_get (song, "bin", &bin, NULL);
+
+  // connect bus signals
+  GstBus *bus = gst_element_get_bus(GST_ELEMENT(bin));
+
+  bt_g_signal_connect_object(bus, "message::error",
+      G_CALLBACK(on_song_error), (gpointer)app, 0);
+  bt_g_signal_connect_object(bus, "message::warning",
+      G_CALLBACK(on_song_warning), (gpointer)app, 0);
+  gst_object_unref(bus);
+
+  //-- release the references
+  gst_object_unref (bin);
+}
 
 static void
 on_songio_status_changed (BtSongIO * songio, GParamSpec * arg,
@@ -191,12 +274,12 @@ bt_edit_application_check_missing (const BtEditApplication * self)
             GTK_WIDGET (bt_missing_framework_elements_dialog_new
                 (missing_core_elements, missing_edit_elements)))) {
       bt_edit_application_attach_child_window (self, GTK_WINDOW (dialog));
-      gtk_widget_show_all (dialog);
+      gtk_widget_set_visible (dialog, TRUE);
 
-      gtk_dialog_run (GTK_DIALOG (dialog));
+      gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
       bt_missing_framework_elements_dialog_apply
           (BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG (dialog));
-      gtk_widget_destroy (dialog);
+      /// GTK4  gtk_widget_destroy (dialog);
     }
   }
   // don't free. its static
@@ -234,7 +317,7 @@ bt_edit_application_run_ui_idle (gpointer user_data)
 
   // check for missing elements
   if (!(res = bt_edit_application_check_missing (self)))
-    gtk_main_quit ();
+    g_assert (FALSE); /// GTK4 gtk_main_quit ();
 
   // show error from a song we loaded
   if (self->priv->init_err && self->priv->init_file_name) {
@@ -246,6 +329,7 @@ bt_edit_application_run_ui_idle (gpointer user_data)
     g_free (self->priv->init_file_name);
     g_error_free (self->priv->init_err);
   }
+  
   // check for recoverable songs
   bt_edit_application_crash_log_recover (self);
 
@@ -266,10 +350,6 @@ static gboolean
 bt_edit_application_run_ui (const BtEditApplication * self)
 {
   g_idle_add (bt_edit_application_run_ui_idle, (gpointer) self);
-
-  GST_INFO ("before running the UI");
-  gtk_main ();
-  GST_INFO ("after running the UI");
 
   return TRUE;
 }
@@ -469,10 +549,11 @@ bt_edit_application_load_song (const BtEditApplication * self,
               GTK_WIDGET (bt_missing_song_elements_dialog_new (missing_machines,
                       missing_waves)))) {
         bt_edit_application_attach_child_window (self, GTK_WINDOW (dialog));
-        gtk_widget_show_all (dialog);
+        gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
+        gtk_widget_set_visible (dialog, TRUE);
 
-        gtk_dialog_run (GTK_DIALOG (dialog));
-        gtk_widget_destroy (dialog);
+        /// GTK4 gtk_dialog_run (GTK_DIALOG (dialog));
+        //gtk_widget_destroy (dialog);
       }
     }
     g_object_unref (song);
@@ -639,6 +720,26 @@ bt_edit_application_load_and_run (const BtEditApplication * self,
   return res;
 }
 
+void
+bt_edit_application_quit_cb (gboolean response, gpointer userdata) {
+  if (!response)
+    return;
+  
+  const BtEditApplication * self = (const BtEditApplication *) userdata;
+  BtSettings *settings;
+  gint w, h;
+
+  // remember window size
+  //
+  // Note that getting or setting the position of the top level window is no longer possible in GTK4.
+  // See: https://discourse.gnome.org/t/how-to-center-gtkwindows-in-gtk4/3112/10
+    
+  g_object_get ((gpointer) self, "settings", &settings, NULL);
+  gtk_window_get_default_size (GTK_WINDOW (self->priv->main_window), &w, &h);
+  g_object_set (settings, "window-width", w, "window-height", h, NULL);
+  g_object_unref (settings);
+}
+
 /**
  * bt_edit_application_quit:
  * @self: the application instance to quit
@@ -647,24 +748,10 @@ bt_edit_application_load_and_run (const BtEditApplication * self,
  *
  * Returns: %TRUE it ending the application was confirmed
  */
-gboolean
+void
 bt_edit_application_quit (const BtEditApplication * self)
 {
-  if (bt_main_window_check_quit (self->priv->main_window)) {
-    BtSettings *settings;
-    gint x, y, w, h;
-
-    // remember window size
-    g_object_get ((gpointer) self, "settings", &settings, NULL);
-    gtk_window_get_position (GTK_WINDOW (self->priv->main_window), &x, &y);
-    gtk_window_get_size (GTK_WINDOW (self->priv->main_window), &w, &h);
-    g_object_set (settings, "window-xpos", x, "window-ypos", y, "window-width",
-        w, "window-height", h, NULL);
-    g_object_unref (settings);
-
-    return TRUE;
-  }
-  return FALSE;
+  bt_main_window_check_quit (self->priv->main_window, bt_edit_application_quit_cb, (gpointer) self);
 }
 
 /**
@@ -674,16 +761,16 @@ bt_edit_application_quit (const BtEditApplication * self)
  * Shows the applications about window
  */
 void
-bt_edit_application_show_about (const BtEditApplication * self)
+bt_edit_application_show_about (BtEditApplication * self)
 {
   GtkWidget *dialog;
 
-  if ((dialog = GTK_WIDGET (bt_about_dialog_new ()))) {
+  if ((dialog = GTK_WIDGET (bt_about_dialog_new (self)))) {
     bt_edit_application_attach_child_window (self, GTK_WINDOW (dialog));
-    gtk_widget_show_all (dialog);
+    gtk_widget_set_visible (dialog, TRUE);
 
-    gtk_dialog_run (GTK_DIALOG (dialog));
-    gtk_widget_destroy (dialog);
+    /// GTK4 gtk_dialog_run (GTK_DIALOG (dialog));
+    //gtk_widget_destroy (dialog);
   }
 }
 
@@ -702,10 +789,10 @@ bt_edit_application_show_tip (const BtEditApplication * self)
 
   if ((dialog = GTK_WIDGET (bt_tip_dialog_new ()))) {
     bt_edit_application_attach_child_window (self, GTK_WINDOW (dialog));
-    gtk_widget_show_all (dialog);
+    gtk_widget_set_visible (dialog, TRUE);
 
-    while (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_NONE);
-    gtk_widget_destroy (dialog);
+    /// GTK4 while (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_NONE);
+    // gtk_widget_destroy (dialog);
   }
 }
 
@@ -728,11 +815,10 @@ bt_edit_application_crash_log_recover (const BtEditApplication * self)
 
     GST_INFO ("have found crash logs");
     if ((dialog = GTK_WIDGET (bt_crash_recover_dialog_new (crash_logs)))) {
-      bt_edit_application_attach_child_window (self, GTK_WINDOW (dialog));
-      gtk_widget_show_all (dialog);
+      gtk_window_present (GTK_WINDOW (dialog));
 
-      while (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_NONE);
-      gtk_widget_destroy (dialog);
+      /// GTK4 while (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_NONE);
+      // gtk_widget_destroy (dialog);
     }
   }
 }
@@ -765,7 +851,8 @@ bt_edit_application_attach_child_window (const BtEditApplication * self,
 void
 bt_edit_application_ui_lock (const BtEditApplication * self)
 {
-  GdkCursor *cursor =
+  /// GTK4
+/*  GdkCursor *cursor =
       gdk_cursor_new_for_display (gdk_display_get_default (), GDK_WATCH);
 
   gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->
@@ -774,7 +861,7 @@ bt_edit_application_ui_lock (const BtEditApplication * self)
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->main_window), FALSE);
 
   while (gtk_events_pending ())
-    gtk_main_iteration ();
+  gtk_main_iteration ();*/
 }
 
 /**
@@ -786,9 +873,10 @@ bt_edit_application_ui_lock (const BtEditApplication * self)
 void
 bt_edit_application_ui_unlock (const BtEditApplication * self)
 {
-  gtk_widget_set_sensitive (GTK_WIDGET (self->priv->main_window), TRUE);
+  /// GTK4
+  /*gtk_widget_set_sensitive (GTK_WIDGET (self->priv->main_window), TRUE);
   gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->
-              priv->main_window)), NULL);
+  priv->main_window)), NULL);*/
 }
 
 /**
@@ -907,8 +995,18 @@ bt_edit_application_constructor (GType type, guint n_construct_params,
 
     //GST_DEBUG("<<<");
     GST_INFO ("new edit app instantiated");
+    // create main window
+    GST_INFO ("new edit app created, app: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (singleton));
+    singleton->priv->main_window = bt_main_window_new ();
+    gtk_window_present (GTK_WINDOW (singleton->priv->main_window));
+    GST_INFO ("new main_window shown");
+
     // create or ref the shared ui resources
-    singleton->priv->ui_resources = bt_ui_resources_new ();
+    GdkDisplay *display = gtk_widget_get_display (
+        GTK_WIDGET (singleton->priv->main_window));
+    
+    singleton->priv->ui_resources = bt_ui_resources_new (display);
 
     // create the interaction controller registry
     singleton->priv->ic_registry = btic_registry_new ();
@@ -925,13 +1023,6 @@ bt_edit_application_constructor (GType type, guint n_construct_params,
         G_CALLBACK (on_changelog_can_undo_changed), (gpointer) singleton);
     // create the audio_session
     singleton->priv->audio_session = bt_audio_session_new ();
-
-    // create main window
-    GST_INFO ("new edit app created, app: %" G_OBJECT_REF_COUNT_FMT,
-        G_OBJECT_LOG_REF_COUNT (singleton));
-    singleton->priv->main_window = bt_main_window_new ();
-    gtk_widget_show_all (GTK_WIDGET (singleton->priv->main_window));
-    GST_INFO ("new main_window shown");
 
     // warning: dereferencing type-punned pointer will break strict-aliasing rules
     g_object_add_weak_pointer (G_OBJECT (singleton->priv->main_window),
@@ -973,7 +1064,7 @@ bt_edit_application_dispose (GObject * object)
     GST_INFO ("main_window: %" G_OBJECT_REF_COUNT_FMT,
         G_OBJECT_LOG_REF_COUNT (self->priv->main_window));
     //main-menu.c::on_menu_quit_activate
-    gtk_widget_destroy (GTK_WIDGET (self->priv->main_window));
+    gtk_window_destroy (GTK_WINDOW (self->priv->main_window));
   }
 
   GST_DEBUG ("  more unrefs");
@@ -1027,4 +1118,345 @@ bt_edit_application_class_init (BtEditApplicationClass * klass)
           "tell whether the current state of the song has been saved",
           TRUE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
+}
+
+
+//-- BtAdwAppEdit
+
+struct _BtAdwAppEdit
+{
+  AdwApplication parent;
+  BtEditApplication *bt_edit_app;
+};
+
+G_DEFINE_TYPE (BtAdwAppEdit, bt_adw_app_edit, ADW_TYPE_APPLICATION);
+
+#if 0 /// GTK4
+static void
+usage (int argc, char **argv, GOptionContext * ctx)
+{
+  gchar *help = g_option_context_get_help (ctx, TRUE, NULL);
+  puts (help);
+  g_free (help);
+}
+#endif
+
+static void action_ic_param_bind (GSimpleAction* action, GVariant* parameter, gpointer user_data)
+{
+  BtAdwAppEdit* self = BT_ADW_APP_EDIT (user_data);
+  BtEditApplication* edit = self->bt_edit_app;
+
+  gchar* machine_id;
+  guint voice_idx;
+  gchar* param_name;
+  gchar* device_name;
+  gchar* control_name;
+
+  g_variant_get (parameter, "sisss", &machine_id, &voice_idx, &param_name, &device_name, &control_name, NULL);
+  
+  BtSetup* setup;
+  g_object_get (edit->priv->song, "setup", &setup, NULL);
+
+  BtMachine* machine = bt_setup_get_machine_by_id (setup, machine_id);
+  if (!machine) {
+    GST_ERROR ("No machine with id '%s' found for param bind action", machine_id);
+    goto Error;
+  }
+
+  BtIcDevice* device = btic_registry_get_device_by_name (device_name);
+  if (!device) {
+    GST_ERROR ("No Interaction Controller with id '%s' found for param bind action", device_name);
+    goto ErrorDevice;
+  }
+
+  BtIcControl* control = btic_device_get_control_by_name (device, control_name);
+  if (!device) {
+    GST_ERROR ("No Interaction Controller with id '%s' found for param bind action", device_name);
+    goto ErrorControl;
+  }
+
+  if (voice_idx == -1) {
+    bt_machine_bind_parameter_control (machine, param_name, control);
+  } else {
+    BtParameterGroup *pg = bt_machine_get_voice_param_group (machine, voice_idx);
+    if (pg) {
+      bt_machine_bind_poly_parameter_control (machine, param_name, control, pg);
+    } else {
+      GST_ERROR ("No parameter group with idx '%d' found for param bind action", voice_idx);
+    }
+  }
+  
+  g_object_unref (control);
+
+ErrorControl:
+  g_object_unref (device);
+
+ErrorDevice:
+  g_object_unref (machine);
+
+Error:
+  g_object_unref (setup);
+}
+
+static void
+bt_adw_app_edit_activate (GApplication * app)
+{
+}
+
+static gint
+bt_adw_app_edit_handle_local_options (GApplication * application, GVariantDict * options)
+{
+  if (g_variant_dict_contains (options, "version")) {
+    g_printf (PACKAGE_STRING "\n");
+    return 0;
+  }
+
+  return G_APPLICATION_CLASS (bt_adw_app_edit_parent_class)->handle_local_options (application, options);
+}
+
+gint
+bt_adw_app_edit_command_line (GApplication * app, GApplicationCommandLine * cmdline)
+{
+  GVariantDict* options = g_application_command_line_get_options_dict (cmdline); // unowned
+
+  gchar* command;
+  g_variant_dict_lookup (options, "command", "s", &command);
+  
+  if (command) {
+    // tbd?
+  }
+
+  return G_APPLICATION_CLASS (bt_adw_app_edit_parent_class)->command_line (app, cmdline);
+}
+
+static void
+bt_adw_app_edit_open (GApplication * app, GFile ** files, int n_files, const char * hint)
+{
+  BtAdwAppEdit *self = BT_ADW_APP_EDIT (app);
+  bt_main_window_open_song (self->bt_edit_app->priv->main_window);
+}
+
+static gboolean
+bt_main_page_machines_add_machine (BtAdwAppEdit * self,
+    guint type, const gchar * id, const gchar * plugin_name,
+    gdouble x, gdouble y)
+{
+  BtMachine *machine = NULL;
+  gchar *uid;
+  GError *err = NULL;
+  
+  BtSong *song;
+  g_object_get (self->bt_edit_app, "song", &song, NULL);
+  g_assert (song);
+
+  BtSetup *setup;
+  g_object_get (song, "setup", &setup, NULL);
+  
+  uid = bt_setup_get_unique_machine_id (setup, id);
+  
+  BtMachineConstructorParams cparams;
+  cparams.id = uid;
+  cparams.song = song;
+  
+  // try with 1 voice, if monophonic, voices will be reset to 0 in
+  // bt_machine_init_voice_params()
+  switch (type) {
+    case 0:
+      machine = BT_MACHINE (bt_source_machine_new (&cparams, plugin_name,
+              /*voices= */ 1, &err));
+      break;
+    case 1:
+      machine = BT_MACHINE (bt_processor_machine_new (&cparams, plugin_name,
+              /*voices= */ 1, &err));
+      break;
+  }
+  if (err == NULL) {
+    gchar *undo_str, *redo_str;
+    GHashTable *properties;
+
+    GST_INFO_OBJECT (machine, "created machine %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (machine));
+    bt_change_log_start_group (self->bt_edit_app->priv->change_log);
+
+    g_object_get (machine, "properties", &properties, NULL);
+    if (properties) {
+      gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+      g_hash_table_insert (properties, g_strdup ("xpos"),
+          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, x)));
+      g_hash_table_insert (properties, g_strdup ("ypos"),
+          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, y)));
+    }
+
+    undo_str = g_strdup_printf ("rem_machine \"%s\"", uid);
+    redo_str =
+        g_strdup_printf ("add_machine %u,\"%s\",\"%s\"", type, uid,
+        plugin_name);
+
+    /// GTK4 need to make "app" a change logger
+    bt_change_log_add (self->bt_edit_app->priv->change_log, BT_CHANGE_LOGGER (self->bt_edit_app),
+        undo_str, redo_str);
+    bt_change_log_end_group (self->bt_edit_app->priv->change_log);
+  } else {
+    GST_WARNING ("Can't create machine %s: %s", plugin_name, err->message);
+    g_error_free (err);
+    gst_object_unref (machine);
+  }
+  g_free (uid);
+  g_object_unref (setup);
+  g_object_unref (song);
+  return (err == NULL);
+}
+
+static void
+bt_adw_app_edit_on_machine_add (GSimpleAction* action, GVariant* parameter, gpointer user_data)
+{
+  BtAdwAppEdit *self = BT_ADW_APP_EDIT (user_data);
+  
+  gchar *factory_name;
+  gint machine_type;
+  gdouble x, y;
+  g_variant_get(parameter, "(&sidd)", &factory_name, &machine_type, &x, &y);
+
+  bt_main_page_machines_add_machine (self, machine_type, factory_name,
+      factory_name, x, y);
+}
+
+static void
+bt_adw_app_edit_startup (GApplication *app)
+{
+  G_APPLICATION_CLASS (bt_adw_app_edit_parent_class)->startup (app);
+
+#if 0 /// GTK4
+  // GTK4 Example code...
+  BloatPad *bloatpad = (BloatPad*) application;
+  AdwApplication *app = ADW_APPLICATION (application);
+  GMenu *menu;
+  GMenuItem *item;
+  GBytes *bytes;
+  GIcon *icon;
+  GIcon *icon2;
+  GEmblem *emblem;
+  GFile *file;
+  int i;
+  struct {
+    const char *action_and_target;
+    const char *accelerators[2];
+  } accels[] = {
+    { "app.new", { "<Control>n", NULL } },
+    { "app.quit", { "<Control>q", NULL } },
+    { "win.copy", { "<Control>c", NULL } },
+    { "win.paste", { "<Control>p", NULL } },
+    { "win.justify::left", { "<Control>l", NULL } },
+    { "win.justify::center", { "<Control>m", NULL } },
+    { "win.justify::right", { "<Control>r", NULL } }
+  };
+
+  G_APPLICATION_CLASS (bloat_pad_parent_class)
+    ->startup (application);
+
+  g_action_map_add_action_entries (G_ACTION_MAP (application), app_entries, G_N_ELEMENTS (app_entries), application);
+
+  for (i = 0; i < G_N_ELEMENTS (accels); i++)
+    adw_application_set_accels_for_action (app, accels[i].action_and_target, accels[i].accelerators);
+
+  menu = adw_application_get_menu_by_id (ADW_APPLICATION (application), "icon-menu");
+
+  const char *new_accels[] = { "<Control>n", "<Control>t", NULL };
+  adw_application_set_accels_for_action (ADW_APPLICATION (application), "app.new", new_accels);
+
+  dump_accels (ADW_APPLICATION (application));
+  //adw_application_set_menubar (ADW_APPLICATION (application), G_MENU_MODEL (gtk_builder_get_object (builder, "app-menu")));
+  bloatpad->time = adw_application_get_menu_by_id (ADW_APPLICATION (application), "time-menu");
+#endif
+
+  BtAdwAppEdit *self = BT_ADW_APP_EDIT (app);
+
+  static GActionEntry actions[] = {
+    { "machine.add", bt_adw_app_edit_on_machine_add, "(sidd)", NULL, NULL },
+    { "machine.clone", NULL, "(sdd)", NULL, NULL },
+    { "paramgroup.copy", NULL, "(ss)", NULL, NULL },
+    { "paramgroup.paste", NULL, "s", NULL, NULL },
+    { "ic.param.bind", action_ic_param_bind, "(sisss)", NULL, NULL },
+    { "ic.param.unbind", NULL, "(sisss)", NULL, NULL },
+    { "ic.machine.unbind-all", NULL, "(ss)", NULL, NULL },   // param: (machine_id, controller_id)
+  /// GTK4 is file/open a built-in action?
+  /*   { "app.file.new", on_context_menu_disconnect_activate, "s" }, */
+  /*   { "app.file.open", on_context_menu_analysis_activate, "s" } */
+  };
+  
+  g_action_map_add_action_entries (G_ACTION_MAP (app), actions, G_N_ELEMENTS (actions), ADW_APPLICATION (app));
+
+  self->bt_edit_app = bt_edit_application_new ();
+
+  GtkWindow *main_window;
+  g_object_get (self->bt_edit_app, "main-window", &main_window, NULL);
+  gtk_application_add_window (GTK_APPLICATION (self), main_window);
+  g_object_unref (main_window);
+
+  if (!bt_edit_application_run (self->bt_edit_app)) {
+    g_assert (FALSE);
+  }
+}
+
+static void
+bt_adw_app_edit_init (BtAdwAppEdit *self) {
+  // This call is necessary to allow the resources to be found in
+  // "gtk_widget_set_template_from_resource" calls.
+  g_resources_register (bt_get_resource ());
+  
+  GOptionEntry options[] = {
+    {"version", '\0', G_OPTION_FLAG_NONE, G_OPTION_ARG_NONE, NULL, N_("Print application version"), NULL},
+    {NULL}
+  };
+
+  g_application_add_main_option_entries (G_APPLICATION (self), options);
+  g_application_set_option_context_parameter_string (G_APPLICATION (self), "FILE");
+
+  GPtrArray* groups = bt_get_option_groups ();
+  
+  for (guint i = 0; i < groups->len; i++)
+  {
+    g_application_add_option_group (G_APPLICATION (self),
+        (GOptionGroup*) g_ptr_array_index (groups, i));
+  }
+  
+  g_ptr_array_unref (groups);
+  /// GTK4 g_application_set_option_context_summary (self, "  FILE is The video file to load");
+  //g_application_set_option_context_description (self, "where FILE is The video file to load");
+
+  g_signal_connect_object (self, "notify::song",
+      G_CALLBACK (on_song_changed), (gpointer) self, 0);
+}
+
+static void
+bt_adw_app_edit_dispose(GObject *object)
+{
+  BtAdwAppEdit* self = BT_ADW_APP_EDIT (object);
+  
+  g_clear_object (&self->bt_edit_app);
+}
+
+static void
+bt_adw_app_edit_class_init (BtAdwAppEditClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  object_class->dispose = bt_adw_app_edit_dispose;
+  
+  GApplicationClass *application_class = G_APPLICATION_CLASS (klass);
+
+  application_class->activate = bt_adw_app_edit_activate;
+  application_class->command_line = bt_adw_app_edit_command_line;
+  application_class->handle_local_options = bt_adw_app_edit_handle_local_options;
+  application_class->startup = bt_adw_app_edit_startup;
+  application_class->open = bt_adw_app_edit_open;
+}
+
+BtAdwAppEdit *
+bt_adw_app_edit_new (void)
+{
+  return BT_ADW_APP_EDIT (
+      g_object_new (bt_adw_app_edit_get_type (),
+          "application-id", "org.buzztrax.Buzztrax",
+          "flags", G_APPLICATION_HANDLES_OPEN | G_APPLICATION_HANDLES_COMMAND_LINE,
+          NULL));
 }

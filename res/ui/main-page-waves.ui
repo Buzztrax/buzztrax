@@ -1,0 +1,191 @@
+<interface>
+  <template class="BtMainPageWaves" parent="GtkBox">
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="GtkPaned"> <!-- vpaned -->
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkPaned"> <!-- hpaned -->
+            <property name="orientation">horizontal</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkBox"> <!-- box -->
+                    <child> <!-- Toolbar -->
+                      <object class="GtkBox">
+                        <style>
+                          <class name="toolbar"/>
+                        </style>
+                        <child>
+                          <object class="GtkToggleButton" id="wavetable_play">
+                            <signal name="clicked" handler="on_wavetable_toolbar_play_clicked" object="BtMainPageWaves" swapped="no"/>
+                            
+                            <property name="label" translatable="yes">Play</property>
+                            <property name="tooltip-text" translatable="yes">Play current wave table entry as C-4</property>
+                            <property name="icon-name">media-playback-start</property>
+                            <property name="sensitive">false</property>
+                          </object>
+                        </child>
+                        
+                        <child>
+                          <object class="GtkButton" id="wavetable_stop">
+                            <signal name="clicked" handler="on_wavetable_toolbar_stop_clicked" object="BtMainPageWaves" swapped="no"/>
+                            
+                            <property name="label" translatable="yes">Stop</property>
+                            <property name="tooltip-text" translatable="yes">Stop playback of current wave table entry</property>
+                            <property name="icon-name">media-playback-stop</property>
+                            <property name="sensitive">false</property>
+                          </object>
+                        </child>
+                        
+                        <child>
+                          <object class="GtkButton" id="wavetable_clear">
+                            <signal name="clicked" handler="on_wavetable_toolbar_clear_clicked" object="BtMainPageWaves" swapped="no"/>
+                            
+                            <property name="label" translatable="yes">Clear</property>
+                            <property name="tooltip-text" translatable="yes">Clear current wave table entry</property>
+                            <property name="icon-name">edit-clear</property>
+                            <property name="sensitive">false</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child> <!-- /Toolbar -->
+                  
+                    <child>
+                      <object class="GtkScrolledWindow">
+                        <child>
+                          <object class="GtkColumnView" id="waves_list">
+                            <signal name="notify::selection" handler="on_waves_list_selection_changed" object="BtMainPageWaves" swapped="no"/>
+                            <signal name="activate" handler="on_waves_list_row_activated" object="BtMainPageWaves" swapped="no"/>
+                            
+                            <child>
+                              <object class="GtkColumnViewColumn">
+                                <property name="title" translatable="yes">Ix</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkColumnViewColumn">
+                                <property name="title" translatable="yes">Wave</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkGrid">
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Volume</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkScale" id="volume">
+                            <signal name="value-changed" handler="on_volume_changed" object="BtMainPageWaves" swapped="no"/>
+                            
+                            <property name="adjustment">
+                              <object class="GtkAdjustment">
+                                <property name="lower">0.0</property>
+                                <property name="upper">1.0</property>
+                                <property name="step-increment">0.01</property>
+                              </object>
+                            </property>
+                            <property name="hexpand">yes</property>
+                            <property name="value-pos">right</property>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Loop</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkDropDown" id="loop_mode">
+                            <signal name="notify::selected" handler="on_loop_mode_changed" object="BtMainPageWaves" swapped="no"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object> <!-- /box -->
+                </child>
+              </object>
+            </child>
+            
+            <child>
+              <object class="GtkBox"> <!-- file browser -->
+                <property name="orientation">vertical</property>
+                
+                <child>
+                  <!-- file browser toolbar -->
+                  <object class="GtkBox">
+                    <style>
+                      <class name="toolbar"/>
+                    </style>
+                    <child>
+                      <object class="GtkButton" id="browser_play">
+                        <signal name="clicked" handler="on_browser_toolbar_play_clicked" object="BtMainPageWaves" swapped="no"/>
+                        
+                        <property name="label" translatable="yes">Play</property>
+                        <property name="tooltip-text" translatable="yes">Play current sample</property>
+                        <property name="icon-name">media-playback-start</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkFileChooserWidget"/>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child> <!-- vbox (sample view) -->
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+
+            <child>
+              <object class="GtkScrolledWindow">
+                <child>
+                  <object class="GtkColumnView" id="wavelevels_list">
+                    <signal name="notify::selected" handler="on_wavelevels_list_cursor_changed" object="BtMainPageWaves" swapped="no"/>
+                    <signal name="activate" handler="on_wavelevels_list_row_activated" object="BtMainPageWaves" swapped="no"/>
+                    
+                    <child>
+                      <object class="GtkColumnViewColumn">
+                        <property name="title" translatable="yes">Root</property>
+                      </object>
+                      <object class="GtkColumnViewColumn">
+                        <property name="title" translatable="yes">Length</property>
+                      </object>
+                      <object class="GtkColumnViewColumn">
+                        <property name="title" translatable="yes">Rate</property>
+                      </object>
+                      <object class="GtkColumnViewColumn">
+                        <property name="title" translatable="yes">Loop start</property>
+                      </object>
+                      <object class="GtkColumnViewColumn">
+                        <property name="title" translatable="yes">Loop end</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="BtWaveformViewer" id="waveform_viewer">
+                    <signal name="notify::loop-start" handler="on_waveform_viewer_loop_start_changed" object="BtMainPageWaves" swapped="no"/>
+                    <signal name="notify::loop-end" handler="on_waveform_viewer_loop_end_changed" object="BtMainPageWaves" swapped="no"/>
+                    
+                    <property name="height-request">96</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

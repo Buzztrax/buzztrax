@@ -1,0 +1,131 @@
+<interface>
+  <template class="BtRenderDialog" parent="AdwWindow">
+    <property name="title" translatable="yes">Missing elements in song</property>
+      
+    <property name="content">
+      <object class="AdwToolbarView">
+        <child type="top">
+          <object class="AdwHeaderBar">
+            <property name="title" translatable="yes">song rendering</property>
+          </object>
+        </child>
+        
+        <child type="bottom">
+          <object class="GtkActionBar">
+            <child type="start">
+              <object class="GtkButton">
+                <signal name="clicked" handler="on_cancel_clicked" object="BtRenderDialog" swapped="no" />
+                <property name="label" translatable="yes">Cancel</property>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkButton">
+                <signal name="clicked" handler="on_ok_clicked" object="BtRenderDialog" swapped="no" />
+                <property name="label" translatable="yes">Ok</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        
+        <property name="content">
+          <object class="GtkOverlay">
+            <child>
+              <object class="GtkGrid">
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Folder</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkFileChooserButton" id="dir_chooser">
+                    <!-- Does this signal still exist? -->
+                    <signal name="selection-changed" handler="on_folder_changed" object="BtRenderDialog" swapped="no" />
+                    <property name="label" translatable="yes">Select a folder</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Filename</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="file_name_entry">
+                    <signal name="changed" handler="on_base_file_name_changed" object="BtRenderDialog" swapped="no" />
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Format</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkDropDown" id="format_menu">
+                    <signal name="changed" handler="on_format_menu_changed" object="BtRenderDialog" swapped="no" />
+                    
+                    <property name="label" translatable="yes">Format</property>
+                    <property name="model">
+                      <!-- tbd: this model doesn't capture the 'supported' data of the format like the old one does.
+                           (bt_sink_bin_is_record_format_supported) -->
+                      <object class="AdwEnumModelList">
+                        <property name="enum-type">BtSinkBinRecordFormat</property>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Mode</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkDropDown" id="mode_menu">
+                    <signal name="changed" handler="on_mode_menu_changed" object="BtRenderDialog" swapped="no" />
+                    
+                    <property name="label" translatable="yes">Format</property>
+                    <property name="model">
+                      <object class="AdwEnumModelList">
+                        <property name="enum-type">BtRenderMode</property>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkLabel" id="info">
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkProgressBar" id="track_progress">
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkLabel">
+                    <!-- blank -->
+                  </object>
+                </child>
+              </object>
+            </child>
+          
+            <child>
+              <object class="GtkRevealer" id="info_bar"> <!-- note: no GtkInfoBar in GTK4 -->
+                <child>
+                  <object class="GtkBox">
+                    <child>
+                      <object class="GtkLabel" id="info_bar_label">
+                        <property name="label" translatable="yes">Mode</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </property>
+      </object>
+    </property>
+  </template>
+</interface>

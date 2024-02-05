@@ -426,11 +426,9 @@ bt_settings_page_interaction_controller_init_ui (const
       G_CALLBACK (on_device_menu_changed), (gpointer) self);
 
   // add list of controllers (updated when selecting a device)
-  scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+  scrolled_window = gtk_scrolled_window_new ();
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled_window),
-      GTK_SHADOW_ETCHED_IN);
   self->priv->controller_list = GTK_TREE_VIEW (gtk_tree_view_new ());
   g_object_set (self->priv->controller_list,
       "enable-search", FALSE, "rules-hint", TRUE, NULL);
@@ -460,7 +458,7 @@ bt_settings_page_interaction_controller_init_ui (const
   g_signal_connect (tree_sel, "changed", G_CALLBACK (on_control_selected),
       (gpointer) self);
 
-  gtk_container_add (GTK_CONTAINER (scrolled_window),
+  gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (scrolled_window),
       GTK_WIDGET (self->priv->controller_list));
   g_object_set (GTK_WIDGET (scrolled_window), "hexpand", TRUE, "vexpand", TRUE,
       "margin-left", LABEL_PADDING, NULL);
@@ -502,7 +500,6 @@ bt_settings_page_interaction_controller_new (GtkWidget * pages)
       BT_SETTINGS_PAGE_INTERACTION_CONTROLLER (g_object_new
       (BT_TYPE_SETTINGS_PAGE_INTERACTION_CONTROLLER, NULL));
   bt_settings_page_interaction_controller_init_ui (self, pages);
-  gtk_widget_show_all (GTK_WIDGET (self));
   return self;
 }
 

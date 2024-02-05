@@ -79,4 +79,6 @@ GType bt_pattern_cmd_get_type(void) G_GNUC_CONST;
 
 BtCmdPattern *bt_cmd_pattern_new(const BtSong * const song, const BtMachine * const machine, const BtPatternCmd cmd);
 
+const gchar *bt_cmd_pattern_get_name(const BtCmdPattern* self);
+
 #endif /* BT_CMD_PATTERN_H */

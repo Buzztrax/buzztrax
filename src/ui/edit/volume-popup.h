@@ -27,40 +27,17 @@
 
 G_BEGIN_DECLS
 
-#define BT_TYPE_VOLUME_POPUP          (bt_volume_popup_get_type ())
-#define BT_VOLUME_POPUP(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_VOLUME_POPUP, BtVolumePopup))
-#define BT_IS_VOLUME_POPUP(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_VOLUME_POPUP))
-#define BT_VOLUME_POPUP_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  BT_TYPE_VOLUME_POPUP, BtVolumePopupClass))
-#define BT_IS_VOLUME_POPUP_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  BT_TYPE_VOLUME_POPUP))
-
-typedef struct _BtVolumePopup      BtVolumePopup;
-typedef struct _BtVolumePopupClass BtVolumePopupClass;
-
 /**
  * BtVolumePopup:
  *
  * a volume popup widget
  */
-struct _BtVolumePopup {
-  GtkWindow parent;
-
-  /* us */
-  GtkRange *scale;
-  GtkButton *plus, *minus;
-
-  /* timeout for buttons */
-  guint timeout;
-  /* for +/- buttons */
-  gint direction;
-};
-
-struct _BtVolumePopupClass {
-  GtkWindowClass klass;
-};
+G_DECLARE_FINAL_TYPE (BtVolumePopup, bt_volume_popup, BT, VOLUME_POPUP, GtkPopover);
+#define BT_TYPE_VOLUME_POPUP          (bt_volume_popup_get_type ())
 
 GtkWidget *bt_volume_popup_new(GtkAdjustment *adj);
 
-void bt_volume_popup_show(BtVolumePopup *self);
+void bt_volume_popup_show(BtVolumePopup *self, GtkWidget* parent);
 void bt_volume_popup_hide(BtVolumePopup *self);
 
 GType bt_volume_popup_get_type(void) G_GNUC_CONST;

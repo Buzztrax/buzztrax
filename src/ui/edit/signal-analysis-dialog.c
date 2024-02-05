@@ -248,13 +248,14 @@ on_dialog_style_updated (GtkWidget * widget, gpointer user_data)
  *
  * Draw frequency spectrum.
  */
-static gboolean
-on_spectrum_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
+static void
+on_spectrum_draw (GtkDrawingArea * drawing_area, cairo_t * cr, int width, int height,
+    gpointer user_data)
 {
   BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
 
-  if (!gtk_widget_get_realized (widget))
-    return TRUE;
+  if (!gtk_widget_get_realized (GTK_WIDGET (drawing_area)))
+    return;
 
 #ifndef GST_DISABLE_DEBUG
   // DEBUG
@@ -273,7 +274,7 @@ on_spectrum_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   gdouble *graph_log10 = self->priv->graph_log10;
   gdouble grid_dash_pattern[] = { 1.0 };
   gdouble prec = self->priv->frq_precision;
-  GtkStyleContext *style = gtk_widget_get_style_context (widget);
+  GtkStyleContext *style = gtk_widget_get_style_context (GTK_WIDGET (drawing_area));
 
   gtk_render_background (style, cr, 0, 0, spect_bands, spect_height);
   /* draw grid lines
@@ -346,6 +347,7 @@ on_spectrum_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   }
   g_mutex_unlock (&self->priv->lock);
 
+#if 0 /// GTK4
   // draw cross-hair for mouse
   // TODO(ensonic): cache GdkDevice*
   GdkDisplay *display = gtk_widget_get_display (widget);
@@ -365,6 +367,7 @@ on_spectrum_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
     cairo_rectangle (cr, 0.0, my - 1.0, spect_bands, 2.0);
     cairo_fill (cr);
   }
+#endif 
 #ifndef GST_DISABLE_DEBUG
   // DEBUG
   // these values range from 0.0012 to 0.8348
@@ -373,7 +376,7 @@ on_spectrum_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   // DEBUG
 #endif
 
-  return TRUE;
+  return;
 }
 
 static void
@@ -533,8 +536,10 @@ on_spectrum_freq_axis_draw (GtkWidget * widget, cairo_t * cr,
   };
 
   gtk_style_context_save (sc);
+#if 0 /// GTK4
   gtk_style_context_add_class (sc, GTK_STYLE_CLASS_SEPARATOR);
   gtk_style_context_add_class (sc, GTK_STYLE_CLASS_MARK);
+#endif
 
   x1 = 0;
   x3 = gtk_widget_get_allocated_width (widget);
@@ -620,8 +625,10 @@ on_level_axis_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   };
 
   gtk_style_context_save (sc);
+#if 0 /// GTK4
   gtk_style_context_add_class (sc, GTK_STYLE_CLASS_SEPARATOR);
   gtk_style_context_add_class (sc, GTK_STYLE_CLASS_MARK);
+#endif
 
   x1 = 0;
   x2 = (AXIS_THICKNESS - 1) / 2;
@@ -912,8 +919,8 @@ on_spectrum_frequency_precision_changed (GtkComboBox * combo,
 }
 
 static gboolean
-on_spectrum_drawingarea_motion_notify_event (GtkWidget * widget,
-    GdkEventMotion * event, gpointer user_data)
+on_spectrum_drawingarea_motion_notify_event (GtkEventControllerMotion* motion, gdouble x, gdouble y,
+    gpointer user_data)
 {
   BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
 
@@ -1013,11 +1020,14 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   /* add spectrum canvas */
   p->spectrum_drawingarea = widget = gtk_drawing_area_new ();
   gtk_widget_set_size_request (widget, p->spect_bands, p->spect_height);
-  gtk_widget_add_events (widget, GDK_POINTER_MOTION_MASK);
-  g_signal_connect (widget, "size-allocate", G_CALLBACK (on_size_allocate),
-      (gpointer) self);
-  g_signal_connect (widget, "motion-notify-event",
+
+  GtkEventController* motion = gtk_event_controller_motion_new ();
+  gtk_widget_add_controller (widget, motion);
+  g_signal_connect_object (motion, "motion",
       G_CALLBACK (on_spectrum_drawingarea_motion_notify_event),
+      (gpointer) self, 0);
+  
+  g_signal_connect (widget, "size-allocate", G_CALLBACK (on_size_allocate),
       (gpointer) self);
   g_object_set (widget, "hexpand", TRUE, "vexpand", TRUE, "margin-bottom", 3,
       NULL);
@@ -1087,8 +1097,8 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), widget, 1, 3, 1, 1);
 
-  gtk_container_set_border_width (GTK_CONTAINER (self), 6);
-  gtk_container_add (GTK_CONTAINER (self), table);
+  /// GTK4 check this
+  gtk_widget_set_parent (GTK_WIDGET (self), table);
 
   /* TODO(ensonic): better error handling
    * - don't fail if we miss only spectrum or level
@@ -1163,8 +1173,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   g_signal_connect_after ((gpointer) self, "style-updated",
       G_CALLBACK (on_dialog_style_updated), (gpointer) self);
   // redraw when needed
-  g_signal_connect (p->spectrum_drawingarea, "draw",
-      G_CALLBACK (on_spectrum_draw), (gpointer) self);
+  gtk_drawing_area_set_draw_func (GTK_DRAWING_AREA (p->spectrum_drawingarea), on_spectrum_draw, (gpointer) self, NULL);
 
 Error:
   g_object_unref (song);
@@ -1195,7 +1204,8 @@ bt_signal_analysis_dialog_new (const GstBin * element)
   GST_DEBUG ("dialog created");
   return self;
 Error:
-  gtk_widget_destroy (GTK_WIDGET (self));
+  g_object_ref_sink (self);
+  g_object_unref (self);
   return NULL;
 }
 

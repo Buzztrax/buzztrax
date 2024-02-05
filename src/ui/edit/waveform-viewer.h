@@ -20,16 +20,8 @@
 
 #include <gtk/gtk.h>
 
-G_BEGIN_DECLS
-
+G_DECLARE_FINAL_TYPE (BtWaveformViewer, bt_waveform_viewer, BT, WAVEFORM_VIEWER, GtkDrawingArea);
 #define BT_TYPE_WAVEFORM_VIEWER          (bt_waveform_viewer_get_type ())
-#define BT_WAVEFORM_VIEWER(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_WAVEFORM_VIEWER, BtWaveformViewer))
-#define BT_IS_WAVEFORM_VIEWER(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_WAVEFORM_VIEWER))
-#define BT_WAVEFORM_VIEWER_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  BT_TYPE_WAVEFORM_VIEWER, BtWaveformViewerClass))
-#define BT_IS_WAVEFORM_VIEWER_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  BT_TYPE_WAVEFORM_VIEWER))
-
-typedef struct _BtWaveformViewer      BtWaveformViewer;
-typedef struct _BtWaveformViewerClass BtWaveformViewerClass;
 
 /**
  * BtWaveformViewer:
@@ -37,7 +29,7 @@ typedef struct _BtWaveformViewerClass BtWaveformViewerClass;
  * waveform view widget
  */
 struct _BtWaveformViewer {
-  GtkWidget parent;
+  GtkDrawingArea parent;
 
   gfloat *peaks;
   gint peaks_size;
@@ -48,13 +40,9 @@ struct _BtWaveformViewer {
   gint64 playback_cursor;
   
   /* state */
-  GdkWindow *window;
+  GdkSurface *window;
   GtkBorder border;
   gboolean edit_loop_start, edit_loop_end, edit_selection;
-};
-
-struct _BtWaveformViewerClass {
-  GtkWidgetClass klass;
 };
 
 GtkWidget *bt_waveform_viewer_new(void);

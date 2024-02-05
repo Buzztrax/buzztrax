@@ -21,7 +21,8 @@ modelled after the windows only, closed source application called Buzz.
 ## requirements
 * gstreamer >= 1.2 and its plugins (gstreamer, gst-plugins-base and gst-plugins-good).
 * glib, gsf and libxml2 for the core libraries.
-* clutter-gtk and gtk+ for the UI
+* gtk4 for the UI
+* libadwaita for standard Gnome application building blocks.
 
 ## optional packages
 * gst-plugins-ugly: for the use of mp3 recording
@@ -71,7 +72,13 @@ Likewise for the man-pages to be found:
 
     export MANPATH=\$MANPATH:$prefix/share/man
 
-For developers:
+### installing in /usr/local
+The default value for the --prefix configure option is /usr/local. Also in that
+case the variables mentioned in the last example need to be exported.
+
+## For Developers
+
+If running locally, these additional environment variables will help:
 
     # see buzztrax help files in devhelp:
     export DEVHELP_SEARCH_PATH="$DEVHELP_SEARCH_PATH:$HOME/buzztrax/share/gtk-doc/html"
@@ -80,10 +87,53 @@ For developers:
     #
     export GI_TYPELIB_PATH="\$GI_TYPELIB_PATH:$prefix/lib/girepository"
 
+### Debug logs
 
-## installing in /usr/local
-The default value for the --prefix configure option is /usr/local. Also in that
-case the variables mentioned in the last example need to be exported.
+The environment variable `GST_DEBUG` can be used to enable some helpful debugging logs.
+
+Some more info is [here](https://gstreamer.freedesktop.org/documentation/tutorials/basic/debugging-tools.html?gi-language=c), but the short answer is:
+
+	GST_DEBUG=4   # Info log level
+	GST_DEBUG=5   # Debug log level
+    GST_DEBUG=6   # "Log" log level (most verbose)
+
+If you were to enable this, you'll no doubt end up with a lot of messages from GStreamer that you might not be interested in. So, try enabling logging just for the `bt-edit` module.
+
+    GST_DEBUG=bt-edit:6
+
+### Working with GtkBuilder UI XML files
+
+The GNOME project [Workbench](https://apps.gnome.org/Workbench/) can be useful to explore and try out GtkBuilder definitions.
+
+If you wish to tweak UI builder files without having to recompile, then try this:
+
+    G_RESOURCE_OVERLAYS=/org/buzztrax=<sourcetree_path>/res buzztrax
+
+The GTK program `gtk4-builder-tool` can help validate your XML files.
+
+Run with the environment `GTK_DEBUG=interactive` to launch with the GTK Inspector and visually debug your layouts. More info [here](https://wiki.gnome.org/Projects/GTK/Inspector).
+
+If you're into Emacs, here's some code that can check your syntax as you go, using Flycheck:
+
+    ;; Gnome UI Builder
+    (define-derived-mode gtk-builder-mode nxml-mode
+      "GTK Builder XML"
+      "GTK Builder .ui files in XML format.")
+
+    (add-to-list 'magic-mode-alist '("<interface>" . gtk-builder-mode))
+
+    (when (featurep 'flycheck)
+      (flycheck-define-checker gtk-builder
+        "Use gtk-builder-tool to validate GtkBuilder .ui files."
+
+        :command ("gtk4-builder-tool" "validate" source)
+        :error-patterns ((error line-start (file-name) ":" line ":" column (message) line-end))
+        :modes (gtk-builder-mode))
+
+      (add-to-list 'flycheck-checkers 'gtk-builder)
+      (add-hook 'gtk-builder-mode 'flycheck-mode)
+      )
+
 
 ## running the apps
 

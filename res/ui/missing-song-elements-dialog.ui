@@ -1,0 +1,22 @@
+<interface>
+  <template class="BtMissingSongElementsDialog" parent="AdwMessageDialog">
+    <property name="title" translatable="yes">Missing elements in song</property>
+      
+    <property name="content">
+      <object class="GtkBox" id="vbox">
+        <property name="orientation">vertical</property>
+        
+        <child>
+          <object class="GtkLabel">
+            <property name="use-markup">true</property>
+            <property name="label" translatable="yes">&lt;big&gt;&lt;b&gt;Missing elements in song&lt;/b&gt;&lt;/big&gt;</property>
+          </object>
+        </child>
+      </object>
+    </property>
+    
+    <responses>
+      <response id="ok" translatable="yes">_OK</response>
+    </responses>
+  </template>
+</interface>

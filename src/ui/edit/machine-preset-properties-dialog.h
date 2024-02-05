@@ -18,42 +18,11 @@
 #ifndef BT_MACHINE_PRESET_PROPERTIES_DIALOG_H
 #define BT_MACHINE_PRESET_PROPERTIES_DIALOG_H
 
-#include <glib.h>
-#include <glib-object.h>
+#include <adwaita.h>
 
-#define BT_TYPE_MACHINE_PRESET_PROPERTIES_DIALOG            (bt_machine_preset_properties_dialog_get_type ())
-#define BT_MACHINE_PRESET_PROPERTIES_DIALOG(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MACHINE_PRESET_PROPERTIES_DIALOG, BtMachinePresetPropertiesDialog))
-#define BT_MACHINE_PRESET_PROPERTIES_DIALOG_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MACHINE_PRESET_PROPERTIES_DIALOG, BtMachinePresetPropertiesDialogClass))
-#define BT_IS_MACHINE_PRESET_PROPERTIES_DIALOG(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MACHINE_PRESET_PROPERTIES_DIALOG))
-#define BT_IS_MACHINE_PRESET_PROPERTIES_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MACHINE_PRESET_PROPERTIES_DIALOG))
-#define BT_MACHINE_PRESET_PROPERTIES_DIALOG_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MACHINE_PRESET_PROPERTIES_DIALOG, BtMachinePresetPropertiesDialogClass))
+AdwMessageDialog* bt_machine_preset_properties_dialog_new(
+    GstPreset* presets, gchar* existing_preset_name);
 
-/* type macros */
-
-typedef struct _BtMachinePresetPropertiesDialog BtMachinePresetPropertiesDialog;
-typedef struct _BtMachinePresetPropertiesDialogClass BtMachinePresetPropertiesDialogClass;
-typedef struct _BtMachinePresetPropertiesDialogPrivate BtMachinePresetPropertiesDialogPrivate;
-
-/**
- * BtMachinePresetPropertiesDialog:
- *
- * the root window for the editor application
- */
-struct _BtMachinePresetPropertiesDialog {
-  GtkDialog parent;
-  
-  /*< private >*/
-  BtMachinePresetPropertiesDialogPrivate *priv;
-};
-
-struct _BtMachinePresetPropertiesDialogClass {
-  GtkDialogClass parent;
-  
-};
-
-GType bt_machine_preset_properties_dialog_get_type(void) G_GNUC_CONST;
-
-BtMachinePresetPropertiesDialog *bt_machine_preset_properties_dialog_new(GstElement *machine,gchar **name,gchar **comment);
-void bt_machine_preset_properties_dialog_apply(const BtMachinePresetPropertiesDialog *self);
+gchar* bt_machine_preset_properties_dialog_get_existing_preset_name(AdwMessageDialog* dlg);
 
 #endif // BT_MACHINE_PRESET_PROPERTIES_DIALOG_H

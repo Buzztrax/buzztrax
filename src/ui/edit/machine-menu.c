@@ -35,8 +35,10 @@ enum
   MACHINE_MENU_MACHINES_PAGE = 1
 };
 
-struct _BtMachineMenuPrivate
+struct _BtMachineMenu
 {
+  GObject parent;
+  
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
@@ -45,63 +47,23 @@ struct _BtMachineMenuPrivate
 
   /* the machine page we belong to */
   BtMainPageMachines *main_page_machines;
+
+  GMenu *menu;
 };
 
 //-- the class
 
-G_DEFINE_TYPE_WITH_CODE (BtMachineMenu, bt_machine_menu, GTK_TYPE_MENU, 
-    G_ADD_PRIVATE(BtMachineMenu));
+G_DEFINE_TYPE (BtMachineMenu, bt_machine_menu, G_TYPE_OBJECT);
 
 //-- event handler
-
-static void
-on_source_machine_add_activated (GtkMenuItem * menuitem, gpointer user_data)
-{
-  BtMachineMenu *self = BT_MACHINE_MENU (user_data);
-  gchar *name, *id;
-
-  name = (gchar *) gtk_widget_get_name (GTK_WIDGET (menuitem));
-  id = (gchar *)
-      gtk_label_get_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN (menuitem))));
-
-  GST_DEBUG ("adding source machine \"%s\" : \"%s\"", name, id);
-  bt_main_page_machines_add_source_machine (self->priv->main_page_machines, id,
-      name);
-}
-
-static void
-on_processor_machine_add_activated (GtkMenuItem * menuitem, gpointer user_data)
-{
-  BtMachineMenu *self = BT_MACHINE_MENU (user_data);
-  gchar *name, *id;
-
-  name = (gchar *) gtk_widget_get_name (GTK_WIDGET (menuitem));
-  id = (gchar *)
-      gtk_label_get_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN (menuitem))));
-
-  GST_DEBUG ("adding processor machine \"%s\"", name);
-  bt_main_page_machines_add_processor_machine (self->priv->main_page_machines,
-      id, name);
-}
 
 //-- helper methods
 
 static gint
 bt_machine_menu_compare (GstPluginFeature * f1, GstPluginFeature * f2)
 {
-#if 0
-  // TODO(ensonic): this is fragmenting memory :/
-  gchar *str1c = g_utf8_casefold (gst_plugin_feature_get_name (f1), -1);
-  gchar *str2c = g_utf8_casefold (gst_plugin_feature_get_name (f2), -1);
-  gint res = g_utf8_collate (str1c, str2c);
-
-  g_free (str1c);
-  g_free (str2c);
-  return res;
-#else
   return (strcasecmp (gst_plugin_feature_get_name (f1),
           gst_plugin_feature_get_name (f2)));
-#endif
 }
 
 static gboolean
@@ -129,11 +91,36 @@ blacklist_compare (const void *node1, const void *node2)
   return strcasecmp (*(gchar **) node1, *(gchar **) node2);
 }
 
-static void
-bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
-    const gchar * root, GCallback handler)
+// If @label is found in @labelset, then allocate a new unique label and
+// return it. Otherwise, return a duplicate of @label.
+// Return: (transfer full)
+gchar *
+make_menu_label_unique (const gchar *label, GHashTable *labelset)
 {
-  GtkWidget *menu_item, *parentmenu;
+  if (g_hash_table_contains (labelset, label)) {
+    gchar *newlabel = g_strdup_printf ("%s new", label);
+    gchar *result = make_menu_label_unique (newlabel, labelset);
+    g_free (newlabel);
+    return result;
+  } else {
+    g_hash_table_insert (labelset, (gpointer) g_strdup (label), NULL);
+    return g_strdup (label);
+  }
+}
+
+// DB: I think there's an annoying GTK bug where Popovers have trouble with
+// navigation when two different submenus share the same name. It also
+// raises a GTK warning...
+// This can happen for the two categories Source/Audio/LADSPA/Generators and
+// Filter/Audio/LADSPA/Generators, for instance.
+//
+// So, labelset is used to keep track of the labels used and disambiguate
+// them.
+static void
+bt_machine_menu_init_submenu (const BtMachineMenu * self, GMenu * submenu,
+    const gchar * root, gboolean is_source, GHashTable * labelset)
+{
+  GMenu *parentmenu;
   GList *node, *element_factories;
   GstElementFactory *factory;
   GstPluginFeature *loaded_feature;
@@ -169,7 +156,7 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
   element_factories =
       bt_gst_registry_get_element_factories_matching_all_categories (root);
   parent_menu_hash =
-      g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+      g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
   // sort list by name
   // eventually first filter and sort remaining factories into a new list
   element_factories =
@@ -197,7 +184,7 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
 
     klass_name =
         gst_element_factory_get_metadata (factory, GST_ELEMENT_METADATA_KLASS);
-    GST_LOG ("adding element : '%s' with classification: '%s'", factory_name,
+    GST_LOG ("trying add of element : '%s' with classification: '%s'", factory_name,
         klass_name);
 
     // by default we would add the new element here
@@ -206,29 +193,50 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
 
     // add sub-menus for BML, LADSPA & Co.
     // remove prefix, e.g. 'Source/Audio'
+    GST_LOG ("  try klass_name : '%s' (root '%s')", klass_name, root);
+    
     klass_name = &klass_name[strlen (root)];
-    if (*klass_name) {
-      GtkWidget *cached_menu;
+    
+    GST_LOG ("  de-rooted klass_name : '%s'", klass_name);
+
+    const gboolean klass_consists_only_of_root = *klass_name == 0;
+    
+    if (!klass_consists_only_of_root) {
+      GMenu *cached_menu;
       gchar **names;
       gchar *menu_path;
-      gint i, len = 1;
+      gint i, len = 0;
 
       GST_LOG ("  subclass : '%s'", klass_name);
 
-      // created nested menues
-      names = g_strsplit (&klass_name[1], "/", 0);
+      // created nested menus
+      names = g_strsplit (klass_name, "/", 0);
       for (i = 0; i < g_strv_length (names); i++) {
-        len += strlen (names[i]);
+        guint namelen = strlen (names[i]);
+        len += namelen;
+        if (namelen == 0) {
+          // In this case, klass_name has started with a slash.
+          // +1 for separator, which is not included in "names[i]".
+          // Not doing this will cause machine names to be truncated.
+          len += 1; 
+          continue;
+        }
+
         menu_path = g_strndup (klass_name, len);
+
+        // +1 for separator, which is not included in "names[i]"
+        // Not doing this will cause machine names to be truncated.
+        len += 1; 
+
         //check in parent_menu_hash if we have a parent for this klass
         if (!(cached_menu =
                 g_hash_table_lookup (parent_menu_hash, (gpointer) menu_path))) {
-          GST_DEBUG ("    create new: '%s'", names[i]);
-          menu_item = gtk_menu_item_new_with_label (names[i]);
-          gtk_menu_shell_append (GTK_MENU_SHELL (parentmenu), menu_item);
-          gtk_widget_show (menu_item);
-          parentmenu = gtk_menu_new ();
-          gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), parentmenu);
+          gchar *label = make_menu_label_unique (names[i], labelset);
+          GST_DEBUG ("    create new: '%s' '%s'", menu_path, label);
+          GMenu *m = g_menu_new ();
+          g_menu_append_submenu (parentmenu, label, G_MENU_MODEL (m));
+          g_free (label);
+          parentmenu = m;
           g_hash_table_insert (parent_menu_hash, (gpointer) menu_path,
               (gpointer) parentmenu);
         } else {
@@ -263,30 +271,35 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
         menu_path = "/Abstract Input";
       }
       if (menu_path) {
-        GtkWidget *cached_menu;
+        GMenu *cached_menu;
 
-        GST_DEBUG ("  subclass : '%s'", &menu_path[1]);
+        GST_DEBUG ("  subclass without submenu : '%s'", menu_path);
 
         //check in parent_menu_hash if we have a parent for this klass
         if (!(cached_menu =
                 g_hash_table_lookup (parent_menu_hash, (gpointer) menu_path))) {
-          GST_DEBUG ("    create new: '%s'", &menu_path[1]);
-          menu_item = gtk_menu_item_new_with_label (&menu_path[1]);
-          gtk_menu_shell_append (GTK_MENU_SHELL (parentmenu), menu_item);
-          gtk_widget_show (menu_item);
-          parentmenu = gtk_menu_new ();
-          gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), parentmenu);
+          gchar *label = make_menu_label_unique (&menu_path[1], labelset);
+          GST_DEBUG ("    create new without submenu : '%s'", label);
+          GMenu* m = g_menu_new ();
+          g_menu_append_submenu (parentmenu, label, G_MENU_MODEL (m));
+          g_free (label);
+          parentmenu = m;
           g_hash_table_insert (parent_menu_hash,
               (gpointer) g_strdup (menu_path), (gpointer) parentmenu);
         } else {
           parentmenu = cached_menu;
         }
         // uncomment if we add another filter
-        //have_submenu=TRUE;
+        have_submenu=TRUE;
       }
       gst_object_unref (loaded_feature);
     }
 
+    if (!have_submenu) {
+      GST_DEBUG ("  no submenu created for factory '%s'", factory_name);
+      parentmenu = submenu;
+    }
+    
     menu_name = factory_name;
     // cut plugin name from elemnt names for wrapper plugins
     // so, how can we detect wrapper plugins? -> we only filter, if plugin_name
@@ -297,7 +310,7 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
     {
       gint len = strlen (plugin_name);
 
-      GST_LOG ("%s:%s, %c", plugin_name, menu_name, menu_name[len]);
+      GST_LOG ("  cut prefix from wrapper plugin name %s:%s, %c", plugin_name, menu_name, menu_name[len]);
 
       // remove prefix "<plugin-name>-"
       if (!strncasecmp (menu_name, plugin_name, len)) {
@@ -310,47 +323,67 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
         }
       }
     }
-    menu_item = gtk_menu_item_new_with_label (menu_name);
-    gtk_widget_set_name (menu_item, factory_name);
-    gtk_menu_shell_append (GTK_MENU_SHELL (parentmenu), menu_item);
-    gtk_widget_show (menu_item);
-    g_signal_connect (menu_item, "activate", G_CALLBACK (handler),
-        (gpointer) self);
+
+    gchar* label = make_menu_label_unique (menu_name, labelset);
+    GST_LOG ("  adding item '%s'", label);
+    GMenuItem* item = g_menu_item_new (label, NULL);
+    g_free (label);
+
+    /// GTK4 although it's nice to express this using actions, a way should be
+    /// found so that it's not necessary to regenerate it when x and y changes.
+    /// Store a "machine last requested pos" variable in app and make x/y
+    /// optional?
+    g_menu_item_set_action_and_target (
+        item,
+        "app.machine.add",
+        "(sidd)",
+        factory_name,
+        is_source ? 0 : 1,
+        0, // x
+        0  // y
+    );
+
+    g_menu_append_item (parentmenu, item);
+    
+    g_object_unref (item);
   }
   g_hash_table_destroy (parent_menu_hash);
   gst_plugin_feature_list_free (element_factories);
 }
 
 static void
-bt_machine_menu_init_ui (const BtMachineMenu * self)
+bt_machine_menu_init_ui (BtMachineMenu * self)
 {
-  GtkWidget *menu_item, *submenu;
+  GMenu* menu = g_menu_new ();
+  
+  GMenu *submenu;
 
-  gtk_widget_set_name (GTK_WIDGET (self), "add machine menu");
-
+  // See comment in bt_machine_menu_init_submenu
+  GHashTable *labelset = g_hash_table_new_full (g_str_hash, g_str_equal,
+      g_free, NULL);
+  
+  g_hash_table_insert (labelset, g_strdup (_("Generators")), NULL);
+  g_hash_table_insert (labelset, g_strdup (_("Effect")), NULL);
+  
   // generators
-  menu_item = gtk_menu_item_new_with_label (_("Generators"));
-  gtk_menu_shell_append (GTK_MENU_SHELL (self), menu_item);
-  gtk_widget_show (menu_item);
-  // add another submenu
-  submenu = gtk_menu_new ();
-  gtk_widget_set_name (submenu, "generators menu");
-  gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), submenu);
+  submenu = g_menu_new ();
+  g_menu_append_submenu (menu, _("Generators"), G_MENU_MODEL (submenu));
+  
+  bt_machine_menu_init_submenu (self, submenu, "Source/Audio", TRUE, labelset);
+  g_object_unref (submenu);
 
-  bt_machine_menu_init_submenu (self, submenu, "Source/Audio",
-      G_CALLBACK (on_source_machine_add_activated));
 
   // effects
-  menu_item = gtk_menu_item_new_with_label (_("Effects"));
-  gtk_menu_shell_append (GTK_MENU_SHELL (self), menu_item);
-  gtk_widget_show (menu_item);
-  // add another submenu
-  submenu = gtk_menu_new ();
-  gtk_widget_set_name (submenu, "effects menu");
-  gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), submenu);
+  submenu = g_menu_new ();
+  g_menu_append_submenu (menu, _("Effects"), G_MENU_MODEL (submenu));
 
-  bt_machine_menu_init_submenu (self, submenu, "Filter/Effect/Audio",
-      G_CALLBACK (on_processor_machine_add_activated));
+  bt_machine_menu_init_submenu (self, submenu, "Filter/Effect/Audio", FALSE,
+      labelset);
+
+  g_hash_table_unref (labelset);  
+  g_object_unref (submenu);
+
+  self->menu = menu;
 }
 
 //-- constructor methods
@@ -377,6 +410,11 @@ bt_machine_menu_new (const BtMainPageMachines * main_page_machines)
 
 //-- methods
 
+GMenu*
+bt_machine_menu_get_menu(BtMachineMenu* self)
+{
+  return self->menu;
+}
 
 //-- class internals
 
@@ -385,14 +423,14 @@ bt_machine_menu_set_property (GObject * object, guint property_id,
     const GValue * value, GParamSpec * pspec)
 {
   BtMachineMenu *self = BT_MACHINE_MENU (object);
-  return_if_disposed ();
+  return_if_disposed_self ();
   switch (property_id) {
     case MACHINE_MENU_MACHINES_PAGE:
-      g_object_try_weak_unref (self->priv->main_page_machines);
-      self->priv->main_page_machines =
+      g_object_try_weak_unref (self->main_page_machines);
+      self->main_page_machines =
           BT_MAIN_PAGE_MACHINES (g_value_get_object (value));
-      g_object_try_weak_ref (self->priv->main_page_machines);
-      //GST_DEBUG("set the main_page_machines for machine_menu: %p",self->priv->main_page_machines);
+      g_object_try_weak_ref (self->main_page_machines);
+      //GST_DEBUG("set the main_page_machines for machine_menu: %p",self->main_page_machines);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -404,12 +442,13 @@ static void
 bt_machine_menu_dispose (GObject * object)
 {
   BtMachineMenu *self = BT_MACHINE_MENU (object);
-  return_if_disposed ();
-  self->priv->dispose_has_run = TRUE;
+  return_if_disposed_self ();
+  self->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
-  g_object_try_weak_unref (self->priv->main_page_machines);
-  g_object_unref (self->priv->app);
+  g_object_try_weak_unref (self->main_page_machines);
+  g_object_unref (self->menu);
+  g_object_unref (self->app);
 
   G_OBJECT_CLASS (bt_machine_menu_parent_class)->dispose (object);
 }
@@ -417,9 +456,9 @@ bt_machine_menu_dispose (GObject * object)
 static void
 bt_machine_menu_init (BtMachineMenu * self)
 {
-  self->priv = bt_machine_menu_get_instance_private(self);
+  self = bt_machine_menu_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
-  self->priv->app = bt_edit_application_new ();
+  self->app = bt_edit_application_new ();
 }
 
 static void

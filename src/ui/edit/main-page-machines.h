@@ -20,36 +20,17 @@
 
 #include <glib.h>
 #include <glib-object.h>
-
-#define BT_TYPE_MAIN_PAGE_MACHINES            (bt_main_page_machines_get_type ())
-#define BT_MAIN_PAGE_MACHINES(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_PAGE_MACHINES, BtMainPageMachines))
-#define BT_MAIN_PAGE_MACHINES_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_PAGE_MACHINES, BtMainPageMachinesClass))
-#define BT_IS_MAIN_PAGE_MACHINES(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MAIN_PAGE_MACHINES))
-#define BT_IS_MAIN_PAGE_MACHINES_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MAIN_PAGE_MACHINES))
-#define BT_MAIN_PAGE_MACHINES_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MAIN_PAGE_MACHINES, BtMainPageMachinesClass))
-
-/* type macros */
-
-typedef struct _BtMainPageMachines BtMainPageMachines;
-typedef struct _BtMainPageMachinesClass BtMainPageMachinesClass;
-typedef struct _BtMainPageMachinesPrivate BtMainPageMachinesPrivate;
+#include <gtk/gtk.h>
 
 /**
  * BtMainPageMachines:
  *
  * the machines page for the editor application
  */
-struct _BtMainPageMachines {
-  GtkBox parent;
-  
-  /*< private >*/
-  BtMainPageMachinesPrivate *priv;
-};
+G_DECLARE_FINAL_TYPE(BtMainPageMachines, bt_main_page_machines, BT,
+    MAIN_PAGE_MACHINES, GtkWidget);
 
-struct _BtMainPageMachinesClass {
-  GtkBoxClass parent;
-  
-};
+#define BT_TYPE_MAIN_PAGE_MACHINES            (bt_main_page_machines_get_type ())
 
 #define ICON_UPSAMPLING 1.5
 // icon box
@@ -78,18 +59,23 @@ GType bt_main_page_machines_get_type(void) G_GNUC_CONST;
 
 #include "main-pages.h"
 
-BtMainPageMachines *bt_main_page_machines_new(const BtMainPages *pages);
+typedef struct _BtMachine BtMachine;
+typedef struct _BtWire BtWire;
 
-gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos);
-gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos);
+BtMainPageMachines *bt_main_page_machines_new();
 
-gboolean bt_main_page_machines_add_source_machine(const BtMainPageMachines *self, const gchar *id, const gchar *plugin_name);
-gboolean bt_main_page_machines_add_processor_machine(const BtMainPageMachines *self, const gchar *id, const gchar *plugin_name);
-void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMachine *machine);
-void bt_main_page_machines_delete_wire(const BtMainPageMachines *self, BtWire *wire);
-void bt_main_page_machines_rename_machine(const BtMainPageMachines *self, BtMachine *machine);
+gboolean bt_main_page_machines_wire_volume_popup(BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos);
+gboolean bt_main_page_machines_wire_panorama_popup(BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos);
 
-void bt_main_page_machines_canvas_coords_to_relative(const BtMainPageMachines * self, const gdouble xc, const gdouble yc, gdouble *xr, gdouble *yr);
-void bt_main_page_machines_relative_coords_to_canvas(const BtMainPageMachines * self, const gdouble xr, const gdouble yr, gdouble *xc, gdouble *yc);
+gboolean bt_main_page_machines_add_source_machine(BtMainPageMachines *self, const gchar *id, const gchar *plugin_name);
+gboolean bt_main_page_machines_add_processor_machine(BtMainPageMachines *self, const gchar *id, const gchar *plugin_name);
+void bt_main_page_machines_delete_machine(BtMainPageMachines *self, BtMachine *machine);
+void bt_main_page_machines_delete_wire(BtMainPageMachines *self, BtWire *wire);
+void bt_main_page_machines_rename_machine(BtMainPageMachines *self, BtMachine *machine);
+
+void bt_main_page_machines_canvas_coords_to_relative(BtMainPageMachines * self, const gdouble xc, const gdouble yc, gdouble *xr, gdouble *yr);
+void bt_main_page_machines_relative_coords_to_canvas(BtMainPageMachines * self, const gdouble xr, const gdouble yr, gdouble *xc, gdouble *yc);
+
+void bt_main_page_machines_set_pages_parent(BtMainPageMachines * self, BtMainPages *pages);
 
 #endif // BT_MAIN_PAGE_MACHINES_H

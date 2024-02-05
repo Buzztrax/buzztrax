@@ -1,0 +1,90 @@
+<interface>
+  <template class="BtMainPages" parent="GtkWidget">
+    <!--
+        These are minimum sizes.
+        https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1-latest/class.BreakpointBin.html#minimum-size
+    <property name="width-request">360</property>
+    <property name="height-request">200</property>
+    -->
+
+    <property name="layout-manager">
+      <object class="GtkBinLayout" />
+    </property>
+
+    <property name="hexpand">yes</property>
+    <property name="vexpand">yes</property>
+    
+    <child>
+      <object class="AdwToolbarView">
+        <child type="top">
+          <object class="GtkBox" id="header_bar">
+            <property name="halign">center</property>
+            
+            <child>
+              <object class="AdwViewSwitcher">
+                <property name="stack">stack</property>
+                <property name="policy">wide</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        
+        <property name="content">
+          <object class="AdwViewStack" id="stack">
+            <child>
+              <object class="AdwViewStackPage" id="machines_page">
+                <property name="name">machines</property>
+                <property name="title" translatable="true">Machines</property>
+                <property name="child">
+                  <object class="BtMainPageMachines" />
+                </property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwViewStackPage" id="patterns_page">
+                <property name="name">patterns</property>
+                <property name="title" translatable="true">Patterns</property>
+                <property name="child">
+                  <object class="BtMainPagePatterns" />
+                </property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwViewStackPage" id="sequence_page">
+                <property name="name">sequence</property>
+                <property name="title" translatable="true">Sequence</property>
+                <property name="child">
+                  <object class="BtMainPageSequence" />
+                </property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwViewStackPage" id="waves_page">
+                <property name="name">waves</property>
+                <property name="title" translatable="true">Waves</property>
+                <property name="child">
+                  <object class="BtMainPageWaves" />
+                </property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwViewStackPage" id="info_page">
+                <property name="name">info</property>
+                <property name="title" translatable="true">Info</property>
+                <property name="child">
+                  <object class="BtMainPageInfo" />
+                </property>
+              </object>
+            </child>
+          </object>
+        </property>
+        
+        <child type="bottom">
+          <object class="AdwViewSwitcherBar" id="switcher_bar">
+            <property name="stack">stack</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

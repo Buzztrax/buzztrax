@@ -191,7 +191,10 @@ struct _BtMachinePrivate
   BtParameterGroup *global_param_group, **voice_param_groups;
 
   /* event patterns */
-  GList *patterns; // each entry points to BtCmdPattern
+  
+  // each entry points to BtCmdPattern
+  // This list is updated when bt_cmd_pattern_constructed calls bt_machine_add_pattern (self, ...
+  GList *patterns;              
   guint private_patterns;
 
   /* the gstreamer elements that are used */
@@ -2258,6 +2261,37 @@ bt_machine_has_patterns(const BtMachine *const self)
   return (g_list_length(self->priv->patterns) > self->priv->private_patterns);
 }
 
+/**
+ * bt_machine_get_internal_patterns_count:
+ * @self: the machine for which to check the patterns
+ *
+ * "Internal" patterns are those that represent special actions like muting, breaking, etc., rather than regular
+ * patterns having note and control data.
+ *
+ * Some clients are not interested in these patterns and can use this as an offset to skip them when retrieving
+ * patterns by index.
+ *
+ * Returns: the number of "internal" patterns that the machine has.
+ */
+guint
+bt_machine_get_internal_patterns_count (const BtMachine * const self)
+{
+  return self->priv->private_patterns;
+}
+
+/**
+ * bt_machine_get_patterns_count:
+ * @self: the machine for which to check the patterns
+ *
+ * Returns: the number of patterns that the machine has.
+ */
+guint
+bt_machine_get_patterns_count(const BtMachine * const self)
+{
+  // dbeswick: This might now be better as a GPtrArray
+  return g_list_length (self->priv->patterns);
+}
+
 //-- global and voice param handling
 
 /**
@@ -2361,6 +2395,27 @@ bt_machine_get_voice_param_group(const BtMachine *const self,
           self->priv->voices)
              ? self->priv->voice_param_groups[voice]
              : NULL;
+}
+
+/**
+ * bt_machine_get_voice_param_group_idx:
+ * @pg: a param group belonging to a voice
+ *
+ * Return the index of the voice that the parameter group belongs to.
+ *
+ * Returns: the index of the voice, or -1 if no voice could be found for the group.
+ */
+glong
+bt_machine_get_voice_param_group_idx(const BtMachine * const self, BtParameterGroup * pg)
+{
+  for (gulong i = 0; i < self->priv->voices; ++i) {
+    if (self->priv->voice_param_groups[i] == pg) {
+      g_assert (i < G_MAXINT64);
+      return (glong)i;
+    }
+  }
+
+  return -1;
 }
 
 /**
@@ -2553,7 +2608,6 @@ on_enum_control_notify(const BtIcControl *control,
  * @object: child object (global or voice child)
  * @property_name: name of the parameter
  * @control: interaction control object
- * @pg: the parameter group of the property
  *
  * Connect the interaction control object to the give parameter. Changes of the
  * control-value are mapped into a change of the parameter.
@@ -2566,7 +2620,11 @@ void bt_machine_bind_parameter_control(const BtMachine *const self,
   GParamSpec *pspec;
   BtIcDevice *device;
   gboolean new_data = FALSE;
+  GstObject *object = GST_OBJECT (self->priv->machines[PART_MACHINE]);
+  BtParameterGroup *pg = self->priv->global_param_group;
 
+  g_assert (object);
+  
   pspec =
       g_object_class_find_property(G_OBJECT_GET_CLASS(object), property_name);
 
@@ -3300,9 +3358,9 @@ Error:
 }
 
 static BtPersistence *
-bt_machine_persistence_load(const GType type,
-                            const BtPersistence *const persistence, xmlNodePtr node, GError **err,
-                            va_list var_args)
+bt_machine_persistence_load (const GType type,
+    BtPersistence * const persistence, xmlNodePtr node, GError ** err,
+    va_list var_args)
 {
   BtMachine *const self = BT_MACHINE(persistence);
   xmlChar *name, *global_str, *voice_str, *value_str;
@@ -3317,9 +3375,9 @@ bt_machine_persistence_load(const GType type,
   GST_DEBUG("PERSISTENCE::machine");
   g_assert(node);
 
-  // The derived implementations might accept a NULL value here, but by the time
-  // this base method is called, an BtMachine instance must have been constructed.
-  g_assert(persistence);
+  // The derived implementations might accept a NULL value for "persistence", but by the time
+  // this base method is called an BtMachine instance must have been constructed.
+  g_assert (persistence);
 
   if ((machine = GST_OBJECT(self->priv->machines[PART_MACHINE])))
   {
@@ -3495,24 +3553,25 @@ bt_machine_persistence_load(const GType type,
                                           XML_CHAR_PTR("parameter"))))
                       {
                         if ((global_str =
-                                 xmlGetProp(child_node,
-                                            XML_CHAR_PTR("global"))))
-                        {
-                          bt_machine_bind_parameter_control(self, machine,
-                                                            (gchar *)property_name, control,
-                                                            self->priv->global_param_group);
-                          xmlFree(global_str);
-                        }
-                        else
-                        {
+                                xmlGetProp (child_node,
+                                    XML_CHAR_PTR ("global")))) {
+                          bt_machine_bind_parameter_control (self,
+                              (gchar *) property_name, control);
+                          xmlFree (global_str);
+                        } else {
                           if ((voice_str =
-                                   xmlGetProp(child_node,
-                                              XML_CHAR_PTR("voice"))))
-                          {
-                            bt_machine_bind_poly_parameter_control(self,
-                                                                   (gchar *)property_name,
-                                                                   control, self->priv->voice_param_groups[0]);
-                            xmlFree(voice_str);
+                                  xmlGetProp (child_node,
+                                      XML_CHAR_PTR ("voice")))) {
+                            glong voice_idx = atol ((gchar *)voice_str);
+                            BtParameterGroup *pg = bt_machine_get_voice_param_group (self, voice_idx);
+                            if (pg) {
+                              bt_machine_bind_poly_parameter_control (self,
+                                  (gchar *) property_name,
+                                  control, pg);
+                            } else {
+                              GST_ERROR ("Couldn't get parameter group for voice %ld", voice_idx);
+                            }
+                            xmlFree (voice_str);
                           }
                         }
                         xmlFree(property_name);
@@ -4014,9 +4073,14 @@ bt_machine_finalize(GObject *const object)
   GST_DEBUG("  done");
 }
 
-static gboolean bt_machine_is_cloneable_default(const BtMachine *const self)
+static gboolean bt_machine_is_cloneable_default (const BtMachine * const self)
 {
   return TRUE;
+}
+
+const gchar *bt_machine_get_id(BtMachine * const self)
+{
+  return self->priv->id;
 }
 
 //-- wrapper

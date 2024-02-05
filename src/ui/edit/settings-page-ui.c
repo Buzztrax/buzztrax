@@ -131,7 +131,6 @@ bt_settings_page_ui_new (GtkWidget * pages)
 
   self = BT_SETTINGS_PAGE_UI (g_object_new (BT_TYPE_SETTINGS_PAGE_UI, NULL));
   bt_settings_page_ui_init_ui (self, pages);
-  gtk_widget_show_all (GTK_WIDGET (self));
   return self;
 }
 

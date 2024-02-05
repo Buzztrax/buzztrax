@@ -1,0 +1,24 @@
+CLEANFILES += $(builddir)/res/bt-edit.css
+
+# Note that bt-edit.css is generated from bt-edit.css.in and placed in the build directory,
+# hence the two sourcedir inputs to glib-compile-resources.
+#
+# This command stores the dependencies for the resource build task in the RESOURCE_DEPS variable.
+# glib-compile-resources provides this facility.
+RESOURCE_DEPS=$(shell \
+  $(GLIB_COMPILE_RESOURCES) \
+  --sourcedir="$(abs_srcdir)/res" \
+  --sourcedir="$(abs_builddir)/res" \
+  --generate-dependencies "$(abs_srcdir)/res/gresources.xml" \
+)
+
+# By specifying both targets, both header and source files will be generated.
+# glib-compile-resources infers the kind of output required from the target file's extension.
+res/gresources.c res/gresources.h: res/gresources.xml res/css/bt-edit.css $(RESOURCE_DEPS)
+	$(GLIB_COMPILE_RESOURCES) \
+		--c-name bt \
+		--sourcedir="$(abs_srcdir)/res" \
+		--sourcedir="$(abs_builddir)/res" \
+		--generate \
+		--target="$@" \
+		"$<"

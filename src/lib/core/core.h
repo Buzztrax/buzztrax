@@ -57,7 +57,7 @@
 //-- prototypes ----------------------------------------------------------------
 
 GOptionGroup *bt_init_get_option_group(void);
-void bt_init_add_option_groups(GOptionContext * const ctx);
+GPtrArray *bt_get_option_groups();
 gboolean bt_init_check(GOptionContext *ctx,  gint *argc, gchar **argv[], GError **err);
 void bt_init(GOptionContext * const ctx, gint *argc, gchar **argv[]);
 void bt_deinit(void);

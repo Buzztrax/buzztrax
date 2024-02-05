@@ -26,28 +26,26 @@
 #define BT_MAIN_WINDOW_C
 
 #include "bt-edit.h"
+#include "main-menu.h"
 
 enum
 {
-  MAIN_WINDOW_TOOLBAR = 1,
-  MAIN_WINDOW_STATUSBAR,
+  MAIN_WINDOW_STATUSBAR = 1,
   MAIN_WINDOW_PAGES,
   MAIN_WINDOW_DIALOG
 };
 
 
-struct _BtMainWindowPrivate
+struct _BtMainWindow
 {
+  AdwWindow parent;
+  
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
   /* the application */
   BtEditApplication *app;
 
-  /* the menu of the window */
-  BtMainMenu *menu;
-  /* the toolbar of the window */
-  BtMainToolbar *toolbar;
   /* the content pages of the window */
   BtMainPages *pages;
   /* the statusbar of the window */
@@ -57,10 +55,10 @@ struct _BtMainWindowPrivate
 
   /* file-chooser stuff */
   GtkFileChooser *file_chooser;
-  GList *filters;
-  gchar *last_folder;
+  GFile *last_folder;
 };
 
+#if 0 /// GTK4
 enum
 { TARGET_URI_LIST };
 static GtkTargetEntry drop_types[] = {
@@ -68,18 +66,19 @@ static GtkTargetEntry drop_types[] = {
 };
 
 static gint n_drop_types = sizeof (drop_types) / sizeof (GtkTargetEntry);
+#endif
 
 //-- the class
 
-G_DEFINE_TYPE_WITH_CODE (BtMainWindow, bt_main_window, GTK_TYPE_WINDOW, 
-    G_ADD_PRIVATE(BtMainWindow));
+G_DEFINE_TYPE (BtMainWindow, bt_main_window, ADW_TYPE_WINDOW);
 
 
 //-- helper methods
 
+#if 0 /// GTK4 still needed?
 /* update the filename to have an extension, matching the selected format */
 static gchar *
-update_filename_ext (const BtMainWindow * self, gchar * file_name,
+update_filename_ext (BtMainWindow * self, gchar * file_name,
     gint format_ix)
 {
   GtkFileFilter *this_filter, *that_filter;
@@ -90,17 +89,15 @@ update_filename_ext (const BtMainWindow * self, gchar * file_name,
   guint ix;
 
   plugins = bt_song_io_get_module_info_list ();
-  //this_filter=gtk_file_chooser_get_filter(self->priv->file_chooser);
-  this_filter = g_list_nth_data (self->priv->filters, format_ix);
 
-  GST_WARNING ("old song name = '%s', filter %p", file_name, this_filter);
+  GST_WARNING ("old song name = '%s'", file_name);
 
   ext = strrchr (file_name, '.');
 
   if (ext) {
     ext++;
     // cut off known extensions
-    for (pnode = plugins, fnode = self->priv->filters; pnode;
+    for (pnode = plugins, fnode = self->filters; pnode;
         pnode = g_list_next (pnode)) {
       info = (BtSongIOModuleInfo *) pnode->data;
       ix = 0;
@@ -121,7 +118,7 @@ update_filename_ext (const BtMainWindow * self, gchar * file_name,
     }
   }
   // append new extension
-  for (pnode = plugins, fnode = self->priv->filters; pnode;
+  for (pnode = plugins, fnode = self->filters; pnode;
       pnode = g_list_next (pnode)) {
     info = (BtSongIOModuleInfo *) pnode->data;
     ix = 0;
@@ -147,13 +144,14 @@ update_filename_ext (const BtMainWindow * self, gchar * file_name,
   g_free (new_file_name);
   return NULL;
 }
+#endif
 
 static gboolean
-load_song (const BtMainWindow * self, gchar * file_name)
+load_song (BtMainWindow * self, gchar * file_name)
 {
   GError *err = NULL;
 
-  if (!bt_edit_application_load_song (self->priv->app, file_name, &err)) {
+  if (!bt_edit_application_load_song (self->app, file_name, &err)) {
     gchar *msg = g_strdup_printf (_("Can't load song '%s'."), file_name);
     bt_dialog_message (self, _("Can't load song"), msg, err->message);
     g_free (msg);
@@ -174,6 +172,7 @@ load_song (const BtMainWindow * self, gchar * file_name)
 
 //-- event handler
 
+#if 0 /// GTK4 still needed?
 static void
 on_format_chooser_changed (GtkComboBox * menu, gpointer user_data)
 {
@@ -182,7 +181,7 @@ on_format_chooser_changed (GtkComboBox * menu, gpointer user_data)
   gchar *file_name, *new_file_name = NULL;
 
   format_ix = gtk_combo_box_get_active (menu);
-  file_name = gtk_file_chooser_get_filename (self->priv->file_chooser);
+  file_name = gtk_file_chooser_get_filename (self->file_chooser);
   GST_WARNING ("Changing %s to extension for %d's filter", file_name,
       format_ix);
   if (!file_name)
@@ -192,13 +191,14 @@ on_format_chooser_changed (GtkComboBox * menu, gpointer user_data)
     gchar *name;
 
     name = strrchr (new_file_name, G_DIR_SEPARATOR);
-    //gtk_file_chooser_set_filename(self->priv->file_chooser,new_file_name);
-    gtk_file_chooser_set_current_name (self->priv->file_chooser,
+    //gtk_file_chooser_set_filename(self->file_chooser,new_file_name);
+    gtk_file_chooser_set_current_name (self->file_chooser,
         name ? &name[1] : new_file_name);
   }
   g_free (file_name);
   g_free (new_file_name);
 }
+#endif
 
 static void
 on_window_mapped (GtkWidget * widget, gpointer user_data)
@@ -210,34 +210,22 @@ on_window_mapped (GtkWidget * widget, gpointer user_data)
   GST_INFO ("main_window mapped");
 
   // eventualy hide some ui elements
-  g_object_get (self->priv->app, "settings", &settings, NULL);
+  g_object_get (self->app, "settings", &settings, NULL);
   g_object_get (settings,
       "toolbar-hide", &toolbar_hide,
       "statusbar-hide", &statusbar_hide, "tabs-hide", &tabs_hide, NULL);
   g_object_unref (settings);
 
-  if (toolbar_hide) {
-    gtk_widget_hide (GTK_WIDGET (self->priv->toolbar));
-  }
-  if (statusbar_hide) {
-    gtk_widget_hide (GTK_WIDGET (self->priv->statusbar));
-  }
+#if 0 /// GTK4 toolbar variable has gone away, is it still necessary to hide it?
+  gtk_widget_set_visible (GTK_WIDGET (self->toolbar), !toolbar_hide);
+#endif
+  gtk_widget_set_visible (GTK_WIDGET (self->statusbar), !statusbar_hide);
   if (tabs_hide) {
-    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (self->priv->pages), FALSE);
+    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (self->pages), FALSE);
   }
 }
 
-static gboolean
-on_window_delete_event (GtkWidget * widget, GdkEvent * event,
-    gpointer user_data)
-{
-  BtMainWindow *self = BT_MAIN_WINDOW (user_data);
-
-  GST_INFO ("delete event occurred");
-  // returning TRUE means, we don't want the window to be destroyed
-  return !bt_edit_application_quit (self->priv->app);
-}
-
+#if 0 /// GTK4
 static void
 on_window_destroy (GtkWidget * widget, gpointer user_data)
 {
@@ -247,16 +235,17 @@ on_window_destroy (GtkWidget * widget, gpointer user_data)
     gtk_main_quit ();
   }
 }
+#endif
 
 static void
 bt_main_window_update_title (BtMainWindow *self)
 {
-  gboolean unsaved = bt_edit_application_is_song_unsaved (self->priv->app);
+  gboolean unsaved = bt_edit_application_is_song_unsaved (self->app);
   BtSong *song;
   gchar *title;
 
   // compose title
-  g_object_get (self->priv->app, "song", &song, NULL);
+  g_object_get (self->app, "song", &song, NULL);
   if (!song)
     return;
 
@@ -299,7 +288,7 @@ on_song_changed (const GObject * object, GParamSpec * arg,
   
   BtSong *song;
 
-  g_object_get (self->priv->app, "song", &song, NULL);
+  g_object_get (self->app, "song", &song, NULL);
   if (!song)
     return;
 
@@ -313,6 +302,7 @@ on_song_changed (const GObject * object, GParamSpec * arg,
   g_object_unref (song_info);
 }
 
+#if 0 /// GTK4
 static void
 on_window_dnd_drop (GtkWidget * widget, GdkDragContext * dc, gint x, gint y,
     GtkSelectionData * selection_data, guint info, guint t, gpointer user_data)
@@ -335,19 +325,7 @@ on_window_dnd_drop (GtkWidget * widget, GdkDragContext * dc, gint x, gint y,
     g_free (file_name);
   }
 }
-
-/* just for testing
-static gboolean on_window_event(GtkWidget *widget, GdkEvent  *event, gpointer user_data) {
-  if(event->type==GDK_BUTTON_PRESS) {
-    GdkEventButton *e=(GdkEventButton*)event;
-
-    GST_INFO("type=%4d, window=%p, send_event=%3d, time=%8d",e->type,e->window,e->send_event,e->time);
-    GST_INFO("x=%6.4lf, y=%6.4lf, axes=%p, state=%4d",e->x,e->y,e->axes,e->state);
-    GST_INFO("button=%4d, device=%p, x_root=%6.4lf, y_root=%6.4lf\n",e->button,e->device,e->x_root,e->y_root);
-  }
-  return(FALSE);
-}
-*/
+#endif
 
 static gchar *
 bt_main_window_make_unsaved_changes_message (const BtSong * song)
@@ -408,67 +386,63 @@ bt_main_window_make_unsaved_changes_message (const BtSong * song)
 //-- helper methods
 
 static void
-bt_main_window_init_ui (const BtMainWindow * self)
+bt_main_window_init_ui (BtMainWindow * self)
 {
-  GtkWidget *box;
   BtChangeLog *change_log;
 
+  AdwToolbarView *toolbar_view = ADW_TOOLBAR_VIEW (adw_toolbar_view_new ());
+  adw_window_set_content (ADW_WINDOW (self), GTK_WIDGET (toolbar_view));
+
+  // add the tool-bar and  menu-bar to the AdwToolbarView's "top bar"
+  GtkBox *topbar_box = GTK_BOX (gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5));
+  gtk_box_append (GTK_BOX (topbar_box), GTK_WIDGET (bt_main_menu_new (self->app)));
+  gtk_box_append (GTK_BOX (topbar_box), GTK_WIDGET (bt_main_toolbar_new (self->app)));
+  adw_toolbar_view_add_top_bar (toolbar_view, GTK_WIDGET (topbar_box));
+  
   gtk_widget_set_name (GTK_WIDGET (self), "main window");
-  gtk_window_set_role (GTK_WINDOW (self), "buzztrax-edit::main");
-#if !GTK_CHECK_VERSION (3,14,0)
-  gtk_window_set_has_resize_grip (GTK_WINDOW (self), FALSE);
-#endif
 
   // create and set window icon
   gtk_window_set_icon_name (GTK_WINDOW (self), "buzztrax");
 
+#if 0 /// GTK4  
   gtk_window_add_accel_group (GTK_WINDOW (self),
       bt_ui_resources_get_accel_group ());
-
+#endif
+  
   // create main layout container
-  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-  gtk_container_add (GTK_CONTAINER (self), box);
+  GtkWidget *box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+  adw_toolbar_view_set_content (toolbar_view, box);
 
   GST_INFO ("before creating content, app: %" G_OBJECT_REF_COUNT_FMT,
-      G_OBJECT_LOG_REF_COUNT (self->priv->app));
+      G_OBJECT_LOG_REF_COUNT (self->app));
 
-  // add the menu-bar
-  self->priv->menu = bt_main_menu_new ();
-  gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (self->priv->menu), FALSE,
-      FALSE, 0);
-  // add the tool-bar
-  self->priv->toolbar = bt_main_toolbar_new ();
-  gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (self->priv->toolbar), FALSE,
-      FALSE, 0);
   // add the window content pages
-  self->priv->pages = bt_main_pages_new ();
-  gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (self->priv->pages), TRUE, TRUE,
-      0);
+  self->pages = bt_main_pages_new ();
+  gtk_box_append (GTK_BOX (box), GTK_WIDGET (self->pages));
   // add the status bar
-  self->priv->statusbar = bt_main_statusbar_new ();
-  gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (self->priv->statusbar), FALSE,
-      FALSE, 0);
+  self->statusbar = bt_main_statusbar_new ();
+  gtk_box_append (GTK_BOX (box), GTK_WIDGET (self->statusbar));
 
+#if 0 /// GTK4
   gtk_drag_dest_set (GTK_WIDGET (self),
       (GtkDestDefaults) (GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT |
           GTK_DEST_DEFAULT_DROP), drop_types, n_drop_types, GDK_ACTION_COPY);
   g_signal_connect ((gpointer) self, "drag-data-received",
       G_CALLBACK (on_window_dnd_drop), (gpointer) self);
-
+#endif
+  
   GST_INFO ("content created, app: %" G_OBJECT_REF_COUNT_FMT,
-      G_OBJECT_LOG_REF_COUNT (self->priv->app));
+      G_OBJECT_LOG_REF_COUNT (self->app));
 
-  g_signal_connect ((gpointer) self, "delete-event",
-      G_CALLBACK (on_window_delete_event), (gpointer) self);
+#if 0 /// GTK4 still needed?
   g_signal_connect ((gpointer) self, "destroy", G_CALLBACK (on_window_destroy),
       (gpointer) self);
-  /* just for testing
-     g_signal_connect((gpointer)self,"event",G_CALLBACK(on_window_event),(gpointer)self);
-   */
-  g_signal_connect (self->priv->app, "notify::unsaved",
+#endif
+
+  g_signal_connect (self->app, "notify::unsaved",
       G_CALLBACK (on_song_unsaved_changed), (gpointer) self);
 
-  g_signal_connect (self->priv->app, "notify::song",
+  g_signal_connect (self->app, "notify::song",
       G_CALLBACK (on_song_changed), (gpointer) self);
   
   change_log = bt_change_log_new ();
@@ -477,7 +451,7 @@ bt_main_window_init_ui (const BtMainWindow * self)
   g_object_unref (change_log);
 
   GST_INFO ("signal connected, app: %" G_OBJECT_REF_COUNT_FMT,
-      G_OBJECT_LOG_REF_COUNT (self->priv->app));
+      G_OBJECT_LOG_REF_COUNT (self->app));
 }
 
 //-- constructor methods
@@ -494,35 +468,27 @@ bt_main_window_new (void)
 {
   BtMainWindow *self;
   BtSettings *settings;
-  gint x, y, w, h;
+  gint w, h;
 
   GST_INFO ("creating a new window");
 
   self =
-      BT_MAIN_WINDOW (g_object_new (BT_TYPE_MAIN_WINDOW, "type",
-          GTK_WINDOW_TOPLEVEL, NULL));
+      BT_MAIN_WINDOW (g_object_new (BT_TYPE_MAIN_WINDOW, NULL));
   GST_INFO ("new main_window created");
   bt_main_window_init_ui (self);
   GST_INFO ("new main_window layouted");
 
-  // restore last position
-  g_object_get (self->priv->app, "settings", &settings, NULL);
-  g_object_get (settings,
-      "window-xpos", &x, "window-ypos", &y, "window-width", &w, "window-height",
-      &h, NULL);
+  // restore last width + height
+  // note that GTK4 can no longer set window position 
+  g_object_get (self->app, "settings", &settings, NULL);
+  g_object_get (settings, "window-width", &w, "window-height", &h, NULL);
   g_object_unref (settings);
 
   // use position from settings
   if (w >= 0 && h >= 0) {
-    /* ensure that we can see the window - would also need to check against
-     * bt_gtk_workarea_size(). Also as it seems the position is ignored
-     if(x<w) x=0;
-     if(y<h) y=0;
-     */
-    gtk_window_move (GTK_WINDOW (self), x, y);
     gtk_window_set_default_size (GTK_WINDOW (self), w, h);
   } else {
-    gtk_window_resize (GTK_WINDOW (self), 800, 600);
+    gtk_window_set_default_size (GTK_WINDOW (self), 800, 600);
   }
 
   g_signal_connect ((gpointer) self, "map",
@@ -546,14 +512,14 @@ bt_main_window_new (void)
  *
  * Returns: %TRUE if the user has confirmed to continue
  */
-gboolean
-bt_main_window_check_unsaved_song (const BtMainWindow * self,
-    const gchar * title, const gchar * headline)
+void
+bt_main_window_check_unsaved_song (BtMainWindow * self,
+    const gchar * title, const gchar * headline,
+    BtDialogQuestionCb result_cb, gpointer user_data)
 {
-  gboolean res = TRUE;
   BtSong *song;
 
-  g_object_get (self->priv->app, "song", &song, NULL);
+  g_object_get (self->app, "song", &song, NULL);
   if (song) {
     BtChangeLog *change_log;
     gboolean unsaved;
@@ -565,13 +531,11 @@ bt_main_window_check_unsaved_song (const BtMainWindow * self,
       gchar *msg;
 
       msg = bt_main_window_make_unsaved_changes_message (song);
-      res = bt_dialog_question (self, title, headline, msg);
+      bt_dialog_question (self, title, headline, msg, result_cb, user_data);
       g_free (msg);
     }
     g_object_unref (song);
   }
-
-  return res;
 }
 
 
@@ -583,11 +547,23 @@ bt_main_window_check_unsaved_song (const BtMainWindow * self,
  *
  * Returns: %TRUE if the user has confirmed to exit
  */
-gboolean
-bt_main_window_check_quit (const BtMainWindow * self)
+void
+bt_main_window_check_quit (BtMainWindow * self, BtDialogQuestionCb result_cb, gpointer user_data)
 {
   return bt_main_window_check_unsaved_song (self, _("Really quit?"),
-      _("Really quit?"));
+              _("Really quit?"), result_cb, user_data);
+}
+
+static void
+bt_main_window_new_song_cb (gboolean result, gpointer data) {
+  if (!result)
+    return;
+
+  BtMainWindow * self = BT_MAIN_WINDOW (data);
+  
+  if (!bt_edit_application_new_song (self->app)) {
+    // TODO(ensonic): show error message (from where? and which error?)
+  }
 }
 
 /**
@@ -597,46 +573,51 @@ bt_main_window_check_quit (const BtMainWindow * self)
  * Prepares a new song. Triggers cleaning up the old song and refreshes the ui.
  */
 void
-bt_main_window_new_song (const BtMainWindow * self)
+bt_main_window_new_song (BtMainWindow * self)
 {
-  if (!bt_main_window_check_unsaved_song (self, _("New song?"), _("New song?")))
-    return;
+  bt_main_window_check_unsaved_song (self, _("New song?"), _("New song?"),
+      bt_main_window_new_song_cb, (gpointer) self);
+}
 
-  if (!bt_edit_application_new_song (self->priv->app)) {
-    // TODO(ensonic): show error message (from where? and which error?)
+void
+bt_main_window_open_song_cb (GObject* source_object, GAsyncResult* res, gpointer data) {
+  GtkFileDialog* dlg = GTK_FILE_DIALOG (source_object);
+  BtMainWindow* self = BT_MAIN_WINDOW (data);
+
+  GFile* file = gtk_file_dialog_open_finish (dlg, res, NULL);
+
+  if (file) {
+    // remember last folder
+    if (self->last_folder)
+      g_object_unref (self->last_folder);
+    self->last_folder = g_file_get_parent (file);
+
+    gchar* file_name = g_file_get_path (file);
+    load_song (self, file_name);
+    g_free (file_name);
+
+    g_object_unref (file);
   }
 }
 
-/**
- * bt_main_window_open_song:
- * @self: the main window instance
- *
- * Opens a dialog box, where the user can choose a song to load.
- * If the dialog is not canceld, the old song will be freed, the new song will
- * be loaded and the ui will be refreshed upon success.
- */
-void
-bt_main_window_open_song (const BtMainWindow * self)
-{
-  gint result;
-  gchar *folder_name, *file_name = NULL;
+static void
+bt_main_window_open_song_unsaved_cb (gboolean result, gpointer data) {
+  if (!result)
+    return;
+
+  BtMainWindow * self = BT_MAIN_WINDOW (data);
+  
+  gchar *folder_name = NULL;
   GtkFileFilter *filter, *filter_all;
   const GList *plugins, *node;
   BtSongIOModuleInfo *info;
   guint ix;
 
-  if (!bt_main_window_check_unsaved_song (self, _("Load new song?"),
-          _("Load new song?")))
-    return;
+  GtkFileDialog* dlg = gtk_file_dialog_new ();
+  gtk_file_dialog_set_modal (dlg, TRUE);
+  gtk_file_dialog_set_title (dlg, _("Open a song"));
 
-  self->priv->dialog =
-      GTK_DIALOG (gtk_file_chooser_dialog_new (_("Open a song"),
-          GTK_WINDOW (self), GTK_FILE_CHOOSER_ACTION_OPEN, _("_Cancel"),
-          GTK_RESPONSE_CANCEL, _("_Open"), GTK_RESPONSE_ACCEPT, NULL));
-  bt_edit_application_attach_child_window (self->priv->app,
-      GTK_WINDOW (self->priv->dialog));
-  // store for format-changed signal handler
-  self->priv->file_chooser = GTK_FILE_CHOOSER (self->priv->dialog);
+  GListStore* store = g_list_store_new (GTK_TYPE_FILE_FILTER);
 
   // set filters
   filter_all = gtk_file_filter_new ();
@@ -650,60 +631,47 @@ bt_main_window_open_song (const BtMainWindow * self)
       gtk_file_filter_set_name (filter, info->formats[ix].name);
       gtk_file_filter_add_mime_type (filter, info->formats[ix].mime_type);
       gtk_file_filter_add_mime_type (filter_all, info->formats[ix].mime_type);
-      gtk_file_chooser_add_filter (self->priv->file_chooser, filter);
+      g_list_store_append (store, G_OBJECT (filter));
       ix++;
     }
   }
-  gtk_file_chooser_add_filter (self->priv->file_chooser, filter_all);
+  g_list_store_append (store, G_OBJECT (filter_all));
+  
   filter = gtk_file_filter_new ();
   gtk_file_filter_set_name (filter, "all files");
   gtk_file_filter_add_pattern (filter, "*");
-  gtk_file_chooser_add_filter (self->priv->file_chooser, filter);
+  g_list_store_append (store, G_OBJECT (filter));
   // set default filter
-  gtk_file_chooser_set_filter (self->priv->file_chooser, filter_all);
+  gtk_file_dialog_set_default_filter (dlg, filter_all);
 
   // set a default songs folder
-  //gtk_file_chooser_set_current_folder(self->priv->file_chooser,DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
-  bt_child_proxy_get (self->priv->app, "settings::song-folder", &folder_name,
+  bt_child_proxy_get (self->app, "settings::song-folder", &folder_name,
       NULL);
+
+  GFile* folder_file = g_file_new_for_path (folder_name);
   // reuse last folder (store in self, if we loaded something
-  gtk_file_chooser_set_current_folder (self->priv->file_chooser,
-      self->priv->last_folder ? self->priv->last_folder : folder_name);
-  gtk_file_chooser_add_shortcut_folder (self->priv->file_chooser, folder_name,
-      NULL);
+  gtk_file_dialog_set_initial_folder (dlg, self->last_folder ? self->last_folder : folder_file);
+  g_object_unref (folder_file);
   // TODO(ensonic): if folder != default it would be nice to show the default as well, unfortunately we can't name the shortcuts
   // - maybe we should only install real demo songs
   g_free (folder_name);
 
-  gtk_widget_show_all (GTK_WIDGET (self->priv->dialog));
-  g_object_notify ((gpointer) self, "dialog");
+  gtk_file_dialog_open (dlg, GTK_WINDOW (self), NULL, bt_main_window_open_song_cb, self); 
+}
 
-  result = gtk_dialog_run (self->priv->dialog);
-  switch (result) {
-    case GTK_RESPONSE_ACCEPT:
-    case GTK_RESPONSE_OK:
-      file_name = gtk_file_chooser_get_filename (self->priv->file_chooser);
-      // remember last folder
-      g_free (self->priv->last_folder);
-      self->priv->last_folder =
-          gtk_file_chooser_get_current_folder (self->priv->file_chooser);
-      break;
-    case GTK_RESPONSE_REJECT:
-    case GTK_RESPONSE_CANCEL:
-    case GTK_RESPONSE_CLOSE:
-      break;
-    default:
-      GST_WARNING ("unhandled response code = %d", result);
-  }
-  gtk_widget_destroy (GTK_WIDGET (self->priv->dialog));
-  self->priv->dialog = NULL;
-  g_object_notify ((gpointer) self, "dialog");
-
-  // load after destoying the dialog, otherwise it stays open all time
-  if (file_name) {
-    load_song (self, file_name);
-    g_free (file_name);
-  }
+/**
+ * bt_main_window_open_song:
+ * @self: the main window instance
+ *
+ * Opens a dialog box, where the user can choose a song to load.
+ * If the dialog is not canceld, the old song will be freed, the new song will
+ * be loaded and the ui will be refreshed upon success.
+ */
+void
+bt_main_window_open_song (BtMainWindow * self)
+{
+  bt_main_window_check_unsaved_song (self, _("Load new song?"),
+     _("Load new song?"), bt_main_window_open_song_unsaved_cb, (gpointer) self);
 }
 
 /**
@@ -714,18 +682,18 @@ bt_main_window_open_song (const BtMainWindow * self)
  * If it is a new song it will ask for a file_name and location.
  */
 void
-bt_main_window_save_song (const BtMainWindow * self)
+bt_main_window_save_song (BtMainWindow * self)
 {
   gchar *file_name = NULL;
 
   // get songs file-name
-  bt_child_proxy_get (self->priv->app, "song::song-info::file-name", &file_name,
+  bt_child_proxy_get (self->app, "song::song-info::file-name", &file_name,
       NULL);
 
   // check the file_name of the song
   if (file_name) {
     GError *err = NULL;
-    if (!bt_edit_application_save_song (self->priv->app, file_name, &err)) {
+    if (!bt_edit_application_save_song (self->app, file_name, &err)) {
       gchar *msg = g_strdup_printf (_("Can't save song '%s'."), file_name);
       bt_dialog_message (self, _("Can't save song"), msg, err->message);
       g_free (msg);
@@ -738,6 +706,130 @@ bt_main_window_save_song (const BtMainWindow * self)
   g_free (file_name);
 }
 
+typedef struct {
+  BtMainWindow* self;
+  gchar* old_file_name;
+  gboolean check_exists;
+  GFile* file;
+} BtMainWindowSaveSongCbData;
+
+void
+bt_main_window_save_song_cb_data_free (BtMainWindowSaveSongCbData* cbdata) {
+  g_free (cbdata->old_file_name);
+  if (cbdata->file)
+    g_object_unref (cbdata->file);
+  g_free (cbdata);
+}
+
+static void bt_main_window_save_song_execute (BtMainWindowSaveSongCbData* cbdata);
+
+void
+bt_main_window_save_song_check_exists_cb (gboolean result, gpointer data) {
+  if (result) {
+    bt_main_window_save_song_execute ((BtMainWindowSaveSongCbData*) data);
+  } else {
+    bt_main_window_save_song_cb_data_free ((BtMainWindowSaveSongCbData*) data);
+  }
+}
+
+static void
+bt_main_window_save_song_execute (BtMainWindowSaveSongCbData* cbdata) {
+  gchar* file_name = NULL;
+  
+  if (cbdata->file) {
+    // remember last folder
+    if (cbdata->self->last_folder)
+      g_object_unref (cbdata->self->last_folder);
+    cbdata->self->last_folder = g_file_get_parent (cbdata->file);
+
+    file_name = g_file_get_path (cbdata->file);
+    
+    gboolean cont = TRUE;
+
+    GST_WARNING ("song name = '%s'", file_name);
+
+    if (cbdata->check_exists && g_file_test (file_name, G_FILE_TEST_EXISTS)) {
+      GST_INFO ("file already exists");
+
+      cbdata->check_exists = FALSE;
+      
+      // it already exists, ask the user what to do (do not save, choose new name, overwrite song)
+      bt_dialog_question (cbdata->self,
+          _("File already exists"),
+          _("File already exists"),
+          _("Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."),
+          bt_main_window_save_song_check_exists_cb,
+          cbdata);
+      goto AwaitQuestionCb;
+    } else {
+      // dbeswick: GTK4, is this logic still right? What call has set errno?
+      const gchar *reason = (const gchar *) g_strerror (errno);
+      gchar *msg;
+
+      switch (errno) {
+        case EACCES:           // Permission denied.
+          cont = FALSE;
+          msg =
+              g_strdup_printf (_
+              ("An error occurred while writing the file '%s': %s"), file_name,
+              reason);
+          bt_dialog_message (cbdata->self, _("Can't save song"), _("Can't save song"),
+              msg);
+          g_free (msg);
+          break;
+        default:
+          // ENOENT A component of the path file_name does not exist, or the path is an empty string.
+          // -> just save
+          break;
+      }
+    }
+    if (cont) {
+      GError *err = NULL;
+      if (!bt_edit_application_save_song (cbdata->self->app, file_name, &err)) {
+        gchar *msg = g_strdup_printf (_("Can't save song '%s'."), file_name);
+        bt_dialog_message (cbdata->self, _("Can't save song"), msg, err->message);
+        g_free (msg);
+        g_error_free (err);
+      } else {
+        // store recent file
+        GtkRecentManager *manager = gtk_recent_manager_get_default ();
+        gchar *uri;
+
+        if (cbdata->old_file_name) {
+          uri = g_filename_to_uri (cbdata->old_file_name, NULL, NULL);
+          if (!gtk_recent_manager_remove_item (manager, uri, NULL)) {
+            GST_WARNING ("Can't store recent file");
+          }
+          g_free (uri);
+        }
+        uri = g_filename_to_uri (file_name, NULL, NULL);
+        if (!gtk_recent_manager_add_item (manager, uri)) {
+          GST_WARNING ("Can't store recent file");
+        }
+        g_free (uri);
+      }
+    }
+  }
+
+  // This is skipped over if the user needs to be asked a question.
+  // cbdata will be re-used in that case and its contents shouldn't be freed.
+  bt_main_window_save_song_cb_data_free (cbdata);
+
+AwaitQuestionCb:
+  g_free (file_name);
+}
+
+void
+bt_main_window_save_song_cb (GObject* source_object, GAsyncResult* res, gpointer data) {
+  GtkFileDialog* dlg = GTK_FILE_DIALOG (source_object);
+  BtMainWindowSaveSongCbData* cbdata = (BtMainWindowSaveSongCbData*) data;
+
+  cbdata->file = gtk_file_dialog_save_finish (dlg, res, NULL);
+
+  bt_main_window_save_song_execute (cbdata);
+}
+
+
 /**
  * bt_main_window_save_song_as:
  * @self: the main window instance
@@ -746,32 +838,19 @@ bt_main_window_save_song (const BtMainWindow * self)
  * the song under.
  */
 void
-bt_main_window_save_song_as (const BtMainWindow * self)
+bt_main_window_save_song_as (BtMainWindow * self)
 {
   BtSongInfo *song_info;
   gchar *name, *folder_name, *file_name = NULL;
-  gchar *old_file_name = NULL;
-  gchar *ext;
-  gint result;
-  GtkWidget *format_chooser, *box;
   GtkFileFilter *filter, *filter_all;
   const GList *plugins, *node;
   BtSongIOModuleInfo *info;
   BtSongIOClass *songio_class;
   guint ix;
-  //gchar *glob;
 
-  self->priv->dialog =
-      GTK_DIALOG (gtk_file_chooser_dialog_new (_("Save a song"),
-          GTK_WINDOW (self), GTK_FILE_CHOOSER_ACTION_SAVE, _("_Cancel"),
-          GTK_RESPONSE_CANCEL, _("_Save"), GTK_RESPONSE_ACCEPT, NULL));
-  bt_edit_application_attach_child_window (self->priv->app,
-      GTK_WINDOW (self->priv->dialog));
-  // store for format-changed signal handler
-  self->priv->file_chooser = GTK_FILE_CHOOSER (self->priv->dialog);
+  GListStore* store = g_list_store_new (GTK_TYPE_FILE_FILTER);
 
-  // set filters and build format selector
-  format_chooser = gtk_combo_box_text_new ();
+  // set filters
   filter_all = gtk_file_filter_new ();
   gtk_file_filter_set_name (filter_all, "all supported files");
   plugins = bt_song_io_get_module_info_list ();
@@ -791,36 +870,30 @@ bt_main_window_save_song_as (const BtMainWindow * self)
       filter = gtk_file_filter_new ();
       gtk_file_filter_set_name (filter, info->formats[ix].name);
       gtk_file_filter_add_mime_type (filter, info->formats[ix].mime_type);
-      //glob=g_strconcat("*.",info->formats[ix].extension,NULL);
-      //gtk_file_filter_add_pattern(filter,g_strconcat(glob,NULL));
-      //g_free(glob);
       gtk_file_filter_add_mime_type (filter_all, info->formats[ix].mime_type);
-      gtk_file_chooser_add_filter (self->priv->file_chooser, filter);
-      gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (format_chooser),
-          info->formats[ix].name);
-      GST_DEBUG ("add filter %p for %s/%s/%s", filter, info->formats[ix].name,
-          info->formats[ix].mime_type, info->formats[ix].extension);
+      g_list_store_append (store, G_OBJECT (filter));
+      
       ix++;
-      self->priv->filters = g_list_append (self->priv->filters, filter);
     }
   }
-  gtk_file_chooser_add_filter (self->priv->file_chooser, filter_all);
+  g_list_store_append (store, G_OBJECT (filter_all));
+  
   filter = gtk_file_filter_new ();
   gtk_file_filter_set_name (filter, "all files");
   gtk_file_filter_add_pattern (filter, "*");
-  gtk_file_chooser_add_filter (self->priv->file_chooser, filter);
-  // set default filter - not here, only in load
-  //gtk_file_chooser_set_filter(self->priv->file_chooser,filter_all);
+  g_list_store_append (store, G_OBJECT (filter));
 
+  GtkFileDialog* dlg = gtk_file_dialog_new ();
+  gtk_file_dialog_set_modal (dlg, TRUE);
+  gtk_file_dialog_set_title (dlg, _("Save a song"));
+  
   // get songs file-name
-  bt_child_proxy_get (self->priv->app,
+  bt_child_proxy_get (self->app,
       "song::song-info", &song_info, "settings::song-folder", &folder_name,
       NULL);
   name = bt_song_info_get_name(song_info);
   g_object_get (song_info, "file-name", &file_name, NULL);
   g_object_unref (song_info);
-  gtk_file_chooser_add_shortcut_folder (self->priv->file_chooser, folder_name,
-      NULL);
   if (!file_name) {
     gchar *new_file_name;
 
@@ -829,34 +902,32 @@ bt_main_window_save_song_as (const BtMainWindow * self)
     new_file_name = g_strdup_printf ("%s.%s", name, info->formats[0].extension);
     GST_DEBUG ("use defaults %s/%s", folder_name, new_file_name);
     /* the user just created a new document */
-    gtk_file_chooser_set_current_folder (self->priv->file_chooser, folder_name);
-    gtk_file_chooser_set_current_name (self->priv->file_chooser, new_file_name);
-    gtk_combo_box_set_active (GTK_COMBO_BOX (format_chooser), 0);
+    GFile* folder_file = g_file_new_for_path (folder_name);
+    gtk_file_dialog_set_initial_folder (dlg, folder_file);
+    g_object_unref (folder_file);
+    gtk_file_dialog_set_initial_name (dlg, new_file_name);
     g_free (new_file_name);
   } else {
+#if 0 /// GTK4 still needed?
     gboolean found = FALSE;
-    GtkFileFilterInfo ffi = {
-      GTK_FILE_FILTER_FILENAME | GTK_FILE_FILTER_DISPLAY_NAME,
-      file_name,
-      NULL,                     // uri
-      file_name,
-      NULL                      // mime-type
-    };
+#endif
     /* the user edited an existing document */
-    gtk_file_chooser_set_filename (self->priv->file_chooser, file_name);
+    gtk_file_dialog_set_initial_name (dlg, file_name);
     GST_DEBUG ("use existing %s", file_name);
+#if 0 /// GTK4 still needed?
     /* select the format of this file */
-    for (node = self->priv->filters, ix = 0; node;
+    for (node = self->filters, ix = 0; node;
         node = g_list_next (node), ix++) {
       filter = node->data;
-      if (gtk_file_filter_filter (filter, &ffi)) {
+      gtk_file_dialog_set_default_filter (dlg, file_name);
+      if (gtk_filter_match (GTK_FILTER (filter), &ffi)) {
         /* @bug: it matches, but this does not update the filter
          * https://bugzilla.gnome.org/show_bug.cgi?id=590941
          * fixed in gtk-2.17.X
          */
         GST_DEBUG ("use last path %s, format is '%s', filter %p", file_name,
             gtk_file_filter_get_name (filter), filter);
-        gtk_file_chooser_set_filter (self->priv->file_chooser, filter);
+        gtk_file_chooser_set_filter (self->file_chooser, filter);
         gtk_combo_box_set_active (GTK_COMBO_BOX (format_chooser), ix);
         found = TRUE;
         break;
@@ -865,7 +936,7 @@ bt_main_window_save_song_as (const BtMainWindow * self)
     if (!found) {
       ext = strrchr (file_name, '.');
       if (ext && ext[1]) {
-        const GList *pnode, *fnode = self->priv->filters;
+        const GList *pnode, *fnode = self->filters;
         /* gtk_file_filter_filter() seems to be buggy :/
          * try matching the extension */
         ext++;
@@ -893,7 +964,7 @@ bt_main_window_save_song_as (const BtMainWindow * self)
                */
               GST_DEBUG ("format is '%s', filter %p",
                   gtk_file_filter_get_name (filter), filter);
-              gtk_file_chooser_set_filter (self->priv->file_chooser, filter);
+              gtk_file_chooser_set_filter (self->file_chooser, filter);
               gtk_combo_box_set_active (GTK_COMBO_BOX (format_chooser), ix);
               found = TRUE;
             } else {
@@ -904,116 +975,17 @@ bt_main_window_save_song_as (const BtMainWindow * self)
         }
       }
     }
+#endif
   }
-  old_file_name = file_name;
-  file_name = NULL;
   g_free (folder_name);
   g_free (name);
 
-  // add format selection to dialog
-  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
-  gtk_container_set_border_width (GTK_CONTAINER (box), 6);
-  gtk_box_pack_start (GTK_BOX (box), gtk_label_new (_("Format")), FALSE, FALSE,
-      0);
-  gtk_box_pack_start (GTK_BOX (box), format_chooser, TRUE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (self->
-              priv->dialog)), box, FALSE, FALSE, 0);
-  g_signal_connect (format_chooser, "changed",
-      G_CALLBACK (on_format_chooser_changed), (gpointer) self);
-
-  gtk_widget_show_all (GTK_WIDGET (self->priv->dialog));
-  g_object_notify ((gpointer) self, "dialog");
-
-  result = gtk_dialog_run (self->priv->dialog);
-  switch (result) {
-    case GTK_RESPONSE_ACCEPT:
-    case GTK_RESPONSE_OK:{
-      file_name = gtk_file_chooser_get_filename (self->priv->file_chooser);
-      // remember last folder
-      g_free (self->priv->last_folder);
-      self->priv->last_folder =
-          gtk_file_chooser_get_current_folder (self->priv->file_chooser);
-      break;
-    }
-    case GTK_RESPONSE_REJECT:
-    case GTK_RESPONSE_CANCEL:
-    case GTK_RESPONSE_CLOSE:
-      break;
-    default:
-      GST_WARNING ("unhandled response code = %d", result);
-  }
-  gtk_widget_destroy (GTK_WIDGET (self->priv->dialog));
-  self->priv->dialog = NULL;
-  g_object_notify ((gpointer) self, "dialog");
-  g_list_free (self->priv->filters);
-  self->priv->filters = NULL;
-
-  // save after destoying the dialog, otherwise it stays open all time
-  if (file_name) {
-    gboolean cont = TRUE;
-
-    GST_WARNING ("song name = '%s'", file_name);
-
-    if (g_file_test (file_name, G_FILE_TEST_EXISTS)) {
-      GST_INFO ("file already exists");
-      // it already exists, ask the user what to do (do not save, choose new name, overwrite song)
-      cont = bt_dialog_question (self,
-          _("File already exists"),
-          _("File already exists"),
-          _
-          ("Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."));
-    } else {
-      const gchar *reason = (const gchar *) g_strerror (errno);
-      gchar *msg;
-
-      GST_INFO ("file '%s' can not be opened : %d : %s", file_name, errno,
-          reason);
-      switch (errno) {
-        case EACCES:           // Permission denied.
-          cont = FALSE;
-          msg =
-              g_strdup_printf (_
-              ("An error occurred while writing the file '%s': %s"), file_name,
-              reason);
-          bt_dialog_message (self, _("Can't save song"), _("Can't save song"),
-              msg);
-          g_free (msg);
-          break;
-        default:
-          // ENOENT A component of the path file_name does not exist, or the path is an empty string.
-          // -> just save
-          break;
-      }
-    }
-    if (cont) {
-      GError *err = NULL;
-      if (!bt_edit_application_save_song (self->priv->app, file_name, &err)) {
-        gchar *msg = g_strdup_printf (_("Can't save song '%s'."), file_name);
-        bt_dialog_message (self, _("Can't save song"), msg, err->message);
-        g_free (msg);
-        g_error_free (err);
-      } else {
-        // store recent file
-        GtkRecentManager *manager = gtk_recent_manager_get_default ();
-        gchar *uri;
-
-        if (old_file_name) {
-          uri = g_filename_to_uri (old_file_name, NULL, NULL);
-          if (!gtk_recent_manager_remove_item (manager, uri, NULL)) {
-            GST_WARNING ("Can't store recent file");
-          }
-          g_free (uri);
-        }
-        uri = g_filename_to_uri (file_name, NULL, NULL);
-        if (!gtk_recent_manager_add_item (manager, uri)) {
-          GST_WARNING ("Can't store recent file");
-        }
-        g_free (uri);
-      }
-    }
-    g_free (file_name);
-  }
-  g_free (old_file_name);
+  BtMainWindowSaveSongCbData* cbdata = g_malloc (sizeof (BtMainWindowSaveSongCbData));
+  cbdata->self = self;
+  cbdata->old_file_name = file_name;
+  cbdata->check_exists = TRUE;
+  cbdata->file = NULL;
+  gtk_file_dialog_save (dlg, GTK_WINDOW (self), NULL, bt_main_window_save_song_cb, cbdata); 
 }
 
 // TODO(ensonic): use GtkMessageDialog for the next two
@@ -1028,47 +1000,33 @@ bt_main_window_save_song_as (const BtMainWindow * self)
  * Displays a modal message dialog, that needs to be confirmed with "Okay".
  */
 void
-bt_dialog_message (const BtMainWindow * self, const gchar * title,
+bt_dialog_message (BtMainWindow * self, const gchar * title,
     const gchar * headline, const gchar * message)
 {
-  GtkWidget *label, *icon, *box;
-  gchar *str;
-
   g_return_if_fail (BT_IS_MAIN_WINDOW (self));
   g_return_if_fail (BT_IS_STRING (title));
   g_return_if_fail (BT_IS_STRING (headline));
   g_return_if_fail (BT_IS_STRING (message));
 
-  self->priv->dialog = GTK_DIALOG (gtk_dialog_new_with_buttons (title,
-          GTK_WINDOW (self),
-          GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-          _("_OK"), GTK_RESPONSE_ACCEPT, NULL));
+  AdwMessageDialog* dlg = ADW_MESSAGE_DIALOG (
+      adw_message_dialog_new (GTK_WINDOW (self), title, NULL));
 
-  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
-  gtk_container_set_border_width (GTK_CONTAINER (box), 6);
+  adw_message_dialog_format_body_markup (dlg, "<big><b>%s</b></big>\n\n%s", headline, message);
+  adw_message_dialog_add_responses (dlg, "ok",  _("_Ok"), NULL);
 
-  // TODO(ensonic): when to use GTK_STOCK_DIALOG_WARNING ?
-  icon =
-      gtk_image_new_from_icon_name ("dialog-information", GTK_ICON_SIZE_DIALOG);
-  gtk_container_add (GTK_CONTAINER (box), icon);
-
-  // @idea if headline is NULL use title ?
-  str = g_strdup_printf ("<big><b>%s</b></big>\n\n%s", headline, message);
-  label = g_object_new (GTK_TYPE_LABEL,
-      "use-markup", TRUE, "selectable", TRUE, "wrap", TRUE, "label", str, NULL);
-  g_free (str);
-  gtk_box_pack_start (GTK_BOX (box), label, TRUE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG
-              (self->priv->dialog))), box, TRUE, TRUE, 0);
-  gtk_widget_show_all (GTK_WIDGET (self->priv->dialog));
-  g_object_notify ((gpointer) self, "dialog");
-
-  gtk_dialog_run (self->priv->dialog);
-  gtk_widget_destroy (GTK_WIDGET (self->priv->dialog));
-  self->priv->dialog = NULL;
-  g_object_notify ((gpointer) self, "dialog");
+  gtk_window_present (GTK_WINDOW (dlg));
 }
 
+static void
+bt_dialog_question_cb (GObject* source_object, GAsyncResult* res, gpointer data) {
+  AdwMessageDialog* dlg = ADW_MESSAGE_DIALOG (source_object);
+  BtDialogQuestionCbData* cbdata = (BtDialogQuestionCbData*)data;
+
+  (*(cbdata->cb)) (g_strcmp0 (adw_message_dialog_choose_finish (dlg, res), "ok") == 0, cbdata->user_data);
+
+  g_free (cbdata);
+}
+  
 /**
  * bt_dialog_question:
  * @self: the applications main window
@@ -1079,60 +1037,28 @@ bt_dialog_message (const BtMainWindow * self, const gchar * title,
  * Displays a modal question dialog, that needs to be confirmed with "Okay" or aborted with "Cancel".
  * Returns: %TRUE for Okay, %FALSE otherwise
  */
-gboolean
-bt_dialog_question (const BtMainWindow * self, const gchar * title,
-    const gchar * headline, const gchar * message)
+void
+bt_dialog_question (BtMainWindow * self, const gchar * title,
+    const gchar * headline, const gchar * message,
+    BtDialogQuestionCb result_cb, gpointer user_data)
 {
-  gboolean result = FALSE;
-  gint answer;
-  GtkWidget *label, *icon, *box;
-  gchar *str;
+  g_return_if_fail (BT_IS_MAIN_WINDOW (self));
+  g_return_if_fail (BT_IS_STRING (title));
+  g_return_if_fail (BT_IS_STRING (headline));
+  g_return_if_fail (BT_IS_STRING (message));
 
-  g_return_val_if_fail (BT_IS_MAIN_WINDOW (self), FALSE);
-  g_return_val_if_fail (BT_IS_STRING (title), FALSE);
-  g_return_val_if_fail (BT_IS_STRING (headline), FALSE);
-  g_return_val_if_fail (BT_IS_STRING (message), FALSE);
+  AdwMessageDialog* dlg = ADW_MESSAGE_DIALOG (adw_message_dialog_new (GTK_WINDOW (self), title, NULL));
 
-  self->priv->dialog = GTK_DIALOG (gtk_dialog_new_with_buttons (title,
-          GTK_WINDOW (self),
-          GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-          _("_OK"), GTK_RESPONSE_ACCEPT,
-          _("_Cancel"), GTK_RESPONSE_REJECT, NULL));
+  adw_message_dialog_format_body_markup (dlg, "<big><b>%s</b></big>\n\n%s", headline, message);
 
-  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
-  gtk_container_set_border_width (GTK_CONTAINER (box), 6);
+  adw_message_dialog_add_responses (
+    dlg,
+    "cancel", _("_Cancel"),
+    "ok",  _("_Okay"),
+    NULL);
 
-  icon = gtk_image_new_from_icon_name ("dialog-question", GTK_ICON_SIZE_DIALOG);
-  gtk_container_add (GTK_CONTAINER (box), icon);
-
-  // @idea if headline is NULL use title ?
-  str = g_strdup_printf ("<big><b>%s</b></big>\n\n%s", headline, message);
-  label = g_object_new (GTK_TYPE_LABEL,
-      "use-markup", TRUE, "selectable", TRUE, "wrap", TRUE, "label", str, NULL);
-  g_free (str);
-  gtk_box_pack_start (GTK_BOX (box), label, TRUE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG
-              (self->priv->dialog))), box, TRUE, TRUE, 0);
-  gtk_widget_show_all (GTK_WIDGET (self->priv->dialog));
-  g_object_notify ((gpointer) self, "dialog");
-
-  answer = gtk_dialog_run (self->priv->dialog);
-  switch (answer) {
-    case GTK_RESPONSE_ACCEPT:
-      result = TRUE;
-      break;
-    case GTK_RESPONSE_REJECT:
-      result = FALSE;
-      break;
-    default:
-      GST_WARNING ("unhandled response code = %d", answer);
-  }
-  gtk_widget_destroy (GTK_WIDGET (self->priv->dialog));
-  self->priv->dialog = NULL;
-  g_object_notify ((gpointer) self, "dialog");
-
-  GST_INFO ("bt_dialog_question(\"%s\") = %d", title, result);
-  return result;
+  BtDialogQuestionCbData* cbdata = g_malloc (sizeof (BtDialogQuestionCbData));
+  adw_message_dialog_choose (dlg, NULL, bt_dialog_question_cb, cbdata);
 }
 
 //-- wrapper
@@ -1144,19 +1070,16 @@ bt_main_window_get_property (GObject * object, guint property_id,
     GValue * value, GParamSpec * pspec)
 {
   BtMainWindow *self = BT_MAIN_WINDOW (object);
-  return_if_disposed ();
+  return_if_disposed_self ();
   switch (property_id) {
-    case MAIN_WINDOW_TOOLBAR:
-      g_value_set_object (value, self->priv->toolbar);
-      break;
     case MAIN_WINDOW_STATUSBAR:
-      g_value_set_object (value, self->priv->statusbar);
+      g_value_set_object (value, self->statusbar);
       break;
     case MAIN_WINDOW_PAGES:
-      g_value_set_object (value, self->priv->pages);
+      g_value_set_object (value, self->pages);
       break;
     case MAIN_WINDOW_DIALOG:
-      g_value_set_object (value, self->priv->dialog);
+      g_value_set_object (value, self->dialog);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -1168,15 +1091,19 @@ static void
 bt_main_window_dispose (GObject * object)
 {
   BtMainWindow *self = BT_MAIN_WINDOW (object);
-  return_if_disposed ();
-  self->priv->dispose_has_run = TRUE;
+  return_if_disposed_self ();
+  self->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
 
+#if 0 /// GTK4
   gtk_window_remove_accel_group (GTK_WINDOW (self),
       bt_ui_resources_get_accel_group ());
+#endif
 
-  g_object_unref (self->priv->app);
+  g_clear_object (&self->last_folder);
+
+  g_object_unref (self->app);
 
   GST_DEBUG ("  chaining up");
   G_OBJECT_CLASS (bt_main_window_parent_class)->dispose (object);
@@ -1184,24 +1111,11 @@ bt_main_window_dispose (GObject * object)
 }
 
 static void
-bt_main_window_finalize (GObject * object)
-{
-  BtMainWindow *self = BT_MAIN_WINDOW (object);
-
-  GST_DEBUG ("!!!! self=%p", self);
-
-  g_free (self->priv->last_folder);
-
-  G_OBJECT_CLASS (bt_main_window_parent_class)->finalize (object);
-  GST_DEBUG ("  done");
-}
-
-static void
 bt_main_window_init (BtMainWindow * self)
 {
-  self->priv = bt_main_window_get_instance_private(self);
+  self = bt_main_window_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
-  self->priv->app = bt_edit_application_new ();
+  self->app = bt_edit_application_new ();
 }
 
 static void
@@ -1211,11 +1125,6 @@ bt_main_window_class_init (BtMainWindowClass * klass)
 
   gobject_class->get_property = bt_main_window_get_property;
   gobject_class->dispose = bt_main_window_dispose;
-  gobject_class->finalize = bt_main_window_finalize;
-
-  g_object_class_install_property (gobject_class, MAIN_WINDOW_TOOLBAR,
-      g_param_spec_object ("toolbar", "toolbar prop", "Get the toolbar",
-          BT_TYPE_MAIN_TOOLBAR, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, MAIN_WINDOW_STATUSBAR,
       g_param_spec_object ("statusbar", "statusbar prop", "Get the status bar",

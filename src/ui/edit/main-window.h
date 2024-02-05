@@ -20,49 +20,44 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <adwaita.h>
+
+G_DECLARE_FINAL_TYPE(BtMainWindow, bt_main_window, BT, MAIN_WINDOW, AdwWindow);
 
 #define BT_TYPE_MAIN_WINDOW             (bt_main_window_get_type ())
-#define BT_MAIN_WINDOW(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_WINDOW, BtMainWindow))
-#define BT_MAIN_WINDOW_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_WINDOW, BtMainWindowClass))
-#define BT_IS_MAIN_WINDOW(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MAIN_WINDOW))
-#define BT_IS_MAIN_WINDOW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MAIN_WINDOW))
-#define BT_MAIN_WINDOW_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MAIN_WINDOW, BtMainWindowClass))
-
-/* type macros */
-
-typedef struct _BtMainWindow BtMainWindow;
-typedef struct _BtMainWindowClass BtMainWindowClass;
-typedef struct _BtMainWindowPrivate BtMainWindowPrivate;
 
 /**
  * BtMainWindow:
  *
  * the root window for the editor application
  */
-struct _BtMainWindow {
-  GtkWindow parent;
-  
-  /*< private >*/
-  BtMainWindowPrivate *priv;
-};
-
 struct _BtMainWindowClass {
   GtkWindowClass parent;  
 };
 
-GType bt_main_window_get_type(void) G_GNUC_CONST;
+typedef void (* BtDialogQuestionCb) (gboolean response, gpointer userdata);
+
+typedef struct {
+  BtDialogQuestionCb cb;
+  gpointer user_data;
+} BtDialogQuestionCbData;
+
 
 BtMainWindow *bt_main_window_new(void);
 
-gboolean bt_main_window_check_unsaved_song(const BtMainWindow *self,const gchar *title,const gchar *headline);
-gboolean bt_main_window_check_quit(const BtMainWindow *self);
-void bt_main_window_new_song(const BtMainWindow *self);
-void bt_main_window_open_song(const BtMainWindow *self);
-void bt_main_window_save_song(const BtMainWindow *self);
-void bt_main_window_save_song_as(const BtMainWindow *self);
+void bt_main_window_check_unsaved_song(BtMainWindow *self,const gchar *title,const gchar *headline,
+    BtDialogQuestionCb result_cb, gpointer user_data);
+void bt_main_window_check_quit(BtMainWindow *self, BtDialogQuestionCb result_cb, gpointer user_data);
+void bt_main_window_new_song(BtMainWindow *self);
+void bt_main_window_open_song(BtMainWindow *self);
+void bt_main_window_save_song(BtMainWindow *self);
+void bt_main_window_save_song_as(BtMainWindow *self);
 
 /* helper for simple message/question dialogs */
-void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message);
-gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message);
+void bt_dialog_message(BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message);
+
+void bt_dialog_question(BtMainWindow * self, const gchar * title,
+    const gchar * headline, const gchar * message,
+    BtDialogQuestionCb result_cb, gpointer user_data);
 
 #endif // BT_MAIN_WINDOW_H

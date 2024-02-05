@@ -49,6 +49,7 @@
 #define BT_CRASH_RECOVER_DIALOG_C
 
 #include "bt-edit.h"
+#include "list-item-pointer.h"
 #include <glib/gstdio.h>
 
 //-- property ids
@@ -58,20 +59,13 @@ enum
   CRASH_RECOVER_DIALOG_ENTRIES = 1,
 };
 
-enum
-{
-  COL_LOG_NAME = 0,
-  COL_SONG_FILE_NAME,
-  COL_CHANGE_TS
-};
-
 struct _BtCrashRecoverDialogPrivate
 {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
   GList *entries;
-  GtkTreeView *entries_list;
+  GtkColumnView *entries_list;
 
   /* the application */
   BtEditApplication *app;
@@ -79,79 +73,33 @@ struct _BtCrashRecoverDialogPrivate
 
 //-- the class
 
-G_DEFINE_TYPE_WITH_CODE (BtCrashRecoverDialog, bt_crash_recover_dialog, GTK_TYPE_DIALOG, 
+G_DEFINE_TYPE_WITH_CODE (BtCrashRecoverDialog, bt_crash_recover_dialog, GTK_TYPE_WINDOW,
     G_ADD_PRIVATE(BtCrashRecoverDialog));
 
 //-- helper
 
-static gboolean
-check_selection (BtCrashRecoverDialog * self, GtkTreeModel ** model,
-    GtkTreeIter * iter)
-{
-  GtkTreeSelection *selection;
-
-  selection =
-      gtk_tree_view_get_selection (GTK_TREE_VIEW (self->priv->entries_list));
-  return gtk_tree_selection_get_selected (selection, model, iter);
-}
-
 static gchar *
 get_selected (BtCrashRecoverDialog * self)
 {
-  GtkTreeModel *model;
-  GtkTreeIter iter;
-  gchar *log_name = NULL;
-
-  if (check_selection (self, &model, &iter)) {
-    gtk_tree_model_get (model, &iter, COL_LOG_NAME, &log_name, -1);
-  }
-  return log_name;
+  GtkSingleSelection *selection = GTK_SINGLE_SELECTION (
+      gtk_column_view_get_model (GTK_COLUMN_VIEW (self->priv->entries_list)));
+  
+  BtListItemPointer *item = gtk_single_selection_get_selected_item (selection);
+  BtChangeLogFile *file = (BtChangeLogFile *) item->value;
+  return file->log_name;
 }
 
 static void
 remove_selected (BtCrashRecoverDialog * self)
 {
-  GtkTreeModel *model;
-  GtkTreeIter iter;
-
-  if (check_selection (self, &model, &iter)) {
-    GtkTreeIter next_iter = iter;
-    gboolean have_next = gtk_tree_model_iter_next (model, &next_iter);
-
-    gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
-    if (!have_next) {
-      have_next = gtk_tree_model_get_iter_first (model, &next_iter);
-    }
-    if (have_next) {
-      gtk_tree_selection_select_iter (gtk_tree_view_get_selection (GTK_TREE_VIEW
-              (self->priv->entries_list)), &next_iter);
-    }
-  }
+  GtkSingleSelection *selection = GTK_SINGLE_SELECTION (
+      gtk_column_view_get_model (GTK_COLUMN_VIEW (self->priv->entries_list)));
+  
+  GListStore *store = G_LIST_STORE (gtk_single_selection_get_model (selection));
+  g_list_store_remove (store, gtk_single_selection_get_selected (selection));
 }
 
 //-- event handler
-
-static void
-on_list_realize (GtkWidget * widget, gpointer user_data)
-{
-  GtkWidget *parent = gtk_widget_get_parent (widget);
-  GtkRequisition requisition;
-  gint height, max_height;
-
-  gtk_widget_get_preferred_size (widget, NULL, &requisition);
-  bt_gtk_workarea_size (NULL, &max_height);
-  /* make sure the dialog resize without scrollbar until it would reach half
-   * screen height */
-  max_height /= 2;
-
-  GST_DEBUG ("#### crash_recover_list  size req %d x %d (max-height=%d)",
-      requisition.width, requisition.height, max_height);
-
-  height = MIN (requisition.height, max_height);
-  // TODO(ensonic): is the '2' some border or padding
-  gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (parent),
-      height + 2);
-}
 
 static void
 on_recover_clicked (GtkButton * button, gpointer user_data)
@@ -174,7 +122,7 @@ on_recover_clicked (GtkButton * button, gpointer user_data)
   }
   g_object_get (self->priv->app, "main-window", &main_window, NULL);
   /* close the recovery dialog */
-  gtk_dialog_response (GTK_DIALOG (self), GTK_RESPONSE_CLOSE);
+  gtk_window_close (GTK_WINDOW (self));
   if (res) {
     /* the song recovery has been finished */
     bt_dialog_message (main_window, _("Recovery finished"),
@@ -207,25 +155,54 @@ on_delete_clicked (GtkButton * button, gpointer user_data)
     }
     remove_selected (self);
     g_free (log_name);
-    /* if that was the last entry, close dialog */
-    if (!check_selection (self, NULL, NULL)) {
-      gtk_dialog_response (GTK_DIALOG (self), GTK_RESPONSE_CLOSE);
+
+    GtkSelectionModel *selection = gtk_column_view_get_model (
+        GTK_COLUMN_VIEW (self->priv->entries_list));
+    
+    GtkBitset* bitset = gtk_selection_model_get_selection (selection);
+    if (gtk_bitset_is_empty (bitset)) {
+      gtk_window_close (GTK_WINDOW (self));
     }
+    gtk_bitset_unref (bitset);
   }
 }
 
 //-- helper methods
 
 static void
+bt_crash_recover_dialog_listitem_setup (GtkListItemFactory *factory,
+                                        GtkListItem        *list_item)
+{
+  GtkWidget *label = gtk_label_new ("");
+  gtk_list_item_set_child (list_item, label);
+}
+
+static void
+bt_crash_recover_dialog_listitem_songfile (GtkListItemFactory *factory,
+                                           GtkListItem        *list_item)
+{
+  GtkWidget *label = gtk_list_item_get_child (list_item);
+  BtListItemPointer *obj = BT_LIST_ITEM_POINTER (gtk_list_item_get_item (list_item));
+  BtChangeLogFile *clf = (BtChangeLogFile*) bt_list_item_pointer_get (obj);
+  gtk_label_set_label (GTK_LABEL (label), clf->song_file_name);
+}
+
+static void
+bt_crash_recover_dialog_listitem_change_ts (GtkListItemFactory *factory,
+                                            GtkListItem        *list_item)
+{
+  GtkWidget *label = gtk_list_item_get_child (list_item);
+  BtListItemPointer *obj = BT_LIST_ITEM_POINTER (gtk_list_item_get_item (list_item));
+  BtChangeLogFile *clf = (BtChangeLogFile*) bt_list_item_pointer_get (obj);
+  gtk_label_set_label (GTK_LABEL (label), clf->change_ts);
+}
+
+static void
 bt_crash_recover_dialog_init_ui (const BtCrashRecoverDialog * self)
 {
-  GtkWidget *label, *icon, *hbox, *vbox, *btn, *entries_view;
+  GtkWidget *label, *hbox, *vbox, *entries_view;
   gchar *str;
-  GtkCellRenderer *renderer;
-  GtkListStore *store;
-  GtkTreeIter tree_iter;
   GList *node;
-  BtChangeLogFile *crash_entry;
 
   GST_DEBUG ("prepare crash recover dialog");
 
@@ -236,15 +213,17 @@ bt_crash_recover_dialog_init_ui (const BtCrashRecoverDialog * self)
   // FIXME(ensonic): add Okay, Cancel, Delete
   // select song + okay -> recover
   // select song + delete -> remove log
-  gtk_dialog_add_button (GTK_DIALOG (self), _("_Close"), GTK_RESPONSE_CLOSE);
+  /// GTK4 gtk_dialog_add_button (GTK_DIALOG (self), _("_Close"), GTK_RESPONSE_CLOSE);
 
   // content area
   hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
-  gtk_container_set_border_width (GTK_CONTAINER (hbox), 6);
+  gtk_window_set_child (GTK_WINDOW (self), hbox);
+  /// GTK4 gtk_container_set_border_width (GTK_CONTAINER (hbox), 6);
 
-  icon =
+  /// GTK4
+/*  icon =
       gtk_image_new_from_icon_name ("dialog-information", GTK_ICON_SIZE_DIALOG);
-  gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);
+      gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);*/
 
   vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
   str =
@@ -252,68 +231,66 @@ bt_crash_recover_dialog_init_ui (const BtCrashRecoverDialog * self)
       _("Select them one by one and choose 'recover' or 'delete'."));
   label = g_object_new (GTK_TYPE_LABEL, "use-markup", TRUE, "label", str, NULL);
   g_free (str);
-  gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
+  gtk_box_append (GTK_BOX (vbox), label);
 
-  self->priv->entries_list = GTK_TREE_VIEW (gtk_tree_view_new ());
-  g_object_set (self->priv->entries_list,
-      "enable-search", FALSE, "rules-hint", TRUE,
-      /*"fixed-height-mode",TRUE, */// causes the first column to be not shown (or getting width=0)
-      NULL);
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
-          priv->entries_list), GTK_SELECTION_BROWSE);
-  g_signal_connect (self->priv->entries_list, "realize",
-      G_CALLBACK (on_list_realize), (gpointer) self);
-
-  renderer = gtk_cell_renderer_text_new ();
-  gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
-      (renderer), 1);
-  /* column listing song file names to recover */
-  gtk_tree_view_insert_column_with_attributes (self->priv->entries_list, -1,
-      _("Song file"), renderer, "text", COL_SONG_FILE_NAME, NULL);
-  renderer = gtk_cell_renderer_text_new ();
-  gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
-      (renderer), 1);
-  /* column listing song file names to recover */
-  gtk_tree_view_insert_column_with_attributes (self->priv->entries_list, -1,
-      _("Last changed"), renderer, "text", COL_CHANGE_TS, NULL);
-
+  // Note: store is appropriated by gtk_column_view_new, no need for unref.
+  GListStore* store = g_list_store_new (bt_list_item_pointer_get_type());
+  
   // fill model from self->priv->entries
-  store = gtk_list_store_new (3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
   for (node = self->priv->entries; node; node = g_list_next (node)) {
-    crash_entry = (BtChangeLogFile *) node->data;
-    gtk_list_store_append (store, &tree_iter);
-    gtk_list_store_set (store, &tree_iter,
-        COL_LOG_NAME, crash_entry->log_name,
-        COL_SONG_FILE_NAME, crash_entry->song_file_name,
-        COL_CHANGE_TS, crash_entry->change_ts, -1);
+    g_list_store_append (store, bt_list_item_pointer_new (node->data));
   }
-  gtk_tree_view_set_model (self->priv->entries_list, GTK_TREE_MODEL (store));
-  g_object_unref (store);       // drop with treeview
+  
+  self->priv->entries_list = GTK_COLUMN_VIEW (
+    gtk_column_view_new (
+      GTK_SELECTION_MODEL (gtk_single_selection_new (G_LIST_MODEL (store)))));
 
-  entries_view = gtk_scrolled_window_new (NULL, NULL);
-  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (entries_view),
-      GTK_SHADOW_IN);
+  GtkListItemFactory* factory; 
+  factory = gtk_signal_list_item_factory_new (); // note: appropriated by gtk_column_view_column_new
+  g_signal_connect (factory, "setup", G_CALLBACK (bt_crash_recover_dialog_listitem_setup), NULL);
+  g_signal_connect (factory, "bind", G_CALLBACK (bt_crash_recover_dialog_listitem_songfile), NULL);
+  
+  GtkColumnViewColumn* col;
+  
+  col = gtk_column_view_column_new (_("Song file"), factory);
+  
+  gtk_column_view_append_column (self->priv->entries_list, col);
+  g_object_unref(col);
+
+  factory = gtk_signal_list_item_factory_new (); // note: appropriated by gtk_column_view_column_new
+  g_signal_connect (factory, "setup", G_CALLBACK (bt_crash_recover_dialog_listitem_setup), NULL);
+  g_signal_connect (factory, "bind", G_CALLBACK (bt_crash_recover_dialog_listitem_change_ts), NULL);
+  
+  col = gtk_column_view_column_new (_("Last changed"), factory);
+  
+  gtk_column_view_append_column (self->priv->entries_list, col);
+  g_object_unref(col);
+
+  entries_view = gtk_scrolled_window_new ();
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (entries_view),
       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-  gtk_container_add (GTK_CONTAINER (entries_view),
+  gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (entries_view),
       GTK_WIDGET (self->priv->entries_list));
 
-  gtk_box_pack_start (GTK_BOX (vbox), entries_view, TRUE, TRUE, 0);
+  gtk_box_append (GTK_BOX (vbox), entries_view);
 
-  gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (self))),
-      hbox, TRUE, TRUE, 0);
+  gtk_box_append (GTK_BOX (hbox), vbox);
 
   // add "undelete" button to action area
-  // GTK_STOCK_REVERT_TO_SAVED
-  btn = gtk_dialog_add_button (GTK_DIALOG (self), _("Recover"), GTK_RESPONSE_NONE);     // we send close once we recovered the log
+
+  hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 25);
+  gtk_box_append (GTK_BOX (vbox), hbox);
+  
+  GtkWidget* btn;
+  btn = gtk_button_new_with_label (_("Recover"));     // we send close once we recovered the log
   g_signal_connect (btn, "clicked", G_CALLBACK (on_recover_clicked),
       (gpointer) self);
+  gtk_box_append (GTK_BOX (hbox), btn);
 
-  btn = gtk_dialog_add_button (GTK_DIALOG (self), _("Delete"),
-      GTK_RESPONSE_NONE);
+  btn = gtk_button_new_with_label (_("Delete"));
   g_signal_connect (btn, "clicked", G_CALLBACK (on_delete_clicked),
       (gpointer) self);
+  gtk_box_append (GTK_BOX (hbox), btn);
 }
 
 //-- constructor methods

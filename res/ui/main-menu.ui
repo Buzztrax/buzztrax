@@ -1,0 +1,158 @@
+<interface>
+  <object class="GtkPopoverMenuBar" id="popover_menu">
+    <property name="menu-model">model</property>
+  </object>
+  
+  <menu id="model">
+    <submenu>
+      <attribute name="label" translatable="true">File</attribute>
+      <section>
+        <item>
+          <attribute name="label" translatable="true">New</attribute>
+          <attribute name="action-name">app.file.new</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="true">Open</attribute>
+          <attribute name="action-name">app.file.open</attribute>
+        </item>
+        <submenu>
+          <attribute name="label" translatable="true">Recently Used</attribute>
+        </submenu>
+        <item>
+          <attribute name="label" translatable="true">Save</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="true">Save As</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="label" translatable="true">Recover unsaved songs</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="true">Record</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="true">Quit</attribute>
+        </item>
+      </section>
+    </submenu>
+
+    <submenu>
+      <attribute name="label" translatable="true">Edit</attribute>
+      <item>
+        <attribute name="label" translatable="true">Undo</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Redo</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Cut</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Copy</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Paste</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Delete</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Preferences</attribute>
+      </item>
+    </submenu>
+
+    <submenu>
+      <attribute name="label" translatable="true">View</attribute>
+      <item>
+        <attribute name="label" translatable="true">Toolbar</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Statusbar</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Tabs</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Fullscreen</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Go to machine view</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Go to pattern view</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Go to sequence view</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Go to wave table view</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Go to song information</attribute>
+      </item>
+    </submenu>
+
+    <submenu>
+      <attribute name="label" translatable="true">Playback</attribute>
+      <item>
+        <attribute name="label" translatable="true">Play</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Play from cursor</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Stop</attribute>
+      </item>
+    </submenu>
+    
+    <submenu>
+      <attribute name="label" translatable="true">Help</attribute>
+      <item>
+        <attribute name="label" translatable="true">Tip of the day</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Join IRC discussion</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Report a problem</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">About</attribute>
+        <attribute name="action-name">app.about</attribute>
+      </item>
+    </submenu>
+
+    <submenu>
+      <attribute name="label" translatable="true">Debug</attribute>
+      <item>
+        <attribute name="label" translatable="true">show media types</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">show caps details</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">show non default params</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">show states</attribute>
+      </item>
+      <submenu>
+        <attribute name="label" translatable="true">Graph format</attribute>
+        <item>
+          <attribute name="label" translatable="true">use svg</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="true">use png</attribute>
+        </item>
+      </submenu>
+      <item>
+        <attribute name="label" translatable="true">Dump pipeline graph and show</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Update plugin registry</attribute>
+      </item>
+    </submenu>
+  </menu>
+</interface>

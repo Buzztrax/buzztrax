@@ -1,0 +1,21 @@
+<interface>
+  <object class="AdwMessageDialog" id="dialog">
+    <property name="heading" translatable="yes">Save Changes?</property>
+    <property name="body" translatable="yes">Open documents contain unsaved changes. Changes which are not saved will be permanently lost.</property>
+    <property name="default-response">save</property>
+    <property name="close-response">cancel</property>
+    <property name="modal">true</property>
+    <signal name="response" handler="response_cb"/>
+    <responses>
+      <response id="cancel" translatable="yes">_Cancel</response>
+      <response id="save" translatable="yes" appearance="suggested" enabled="false">_Save</response>
+    </responses>
+    <property name="extra-child">
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <object class="AdwEntryRow" id="name"></object>
+        <object class="AdwEntryRow" id="comment"></object>
+      </object>
+    </property>
+  </object>
+</interface>

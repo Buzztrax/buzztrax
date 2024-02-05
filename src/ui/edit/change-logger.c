@@ -83,7 +83,7 @@ bt_change_logger_match_method (BtChangeLoggerMethods * change_logger_methods,
  * Returns: %TRUE for success.
  */
 gboolean
-bt_change_logger_change (const BtChangeLogger * self, const gchar * data)
+bt_change_logger_change (BtChangeLogger * self, const gchar * data)
 {
   g_return_val_if_fail (BT_IS_CHANGE_LOGGER (self), FALSE);
 

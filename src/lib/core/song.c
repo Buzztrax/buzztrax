@@ -1432,14 +1432,10 @@ bt_song_persistence_save (const BtPersistence * const persistence,
 
 static BtPersistence *
 bt_song_persistence_load (const GType type,
-    const BtPersistence * const persistence, xmlNodePtr node, GError ** err,
+    BtPersistence * const persistence, xmlNodePtr node, GError ** err,
     va_list var_args)
 {
   const BtSong *const self = BT_SONG (persistence);
-  // TODO(ensonic): this is a bit inconsistent
-  // gtk is getting labels with progressbar, we could use this then
-  //const gchar * const msg=_("Loading file: '%s'");
-  //gchar * const status=g_alloca(1+strlen(msg)+40);
 
   GST_DEBUG ("PERSISTENCE::song");
   g_assert (node);

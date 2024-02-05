@@ -1,0 +1,136 @@
+<interface>
+  <template class="BtMainPageMachines" parent="GtkWidget">
+    <property name="layout-manager">
+      <object class="GtkBinLayout" />
+    </property>
+    
+    <child>
+      <object class="AdwToolbarView">
+        <child type="top">
+          <object class="GtkBox" id="header_bar">
+            <style>
+              <class name="toolbar"/>
+            </style>
+            
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Best Fit</property>
+                <property name="icon-name">zoom-fit-best</property>
+                <property name="tooltip-text" translatable="yes">Zoom in/out so that everything is visible</property>
+                <property name="action-name">main-page-machines.best-fit</property>
+              </object>
+            </child>
+            
+            <child>
+              <object class="GtkButton" id="zoom_in">
+                <property name="label" translatable="yes">Zoom In</property>
+                <property name="icon-name">zoom-in</property>
+                <property name="tooltip-text" translatable="yes">Zoom in for more details</property>
+                <property name="action-name">main-page-machines.zoom-in</property>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkButton" id="zoom_out">
+                <property name="label" translatable="yes">Zoom Out</property>
+                <property name="icon-name">zoom-out</property>
+                <property name="tooltip-text" translatable="yes">Zoom out for better overview</property>
+                <property name="action-name">main-page-machines.zoom-out</property>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkSeparator" />
+            </child>
+              
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Grid</property>
+                <property name="icon-name">view-grid-symbolic</property>
+                <property name="tooltip-text" translatable="yes">Show background grid</property>
+                <property name="action-name">main-page-machines.grid-show</property>
+              </object>
+            </child>
+
+            <child> <!-- right-aligned section -->
+              <object class="GtkBox">
+                <property name="halign">end</property>
+                <property name="vexpand">yes</property>
+                <property name="hexpand">yes</property>
+                
+                <child>
+                  <object class="GtkMenuButton" id="machine_menu_button">
+                    <property name="label" translatable="yes">Grid</property>
+                    <property name="icon-name">emblem-system-symbolic</property>
+                    <property name="tooltip-text" translatable="yes">Menu actions for machine view below</property>
+                  </object>
+                </child>
+              </object>
+            </child> <!-- /right-aligned section -->
+          </object>
+        </child> <!-- /headerbar top child -->
+
+        <child>
+          <object class="GtkGrid">
+            <child>
+              <object class="GtkScrollbar">
+                <property name="orientation">vertical</property>
+                
+                <property name="adjustment">
+                  <object class="GtkAdjustment" id="vadjustment">
+                    <signal name="value-changed" handler="on_vadjustment_changed" swapped="no" />
+                  </object>
+                </property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">0</property>
+                  <property name="column-span">1</property>
+                  <property name="row-span">1</property>
+                </layout>
+              </object>
+            </child>
+            
+            <child>
+              <object class="GtkScrollbar">
+                <property name="orientation">horizontal</property>
+                
+                <property name="adjustment">
+                  <object class="GtkAdjustment" id="hadjustment">
+                    <signal name="value-changed" handler="on_hadjustment_changed" swapped="no" />
+                  </object>
+                </property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">1</property>
+                  <property name="column-span">1</property>
+                  <property name="row-span">1</property>
+                </layout>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkFixed" id="canvas">
+                <signal name="query-tooltip" handler="on_canvas_query_tooltip" swapped="no" />
+                <property name="name">machine-and-wire-editor</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                  <property name="column-span">1</property>
+                  <property name="row-span">1</property>
+                </layout>
+
+                <child>
+                  <object class="GtkDrawingArea" id="grid_canvas">
+                    <signal name="resize" handler="on_canvas_size_changed" swapped="no" />
+                    <property name="vexpand">yes</property>
+                    <property name="hexpand">yes</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

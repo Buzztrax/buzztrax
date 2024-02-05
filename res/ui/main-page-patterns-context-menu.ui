@@ -1,0 +1,44 @@
+<interface>
+  <object class="PopoverMenu" id="popover_menu">
+    <property name="menu-model">menu</property>
+  </object>
+  
+  <menu id="menu">
+    <section>
+      <item>
+        <property name="label" translatable="true">New voice</property>
+        <property name="action-name">machine.voice.new</property>
+      </item>
+      <item>
+        <property name="label" translatable="true">Remove last voice</property>
+        <property name="action-name">machine.voice.remove_last</property>
+      </item>
+    </section>
+    <section>
+      <item>
+        <property name="label" translatable="true">New pattern …</property>
+        <property name="action-name">machine.pattern.new</property>
+      </item>
+      <item>
+        <property name="label" translatable="true">Pattern properties…</property>
+        <property name="action-name">machine.pattern.properties</property>
+      </item>
+      <item>
+        <property name="label" translatable="true">Remove pattern…</property>
+        <property name="action-name">machine.pattern.remove</property>
+      </item>
+      <item>
+        <property name="label" translatable="true">Copy pattern…</property>
+        <property name="action-name">machine.pattern.copy</property>
+      </item>
+    </section>
+    <item id="machine_properties">
+      <property name="label" translatable="true">Machine properties</property>
+      <property name="action-name">machine.properties.show</property>
+    </item>
+    <item id="machine_preferences">
+      <property name="label" translatable="true">Machine preferences</property>
+      <property name="action-name">machine.preferences.show</property>
+    </item>
+  </menu>
+</interface>

@@ -50,7 +50,7 @@ enum
   MISSING_FRAMEWORK_ELEMENTS_DIALOG_EDIT_ELEMENTS
 };
 
-struct _BtMissingFrameworkElementsDialogPrivate
+struct _BtMissingFrameworkElementsDialog
 {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
@@ -61,29 +61,33 @@ struct _BtMissingFrameworkElementsDialogPrivate
   /* list of missing elements */
   GList *core_elements, *edit_elements;
 
+  GtkImage *icon;
+  GtkBox *vbox;
   GtkWidget *ignore_button;
 };
 
 //-- the class
 
-G_DEFINE_TYPE_WITH_CODE (BtMissingFrameworkElementsDialog,
-    bt_missing_framework_elements_dialog, GTK_TYPE_DIALOG, 
-    G_ADD_PRIVATE(BtMissingFrameworkElementsDialog));
+G_DEFINE_TYPE (BtMissingFrameworkElementsDialog,
+    bt_missing_framework_elements_dialog, GTK_TYPE_DIALOG);
 
 
 //-- event handler
 
 //-- helper methods
 
-static void
-make_listview (GtkWidget * vbox, GList * missing_elements, const gchar * msg)
+/**
+ * Return: the container of the new list
+ */
+static GtkWidget*
+make_listview (GtkBox * vbox, GList * missing_elements, const gchar * msg)
 {
   GtkWidget *label, *missing_list, *missing_list_view;
   gchar *missing_text;
 
   label = gtk_label_new (msg);
   g_object_set (label, "xalign", 0.0, NULL);
-  gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
+  gtk_box_append (vbox, label);
 
   missing_text = bt_strjoin_list (missing_elements);
 
@@ -93,78 +97,40 @@ make_listview (GtkWidget * vbox, GList * missing_elements, const gchar * msg)
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (missing_list), GTK_WRAP_WORD);
   gtk_text_buffer_set_text (gtk_text_view_get_buffer (GTK_TEXT_VIEW
           (missing_list)), missing_text, -1);
-  gtk_widget_show (missing_list);
   g_free (missing_text);
 
-  missing_list_view = gtk_scrolled_window_new (NULL, NULL);
-  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (missing_list_view),
-      GTK_SHADOW_IN);
+  missing_list_view = gtk_scrolled_window_new ();
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (missing_list_view),
       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_container_add (GTK_CONTAINER (missing_list_view), missing_list);
-  gtk_widget_show (missing_list_view);
-  gtk_box_pack_start (GTK_BOX (vbox), missing_list_view, TRUE, TRUE, 0);
+  gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (missing_list_view), missing_list);
+  gtk_box_append (vbox, missing_list_view);
+
+  return missing_list_view;
 }
 
 static gboolean
 bt_missing_framework_elements_dialog_init_ui (const
     BtMissingFrameworkElementsDialog * self)
 {
-  GtkWidget *label, *icon, *hbox, *vbox;
-  gchar *str;
   gboolean res = TRUE;
-  //GdkPixbuf *window_icon=NULL;
 
-  gtk_widget_set_name (GTK_WIDGET (self), "Missing GStreamer elements");
+  gtk_image_set_from_icon_name (self->icon,
+      self->core_elements ? "dialog-error" : "dialog-warning");
 
-  // create and set window icon
-  /*
-     if((window_icon=bt_ui_resources_get_icon_pixbuf_by_machine(self->priv->machine))) {
-     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
-     g_object_unref(window_icon);
-     }
-   */
-
-  // set dialog title
-  gtk_window_set_title (GTK_WINDOW (self), _("Missing GStreamer elements"));
-
-  // add dialog commision widgets (okay, cancel)
-  gtk_dialog_add_button (GTK_DIALOG (self), _("_OK"), GTK_RESPONSE_ACCEPT);
-
-  gtk_dialog_set_default_response (GTK_DIALOG (self), GTK_RESPONSE_ACCEPT);
-
-  hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
-  gtk_container_set_border_width (GTK_CONTAINER (hbox), 6);
-
-  icon =
-      gtk_image_new_from_icon_name (self->
-      priv->core_elements ? "dialog-error" : "dialog-warning",
-      GTK_ICON_SIZE_DIALOG);
-  gtk_container_add (GTK_CONTAINER (hbox), icon);
-
-  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
-  label = gtk_label_new (NULL);
-  str =
-      g_strdup_printf ("<big><b>%s</b></big>", _("Missing GStreamer elements"));
-  gtk_label_set_markup (GTK_LABEL (label), str);
-  g_object_set (label, "xalign", 0.0, NULL);
-  g_free (str);
-  gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
-  if (self->priv->core_elements) {
+  if (self->core_elements) {
     GST_DEBUG ("%d missing core elements",
-        g_list_length (self->priv->core_elements));
-    make_listview (vbox, self->priv->core_elements,
-        _
-        ("The elements listed below are missing from your installation, but are required."));
+        g_list_length (self->core_elements));
+    make_listview (self->vbox, self->core_elements,
+        _("The elements listed below are missing from your installation, but are required."));
   }
-  if (self->priv->edit_elements) {
+  if (self->edit_elements) {
     gchar *machine_ignore_list;
     GList *edit_elements = NULL;
 
     GST_DEBUG ("%d missing edit elements",
-        g_list_length (self->priv->edit_elements));
+        g_list_length (self->edit_elements));
 
-    bt_child_proxy_get (self->priv->app, "settings::missing-machines",
+    bt_child_proxy_get (self->app, "settings::missing-machines",
         &machine_ignore_list, NULL);
 
     if (machine_ignore_list) {
@@ -172,7 +138,7 @@ bt_missing_framework_elements_dialog_init_ui (const
       gchar *name;
       gboolean have_elements = FALSE;
 
-      for (node = self->priv->edit_elements; node; node = g_list_next (node)) {
+      for (node = self->edit_elements; node; node = g_list_next (node)) {
         name = (gchar *) (node->data);
         // if this is the message ("starts with "->") or is not in the ignored list, append
         if (name[0] == '-') {
@@ -189,33 +155,27 @@ bt_missing_framework_elements_dialog_init_ui (const
       GST_DEBUG ("filtered to %d missing edit elements",
           g_list_length (edit_elements));
     } else {
-      edit_elements = self->priv->edit_elements;
+      edit_elements = self->edit_elements;
     }
 
     if (edit_elements) {
-      make_listview (vbox, edit_elements,
-          _
-          ("The elements listed below are missing from your installation, but are recommended for full functionality."));
+      GtkWidget* scrolledwindow = make_listview (self->vbox, edit_elements,
+          _("The elements listed below are missing from your installation, but are recommended for full functionality."));
 
-      self->priv->ignore_button =
-          gtk_check_button_new_with_label (_("don't warn again"));
-      gtk_box_pack_start (GTK_BOX (vbox), self->priv->ignore_button, FALSE,
-          FALSE, 0);
+      gtk_box_insert_child_after (self->vbox, self->ignore_button, scrolledwindow);
+      gtk_widget_set_visible (self->ignore_button, TRUE);
 
       if (machine_ignore_list) {
         g_list_free (edit_elements);
       }
     } else {
       // if we have only non-critical elements and ignore them already, don't show the dialog.
-      if (!self->priv->core_elements) {
+      if (!self->core_elements) {
         GST_INFO ("no new missing elements to show");
         res = FALSE;
       }
     }
   }
-  gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (self))),
-      hbox, TRUE, TRUE, 0);
 
   return res;
 }
@@ -240,12 +200,11 @@ bt_missing_framework_elements_dialog_new (GList * core_elements,
       (BT_TYPE_MISSING_FRAMEWORK_ELEMENTS_DIALOG, "core-elements",
           core_elements, "edit-elements", edit_elements, NULL));
   if (!bt_missing_framework_elements_dialog_init_ui (self)) {
-    goto EmptyLists;
+    g_object_ref_sink (self);
+    g_object_unref (self);
+    return NULL;
   }
   return self;
-EmptyLists:
-  gtk_widget_destroy (GTK_WIDGET (self));
-  return NULL;
 }
 
 //-- methods
@@ -261,23 +220,22 @@ bt_missing_framework_elements_dialog_apply (const
     BtMissingFrameworkElementsDialog * self)
 {
 
-  if (self->priv->ignore_button
-      && gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (self->
-              priv->ignore_button))) {
+  if (self->ignore_button
+      && gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (self->ignore_button))) {
     BtSettings *settings;
     gchar *machine_ignore_list;
     GList *node, *edit_elements = NULL;
     gchar *ptr, *name;
     gint length = 0, offset = 0;
 
-    g_object_get (self->priv->app, "settings", &settings, NULL);
+    g_object_get (self->app, "settings", &settings, NULL);
     g_object_get (settings, "missing-machines", &machine_ignore_list, NULL);
     GST_INFO ("was ignoring : [%s]", machine_ignore_list);
 
     if (machine_ignore_list) {
       offset = length = strlen (machine_ignore_list);
     }
-    for (node = self->priv->edit_elements; node; node = g_list_next (node)) {
+    for (node = self->edit_elements; node; node = g_list_next (node)) {
       name = (gchar *) (node->data);
       if (name[0] != '-') {
         if (!offset || !strstr (machine_ignore_list, name)) {
@@ -316,13 +274,13 @@ bt_missing_framework_elements_dialog_set_property (GObject * object,
 {
   BtMissingFrameworkElementsDialog *self =
       BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG (object);
-  return_if_disposed ();
+  return_if_disposed_self ();
   switch (property_id) {
     case MISSING_FRAMEWORK_ELEMENTS_DIALOG_CORE_ELEMENTS:
-      self->priv->core_elements = g_value_get_pointer (value);
+      self->core_elements = g_value_get_pointer (value);
       break;
     case MISSING_FRAMEWORK_ELEMENTS_DIALOG_EDIT_ELEMENTS:
-      self->priv->edit_elements = g_value_get_pointer (value);
+      self->edit_elements = g_value_get_pointer (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -336,13 +294,15 @@ bt_missing_framework_elements_dialog_dispose (GObject * object)
   BtMissingFrameworkElementsDialog *self =
       BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG (object);
 
-  return_if_disposed ();
-  self->priv->dispose_has_run = TRUE;
+  return_if_disposed_self ();
+  self->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  g_object_unref (self->priv->app);
+  g_object_unref (self->app);
 
+  gtk_widget_dispose_template (GTK_WIDGET (self), BT_TYPE_MISSING_FRAMEWORK_ELEMENTS_DIALOG);
+  
   G_OBJECT_CLASS (bt_missing_framework_elements_dialog_parent_class)->dispose
       (object);
 }
@@ -351,9 +311,9 @@ static void
 bt_missing_framework_elements_dialog_init (BtMissingFrameworkElementsDialog *
     self)
 {
-  self->priv = bt_missing_framework_elements_dialog_get_instance_private(self);
-  GST_DEBUG ("!!!! self=%p", self);
-  self->priv->app = bt_edit_application_new ();
+  gtk_widget_init_template (GTK_WIDGET (self));
+  
+  self->app = bt_edit_application_new ();
 }
 
 static void
@@ -377,4 +337,13 @@ static void
       g_param_spec_pointer ("edit-elements", "edit-elements construct prop",
           "Set missing edit-elements list, the dialog handles",
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
+
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
+  
+  gtk_widget_class_set_template_from_resource (widget_class,
+      "/org/buzztrax/ui/missing-framework-elements-dialog.ui");
+
+  gtk_widget_class_bind_template_child (widget_class, BtMissingFrameworkElementsDialog, icon);
+  gtk_widget_class_bind_template_child (widget_class, BtMissingFrameworkElementsDialog, ignore_button);
+  gtk_widget_class_bind_template_child (widget_class, BtMissingFrameworkElementsDialog, vbox);
 }

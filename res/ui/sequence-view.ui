@@ -1,0 +1,118 @@
+<interface>
+  <template class="BtSequenceView" parent="GtkWidget">
+    <child>
+      <object class="GtkGrid">
+        <child>
+          <object class="GtkBox" id="sequence_pos_table_header">
+            <layout>
+              <property name="column">0</property>
+              <property name="row">0</property>
+            </layout>
+            <child>
+              <object class="GtkBox" id="pos_header">
+                <property name="orientation">vertical</property>
+
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Pos.</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkDropDown" id="pos_menu">
+                    <signal name="notify::selected" handler="on_pos_menu_changed" object="BtSequenceView" swapped="no"/>
+
+                    <property name="tooltip-text" translatable="yes">Browse to labels in the sequence</property>
+                    <property name="focus-on-click">false</property>
+                    <property name="model">
+                      <object class="GtkStringList">
+                        <items>
+                          <item translatable="true">Ticks</item>
+                          <item translatable="true">Time</item>
+                          <item translatable="true">Beats</item>
+                        </items>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparator">
+                <property name="orientation">vertical</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow">
+            <layout>
+              <property name="column">0</property>
+              <property name="row">1</property>
+            </layout>
+            <property name="hscrollbar-policy">never</property>
+            <child>
+              <object class="GtkColumnView" id="sequence_pos_table">
+                <child>
+                  <object class="GtkColumnViewColumn" id="sequence_pos_table_pos">
+                    <property name="title" translatable="yes">pos</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow">
+            <layout>
+              <property name="column">1</property>
+              <property name="row">0</property>
+            </layout>
+            <property name="vscrollbar-policy">never</property>
+            <child>
+              <object class="GtkBox" id="sequence_table_header">
+                <child>
+                  <object class="GtkBox"> <!-- header -->
+                    <child>
+                      <object class="GtkBox"> <!-- vbox -->
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkDropDown" id="label_menu">
+                            <property name="tooltip-text" translatable="yes">Browse to labels in the sequence</property>
+                            <property name="focus-on-click">false</property>
+                            <property name="model">
+                              <object class="GtkStringList">
+                                <items>
+                                  <item>1</item> <!-- dynamic -->
+                                </items>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow">
+            <layout>
+              <property name="column">1</property>
+              <property name="row">1</property>
+            </layout>
+            <property name="hexpand">true</property>
+            <property name="vexpand">true</property>
+            <child>
+              <object class="GtkColumnView" id="sequence_table">
+                <!-- dynamically generated -->
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

@@ -18,41 +18,10 @@
 #ifndef BT_MAIN_TOOLBAR_H
 #define BT_MAIN_TOOLBAR_H
 
-#include <glib.h>
-#include <glib-object.h>
+#include <adwaita.h>
 
-#define BT_TYPE_MAIN_TOOLBAR            (bt_main_toolbar_get_type ())
-#define BT_MAIN_TOOLBAR(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_TOOLBAR, BtMainToolbar))
-#define BT_MAIN_TOOLBAR_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_TOOLBAR, BtMainToolbarClass))
-#define BT_IS_MAIN_TOOLBAR(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MAIN_TOOLBAR))
-#define BT_IS_MAIN_TOOLBAR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MAIN_TOOLBAR))
-#define BT_MAIN_TOOLBAR_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MAIN_TOOLBAR, BtMainToolbarClass))
+typedef struct _BtEditApplication BtEditApplication;
 
-/* type macros */
-
-typedef struct _BtMainToolbar BtMainToolbar;
-typedef struct _BtMainToolbarClass BtMainToolbarClass;
-typedef struct _BtMainToolbarPrivate BtMainToolbarPrivate;
-
-/**
- * BtMainToolbar:
- *
- * the main toolbar for the editor application
- */
-struct _BtMainToolbar {
-  GtkToolbar parent;
-  
-  /*< private >*/
-  BtMainToolbarPrivate *priv;
-};
-
-struct _BtMainToolbarClass {
-  GtkToolbarClass parent;
-  
-};
-
-GType bt_main_toolbar_get_type(void) G_GNUC_CONST;
-
-BtMainToolbar *bt_main_toolbar_new(void);
+AdwHeaderBar *bt_main_toolbar_new(BtEditApplication *app);
 
 #endif // BT_MAIN_TOOLBAR_H

@@ -21,47 +21,28 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BT_TYPE_WAVETABLE             (bt_wavetable_get_type ())
-#define BT_WAVETABLE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_WAVETABLE, BtWavetable))
-#define BT_WAVETABLE_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_WAVETABLE, BtWavetableClass))
-#define BT_IS_WAVETABLE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_WAVETABLE))
-#define BT_IS_WAVETABLE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_WAVETABLE))
-#define BT_WAVETABLE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_WAVETABLE, BtWavetableClass))
-
-/* type macros */
-
-typedef struct _BtWavetable BtWavetable;
-typedef struct _BtWavetableClass BtWavetableClass;
-typedef struct _BtWavetablePrivate BtWavetablePrivate;
-
 /**
  * BtWavetable:
  *
- * A table of #BtWave objects.
+ * Holds a list of sound samples that can be used by machines.
+ *
+ * Also implements GListModel for ease of use by list views.
+ * The container element type is BtWave.
  */
-struct _BtWavetable {
-  const GObject parent;
+G_DECLARE_FINAL_TYPE(BtWavetable, bt_wavetable, BT, WAVETABLE, GObject);
 
-  /*< private >*/
-  BtWavetablePrivate *priv;
-};
-
-struct _BtWavetableClass {
-  const GObjectClass parent;
-};
-
-GType bt_wavetable_get_type(void) G_GNUC_CONST;
+#define BT_TYPE_WAVETABLE             (bt_wavetable_get_type ())
 
 #include "song.h"
 #include "wave.h"
 
 BtWavetable *bt_wavetable_new(const BtSong * const song);
 
-gboolean bt_wavetable_add_wave(const BtWavetable * const self, const BtWave * const wave);
-gboolean bt_wavetable_remove_wave(const BtWavetable * const self, const BtWave * const wave);
+gboolean bt_wavetable_add_wave(BtWavetable * const self, const BtWave * const wave);
+gboolean bt_wavetable_remove_wave(BtWavetable * const self, const BtWave * const wave);
 
 BtWave *bt_wavetable_get_wave_by_index(const BtWavetable * const self, const gulong index);
 
-void bt_wavetable_remember_missing_wave(const BtWavetable * const self, const gchar * const str);
+void bt_wavetable_remember_missing_wave(BtWavetable * const self, const gchar * const str);
 
 #endif // BT_WAVETABLE_H

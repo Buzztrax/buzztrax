@@ -943,7 +943,7 @@ bt_pattern_persistence_save (const BtPersistence * const persistence,
 
 static BtPersistence *
 bt_pattern_persistence_load (const GType type,
-    const BtPersistence * const persistence, xmlNodePtr node, GError ** err,
+    BtPersistence * const persistence, xmlNodePtr node, GError ** err,
     va_list var_args)
 {
   BtPattern *self;

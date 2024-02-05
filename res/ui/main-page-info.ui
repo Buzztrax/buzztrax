@@ -1,0 +1,126 @@
+<interface>
+  <template class="BtMainPageInfo" parent="GtkBox">
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="GtkFrame">
+        <property name="label" translatable="yes">song meta data</property>
+        <child>
+          <object class="GtkBox">
+            <child>
+              <object class="GtkGrid">
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">name</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="name">
+                    <signal name="changed" handler="on_name_changed" object="BtMainPageInfo" swapped="no" />
+                  </object>
+                </child>
+                
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">genre</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="genre">
+                    <signal name="changed" handler="on_genre_changed" object="BtMainPageInfo" swapped="no" />
+                  </object>
+                </child>
+                
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">author</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="author">
+                    <signal name="changed" handler="on_author_changed" object="BtMainPageInfo" swapped="no" />
+                  </object>
+                </child>
+                
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">date_created</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="date_created">
+                    <property name="editable">false</property>
+                  </object>
+                </child>
+              </object>
+              
+              <object class="GtkGrid">
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">beats per minute</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="bpm">
+                    <signal name="value-changed" handler="on_bpm_changed" object="BtMainPageInfo" swapped="no" />
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">beats</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="beats">
+                    <signal name="value-changed" handler="on_beats_changed" object="BtMainPageInfo" swapped="no" />
+                  </object>
+                </child>
+                
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">ticks per beat</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="tpb">
+                    <signal name="value-changed" handler="on_tpb_changed" object="BtMainPageInfo" swapped="no" />
+                  </object>
+                </child>
+                
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">last saved</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="date_changed">
+                    <property name="editable">false</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    
+    <child>
+      <object class="GtkFrame">
+        <property name="label" translatable="yes">free text info</property>
+        <child>
+          <object class="GtkBox">
+            <child>
+              <object class="GtkScrolledWindow">
+                <child>
+                  <object class="GtkTextView" id="info">
+                    <signal name="notify::buffer::text" handler="on_info_changed" object="BtMainPageInfo" swapped="no" />
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

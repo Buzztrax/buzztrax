@@ -21,46 +21,17 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BT_TYPE_PATTERN_LIST_MODEL            (bt_pattern_list_model_get_type())
-#define BT_PATTERN_LIST_MODEL(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_PATTERN_LIST_MODEL, BtPatternListModel))
-#define BT_PATTERN_LIST_MODEL_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_PATTERN_LIST_MODEL, BtPatternListModelClass))
-#define BT_IS_PATTERN_LIST_MODEL(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_PATTERN_LIST_MODEL))
-#define BT_IS_PATTERN_LIST_MODEL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_PATTERN_LIST_MODEL))
-#define BT_PATTERN_LIST_MODEL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_PATTERN_LIST_MODEL, BtPatternListModelClass))
-
-/* type macros */
-
-typedef struct _BtPatternListModel BtPatternListModel;
-typedef struct _BtPatternListModelClass BtPatternListModelClass;
-typedef struct _BtPatternListModelPrivate BtPatternListModelPrivate;
-
 /**
  * BtPatternListModel:
  *
  * Data model for #GtkTreeView or #GtkComboBox.
  */
-struct _BtPatternListModel {
-  GObject parent;
+G_DECLARE_FINAL_TYPE(BtPatternListModel, bt_pattern_list_model, BT, PATTERN_LIST_MODEL, GObject);
 
-  /*< private >*/
-  BtPatternListModelPrivate *priv;
-};
-
-struct _BtPatternListModelClass {
-  GObjectClass parent;
-};
-
-enum {
-  BT_PATTERN_LIST_MODEL_LABEL=0,
-  BT_PATTERN_LIST_MODEL_IS_USED,
-  BT_PATTERN_LIST_MODEL_IS_UNUSED,
-  BT_PATTERN_LIST_MODEL_SHORTCUT,
-  __BT_PATTERN_LIST_MODEL_N_COLUMNS
-};
-
-GType bt_pattern_list_model_get_type(void) G_GNUC_CONST;
+#define BT_TYPE_PATTERN_LIST_MODEL            (bt_pattern_list_model_get_type())
 
 BtPatternListModel *bt_pattern_list_model_new(BtMachine *machine,BtSequence *sequence,gboolean skip_internal);
-BtPattern *bt_pattern_list_model_get_object(BtPatternListModel *model,GtkTreeIter *iter);
+BtCmdPattern *bt_pattern_list_model_get_object(BtPatternListModel *model, guint position);
+BtCmdPattern *bt_pattern_list_model_get_pattern_by_key(BtPatternListModel *model, gchar key);
 
 #endif // BT_PATTERN_LIST_MODEL_H

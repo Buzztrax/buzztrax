@@ -21,34 +21,15 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BT_TYPE_MACHINE_LIST_MODEL            (bt_machine_list_model_get_type())
-#define BT_MACHINE_LIST_MODEL(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MACHINE_LIST_MODEL, BtMachineListModel))
-#define BT_MACHINE_LIST_MODEL_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MACHINE_LIST_MODEL, BtMachineListModelClass))
-#define BT_IS_MACHINE_LIST_MODEL(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MACHINE_LIST_MODEL))
-#define BT_IS_MACHINE_LIST_MODEL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MACHINE_LIST_MODEL))
-#define BT_MACHINE_LIST_MODEL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MACHINE_LIST_MODEL, BtMachineListModelClass))
-
-/* type macros */
-
-typedef struct _BtMachineListModel BtMachineListModel;
-typedef struct _BtMachineListModelClass BtMachineListModelClass;
-typedef struct _BtMachineListModelPrivate BtMachineListModelPrivate;
-
 /**
  * BtMachineListModel:
  *
  * Data model for #GtkTreeView or #GtkComboBox.
  */
-struct _BtMachineListModel {
-  GObject parent;
+G_DECLARE_FINAL_TYPE(BtMachineListModel, bt_machine_list_model, BT, MACHINE_LIST_MODEL, GObject);
 
-  /*< private >*/
-  BtMachineListModelPrivate *priv;
-};
+#define BT_TYPE_MACHINE_LIST_MODEL            (bt_machine_list_model_get_type())
 
-struct _BtMachineListModelClass {
-  GObjectClass parent;
-};
 
 enum {
   BT_MACHINE_LIST_MODEL_ICON=0,

@@ -28,6 +28,7 @@
 
 #include "ic_private.h"
 #include <glib/gprintf.h>
+#include <gio/gio.h>
 
 /**
  * btic_major_version:

@@ -248,16 +248,18 @@ bt_init_get_option_group (void)
 }
 
 /**
- * bt_init_add_option_groups:
- * @ctx: main option context
+ * bt_get_option_groups:
  *
- * Adds all option groups to the main context the core library will pull in.
+ * Returns: (transfer full): Pointers to GOptionGroups describing command line args applicable to the functions of the
+ * core library.
  */
-void
-bt_init_add_option_groups (GOptionContext * const ctx)
+GPtrArray*
+bt_get_option_groups ()
 {
-  g_option_context_add_group (ctx, gst_init_get_option_group ());
-  g_option_context_add_group (ctx, bt_init_get_option_group ());
+  GPtrArray* result = g_ptr_array_new ();
+  g_ptr_array_add (result, gst_init_get_option_group ());
+  g_ptr_array_add (result, bt_init_get_option_group ());
+  return result;
 }
 
 /**
@@ -286,7 +288,15 @@ bt_init_check (GOptionContext * ctx, gint * argc, gchar ** argv[], GError ** err
 
   if (is_new_ctx) {
     ctx = g_option_context_new (NULL);
-    bt_init_add_option_groups (ctx);
+  
+    GPtrArray* groups = bt_get_option_groups ();
+  
+    for (guint i = 0; i < groups->len; i++)
+    {
+      g_option_context_add_group (ctx, (GOptionGroup*) g_ptr_array_index (groups, i));
+    }
+  
+    g_ptr_array_unref (groups);
   }
   
   res = g_option_context_parse (ctx, argc, argv, err);

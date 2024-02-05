@@ -406,7 +406,7 @@ bt_song_info_persistence_save (const BtPersistence * const persistence,
 
 static BtPersistence *
 bt_song_info_persistence_load (const GType type,
-    const BtPersistence * const persistence, xmlNodePtr node, GError ** err,
+    BtPersistence * const persistence, xmlNodePtr node, GError ** err,
     va_list var_args)
 {
   const BtSongInfo *const self = BT_SONG_INFO (persistence);

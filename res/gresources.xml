@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/buzztrax">
+    <file>css/bt-edit.compact.css</file>
+    <file>css/bt-edit.css</file> <!-- note: generated from css/bt-edit.css.in -->
+    <file>css/bt-edit.dark.compact.css</file>
+    <file>css/bt-edit.dark.css</file>
+    <file>css/bt-edit.dark.normal.css</file>
+    <file>css/bt-edit.light.compact.css</file>
+    <file>css/bt-edit.light.css</file>
+    <file>css/bt-edit.light.normal.css</file>
+    <file>css/bt-edit.normal.css</file>
+    <file>ui/machine-context-menu.ui</file>
+    <file>ui/machine-preset-properties.ui</file>
+    <file>ui/machine-properties-dialog.ui</file>
+    <file>ui/machine-rename-dialog.ui</file>
+    <file>ui/main-menu.ui</file>
+    <file>ui/main-page-info.ui</file>
+    <file>ui/main-page-machines.ui</file>
+    <file>ui/main-page-patterns.ui</file>
+    <file>ui/main-page-patterns-context-menu.ui</file>
+    <file>ui/main-page-sequence.ui</file>
+    <file>ui/main-page-sequence-context-menu.ui</file>
+    <file>ui/main-page-waves.ui</file>
+    <file>ui/main-pages.ui</file>
+    <file>ui/main-statusbar.ui</file>
+    <file>ui/missing-framework-elements-dialog.ui</file>
+    <file>ui/missing-song-elements-dialog.ui</file>
+    <file>ui/pattern-editor.ui</file>
+    <file>ui/render-dialog.ui</file>
+    <file>ui/sequence-view.ui</file>
+  </gresource>
+</gresources>

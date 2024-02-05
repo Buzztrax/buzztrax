@@ -20,7 +20,7 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 dnl dependencies
 REQ_GLIB=2.44.0
-REQ_GTK=3.4
+REQ_GTK=4.12
 dnl TODO(ensonic): probably need to bump to 1.6.0 for working gstcontext
 REQ_GST=1.2.0
 
@@ -144,7 +144,7 @@ if test "x$enable_deprecated" = "xno"; then
 	# ATK_DISABLE_DEPRECATED
 	BT_DISABLE_DEPRECATED="-DG_DISABLE_DEPRECATED -DPANGO_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DGST_DISABLE_DEPRECATED -DGNOME_DISABLE_DEPRECATED"
 else
-	BT_DISABLE_DEPRECATED="-DGLIB_DISABLE_DEPRECATION_WARNINGS -DGDK_DISABLE_DEPRECATION_WARNINGS -DCLUTTER_DISABLE_DEPRECATION_WARNINGS"
+	BT_DISABLE_DEPRECATED="-DGLIB_DISABLE_DEPRECATION_WARNINGS -DGDK_DISABLE_DEPRECATION_WARNINGS"
 fi
 AC_SUBST(BT_DISABLE_DEPRECATED)
 
@@ -322,13 +322,9 @@ PKG_CHECK_MODULES(BASE_DEPS, \
 )
 
 PKG_CHECK_MODULES(GUI_DEPS, \
-  clutter-1.0 clutter-gtk-1.0 gtk+-3.0 >= $REQ_GTK \
+  gtk4 >= $REQ_GTK \
+  libadwaita-1 >= 1.2.0 \
 )
-
-PKG_CHECK_EXISTS(gtk+-3.0 >= 3.14, have_gtk_3_14="yes", have_gtk_3_14="no")
-AM_CONDITIONAL(HAVE_GTK_3_14, test "x$have_gtk_3_14" == "xyes")
-PKG_CHECK_EXISTS(gtk+-3.0 >= 3.19.6, have_gtk_3_19_6="yes", have_gtk_3_19_6="no")
-AM_CONDITIONAL(HAVE_GTK_3_19_6, test "x$have_gtk_3_19_6" == "xyes")
 
 PKG_CHECK_MODULES(ALSA_DEPS, alsa, [
     AC_DEFINE(USE_ALSA, [1], [Define to 1 if we can use alsa libraries])
@@ -410,7 +406,7 @@ esac
 AM_CONDITIONAL(USE_GIR, test "x$enable_gir" == "xyes")
 
 GLIB_PREFIX="`$PKG_CONFIG --variable=prefix glib-2.0`"
-GTK_PREFIX="`$PKG_CONFIG --variable=prefix gtk+-3.0`"
+GTK_PREFIX="`$PKG_CONFIG --variable=prefix gtk4`"
 GST_PREFIX="`$PKG_CONFIG --variable=prefix gstreamer-1.0`"
 AC_SUBST(GLIB_PREFIX)
 AC_SUBST(GTK_PREFIX)
@@ -648,6 +644,7 @@ AM_CONDITIONAL(WITH_UPDATE_ICON_CACHE, test "$enable_update_icon_cache" != "no")
 AC_PATH_PROG(UPDATE_MIME_DATABASE, update-mime-database)
 AC_PATH_PROG(UPDATE_DESKTOP_DATABASE, update-desktop-database)
 AC_PATH_PROGS(UPDATE_ICON_CACHE, gtk-update-icon-cache, gtk-update-icon-cache-3.0)
+AC_PATH_PROG([GLIB_COMPILE_RESOURCES], [glib-compile-resources])
 
 dnl Substitutes
 
@@ -690,6 +687,7 @@ AC_CONFIG_FILES(Makefile \
   src/lib/ic/version.h \
   tests/bt-cfg.sh \
   tests/lib/core/songio/bsl/bt-cfg.sh \
+  res/css/bt-edit.css \
 )
 AC_OUTPUT
 

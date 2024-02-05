@@ -1,0 +1,41 @@
+<interface>
+  <menu id="menu">
+    <section>
+      <submenu id="add_track">
+        <attribute name="label" translatable="true">Add track</attribute>
+        <!-- dynamically generated...
+
+          <item>
+            <attribute name="label" translatable="true">MyMachine01</attribute>
+            <attribute name="action-name">track.add:machine-id</attribute>
+          </item>
+          
+        -->
+      </submenu>
+      <item>
+        <attribute name="label" translatable="true">Remove track</attribute>
+        <attribute name="action-name">track.remove</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="true">Move track left</attribute>
+        <attribute name="action-name">track.move-left</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Move track right</attribute>
+        <attribute name="action-name">track.move-right</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="true">Machine properties</attribute>
+        <attribute name="action-name">machine.properties.show</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Machine preferences</attribute>
+        <attribute name="action-name">machine.preferences.show</attribute>
+      </item>
+    </section>
+  </menu>
+</interface>

@@ -29,7 +29,21 @@
 
 //-- the class
 
-G_DEFINE_TYPE (BtVolumePopup, bt_volume_popup, GTK_TYPE_WINDOW);
+struct _BtVolumePopup {
+  GtkPopover parent;
+
+  /* us */
+  GtkRange *scale;
+  GtkButton *plus, *minus;
+
+  /* timeout for buttons */
+  guint timeout;
+  /* for +/- buttons */
+  gint direction;
+};
+
+
+G_DEFINE_TYPE (BtVolumePopup, bt_volume_popup, GTK_TYPE_POPOVER);
 
 //-- event handler
 
@@ -42,58 +56,6 @@ cb_scale_changed (GtkRange * range, gpointer user_data)
   // FIXME(ensonic): workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
   g_snprintf (str, sizeof(str), "%3d %%", 400 - (gint) (gtk_range_get_value (range)));
   gtk_label_set_text (label, str);
-}
-
-/*
- * hide popup when clicking outside
- */
-static gboolean
-cb_dock_press (GtkWidget * widget, GdkEventButton * event, gpointer data)
-{
-  BtVolumePopup *self = BT_VOLUME_POPUP (data);
-
-  //if(!gtk_widget_get_realized(GTK_WIDGET(self)) return FALSE;
-
-  if (event->type == GDK_BUTTON_PRESS) {
-    GdkEventButton *e;
-    //GST_INFO("type=%4d, window=%p, send_event=%3d, time=%8d",event->type,event->window,event->send_event,event->time);
-    //GST_INFO("x=%6.4lf, y=%6.4lf, axes=%p, state=%4d",event->x,event->y,event->axes,event->state);
-    //GST_INFO("button=%4d, device=%p, x_root=%6.4lf, y_root=%6.4lf\n",event->button,event->device,event->x_root,event->y_root);
-
-    /*
-       GtkWidget *parent=GTK_WIDGET(gtk_window_get_transient_for(GTK_WINDOW(self)));
-       //GtkWidget *parent=gtk_widget_get_parent(GTK_WIDGET(self));
-       //gboolean retval;
-
-       GST_INFO("FORWARD : popup=%p, widget=%p", self, widget);
-       GST_INFO("FORWARD : parent=%p, parent->window=%p", parent, parent->window);
-     */
-
-    bt_volume_popup_hide (self);
-
-    // forward event
-    e = (GdkEventButton *) gdk_event_copy ((GdkEvent *) event);
-    //GST_INFO("type=%4d, window=%p, send_event=%3d, time=%8d",e->type,e->window,e->send_event,e->time);
-    //GST_INFO("x=%6.4lf, y=%6.4lf, axes=%p, state=%4d",e->x,e->y,e->axes,e->state);
-    //GST_INFO("button=%4d, device=%p, x_root=%6.4lf, y_root=%6.4lf\n",e->button,e->device,e->x_root,e->y_root);
-    //e->window = widget->window;
-    //e->window = parent->window;
-    //e->type = GDK_BUTTON_PRESS;
-
-    gtk_main_do_event ((GdkEvent *) e);
-    //retval=gtk_widget_event (widget, (GdkEvent *) e);
-    //retval=gtk_widget_event (parent, (GdkEvent *) e);
-    //retval=gtk_widget_event (self->parent_widget, (GdkEvent *) e);
-    //GST_INFO("  result =%d", retval);
-    //g_signal_emit_by_name(self->parent_widget, "event", 0, &retval, e);
-    //g_signal_emit_by_name(parent, "event", 0, &retval, e);
-    //GST_INFO("  result =%d", retval);
-    //e->window = event->window;
-    gdk_event_free ((GdkEvent *) e);
-
-    return TRUE;
-  }
-  return FALSE;
 }
 
 //-- helper methods
@@ -114,18 +76,15 @@ bt_volume_popup_new (GtkAdjustment * adj)
   GtkWidget *box, *scale, *frame, *label;
   BtVolumePopup *self = g_object_new (BT_TYPE_VOLUME_POPUP,
       "can-focus", TRUE,
-      "type", GTK_WINDOW_POPUP,
       NULL);
 
-  frame = gtk_frame_new (NULL);
-  gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_OUT);
-
   box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+  gtk_popover_set_child (GTK_POPOVER (self), box);
 
   label = gtk_label_new ("");
-  gtk_box_pack_start (GTK_BOX (box), label, FALSE, FALSE, 0);
-  gtk_box_pack_start (GTK_BOX (box),
-      gtk_separator_new (GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE, 0);
+  gtk_box_prepend (GTK_BOX (box), label);
+  gtk_box_prepend (GTK_BOX (box),
+      gtk_separator_new (GTK_ORIENTATION_HORIZONTAL));
 
   scale = gtk_scale_new (GTK_ORIENTATION_VERTICAL, adj);
   self->scale = GTK_RANGE (scale);
@@ -171,14 +130,7 @@ bt_volume_popup_new (GtkAdjustment * adj)
   g_signal_connect (self->scale, "value-changed", G_CALLBACK (cb_scale_changed),
       label);
   cb_scale_changed (self->scale, label);
-  gtk_box_pack_start (GTK_BOX (box), scale, TRUE, TRUE, 0);
-
-  gtk_container_add (GTK_CONTAINER (frame), box);
-  gtk_container_add (GTK_CONTAINER (self), frame);
-  gtk_widget_show_all (frame);
-
-  g_signal_connect (self, "button-press-event", G_CALLBACK (cb_dock_press),
-      self);
+  gtk_box_prepend (GTK_BOX (box), scale);
 
   return GTK_WIDGET (self);
 }
@@ -192,13 +144,13 @@ bt_volume_popup_new (GtkAdjustment * adj)
  * Show and activate the widget
  */
 void
-bt_volume_popup_show (BtVolumePopup * self)
+bt_volume_popup_show (BtVolumePopup * self, GtkWidget* parent)
 {
-  gtk_widget_show_all (GTK_WIDGET (self));
+  gtk_widget_set_parent (GTK_WIDGET (self), parent);
+  gtk_popover_popup (GTK_POPOVER (self));
 
   /* grab focus */
   gtk_widget_grab_focus_savely (GTK_WIDGET (self));
-  gtk_grab_add (GTK_WIDGET (self));
 }
 
 /**
@@ -211,9 +163,7 @@ void
 bt_volume_popup_hide (BtVolumePopup * self)
 {
   /* ungrab focus */
-  gtk_grab_remove (GTK_WIDGET (self));
-
-  gtk_widget_hide (GTK_WIDGET (self));
+  gtk_popover_popdown (GTK_POPOVER (self));
 }
 
 //-- wrapper
@@ -239,6 +189,9 @@ bt_volume_popup_class_init (BtVolumePopupClass * klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   gobject_class->dispose = bt_volume_popup_dispose;
+
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
+  gtk_widget_class_set_layout_manager_type (widget_class, GTK_TYPE_BOX_LAYOUT);
 }
 
 static void

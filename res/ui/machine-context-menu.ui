@@ -1,0 +1,16 @@
+<interface>
+  <menu id="menu">
+    <!-- Dynamically generated ...
+         
+    <submenu id="add_machine">
+      <attribute name="label" translatable="true">Add machine</attribute>
+    </submenu>
+
+    -->
+
+    <item>
+      <attribute name="label" translatable="true">Unmute all machines</attribute>
+      <attribute name="action-name">machines.unmute</attribute>
+    </item>
+  </menu>
+</interface>

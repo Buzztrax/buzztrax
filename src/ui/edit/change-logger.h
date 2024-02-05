@@ -34,7 +34,7 @@ typedef struct _BtChangeLoggerInterface BtChangeLoggerInterface;
 struct _BtChangeLoggerInterface {
   const GTypeInterface parent;
 
-  gboolean (*change)(const BtChangeLogger *owner,const gchar *data);
+  gboolean (*change)(BtChangeLogger *owner,const gchar *data);
 };
 
 typedef struct _BtChangeLoggerMethods BtChangeLoggerMethods;
@@ -66,6 +66,6 @@ GType bt_change_logger_get_type(void) G_GNUC_CONST;
 gint bt_change_logger_match_method(BtChangeLoggerMethods *change_logger_methods,const gchar *data, GMatchInfo **match_info);
 
 // wrapper
-gboolean bt_change_logger_change(const BtChangeLogger *self,const gchar *data);
+gboolean bt_change_logger_change(BtChangeLogger *self,const gchar *data);
 
 #endif // BT_CHANGE_LOGGER_H

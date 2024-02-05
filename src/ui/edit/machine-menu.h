@@ -20,39 +20,19 @@
 
 #include <glib.h>
 #include <glib-object.h>
-
-#define BT_TYPE_MACHINE_MENU            (bt_machine_menu_get_type ())
-#define BT_MACHINE_MENU(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MACHINE_MENU, BtMachineMenu))
-#define BT_MACHINE_MENU_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MACHINE_MENU, BtMachineMenuClass))
-#define BT_IS_MACHINE_MENU(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MACHINE_MENU))
-#define BT_IS_MACHINE_MENU_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MACHINE_MENU))
-#define BT_MACHINE_MENU_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MACHINE_MENU, BtMachineMenuClass))
-
-/* type macros */
-
-typedef struct _BtMachineMenu BtMachineMenu;
-typedef struct _BtMachineMenuClass BtMachineMenuClass;
-typedef struct _BtMachineMenuPrivate BtMachineMenuPrivate;
+#include <gtk/gtk.h>
 
 /**
  * BtMachineMenu:
  *
  * the machine selection sub-menu for the canvas page context menu
  */
-struct _BtMachineMenu {
-  GtkMenu parent;
-  
-  /*< private >*/
-  BtMachineMenuPrivate *priv;
-};
+G_DECLARE_FINAL_TYPE(BtMachineMenu, bt_machine_menu, BT, MACHINE_MENU, GObject);
+#define BT_TYPE_MACHINE_MENU            (bt_machine_menu_get_type ())
 
-struct _BtMachineMenuClass {
-  GtkMenuClass parent;
-  
-};
-
-GType bt_machine_menu_get_type(void) G_GNUC_CONST;
+typedef struct _BtMainPageMachines BtMainPageMachines;
 
 BtMachineMenu *bt_machine_menu_new(const BtMainPageMachines *main_page_machines);
+GMenu* bt_machine_menu_get_menu(BtMachineMenu* self);
 
 #endif // BT_MACHINE_MENU_H

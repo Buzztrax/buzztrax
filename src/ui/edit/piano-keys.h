@@ -35,14 +35,14 @@ typedef struct _BtPianoKeysClass BtPianoKeysClass;
 /**
  * BtPianoKeys:
  *
- * waveform view widget
+ * A musical piano keyboard widget.
  */
 struct _BtPianoKeys {
   GtkWidget parent;
 
   /* state */
   GstBtNote key;
-  GdkWindow *window;
+  GdkSurface *window;
   GtkBorder border;
 };
 

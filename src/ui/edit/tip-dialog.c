@@ -132,25 +132,6 @@ on_show_tips_toggled (GtkToggleButton * togglebutton, gpointer user_data)
       gtk_toggle_button_get_active (togglebutton), NULL);
 }
 
-static void
-on_tip_view_realize (GtkWidget * widget, gpointer user_data)
-{
-  GtkWidget *parent = gtk_widget_get_parent (widget);
-  GtkRequisition requisition;
-  gint height, max_height;
-
-  gtk_widget_get_preferred_size (widget, NULL, &requisition);
-  bt_gtk_workarea_size (NULL, &max_height);
-
-  GST_DEBUG ("#### tip_view  size req %d x %d (max-height=%d)",
-      requisition.width, requisition.height, max_height);
-
-  height = MIN (requisition.height, max_height);
-  // TODO(ensonic): is the '4' some border or padding
-  gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (parent),
-      height + 4);
-}
-
 //-- helper methods
 
 static void
@@ -212,41 +193,37 @@ bt_tip_dialog_init_ui (const BtTipDialog * self)
   hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
   icon =
-      gtk_image_new_from_icon_name ("dialog-information", GTK_ICON_SIZE_DIALOG);
-  gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);
+      gtk_image_new_from_icon_name ("dialog-information");
+  gtk_box_prepend (GTK_BOX (hbox), icon);
 
   vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
   str = g_strdup_printf ("<big><b>%s</b></big>\n", _("Tip of the day"));
   label = g_object_new (GTK_TYPE_LABEL, "use-markup", TRUE, "label", str, NULL);
   g_free (str);
-  gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
+  gtk_box_prepend (GTK_BOX (vbox), label);
 
   self->priv->tip_view = GTK_TEXT_VIEW (gtk_text_view_new ());
   gtk_text_view_set_cursor_visible (self->priv->tip_view, FALSE);
   gtk_text_view_set_editable (self->priv->tip_view, FALSE);
   gtk_text_view_set_wrap_mode (self->priv->tip_view, GTK_WRAP_WORD);
-  g_signal_connect (self->priv->tip_view, "realize",
-      G_CALLBACK (on_tip_view_realize), (gpointer) self);
 
-  tip_view = gtk_scrolled_window_new (NULL, NULL);
-  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (tip_view),
-      GTK_SHADOW_IN);
+  tip_view = gtk_scrolled_window_new ();
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (tip_view),
       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_container_add (GTK_CONTAINER (tip_view),
+  gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (tip_view),
       GTK_WIDGET (self->priv->tip_view));
 
-  gtk_box_pack_start (GTK_BOX (vbox), tip_view, TRUE, TRUE, 0);
+  gtk_box_prepend (GTK_BOX (vbox), tip_view);
 
   chk = gtk_check_button_new_with_label (_("Show tips on startup"));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chk), show_tips);
   g_signal_connect (chk, "toggled", G_CALLBACK (on_show_tips_toggled),
       (gpointer) self);
-  gtk_box_pack_start (GTK_BOX (vbox), chk, FALSE, FALSE, 0);
+  gtk_box_prepend (GTK_BOX (vbox), chk);
 
-  gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (self))),
-      hbox, TRUE, TRUE, 0);
+  gtk_box_prepend (GTK_BOX (hbox), vbox);
+  gtk_box_prepend (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (self))),
+      hbox);
 
   // add "refresh" button to action area
   btn = gtk_dialog_add_button (GTK_DIALOG (self), _("Refresh"),

@@ -26,27 +26,20 @@
 
 #include "bt-edit.h"
 
-struct _BtAboutDialogPrivate
+/**
+ * bt_about_dialog_new:
+ *
+ * Create a new instance
+ *
+ * Returns: the new instance
+ */
+GtkAboutDialog *
+bt_about_dialog_new (BtEditApplication* app)
 {
-  /* used to validate if dispose has run */
-  gboolean dispose_has_run;
+  GtkWidget *self;
 
-  /* the application */
-  BtEditApplication *app;
-};
-
-//-- the class
-
-G_DEFINE_TYPE_WITH_CODE (BtAboutDialog, bt_about_dialog, GTK_TYPE_ABOUT_DIALOG, 
-    G_ADD_PRIVATE(BtAboutDialog));
-
-//-- event handler
-
-//-- helper methods
-
-static void
-bt_about_dialog_init_ui (const BtAboutDialog * self)
-{
+  self = gtk_about_dialog_new ();
+  
   GtkWidget *news, *news_view;
   const gchar *authors[] = {
 #include "authors.h"
@@ -122,67 +115,11 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
       */
       , -1);
 
-  news_view = gtk_scrolled_window_new (NULL, NULL);
-  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (news_view),
-      GTK_SHADOW_IN);
+  news_view = gtk_scrolled_window_new ();
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (news_view),
       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_container_add (GTK_CONTAINER (news_view), news);
-
-  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (self))),
-      news_view, TRUE, TRUE, 0);
+  gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (news_view), GTK_WIDGET (news));
+  
+  return GTK_ABOUT_DIALOG (self);
 }
 
-//-- constructor methods
-
-/**
- * bt_about_dialog_new:
- *
- * Create a new instance
- *
- * Returns: the new instance
- */
-BtAboutDialog *
-bt_about_dialog_new (void)
-{
-  BtAboutDialog *self;
-
-  self = BT_ABOUT_DIALOG (g_object_new (BT_TYPE_ABOUT_DIALOG, NULL));
-  bt_about_dialog_init_ui (self);
-  return self;
-}
-
-//-- methods
-
-//-- wrapper
-
-//-- class internals
-
-static void
-bt_about_dialog_dispose (GObject * object)
-{
-  BtAboutDialog *self = BT_ABOUT_DIALOG (object);
-  return_if_disposed ();
-  self->priv->dispose_has_run = TRUE;
-
-  GST_DEBUG ("!!!! self=%p", self);
-  g_object_unref (self->priv->app);
-
-  G_OBJECT_CLASS (bt_about_dialog_parent_class)->dispose (object);
-}
-
-static void
-bt_about_dialog_init (BtAboutDialog * self)
-{
-  self->priv = bt_about_dialog_get_instance_private(self);
-  GST_DEBUG ("!!!! self=%p", self);
-  self->priv->app = bt_edit_application_new ();
-}
-
-static void
-bt_about_dialog_class_init (BtAboutDialogClass * klass)
-{
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  gobject_class->dispose = bt_about_dialog_dispose;
-}

@@ -53,4 +53,6 @@ struct _BtIcControlClass {
 
 GType btic_control_get_type(void) G_GNUC_CONST;
 
+const gchar* btic_control_get_name(const BtIcControl* self);
+
 #endif // BTIC_CONTROL_H

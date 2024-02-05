@@ -31,42 +31,35 @@
 #include <glib/gprintf.h>
 
 /**
- * gdk_pixbuf_new_from_theme:
+ * gdk_paintable_new_from_theme:
  * @name: the icon name
  * @size: the pixel size
  *
- * Creates a new pixbuf image from the icon @name and @size.
+ * Creates a new texture from the icon @name and @size.
  *
- * Returns: a new pixbuf, g_object_unref() when done.
+ * Returns: a new texture, g_object_unref() when done.
  */
-GdkPixbuf *
-gdk_pixbuf_new_from_theme (const gchar * name, gint size)
+GdkPaintable *
+gdk_paintable_new_from_theme (const gchar * name, gint size, GdkDisplay* display)
 {
-  GdkPixbuf *pixbuf;
-  GError *error = NULL;
-  GtkIconTheme *it = gtk_icon_theme_get_default ();
+  GtkIconTheme *it = gtk_icon_theme_get_for_display (display);
 
   /* TODO(ensonic): docs recommend to listen to GtkWidget::style-set and update icon or
    * do gdk_pixbuf_copy() to avoid gtk keeping icon-theme loaded if it changes
    */
-  if (!(pixbuf =
-          gtk_icon_theme_load_icon (it, name, size,
-              GTK_ICON_LOOKUP_FORCE_SVG | GTK_ICON_LOOKUP_FORCE_SIZE,
-              &error))) {
-    GST_WARNING ("Couldn't load %s %dx%d icon: %s", name, size, size,
-        error->message);
-    g_error_free (error);
-    return gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, size, size);
-  } else {
-    GdkPixbuf *result = gdk_pixbuf_copy (pixbuf);
-    g_object_unref (pixbuf);
-    return result;
-  }
+  if (!gtk_icon_theme_has_icon (it, name))
+    GST_WARNING ("Theme doesn't have icon %s", name);
+  
+  GtkIconPaintable *icon =
+    gtk_icon_theme_lookup_icon (it, name, NULL, size, 1, GTK_TEXT_DIR_NONE, 0);
+  
+  return GDK_PAINTABLE (icon);
 }
 
 
 // gtk toolbar helper
 
+#if 0 /// GTK4
 /**
  * gtk_toolbar_get_style_from_string:
  * @style_name: the style name returned from gconf settings
@@ -92,7 +85,7 @@ gtk_toolbar_get_style_from_string (const gchar * style_name)
   }
   return GTK_TOOLBAR_BOTH;
 }
-
+#endif
 
 // save focus grab
 
@@ -129,6 +122,7 @@ gtk_widget_grab_focus_savely (GtkWidget * widget)
  *
  * Returns: the table and the size in the out variable @n_targets
  */
+#if 0 /// GTK4
 GtkTargetEntry *
 gtk_target_table_make (GdkAtom format_atom, gint * n_targets)
 {
@@ -149,9 +143,9 @@ gtk_target_table_make (GdkAtom format_atom, gint * n_targets)
 #endif
   targets = gtk_target_table_new_from_list (list, n_targets);
   gtk_target_list_unref (list);
-
   return targets;
 }
+#endif
 
 
 // gtk help helper
@@ -166,31 +160,12 @@ gtk_target_table_make (GdkAtom format_atom, gint * n_targets)
 void
 gtk_show_uri_simple (GtkWidget * widget, const gchar * uri)
 {
-  GError *error = NULL;
-
   g_return_if_fail (widget);
   g_return_if_fail (uri);
 
-#if GTK_CHECK_VERSION (3, 22, 0)
-  GtkWidget *toplevel = gtk_widget_get_toplevel (widget);
-  if (!gtk_widget_is_toplevel (toplevel)) {
-    GST_WARNING ("Failed lookup widgets window\n");
-  }
-  GtkWindow *window = GTK_WINDOW (toplevel);
-
-  if (!gtk_show_uri_on_window (window, uri, gtk_get_current_event_time (),
-          &error)) {
-    GST_WARNING ("Failed to display help: %s\n", error->message);
-    g_error_free (error);
-  }
-#else
-  GdkScreen *screen = gtk_widget_get_screen (widget);
-
-  if (!gtk_show_uri (screen, uri, gtk_get_current_event_time (), &error)) {
-    GST_WARNING ("Failed to display help: %s\n", error->message);
-    g_error_free (error);
-  }
-#endif
+  GtkUriLauncher* launcher = gtk_uri_launcher_new (uri);
+  gtk_uri_launcher_launch (launcher, GTK_WINDOW (gtk_widget_get_root (widget)), NULL, NULL, NULL);
+  g_object_unref (launcher);
 }
 
 /* debug helper */
@@ -228,6 +203,7 @@ bt_edit_ui_config (const gchar * str)
  *
  * Returns: %TRUE for successful sync of the properties
  */
+#if 0 /// GTK4
 gboolean
 bt_toolbar_style_changed (GBinding * binding, const GValue * from_value,
     GValue * to_value, gpointer user_data)
@@ -239,6 +215,7 @@ bt_toolbar_style_changed (GBinding * binding, const GValue * from_value,
   g_value_set_enum (to_value, gtk_toolbar_get_style_from_string (style));
   return TRUE;
 }
+#endif
 
 /**
  * bt_label_value_changed:
@@ -291,12 +268,13 @@ bt_pointer_to_boolean (GBinding * binding, const GValue * from_value,
  *
  * Returns: the new #GtkToolItem
  */
-GtkToolItem *
+GtkWidget *
 gtk_tool_button_new_from_icon_name (const gchar * icon_name,
     const gchar * label)
 {
-  return g_object_new (GTK_TYPE_TOOL_BUTTON,
-      "icon-name", icon_name, "label", label, NULL);
+  GtkButton *button = GTK_BUTTON (gtk_button_new_with_label (label));
+  gtk_button_set_icon_name (button, icon_name);
+  return GTK_WIDGET (button);
 }
 
 /**
@@ -309,12 +287,13 @@ gtk_tool_button_new_from_icon_name (const gchar * icon_name,
  *
  * Returns: the new #GtkToolItem
  */
-GtkToolItem *
+GtkWidget *
 gtk_toggle_tool_button_new_from_icon_name (const gchar * icon_name,
     const gchar * label)
 {
-  return g_object_new (GTK_TYPE_TOGGLE_TOOL_BUTTON,
-      "icon-name", icon_name, "label", label, NULL);
+  GtkWidget *result = gtk_toggle_button_new_with_label (label);
+  gtk_button_set_icon_name (GTK_BUTTON (result), icon_name);
+  return result;
 }
 
 /* menu accel helper */
@@ -331,6 +310,7 @@ gtk_toggle_tool_button_new_from_icon_name (const gchar * icon_name,
  *
  * see_also: gtk_widget_add_accelerator()
  */
+#if 0 /// GTK4
 void
 gtk_menu_item_add_accel (GtkMenuItem * mi, const gchar * path, guint accel_key,
     GdkModifierType accel_mods)
@@ -339,6 +319,7 @@ gtk_menu_item_add_accel (GtkMenuItem * mi, const gchar * path, guint accel_key,
   gtk_menu_item_set_accel_path (mi, path);
   gtk_accel_map_add_entry (path, accel_key, accel_mods);
 }
+#endif
 
 /* notify main-loop dispatch helper */
 
@@ -386,40 +367,6 @@ bt_notify_idle_dispatch (GObject * object, GParamSpec * pspec,
   data->func = func;
   g_weak_ref_init (&data->user_data, user_data);
   g_idle_add (on_idle_notify, data);
-}
-
-/* gtk compat helper */
-
-/**
- * bt_gtk_workarea_size:
- * @max_width: destination for the width or %NULL
- * @max_height: destination for the heigth or %NULL
- *
- * Gets the potitial max size the window could occupy. This can be used to
- * hint the content size for #GtkScrelledWindow.
- */
-void
-bt_gtk_workarea_size (gint * max_width, gint * max_height)
-{
-#if GTK_CHECK_VERSION (3, 22, 0)
-  GdkRectangle area;
-  gdk_monitor_get_workarea (gdk_display_get_primary_monitor
-      (gdk_display_get_default ()), &area);
-  if (max_width)
-    *max_width = area.width;
-  if (max_height)
-    *max_height = area.height;
-#else
-  GdkScreen *screen = gdk_screen_get_default ();
-  /* TODO(ensonjc): these constances below are arbitrary
-   * look at http://standards.freedesktop.org/wm-spec/1.3/ar01s05.html#id2523368
-   * search for _NET_WM_STRUT_PARTIAL
-   */
-  if (max_width)
-    *max_width = gdk_screen_get_width (screen) - 16;
-  if (max_height)
-    *max_height = gdk_screen_get_height (screen) - 80;
-#endif
 }
 
 /**

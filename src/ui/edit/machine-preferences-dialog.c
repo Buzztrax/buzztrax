@@ -52,8 +52,9 @@ enum
   MACHINE_PREFERENCES_DIALOG_MACHINE = 1
 };
 
-struct _BtMachinePreferencesDialogPrivate
-{
+struct _BtMachinePreferencesDialog {
+  GtkWindow parent;
+  
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
@@ -68,13 +69,11 @@ static GQuark widget_parent_quark = 0;
 
 //-- the class
 
-G_DEFINE_TYPE_WITH_CODE (BtMachinePreferencesDialog, bt_machine_preferences_dialog,
-    GTK_TYPE_WINDOW, 
-    G_ADD_PRIVATE(BtMachinePreferencesDialog));
+G_DEFINE_TYPE (BtMachinePreferencesDialog, bt_machine_preferences_dialog, ADW_TYPE_WINDOW);
 
 //-- event handler
 
-static void on_combobox_property_changed (GtkComboBox * combobox,
+static void on_combobox_property_changed_enum (GtkDropDown * combobox,
     gpointer user_data);
 
 static void
@@ -102,35 +101,31 @@ on_double_entry_property_notify (const GstElement * machine,
 
   g_object_get ((gpointer) machine, property->name, &value, NULL);
   str_value = g_strdup_printf ("%7.2lf", value);
-  gtk_entry_set_text (GTK_ENTRY (widget), str_value);
+  gtk_editable_set_text (GTK_EDITABLE (widget), str_value);
   g_free (str_value);
 }
 
 static void
-on_combobox_property_notify (const GstElement * machine, GParamSpec * property,
+on_combobox_property_notify_enum (const GstElement * machine, GParamSpec * property,
     gpointer user_data)
 {
   GtkWidget *widget = GTK_WIDGET (user_data);
-  gint ivalue, nvalue;
-  GtkTreeModel *store;
-  GtkTreeIter iter;
+  gint nvalue;
 
   g_object_get ((gpointer) machine, property->name, &nvalue, NULL);
-  store = gtk_combo_box_get_model (GTK_COMBO_BOX (widget));
-  gtk_tree_model_get_iter_first (store, &iter);
-  do {
-    gtk_tree_model_get (store, &iter, 0, &ivalue, -1);
-    if (ivalue == nvalue)
-      break;
-  } while (gtk_tree_model_iter_next (store, &iter));
+  
+  AdwEnumListModel *store = ADW_ENUM_LIST_MODEL (gtk_drop_down_get_model (GTK_DROP_DOWN (widget)));
 
   g_signal_handlers_block_matched (widget,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-      on_combobox_property_changed, (gpointer) machine);
-  gtk_combo_box_set_active_iter (GTK_COMBO_BOX (widget), &iter);
+      on_combobox_property_changed_enum, (gpointer) machine);
+  
+  gint idx = adw_enum_list_model_find_position (store, nvalue);
+  gtk_drop_down_set_selected (GTK_DROP_DOWN (widget), idx);
+  
   g_signal_handlers_unblock_matched (widget,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-      on_combobox_property_changed, (gpointer) machine);
+      on_combobox_property_changed_enum, (gpointer) machine);
 }
 
 
@@ -144,8 +139,8 @@ on_entry_property_changed (GtkEditable * editable, gpointer user_data)
           widget_parent_quark));
 
   //GST_INFO("preferences value change received for: '%s'",name);
-  g_object_set (machine, name, gtk_entry_get_text (GTK_ENTRY (editable)), NULL);
-  bt_edit_application_set_song_unsaved (self->priv->app);
+  g_object_set (machine, name, gtk_editable_get_text (GTK_EDITABLE (editable)), NULL);
+  bt_edit_application_set_song_unsaved (self->app);
 }
 
 static void
@@ -161,7 +156,7 @@ on_checkbox_property_toggled (GtkToggleButton * togglebutton,
   //GST_INFO("preferences value change received for: '%s'",name);
   g_object_set (machine, name, gtk_toggle_button_get_active (togglebutton),
       NULL);
-  bt_edit_application_set_song_unsaved (self->priv->app);
+  bt_edit_application_set_song_unsaved (self->app);
 }
 
 static void
@@ -175,7 +170,7 @@ on_range_property_changed (GtkRange * range, gpointer user_data)
 
   //GST_INFO("preferences value change received for: '%s'",name);
   g_object_set (machine, name, gtk_range_get_value (range), NULL);
-  bt_edit_application_set_song_unsaved (self->priv->app);
+  bt_edit_application_set_song_unsaved (self->app);
 }
 
 static void
@@ -189,9 +184,9 @@ on_double_entry_property_changed (GtkEditable * editable, gpointer user_data)
           widget_parent_quark));
 
   //GST_INFO("preferences value change received for: '%s'",name);
-  value = g_ascii_strtod (gtk_entry_get_text (GTK_ENTRY (editable)), NULL);
+  value = g_ascii_strtod (gtk_editable_get_text (GTK_EDITABLE (editable)), NULL);
   g_object_set (machine, name, value, NULL);
-  bt_edit_application_set_song_unsaved (self->priv->app);
+  bt_edit_application_set_song_unsaved (self->app);
 }
 
 static void
@@ -207,35 +202,37 @@ on_spinbutton_property_changed (GtkSpinButton * spinbutton, gpointer user_data)
   GST_INFO ("preferences value change received for: '%s'", name);
   value = gtk_spin_button_get_value_as_int (spinbutton);
   g_object_set (machine, name, value, NULL);
-  bt_edit_application_set_song_unsaved (self->priv->app);
+  bt_edit_application_set_song_unsaved (self->app);
 }
 
 static void
-on_combobox_property_changed (GtkComboBox * combobox, gpointer user_data)
+on_combobox_property_changed_enum (GtkDropDown * combobox, gpointer user_data)
 {
   GstElement *machine = GST_ELEMENT (user_data);
-  gint value;
   const gchar *name = gtk_widget_get_name (GTK_WIDGET (combobox));
   BtMachinePreferencesDialog *self =
       BT_MACHINE_PREFERENCES_DIALOG (g_object_get_qdata (G_OBJECT (combobox),
           widget_parent_quark));
-  GtkTreeModel *store;
-  GtkTreeIter iter;
 
   GST_INFO ("preferences value change received for: '%s'", name);
-  store = gtk_combo_box_get_model (combobox);
-  if (gtk_combo_box_get_active_iter (combobox, &iter)) {
-    gtk_tree_model_get (store, &iter, 0, &value, -1);
+
+  AdwEnumListItem* item = gtk_drop_down_get_selected_item (combobox);
+  if (item) {
+    gint value = adw_enum_list_item_get_value (item);
     GST_INFO ("change preferences value for: '%s' to %d", name, value);
+    
     g_signal_handlers_block_matched (machine,
         G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_combobox_property_notify, (gpointer) combobox);
+        on_combobox_property_notify_enum, (gpointer) combobox);
+  
     g_object_set (machine, name, value, NULL);
+  
     g_signal_handlers_unblock_matched (machine,
         G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_combobox_property_notify, (gpointer) combobox);
+        on_combobox_property_notify_enum, (gpointer) combobox);
   }
-  bt_edit_application_set_song_unsaved (self->priv->app);
+  
+  bt_edit_application_set_song_unsaved (self->app);
 }
 
 /*
@@ -254,21 +251,21 @@ on_table_realize (GtkWidget * widget, gpointer user_data)
   gint height, max_heigth, width, max_width, border;
 
   gtk_widget_get_preferred_size (widget, &minimum, &natural);
-  border = gtk_container_get_border_width (GTK_CONTAINER (widget));
+  /// GTK4 border = gtk_container_get_border_width (GTK_CONTAINER (widget));
 
-  requisition.width = MAX (minimum.width, natural.width) + border;
-  requisition.height = MAX (minimum.height, natural.height) + border;
-  bt_gtk_workarea_size (&max_width, &max_heigth);
+  /// GTK4 requisition.width = MAX (minimum.width, natural.width) + border;
+  /// GTK4 requisition.height = MAX (minimum.height, natural.height) + border;
+  /// GTK4 bt_gtk_workarea_size (&max_width, &max_heigth);
 
-  GST_DEBUG ("#### table size req %d x %d (max %d x %d)", requisition.width,
-      requisition.height, max_width, max_heigth);
+  /// GTK4 GST_DEBUG ("#### table size req %d x %d (max %d x %d)", requisition.width,
+  /// GTK4     requisition.height, max_width, max_heigth);
 
   // constrain the size by screen size minus some space for panels and deco
-  height = MIN (requisition.height, max_heigth);
-  width = MIN (requisition.width, max_width);
+  /// GTK4 height = MIN (requisition.height, max_heigth);
+  /// GTK4 width = MIN (requisition.width, max_width);
 
-  gtk_scrolled_window_set_min_content_height (parent, height);
-  gtk_scrolled_window_set_min_content_width (parent, width);
+  /// GTK4 gtk_scrolled_window_set_min_content_height (parent, height);
+  /// GTK4 gtk_scrolled_window_set_min_content_width (parent, width);
 }
 
 //-- helper methods
@@ -293,12 +290,12 @@ on_table_realize (GtkWidget * widget, gpointer user_data)
 
 
 static void
-bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
+bt_machine_preferences_dialog_init_ui (BtMachinePreferencesDialog * self)
 {
   BtMainWindow *main_window;
   GtkWidget *label, *widget1, *widget2, *table, *scrolled_window;
   GtkAdjustment *spin_adjustment;
-  GdkPixbuf *window_icon = NULL;
+  GdkPaintable *window_icon = NULL;
   GstElement *machine;
   BtParameterGroup *pg;
   GParamSpec **properties, *property;
@@ -309,36 +306,36 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
 
   gtk_widget_set_name (GTK_WIDGET (self), "machine preferences");
 
-  g_object_get (self->priv->app, "main-window", &main_window, NULL);
+  g_object_get (self->app, "main-window", &main_window, NULL);
   gtk_window_set_transient_for (GTK_WINDOW (self), GTK_WINDOW (main_window));
   gtk_window_set_default_size (GTK_WINDOW (self), 300, -1);
 
   // create and set window icon
   if ((window_icon =
-          bt_ui_resources_get_icon_pixbuf_by_machine (self->priv->machine))) {
-    gtk_window_set_icon (GTK_WINDOW (self), window_icon);
+          bt_ui_resources_get_icon_paintable_by_machine (self->machine))) {
+    /// GTK4 gtk_window_set_icon (GTK_WINDOW (self), window_icon);
     g_object_unref (window_icon);
   }
 
-  g_object_get (self->priv->machine, "machine", &machine, NULL);
+  g_object_get (self->machine, "machine", &machine, NULL);
 
   // get machine properties
-  pg = bt_machine_get_prefs_param_group (self->priv->machine);
+  pg = bt_machine_get_prefs_param_group (self->machine);
   g_object_get (pg, "num-params", &number_of_properties, "params", &properties,
       NULL);
 
   // machine preferences inside a scrolled window
-  scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+  scrolled_window = gtk_scrolled_window_new ();
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW
-      (scrolled_window), GTK_SHADOW_NONE);
+  /// GTK4 gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW
+  //    (scrolled_window), GTK_SHADOW_NONE);
 
   // add machine preferences into the table
   table = gtk_grid_new ();
-  gtk_container_set_border_width (GTK_CONTAINER (table), 6);
-  g_signal_connect (table, "realize",
-      G_CALLBACK (on_table_realize), (gpointer) self);
+  /// GTK4 gtk_container_set_border_width (GTK_CONTAINER (table), 6);
+  g_signal_connect_object (table, "realize",
+      G_CALLBACK (on_table_realize), (gpointer) self, 0);
 
   for (i = 0; i < number_of_properties; i++) {
     property = properties[i];
@@ -376,12 +373,12 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
         gtk_widget_set_name (GTK_WIDGET (widget1), property->name);
         g_object_set_qdata (G_OBJECT (widget1), widget_parent_quark,
             (gpointer) self);
-        gtk_entry_set_text (GTK_ENTRY (widget1), safe_string (value));
+        gtk_editable_set_text (GTK_EDITABLE (widget1), safe_string (value));
         g_free (value);
         widget2 = NULL;
         // connect handlers
-        g_signal_connect (widget1, "changed",
-            G_CALLBACK (on_entry_property_changed), (gpointer) machine);
+        g_signal_connect_object (widget1, "changed",
+            G_CALLBACK (on_entry_property_changed), (gpointer) machine, 0);
         break;
       }
       case G_TYPE_BOOLEAN:{
@@ -395,8 +392,8 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget1), value);
         widget2 = NULL;
         // connect handlers
-        g_signal_connect (widget1, "toggled",
-            G_CALLBACK (on_checkbox_property_toggled), (gpointer) machine);
+        g_signal_connect_object (widget1, "toggled",
+            G_CALLBACK (on_checkbox_property_toggled), (gpointer) machine, 0);
         break;
       }
         _MAKE_SPIN_BUTTON (int, INT, Int)
@@ -426,7 +423,7 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
         gtk_widget_set_name (GTK_WIDGET (widget2), property->name);
         g_object_set_qdata (G_OBJECT (widget1), widget_parent_quark,
             (gpointer) self);
-        gtk_entry_set_text (GTK_ENTRY (widget2), str_value);
+        gtk_editable_set_text (GTK_EDITABLE (widget2), str_value);
         g_object_set (widget2, "max-length", 9, "width-chars", 9, NULL);
         g_free (str_value);
         signal_name = g_strdup_printf ("notify::%s", property->name);
@@ -435,55 +432,39 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
         g_signal_connect_object (machine, signal_name,
             G_CALLBACK (on_double_entry_property_notify), (gpointer) widget2,
             0);
-        g_signal_connect (widget1, "value-changed",
-            G_CALLBACK (on_range_property_changed), (gpointer) machine);
-        g_signal_connect (widget2, "changed",
-            G_CALLBACK (on_double_entry_property_changed), (gpointer) machine);
+        g_signal_connect_object (widget1, "value-changed",
+            G_CALLBACK (on_range_property_changed), (gpointer) machine, 0);
+        g_signal_connect_object (widget2, "changed",
+            G_CALLBACK (on_double_entry_property_changed), (gpointer) machine, 0);
         g_free (signal_name);
         break;
       }
       case G_TYPE_ENUM:{
         GParamSpecEnum *enum_property = G_PARAM_SPEC_ENUM (property);
         GEnumClass *enum_class = enum_property->enum_class;
-        GEnumValue *enum_value;
-        GtkCellRenderer *renderer;
-        GtkListStore *store;
-        GtkTreeIter iter;
-        gint value;
 
-        widget1 = gtk_combo_box_new ();
+        widget1 = gtk_drop_down_new (G_LIST_MODEL (adw_enum_list_model_new (G_ENUM_CLASS_TYPE (enum_class))), NULL);
+        
+        gtk_drop_down_set_header_factory (
+          GTK_DROP_DOWN (widget1),
+          gtk_builder_list_item_factory_new_from_resource (NULL,
+              "/org/buzztrax/ui/list-item-factory-string.ui"));
+  
+        gtk_drop_down_set_list_factory (
+          GTK_DROP_DOWN (widget1),
+          gtk_builder_list_item_factory_new_from_resource (NULL,
+              "/org/buzztrax/ui/list-item-factory-string.ui"));
+        
         GST_INFO ("enum range: %d, %d", enum_class->minimum,
             enum_class->maximum);
-        // need a real model because of sparse enums
-        store = gtk_list_store_new (2, G_TYPE_INT, G_TYPE_STRING);
-        for (value = enum_class->minimum; value <= enum_class->maximum; value++) {
-          if ((enum_value = g_enum_get_value (enum_class, value))) {
-            //GST_INFO("enum value: %d, '%s', '%s'",enum_value->value,enum_value->value_name,enum_value->value_nick);
-            gtk_list_store_append (store, &iter);
-            gtk_list_store_set (store, &iter,
-                0, enum_value->value, 1, enum_value->value_nick, -1);
-          }
-        }
-        renderer = gtk_cell_renderer_text_new ();
-        gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
-        gtk_cell_renderer_text_set_fixed_height_from_font
-            (GTK_CELL_RENDERER_TEXT (renderer), 1);
-        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widget1), renderer, TRUE);
-        gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (widget1), renderer,
-            "text", 1, NULL);
-        gtk_combo_box_set_model (GTK_COMBO_BOX (widget1),
-            GTK_TREE_MODEL (store));
-        gtk_widget_set_name (GTK_WIDGET (widget1), property->name);
-        g_object_set_qdata (G_OBJECT (widget1), widget_parent_quark,
-            (gpointer) self);
 
-        on_combobox_property_notify (machine, property, (gpointer) widget1);
+        on_combobox_property_notify_enum (machine, property, (gpointer) widget1);
 
         signal_name = g_strdup_printf ("notify::%s", property->name);
         g_signal_connect_object (machine, signal_name,
-            G_CALLBACK (on_combobox_property_notify), (gpointer) widget1, 0);
-        g_signal_connect (widget1, "changed",
-            G_CALLBACK (on_combobox_property_changed), (gpointer) machine);
+            G_CALLBACK (on_combobox_property_notify_enum), (gpointer) widget1, 0);
+        g_signal_connect_object (widget1, "changed",
+            G_CALLBACK (on_combobox_property_changed_enum), (gpointer) machine, 0);
         g_free (signal_name);
         widget2 = NULL;
         break;
@@ -515,16 +496,11 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
     g_free(readonly_tooltip_text);
   }
   // eat remaning space
-#if GTK_CHECK_VERSION (3, 8, 0)
-  gtk_container_add (GTK_CONTAINER (scrolled_window), table);
-#else
-  gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolled_window),
-      table);
-#endif
-  gtk_container_add (GTK_CONTAINER (self), scrolled_window);
+  /// GTK4 gtk_container_add (GTK_CONTAINER (scrolled_window), table);
+  adw_window_set_content (ADW_WINDOW (self), scrolled_window);
 
   // track machine name (keep window title up-to-date)
-  g_object_bind_property_full (self->priv->machine, "pretty-name",
+  g_object_bind_property_full (self->machine, "pretty-name",
       (GObject *) self, "title", G_BINDING_SYNC_CREATE, bt_label_value_changed,
       NULL, _("%s preferences"), NULL);
 
@@ -565,11 +541,11 @@ bt_machine_preferences_dialog_set_property (GObject * object, guint property_id,
     const GValue * value, GParamSpec * pspec)
 {
   BtMachinePreferencesDialog *self = BT_MACHINE_PREFERENCES_DIALOG (object);
-  return_if_disposed ();
+  return_if_disposed_self ();
   switch (property_id) {
     case MACHINE_PREFERENCES_DIALOG_MACHINE:
-      g_object_try_unref (self->priv->machine);
-      self->priv->machine = g_value_dup_object (value);
+      g_object_try_unref (self->machine);
+      self->machine = g_value_dup_object (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -582,13 +558,13 @@ bt_machine_preferences_dialog_dispose (GObject * object)
 {
   BtMachinePreferencesDialog *self = BT_MACHINE_PREFERENCES_DIALOG (object);
 
-  return_if_disposed ();
-  self->priv->dispose_has_run = TRUE;
+  return_if_disposed_self ();
+  self->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  g_object_try_unref (self->priv->machine);
-  g_object_unref (self->priv->app);
+  g_object_try_unref (self->machine);
+  g_object_unref (self->app);
 
   G_OBJECT_CLASS (bt_machine_preferences_dialog_parent_class)->dispose (object);
 }
@@ -596,9 +572,9 @@ bt_machine_preferences_dialog_dispose (GObject * object)
 static void
 bt_machine_preferences_dialog_init (BtMachinePreferencesDialog * self)
 {
-  self->priv = bt_machine_preferences_dialog_get_instance_private(self);
+  self = bt_machine_preferences_dialog_get_instance_private(self);
   GST_DEBUG ("!!!! self=%p", self);
-  self->priv->app = bt_edit_application_new ();
+  self->app = bt_edit_application_new ();
 }
 
 static void

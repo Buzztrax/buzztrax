@@ -509,7 +509,6 @@ bt_settings_page_audiodevices_new (GtkWidget * pages)
       BT_SETTINGS_PAGE_AUDIODEVICES (g_object_new
       (BT_TYPE_SETTINGS_PAGE_AUDIODEVICES, NULL));
   bt_settings_page_audiodevices_init_ui (self, pages);
-  gtk_widget_show_all (GTK_WIDGET (self));
   return self;
 }
 

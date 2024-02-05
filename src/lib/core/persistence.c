@@ -76,6 +76,37 @@ bt_persistence_save_list (const GList * list, xmlNodePtr const node, gpointer co
   return res;
 }
 
+/**
+ * bt_persistence_save_list_mode:
+ * @list: (element-type BuzztraxCore.Persistence): a #GListModel
+ * @doc; the xml-document
+ * @node: the list xml node
+ *
+ * Iterates over a list of objects, which must implement the #BtPersistence
+ * interface and calls bt_persistence_save() on each item.
+ *
+ * Returns: %TRUE if all elements have been serialized.
+ */
+gboolean
+bt_persistence_save_list_model (GListModel * list, xmlNodePtr const node, gpointer const userdata)
+{
+  gboolean res = TRUE;
+
+  for (guint i = 0; ; ++i) {
+    GObject* item = g_list_model_get_object (list, i);
+    if (!item)
+      break;
+    
+    if (BT_IS_PERSISTENCE (item)) {
+      res &=
+          (bt_persistence_save ((BtPersistence *) item, node, userdata) != NULL);
+    }
+
+    g_object_unref (item);
+  }
+  return res;
+}
+
 /*
  * this isn't as useful as the _save_list version
  *
@@ -203,7 +234,7 @@ bt_persistence_save (const BtPersistence * const self,
  * Returns: (transfer none): the deserialized object or %NULL.
  */
 BtPersistence *
-bt_persistence_load (const GType type, const BtPersistence * const self,
+bt_persistence_load (const GType type, BtPersistence * const self,
     xmlNodePtr node, GError ** err, ...)
 {
   BtPersistence *result;

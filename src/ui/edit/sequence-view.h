@@ -20,39 +20,46 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <gtk/gtk.h>
 
-#define BT_TYPE_SEQUENCE_VIEW            (bt_sequence_view_get_type ())
-#define BT_SEQUENCE_VIEW(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SEQUENCE_VIEW, BtSequenceView))
-#define BT_SEQUENCE_VIEW_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SEQUENCE_VIEW, BtSequenceViewClass))
-#define BT_IS_SEQUENCE_VIEW(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_SEQUENCE_VIEW))
-#define BT_IS_SEQUENCE_VIEW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SEQUENCE_VIEW))
-#define BT_SEQUENCE_VIEW_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SEQUENCE_VIEW, BtSequenceViewClass))
-
-/* type macros */
-
-typedef struct _BtSequenceView BtSequenceView;
-typedef struct _BtSequenceViewClass BtSequenceViewClass;
-typedef struct _BtSequenceViewPrivate BtSequenceViewPrivate;
+typedef struct _BtMachine BtMachine;
+typedef struct _BtSequence BtSequence;
+typedef struct _BtSong BtSong;
+typedef struct _BtSongInfo BtSongInfo;
+typedef struct _BtSequenceGridModel BtSequenceGridModel;
 
 /**
  * BtSequenceView:
  *
  * the sequence widget view
  */
-struct _BtSequenceView {
-  GtkTreeView parent;
-  
-  /*< private >*/
-  BtSequenceViewPrivate *priv;
-};
+G_DECLARE_FINAL_TYPE (BtSequenceView, bt_sequence_view, BT, SEQUENCE_VIEW, GtkWidget);
 
-struct _BtSequenceViewClass {
-  GtkTreeViewClass parent;
-  
-};
+#define BT_TYPE_SEQUENCE_VIEW            (bt_sequence_view_get_type ())
 
-GType bt_sequence_view_get_type(void) G_GNUC_CONST;
+#define BT_TYPE_SEQUENCE_GRID_MODEL_POS_FORMAT   (bt_sequence_grid_model_pos_format_get_type())
 
-BtSequenceView *bt_sequence_view_new(void);
+/**
+ * BtSequenceGridModelPosFormat:
+ * @BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS: show as number of ticks
+ * @BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME: show as "min:sec.msec"
+ * @BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS: show as "beats.ticks"
+ *
+ * Format type for time values in the sequencer.
+ */
+typedef enum {
+  BT_SEQUENCE_VIEW_POS_FORMAT_TICKS=0,
+  BT_SEQUENCE_VIEW_POS_FORMAT_TIME,
+  BT_SEQUENCE_VIEW_POS_FORMAT_BEATS
+} BtSequenceViewPosFormat;
+
+GType bt_sequence_view_pos_format_get_type(void) G_GNUC_CONST;
+
+BtSequenceView *bt_sequence_view_new(BtSong* song);
+
+BtMachine *bt_sequence_view_get_current_machine(BtSequenceView *self);
+gboolean bt_sequence_view_get_current_pos(BtSequenceView *self, gulong *time, gulong *track);
+BtSequenceGridModel *bt_sequence_view_get_model(BtSequenceView *self);
+void bt_sequence_view_set_song(BtSequenceView *self, BtSong *song);
 
 #endif // BT_SEQUENCE_VIEW_H

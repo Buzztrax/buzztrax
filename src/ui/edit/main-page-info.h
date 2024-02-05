@@ -21,37 +21,14 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BT_TYPE_MAIN_PAGE_INFO             (bt_main_page_info_get_type ())
-#define BT_MAIN_PAGE_INFO(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_PAGE_INFO, BtMainPageInfo))
-#define BT_MAIN_PAGE_INFO_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_PAGE_INFO, BtMainPageInfoClass))
-#define BT_IS_MAIN_PAGE_INFO(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MAIN_PAGE_INFO))
-#define BT_IS_MAIN_PAGE_INFO_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MAIN_PAGE_INFO))
-#define BT_MAIN_PAGE_INFO_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MAIN_PAGE_INFO, BtMainPageInfoClass))
-
-/* type macros */
-
-typedef struct _BtMainPageInfo BtMainPageInfo;
-typedef struct _BtMainPageInfoClass BtMainPageInfoClass;
-typedef struct _BtMainPageInfoPrivate BtMainPageInfoPrivate;
-
 /**
  * BtMainPageInfo:
  *
  * the info page for the editor application
  */
-struct _BtMainPageInfo {
-  GtkBox parent;
-  
-  /*< private >*/
-  BtMainPageInfoPrivate *priv;
-};
+G_DECLARE_FINAL_TYPE(BtMainPageInfo, bt_main_page_info, BT, MAIN_PAGE_INFO, GtkBox);
 
-struct _BtMainPageInfoClass {
-  GtkBoxClass parent;
-  
-};
-
-GType bt_main_page_info_get_type(void) G_GNUC_CONST;
+#define BT_TYPE_MAIN_PAGE_INFO             (bt_main_page_info_get_type ())
 
 #include "main-pages.h"
 

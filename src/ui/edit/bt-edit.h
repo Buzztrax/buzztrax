@@ -59,8 +59,7 @@
 #include <glib.h>
 //-- gtk+
 #include <gtk/gtk.h>
-//-- clutter
-#include <clutter/clutter.h>
+#include <adwaita.h>
 
 #include "about-dialog.h"
 #include "change-log.h"
@@ -72,15 +71,12 @@
 #include "machine-menu.h"
 #include "machine-actions.h"
 #include "machine-list-model.h"
-#include "machine-preset-properties-dialog.h"
-#include "machine-properties-dialog.h"
 #include "machine-preferences-dialog.h"
 #include "machine-rename-dialog.h"
 #include "main-menu.h"
 #include "main-pages.h"
 #include "main-page-machines.h"
 #include "main-page-patterns.h"
-#include "main-page-sequence.h"
 #include "main-page-waves.h"
 #include "main-page-info.h"
 #include "main-statusbar.h"
@@ -99,7 +95,6 @@
 #include "preset-list-model.h"
 #include "render-dialog.h"
 #include "sequence-grid-model.h"
-#include "sequence-view.h"
 #include "settings-dialog.h"
 #include "settings-page-audiodevices.h"
 #include "settings-page-directories.h"
@@ -112,7 +107,6 @@
 #include "tools.h"
 #include "ui-resources.h"
 #include "volume-popup.h"
-#include "wave-list-model.h"
 #include "waveform-viewer.h"
 #include "wavelevel-list-model.h"
 #include "wire-canvas-item.h"

@@ -444,12 +444,15 @@ libbtedit_la_CPPFLAGS = \
   $(AM_CPPFLAGS)
 libbtedit_la_CFLAGS = $(GUI_DEPS_CFLAGS)
 libbtedit_la_SOURCES = \
+  res/gresources.c res/gresources.h \
   src/ui/edit/about-dialog.c src/ui/edit/about-dialog.h \
   src/ui/edit/change-log.c src/ui/edit/change-log.h \
   src/ui/edit/change-logger.c src/ui/edit/change-logger.h \
   src/ui/edit/crash-recover-dialog.c src/ui/edit/crash-recover-dialog.h \
   src/ui/edit/edit-application.c src/ui/edit/edit-application.h \
   src/ui/edit/interaction-controller-menu.c src/ui/edit/interaction-controller-menu.h \
+  src/ui/edit/list-item-long.c src/ui/edit/list-item-long.h \
+  src/ui/edit/list-item-pointer.c src/ui/edit/list-item-pointer.h \
   src/ui/edit/machine-canvas-item.c src/ui/edit/machine-canvas-item.h \
   src/ui/edit/machine-menu.c src/ui/edit/machine-menu.h \
   src/ui/edit/machine-actions.c src/ui/edit/machine-actions.h \
@@ -488,18 +491,16 @@ libbtedit_la_SOURCES = \
   src/ui/edit/settings-page-playback-controller.c src/ui/edit/settings-page-playback-controller.h \
   src/ui/edit/settings-page-shortcuts.c src/ui/edit/settings-page-shortcuts.h \
   src/ui/edit/settings-page-ui.c src/ui/edit/settings-page-ui.h \
-  src/ui/edit/signal-analysis-dialog.c src/ui/edit/signal-analysis-dialog.h \
+ src/ui/edit/signal-analysis-dialog.c src/ui/edit/signal-analysis-dialog.h \
   src/ui/edit/tip-dialog.c src/ui/edit/tip-dialog.h \
   src/ui/edit/tools.c src/ui/edit/tools.h \
   src/ui/edit/ui-resources.c src/ui/edit/ui-resources.h \
   src/ui/edit/volume-popup.c src/ui/edit/volume-popup.h \
-  src/ui/edit/wave-list-model.c src/ui/edit/wave-list-model.h \
   src/ui/edit/waveform-viewer.c src/ui/edit/waveform-viewer.h \
   src/ui/edit/wavelevel-list-model.c src/ui/edit/wavelevel-list-model.h \
   src/ui/edit/wire-canvas-item.c src/ui/edit/wire-canvas-item.h \
   \
   src/ui/edit/pattern-editor.c src/ui/edit/pattern-editor.h \
-  src/ui/edit/gtkscrolledsyncwindow.c src/ui/edit/gtkscrolledsyncwindow.h \
   src/ui/edit/gtkvumeter.c src/ui/edit/gtkvumeter.h \
   \
   src/ui/edit/btmemoryaudiosrc.c src/ui/edit/btmemoryaudiosrc.h
@@ -516,30 +517,7 @@ src/ui/edit/authors.h: AUTHORS
 	$(AM_V_GEN)sed -e 's/^/"/' -e 's/$$/",/' $< >$@
 
 BUILT_SOURCES += $(nodist_libbtedit_la_SOURCES)
-CLEANFILES += $(nodist_libbtedit_la_SOURCES) src/ui/edit/bt-edit.css
-
-CSS_REWRITES = -e 's/x/x/'
-if HAVE_GTK_3_19_6
-CSS_REWRITES += -e 's/:prelight/:hover/'
-endif
-if HAVE_GTK_3_14
-CSS_REWRITES += -e '/deprecated 3.14/d'
-endif
-
-src/ui/edit/bt-edit.css: src/ui/edit/bt-edit.css.in
-	$(AM_V_at)$(MKDIR_P) src/ui/edit
-	$(AM_V_GEN) sed $< >$@ $(CSS_REWRITES)
-
-cssdir = $(datadir)/$(PACKAGE)
-css_DATA = src/ui/edit/bt-edit.css \
-  src/ui/edit/bt-edit.compact.css \
-  src/ui/edit/bt-edit.normal.css \
-  src/ui/edit/bt-edit.dark.css \
-  src/ui/edit/bt-edit.light.css \
-  src/ui/edit/bt-edit.dark.compact.css \
-  src/ui/edit/bt-edit.light.compact.css \
-  src/ui/edit/bt-edit.dark.normal.css \
-  src/ui/edit/bt-edit.light.normal.css
+CLEANFILES += $(nodist_libbtedit_la_SOURCES)
 
 # -- plugins -------------------------------------------------------------------
 
@@ -822,7 +800,6 @@ BUILT_SOURCES += $(BUILT_GIRSOURCES)
 
 EXTRA_DIST += \
   $(desktop_in_files) $(sharedmimepackage_in_files) \
-  $(css_DATA) src/ui/edit/bt-edit.css.in \
   $(preset_DATA) \
   src/lib/bml/libbml.pc.in \
   src/lib/bml/BuzzMachineLoader.dll \

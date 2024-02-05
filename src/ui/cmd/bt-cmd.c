@@ -110,7 +110,15 @@ main (gint argc, gchar ** argv)
   g_option_group_set_translation_domain (group, GETTEXT_PACKAGE);
   g_option_context_set_main_group (ctx, group);
 
-  bt_init_add_option_groups (ctx);
+  GPtrArray* groups = bt_get_option_groups ();
+  
+  for (guint i = 0; i < groups->len; i++)
+  {
+    g_option_context_add_group (ctx, (GOptionGroup*) g_ptr_array_index (groups, i));
+  }
+  
+  g_ptr_array_unref (groups);
+  
   g_option_context_add_group (ctx, btic_init_get_option_group ());
 
   if (!g_option_context_parse (ctx, &argc, &argv, &err)) {

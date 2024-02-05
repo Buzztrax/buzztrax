@@ -20,40 +20,22 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <adwaita.h>
 
-#define BT_TYPE_MACHINE_RENAME_DIALOG             (bt_machine_rename_dialog_get_type ())
-#define BT_MACHINE_RENAME_DIALOG(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MACHINE_RENAME_DIALOG, BtMachineRenameDialog))
-#define BT_MACHINE_RENAME_DIALOG_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MACHINE_RENAME_DIALOG, BtMachineRenameDialogClass))
-#define BT_IS_MACHINE_RENAME_DIALOG(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MACHINE_RENAME_DIALOG))
-#define BT_IS_MACHINE_RENAME_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MACHINE_RENAME_DIALOG))
-#define BT_MACHINE_RENAME_DIALOG_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MACHINE_RENAME_DIALOG, BtMachineRenameDialogClass))
+G_DECLARE_FINAL_TYPE(BtMachineRenameDialog, bt_machine_rename_dialog, BT, MACHINE_RENAME_DIALOG,
+     AdwMessageDialog);
 
-/* type macros */
-
-typedef struct _BtMachineRenameDialog BtMachineRenameDialog;
-typedef struct _BtMachineRenameDialogClass BtMachineRenameDialogClass;
-typedef struct _BtMachineRenameDialogPrivate BtMachineRenameDialogPrivate;
+#define BT_TYPE_MACHINE_RENAME_DIALOG bt_machine_rename_dialog_get_type()
 
 /**
  * BtMachineRenameDialog:
  *
  * the machine settings dialog
  */
-struct _BtMachineRenameDialog {
-  GtkDialog parent;
-  
-  /*< private >*/
-  BtMachineRenameDialogPrivate *priv;
-};
 
-struct _BtMachineRenameDialogClass {
-  GtkDialogClass parent;
-  
-};
+typedef struct _BtMachine BtMachine;
+typedef struct _BtChangeLog BtChangeLog;
 
-GType bt_machine_rename_dialog_get_type(void) G_GNUC_CONST;
-
-BtMachineRenameDialog *bt_machine_rename_dialog_new(const BtMachine *machine);
-void bt_machine_rename_dialog_apply(const BtMachineRenameDialog *self);
+BtMachineRenameDialog *bt_machine_rename_dialog_show(BtMachine *machine, BtChangeLog *log);
 
 #endif // BT_MACHINE_RENAME_DIALOG_H

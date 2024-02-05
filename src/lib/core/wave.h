@@ -75,8 +75,8 @@ GType bt_wave_get_type(void) G_GNUC_CONST;
 
 BtWave *bt_wave_new(const BtSong * const song, const gchar * const name, const gchar * const uri, const gulong index, const gdouble volume, const  BtWaveLoopMode loop_mode, const guint channels);
 
-gboolean bt_wave_add_wavelevel(const BtWave * const self, const BtWavelevel * const wavelevel);
+gboolean bt_wave_add_wavelevel(const BtWave * const self, BtWavelevel * const wavelevel);
 BtWavelevel *bt_wave_get_level_by_index(const BtWave * const self,const gulong index);
-
+const gchar* bt_wave_get_name(const BtWave* self);
 
 #endif // BT_WAVE_H

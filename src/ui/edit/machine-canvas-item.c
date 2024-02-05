@@ -70,6 +70,7 @@
 #define BT_MACHINE_CANVAS_ITEM_C
 
 #include "bt-edit.h"
+#include "machine-properties-dialog.h"
 #include "src/lib/gst/ui.h"
 
 #define LOW_VUMETER_VAL -60.0
@@ -113,7 +114,7 @@ struct _BtMachineCanvasItemPrivate
   const gchar *help_uri;
 
   /* machine context_menu */
-  GtkMenu *context_menu;
+  GMenu *context_menu;
   GtkWidget *menu_item_mute, *menu_item_solo, *menu_item_bypass;
   gulong id_mute, id_solo, id_bypass;
 
@@ -124,10 +125,8 @@ struct _BtMachineCanvasItemPrivate
   GtkWidget *analysis_dialog;
 
   /* the graphical components */
-  ClutterContent *image;
-  ClutterContent *image_custom_gfx;
-  ClutterActor *label;
-  ClutterActor *output_meter, *input_meter;
+  GtkWidget *label;
+  GtkWidget *output_meter, *input_meter;
   GstElement *output_level;
   GstElement *input_level;
   guint skip_input_level;
@@ -136,7 +135,7 @@ struct _BtMachineCanvasItemPrivate
   GstClock *clock;
 
   /* cursor for moving */
-  GdkCursor *drag_cursor;
+  /// GDK4 GdkCursor *drag_cursor;
 
   /* the zoom-ratio in pixels/per unit */
   gdouble zoom;
@@ -165,7 +164,7 @@ static GQuark machine_canvas_item_quark = 0;
 
 //-- the class
 
-G_DEFINE_TYPE_WITH_CODE (BtMachineCanvasItem, bt_machine_canvas_item, CLUTTER_TYPE_ACTOR, 
+G_DEFINE_TYPE_WITH_CODE (BtMachineCanvasItem, bt_machine_canvas_item, GTK_TYPE_WIDGET, 
     G_ADD_PRIVATE(BtMachineCanvasItem));
 
 
@@ -180,29 +179,27 @@ static void on_signal_analysis_dialog_destroy (GtkWidget * widget,
 
 //-- helper methods
 
-static void
-update_machine_graphics (BtMachineCanvasItem * self)
+void
+bt_machine_canvas_item_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 {
-  GdkPixbuf *pixbuf =
-      bt_ui_resources_get_machine_graphics_pixbuf_by_machine (self->
-      priv->machine, self->priv->zoom);
+  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (widget);
+  
+  GdkPaintable *paintable =
+      bt_ui_resources_get_machine_graphics_texture_by_machine (self->priv->machine, self->priv->zoom);
+  
+  gdk_paintable_snapshot (
+      paintable,
+      GDK_SNAPSHOT (snapshot),
+      gtk_widget_get_width (widget),
+      gtk_widget_get_height (widget));
 
-  clutter_image_set_data (CLUTTER_IMAGE (self->priv->image),
-      gdk_pixbuf_get_pixels (pixbuf), gdk_pixbuf_get_has_alpha (pixbuf)
-      ? COGL_PIXEL_FORMAT_RGBA_8888
-      : COGL_PIXEL_FORMAT_RGB_888,
-      gdk_pixbuf_get_width (pixbuf),
-      gdk_pixbuf_get_height (pixbuf), gdk_pixbuf_get_rowstride (pixbuf), NULL);
-
-  GST_INFO ("pixbuf: %dx%d", gdk_pixbuf_get_width (pixbuf),
-      gdk_pixbuf_get_height (pixbuf));
-
-  g_object_unref (pixbuf);
+  g_object_unref (paintable);
 }
 
 static void
 update_custom_graphics (BtMachineCanvasItem * self, guint width, guint height, guint32 * data) {
-  g_return_if_fail(self->priv->image_custom_gfx);
+  /// GTK4
+/*  g_return_if_fail(self->priv->image_custom_gfx);
 
   if (data) {
     clutter_image_set_data (CLUTTER_IMAGE (self->priv->image_custom_gfx),
@@ -211,7 +208,7 @@ update_custom_graphics (BtMachineCanvasItem * self, guint width, guint height, g
     int32_t zero = 0;
     clutter_image_set_data (CLUTTER_IMAGE (self->priv->image_custom_gfx),
         (guint8*)&zero, COGL_PIXEL_FORMAT_RGBA_8888, 1, 1, 4, NULL);
-  }
+        }*/
 }
 
 static gboolean
@@ -267,7 +264,7 @@ show_machine_properties_dialog (BtMachineCanvasItem * self)
         GTK_WIDGET (bt_machine_properties_dialog_new (self->priv->machine));
     bt_edit_application_attach_child_window (self->priv->app,
         GTK_WINDOW (self->priv->properties_dialog));
-    gtk_widget_show_all (self->priv->properties_dialog);
+    gtk_widget_set_visible (self->priv->properties_dialog, TRUE);
     GST_INFO ("machine properties dialog opened");
     // remember open/closed state
     g_hash_table_insert (self->priv->properties, g_strdup ("properties-shown"),
@@ -287,7 +284,7 @@ show_machine_preferences_dialog (BtMachineCanvasItem * self)
         GTK_WIDGET (bt_machine_preferences_dialog_new (self->priv->machine));
     bt_edit_application_attach_child_window (self->priv->app,
         GTK_WINDOW (self->priv->preferences_dialog));
-    gtk_widget_show_all (self->priv->preferences_dialog);
+    gtk_widget_set_visible (self->priv->preferences_dialog, TRUE);
     g_signal_connect (self->priv->preferences_dialog, "destroy",
         G_CALLBACK (on_machine_preferences_dialog_destroy), (gpointer) self);
     g_object_notify ((GObject *) self, "preferences-dialog");
@@ -304,7 +301,7 @@ show_machine_analyzer_dialog (BtMachineCanvasItem * self)
                 priv->machine)));
     bt_edit_application_attach_child_window (self->priv->app,
         GTK_WINDOW (self->priv->analysis_dialog));
-    gtk_widget_show_all (self->priv->analysis_dialog);
+    gtk_widget_set_visible (self->priv->analysis_dialog, TRUE);
     GST_INFO ("analyzer dialog opened");
     // remember open/closed state
     g_hash_table_insert (self->priv->properties, g_strdup ("analyzer-shown"),
@@ -352,7 +349,7 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
 typedef struct
 {
   BtMachineCanvasItem *self;
-  ClutterActor *meter;
+  GtkWidget *meter;
   gdouble peak;
 } BtUpdateIdleData;
 
@@ -421,7 +418,7 @@ on_machine_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
         (level == self->priv->input_level)) {
       GstClockTime waittime = bt_gst_analyzer_get_waittime (level, s, TRUE);
       if (GST_CLOCK_TIME_IS_VALID (waittime)) {
-        ClutterActor *meter = NULL;
+        GtkWidget *meter = NULL;
         gdouble peak;
         gint new_skip = 0, old_skip = 0;
 
@@ -478,27 +475,31 @@ static void
 on_machine_parent_changed (GstObject * object, GParamSpec * arg,
     gpointer user_data)
 {
-  ClutterActor *self = CLUTTER_ACTOR (user_data);
+  /// GTK4
+  /*ClutterActor *self = CLUTTER_ACTOR (user_data);
 
   if (GST_OBJECT_PARENT (object)) {
     clutter_actor_clear_effects (self);
   } else {
     clutter_actor_add_effect (self, clutter_desaturate_effect_new (0.8));
-  }
+    }*/
 }
 
 static void
 on_machine_state_changed_idle (BtMachine * machine, GParamSpec * arg,
     gpointer user_data)
 {
+#if 0 /// GTK4
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (user_data);
   BtMachineState state;
 
   g_object_get (machine, "state", &state, NULL);
   GST_INFO_OBJECT (machine, "new state is %d", state);
+#endif
+  
+  gtk_widget_queue_draw (GTK_WIDGET (machine));
 
-  update_machine_graphics (self);
-
+#if 0 /// GTK4
   switch (state) {
     case BT_MACHINE_STATE_NORMAL:
       if (self->priv->menu_item_mute
@@ -632,6 +633,7 @@ on_machine_state_changed_idle (BtMachine * machine, GParamSpec * arg,
       GST_WARNING ("invalid machine state: %d", state);
       break;
   }
+#endif
 }
 
 static void
@@ -663,6 +665,7 @@ on_machine_preferences_dialog_destroy (GtkWidget * widget, gpointer user_data)
   g_object_notify ((GObject *) self, "preferences-dialog");
 }
 
+#if 0 /// GTK4
 static void
 on_context_menu_clone (GtkMenuItem * menuitem, gpointer user_data)
 {
@@ -796,35 +799,6 @@ on_context_menu_about_activate (GtkMenuItem * menuitem, gpointer user_data)
 }
 
 //-- helper methods
-
-#if 0
-static gboolean
-bt_machine_canvas_item_is_over_state_switch (const BtMachineCanvasItem * self,
-    GdkEvent * event)
-{
-  GnomeCanvas *canvas;
-  ClutterActor *ci, *pci;
-  gboolean res = FALSE;
-
-  g_object_get (self->priv->main_page_machines, "canvas", &canvas, NULL);
-  if ((ci =
-          gnome_canvas_get_item_at (canvas, event->button.x,
-              event->button.y))) {
-    g_object_get (ci, "parent", &pci, NULL);
-    //GST_DEBUG("ci=%p : self=%p, self->box=%p, self->state_switch=%p",ci,self,self->priv->box,self->priv->state_switch);
-    if ((ci == self->priv->state_switch)
-        || (ci == self->priv->state_mute) || (pci == self->priv->state_mute)
-        || (ci == self->priv->state_solo)
-        || (ci == self->priv->state_bypass)
-        || (pci == self->priv->state_bypass)) {
-      res = TRUE;
-    }
-    g_object_unref (pci);
-  }
-  g_object_unref (canvas);
-  return res;
-}
-#endif
 
 // interaction control helper
 
@@ -1030,6 +1004,7 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
 
   return TRUE;
 }
+#endif
 
 //-- constructor methods
 
@@ -1047,26 +1022,16 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
  */
 BtMachineCanvasItem *
 bt_machine_canvas_item_new (const BtMainPageMachines * main_page_machines,
-    BtMachine * machine, gdouble xpos, gdouble ypos, gdouble zoom)
+    BtMachine * machine, gdouble zoom)
 {
   BtMachineCanvasItem *self;
-  ClutterActor *canvas;
-
-  g_object_get ((gpointer) main_page_machines, "canvas", &canvas, NULL);
 
   self = BT_MACHINE_CANVAS_ITEM (g_object_new (BT_TYPE_MACHINE_CANVAS_ITEM,
-          "machines-page", main_page_machines, "machine", machine, "x", xpos,
-          "y", ypos, "zoom", zoom, "reactive", TRUE, NULL));
+      "machines-page", main_page_machines, "machine", machine, "zoom", zoom, NULL));
 
-  GST_DEBUG ("machine canvas item created, %" G_OBJECT_REF_COUNT_FMT,
-      G_OBJECT_LOG_REF_COUNT (self));
+  GST_DEBUG("machine canvas item created, %" G_OBJECT_REF_COUNT_FMT,
+            G_OBJECT_LOG_REF_COUNT(self));
 
-  clutter_actor_add_child (canvas, (ClutterActor *) self);
-
-  GST_DEBUG ("machine canvas item added, %" G_OBJECT_REF_COUNT_FMT,
-      G_OBJECT_LOG_REF_COUNT (self));
-
-  g_object_unref (canvas);
   return self;
 }
 
@@ -1135,79 +1100,38 @@ bt_machine_canvas_item_constructed (GObject * object)
 {
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (object);
   gchar *id, *prop;
-  PangoAttrList *pango_attrs;
-  ClutterColor *meter_bg;
+  /// GTK4 PangoAttrList *pango_attrs;
 
   if (G_OBJECT_CLASS (bt_machine_canvas_item_parent_class)->constructed)
     G_OBJECT_CLASS (bt_machine_canvas_item_parent_class)->constructed (object);
 
   g_object_get (self->priv->machine, "id", &id, NULL);
 
-  // add machine components
-  // the body
-  self->priv->image = clutter_image_new ();
-  update_machine_graphics (self);
-  clutter_actor_set_content_scaling_filters ((ClutterActor *) self,
-      CLUTTER_SCALING_FILTER_TRILINEAR, CLUTTER_SCALING_FILTER_LINEAR);
-  clutter_actor_set_size ((ClutterActor *) self, MACHINE_W, MACHINE_H);
-  clutter_actor_set_pivot_point ((ClutterActor *) self, 0.5, 0.5);
-  clutter_actor_set_translation ((ClutterActor *) self, (MACHINE_W / -2.0),
-      (MACHINE_H / -2.0), 0.0);
-  clutter_actor_set_content ((ClutterActor *) self, self->priv->image);
-
   // a child actor allowing display of additional gfx by the machine element
-  ClutterActor *actor_custom_gfx = clutter_actor_new();
+  /// GTK4
+  /*ClutterActor *actor_custom_gfx = clutter_actor_new();
   clutter_actor_set_content_scaling_filters (actor_custom_gfx,
       CLUTTER_SCALING_FILTER_TRILINEAR, CLUTTER_SCALING_FILTER_LINEAR);
   clutter_actor_set_size (actor_custom_gfx, MACHINE_W, MACHINE_H);
   clutter_actor_set_content (actor_custom_gfx, self->priv->image_custom_gfx);
-  clutter_actor_add_child ((ClutterActor *) self, actor_custom_gfx);
+  clutter_actor_add_child ((ClutterActor *) self, actor_custom_gfx);*/
 
   // the name label
   // TODO(ensonic): use MACHINE_LABEL_HEIGHT (7)
   // TODO(ensonic): when zooming, the font gets blurry :/
-  self->priv->label = clutter_text_new_with_text ("Sans 8px", id);
-  pango_attrs = pango_attr_list_new ();
-  // PANGO_STRETCH_{,EXTRA,ULTRA}_CONDENSED
-  pango_attr_list_insert (pango_attrs,
-      pango_attr_stretch_new (PANGO_STRETCH_EXTRA_CONDENSED));
-  g_object_set (self->priv->label,
-      "activatable", FALSE,
-      "attributes", pango_attrs,
-      "ellipsize", PANGO_ELLIPSIZE_END,
-      "line-alignment", PANGO_ALIGN_CENTER, "selectable", FALSE, NULL);
-  pango_attr_list_unref (pango_attrs);
+  self->priv->label = gtk_label_new (id);
   // machine is set via CONSTRUCT_ONLY prop
   g_assert (self->priv->machine);
   g_object_bind_property (self->priv->machine, "id", self->priv->label,
-      "text", G_BINDING_SYNC_CREATE);
-
-  // we want that as a max-width for clipping :/
-  clutter_actor_set_width (self->priv->label, MACHINE_LABEL_WIDTH);
-  clutter_actor_set_pivot_point (self->priv->label, 0.5, 0.5);
-  clutter_actor_add_child ((ClutterActor *) self, self->priv->label);
-  clutter_actor_set_position (self->priv->label,
-      (MACHINE_W - MACHINE_LABEL_WIDTH) / 2.0,
-      MACHINE_LABEL_BASE - (MACHINE_LABEL_HEIGHT / 2.0));
+      "label", G_BINDING_SYNC_CREATE);
 
   // the meters
-  meter_bg = clutter_color_new (0x5f, 0x5f, 0x5f, 0xff);
-  //if(!BT_IS_SOURCE_MACHINE(self->priv->machine)) {
-  self->priv->input_meter = g_object_new (CLUTTER_TYPE_ACTOR,
-      "background-color", meter_bg,
-      "x", MACHINE_METER_LEFT, "y", MACHINE_METER_BASE,
-      "width", MACHINE_METER_WIDTH, "height", 0.0, NULL);
-  clutter_actor_add_child ((ClutterActor *) self, self->priv->input_meter);
-  //}
-  //if(!BT_IS_SINK_MACHINE(self->priv->machine)) {
-  self->priv->output_meter = g_object_new (CLUTTER_TYPE_ACTOR,
-      "background-color", meter_bg,
-      "x", MACHINE_METER_RIGHT, "y", MACHINE_METER_BASE,
-      "width", MACHINE_METER_WIDTH, "height", 0.0, NULL);
-  clutter_actor_add_child ((ClutterActor *) self, self->priv->output_meter);
-  //}
-  clutter_color_free (meter_bg);
+  self->priv->input_meter = gtk_level_bar_new ();
+  gtk_widget_set_parent (self->priv->input_meter, GTK_WIDGET (self));
 
+  self->priv->output_meter = gtk_level_bar_new ();
+  gtk_widget_set_parent (self->priv->output_meter, GTK_WIDGET (self));
+  
   g_free (id);
   if (!GST_OBJECT_PARENT ((GstObject *) self->priv->machine)) {
     on_machine_parent_changed ((GstObject *) self->priv->machine, NULL, self);
@@ -1221,7 +1145,7 @@ bt_machine_canvas_item_constructed (GObject * object)
         GTK_WIDGET (bt_machine_properties_dialog_new (self->priv->machine));
     bt_edit_application_attach_child_window (self->priv->app,
         GTK_WINDOW (self->priv->properties_dialog));
-    gtk_widget_show_all (self->priv->properties_dialog);
+    gtk_widget_set_visible (self->priv->properties_dialog, TRUE);
     g_signal_connect (self->priv->properties_dialog, "destroy",
         G_CALLBACK (on_machine_properties_dialog_destroy), (gpointer) self);
   }
@@ -1233,7 +1157,7 @@ bt_machine_canvas_item_constructed (GObject * object)
                         priv->machine))))) {
       bt_edit_application_attach_child_window (self->priv->app,
           GTK_WINDOW (self->priv->analysis_dialog));
-      gtk_widget_show_all (self->priv->analysis_dialog);
+      gtk_widget_set_visible (self->priv->analysis_dialog, TRUE);
       g_signal_connect (self->priv->analysis_dialog, "destroy",
           G_CALLBACK (on_signal_analysis_dialog_destroy), (gpointer) self);
     }
@@ -1324,7 +1248,7 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
             GST_ELEMENT_METADATA_DOC_URI);
         gst_object_unref (element);
 
-        bt_machine_canvas_item_init_context_menu (self);
+        /// GTK4 bt_machine_canvas_item_init_context_menu (self);
         g_signal_connect_object (self->priv->machine, "notify::state",
             G_CALLBACK (on_machine_state_changed), (gpointer) self, 0);
         g_signal_connect_object (self->priv->machine, "notify::parent",
@@ -1358,10 +1282,6 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
     case MACHINE_CANVAS_ITEM_ZOOM:
       self->priv->zoom = g_value_get_double (value);
       GST_DEBUG ("set the zoom for machine_canvas_item: %f", self->priv->zoom);
-      /* reload the svg icons, we do this to keep them sharp */
-      if (self->priv->image) {
-        update_machine_graphics (self);
-      }
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -1390,8 +1310,7 @@ bt_machine_canvas_item_dispose (GObject * object)
     g_object_unref(element_old);
   }
   
-  g_object_unref (self->priv->image);
-  g_object_unref (self->priv->image_custom_gfx);
+  /// GTK4 g_object_unref (self->priv->image_custom_gfx);
 
   GST_INFO ("release the machine %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (self->priv->machine));
@@ -1407,19 +1326,18 @@ bt_machine_canvas_item_dispose (GObject * object)
   GST_DEBUG ("  unrefing done");
 
   if (self->priv->properties_dialog) {
-    gtk_widget_destroy (self->priv->properties_dialog);
+    gtk_window_destroy (GTK_WINDOW (self->priv->properties_dialog));
   }
   if (self->priv->preferences_dialog) {
-    gtk_widget_destroy (self->priv->preferences_dialog);
+    gtk_window_destroy (GTK_WINDOW (self->priv->preferences_dialog));
   }
   if (self->priv->analysis_dialog) {
-    gtk_widget_destroy (self->priv->analysis_dialog);
+    gtk_window_destroy (GTK_WINDOW (self->priv->analysis_dialog));
   }
   GST_DEBUG ("  destroying dialogs done");
 
-  g_object_unref (self->priv->drag_cursor);
+  /// GDK4 g_object_unref (self->priv->drag_cursor);
 
-  gtk_widget_destroy (GTK_WIDGET (self->priv->context_menu));
   g_object_try_unref (self->priv->context_menu);
 
   GST_DEBUG ("  chaining up");
@@ -1440,41 +1358,14 @@ bt_machine_canvas_item_finalize (GObject * object)
   GST_DEBUG ("  done");
 }
 
-typedef struct
-{
-  BtMachineCanvasItem *self;
-  guint32 activate_time;
-} BtEventIdleData;
+/// GTK4 static gboolean on_captured_event (ClutterActor * citem, ClutterEvent * event,
+//    gpointer user_data);
 
-#define MAKE_EVENT_IDLE_DATA(data,self,event) G_STMT_START { \
-  data=g_slice_new(BtEventIdleData); \
-  data->self=self; \
-  data->activate_time=clutter_event_get_time (event); \
-} G_STMT_END
-
-#define FREE_EVENT_IDLE_DATA(data) G_STMT_START { \
-  g_slice_free(BtEventIdleData,data); \
-} G_STMT_END
-
-static gboolean
-popup_helper (gpointer user_data)
-{
-  BtEventIdleData *data = (BtEventIdleData *) user_data;
-  BtMachineCanvasItem *self = data->self;
-  guint32 activate_time = data->activate_time;
-  FREE_EVENT_IDLE_DATA (data);
-
-  gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
-      GDK_BUTTON_SECONDARY, activate_time);
-  return FALSE;
-}
-
-static gboolean on_captured_event (ClutterActor * citem, ClutterEvent * event,
-    gpointer user_data);
-
+#if 0 ///GTK4
 static gboolean
 bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
 {
+
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (citem);
   gboolean res = FALSE;
 
@@ -1513,9 +1404,7 @@ bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
           }
           break;
         case 3:{
-          BtEventIdleData *data;
-          MAKE_EVENT_IDLE_DATA (data, self, event);
-          g_idle_add (popup_helper, data);
+          gtk_popover_popup (self->priv->context_menu);
           res = TRUE;
           break;
         }
@@ -1547,6 +1436,15 @@ bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
         g_signal_emit (citem, signals[POSITION_CHANGED], 0, CLUTTER_MOTION);
         self->priv->dragx = motion_event->x;
         self->priv->dragy = motion_event->y;
+
+        GtkLayoutManager *layout = gtk_widget_get_layout_manager (self->canvas);
+        GtkFixedLayoutChild *fixed = GTK_FIXED_LAYOUT_CHILD (
+            gtk_layout_manager_get_layout_child (layout, GTK_WIDGET (item)));
+        GskTransform *xform = gsk_transform_new ();
+        gsk_transform_translate (xform, GRAPHENE_POINT_INIT (motion_event->x, motion_event->y));
+        gtk_fixed_layout_child_set_transform (xform);
+        gsk_transform_unref (xform);
+
         self->priv->moved = TRUE;
         res = TRUE;
       }
@@ -1646,13 +1544,16 @@ bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
   //GST_INFO("event for machine occurred : %d",res);
   return res;
 }
+#endif
 
+#if 0 /// GTK4
 static gboolean
 on_captured_event (ClutterActor * citem, ClutterEvent * event,
     gpointer user_data)
 {
   return bt_machine_canvas_item_event ((ClutterActor *) user_data, event);
 }
+#endif
 
 
 static void
@@ -1678,28 +1579,27 @@ bt_machine_canvas_item_init (BtMachineCanvasItem * self)
   g_object_unref (song);
 
   // generate the context menu
-  self->priv->context_menu = GTK_MENU (g_object_ref_sink (gtk_menu_new ()));
+  /// GTK4 self->priv->context_menu = GTK_MENU (g_object_ref_sink (gtk_menu_new ()));
   // the menu-items are generated in bt_machine_canvas_item_init_context_menu()
 
   // the cursor for dragging
-  self->priv->drag_cursor =
-      gdk_cursor_new_for_display (gdk_display_get_default (), GDK_FLEUR);
+  /// GDK4 self->priv->drag_cursor =
+  //    gdk_cursor_new_for_display (gdk_display_get_default (), GDK_FLEUR);
 
   self->priv->zoom = 1.0;
 
   g_mutex_init (&self->priv->lock);
   g_mutex_init (&self->priv->custom_gfx_lock);
 
-  self->priv->image_custom_gfx = clutter_image_new ();
+  /// GTK4 self->priv->image_custom_gfx = clutter_image_new ();
 
-  update_custom_graphics (self, 0, 0, NULL);
+  /// GTK4 update_custom_graphics (self, 0, 0, NULL);
 }
 
 static void
 bt_machine_canvas_item_class_init (BtMachineCanvasItemClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-  ClutterActorClass *citem_class = CLUTTER_ACTOR_CLASS (klass);
 
   bus_msg_level_quark = g_quark_from_static_string ("level");
   machine_canvas_item_quark =
@@ -1711,8 +1611,7 @@ bt_machine_canvas_item_class_init (BtMachineCanvasItemClass * klass)
   gobject_class->dispose = bt_machine_canvas_item_dispose;
   gobject_class->finalize = bt_machine_canvas_item_finalize;
 
-  citem_class->event = bt_machine_canvas_item_event;
-
+#if 0 /// GTK4
   /**
    * BtMachineCanvasItem::position-changed:
    * @self: the machine-canvas-item object that emitted the signal
@@ -1726,6 +1625,7 @@ bt_machine_canvas_item_class_init (BtMachineCanvasItemClass * klass)
       G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
       NULL, g_cclosure_marshal_VOID__ENUM, G_TYPE_NONE, 1,
       CLUTTER_TYPE_EVENT_TYPE);
+#endif
   /**
    * BtMachineCanvasItem::start-connect:
    * @self: the machine-canvas-item object that emitted the signal

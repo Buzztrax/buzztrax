@@ -1,0 +1,27 @@
+<interface>
+  <template class="BtPatternPropertiesDialog" parent="AdwPreferencesWindow">
+    <child>
+      <object class="AdwPreferencesPage">
+        <child>
+          <object class="AdwPreferencesGroup">
+            <child>
+              <object class="AdwActionRow">
+                <property name="title" translatable="yes">name</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwActionRow">
+                <property name="title" translatable="yes">length</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwActionRow">
+                <property name="title" translatable="yes">voices</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

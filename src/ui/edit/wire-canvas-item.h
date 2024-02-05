@@ -20,38 +20,19 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <gtk/gtk.h>
 
-#define BT_TYPE_WIRE_CANVAS_ITEM            (bt_wire_canvas_item_get_type ())
-#define BT_WIRE_CANVAS_ITEM(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_WIRE_CANVAS_ITEM, BtWireCanvasItem))
-#define BT_WIRE_CANVAS_ITEM_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_WIRE_CANVAS_ITEM, BtWireCanvasItemClass))
-#define BT_IS_WIRE_CANVAS_ITEM(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_WIRE_CANVAS_ITEM))
-#define BT_IS_WIRE_CANVAS_ITEM_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_WIRE_CANVAS_ITEM))
-#define BT_WIRE_CANVAS_ITEM_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_WIRE_CANVAS_ITEM, BtWireCanvasItemClass))
-
-/* type macros */
-
-typedef struct _BtWireCanvasItem BtWireCanvasItem;
-typedef struct _BtWireCanvasItemClass BtWireCanvasItemClass;
-typedef struct _BtWireCanvasItemPrivate BtWireCanvasItemPrivate;
+typedef struct _BtMachineCanvasItem BtMachineCanvasItem;
+typedef struct _BtMainPageMachines BtMainPageMachines;
+typedef struct _BtWire BtWire;
 
 /**
  * BtWireCanvasItem:
  *
  * the root window for the editor application
  */
-struct _BtWireCanvasItem {
-  ClutterActor parent;
-  
-  /*< private >*/
-  BtWireCanvasItemPrivate *priv;
-};
-
-struct _BtWireCanvasItemClass {
-  ClutterActorClass parent;
-  
-};
-
-GType bt_wire_canvas_item_get_type(void) G_GNUC_CONST;
+G_DECLARE_FINAL_TYPE (BtWireCanvasItem, bt_wire_canvas_item, BT, WIRE_CANVAS_ITEM, GtkWidget);
+#define BT_TYPE_WIRE_CANVAS_ITEM            (bt_wire_canvas_item_get_type ())
 
 BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_machines,BtWire *wire,BtMachineCanvasItem *src_machine_item,BtMachineCanvasItem *dst_machine_item);
 

@@ -158,6 +158,11 @@ bt_cmd_pattern_new (const BtSong * const song, const BtMachine * const machine,
 
 //-- methods
 
+const gchar*
+bt_cmd_pattern_get_name(const BtCmdPattern* self) {
+  return self->priv->name;
+}
+
 //-- wrapper
 
 //-- g_object overrides

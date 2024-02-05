@@ -1,0 +1,77 @@
+<interface>
+  <template class="BtMainPageSequence" parent="GtkBox">
+    <property name="orientation">vertical</property>
+
+    <!-- Toolbar -->
+    <child>
+      <object class="GtkBox"> <!-- split_box -->
+        <style>
+          <class name="toolbar"/>
+        </style>
+
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">Steps</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkDropDown" id="bars_menu">
+            <property name="tooltip-text" translatable="yes">Show every n-th line</property>
+            <property name="model">
+              <object class="GtkStringList">
+                <items>
+                  <item>1</item>
+                  <item>2</item>
+                  <item>4</item>
+                </items>
+              </object>
+            </property>
+          </object>
+        </child>
+      </object>
+    </child>
+
+    <child>
+      <object class="GtkSeparator" />
+    </child>
+    
+    <child>
+      <object class="GtkCheckButton">
+        <property name="label">Follow playback</property>
+        <property name="action-name">follow-playback</property>
+      </object>
+    </child>
+    
+    <child>
+      <object class="GtkMenuButton" id="context_menu_button">
+        <property name="icon-name">emblem-system-symbolic</property>
+        <property name="tooltip-text" translatable="yes">Menu actions for sequence view below</property>
+        <!-- tbd: connect main_page_sequence_context_menu.ui model to this widget in code. Possible to do here? -->
+      </object>
+    </child>
+    
+    <child>
+      <object class="GtkBox">
+        <child>
+          <object class="BtSequenceView" id="sequence_view">
+          </object>
+        </child>
+        <child>
+          <object class="GtkSeparator">
+            <property name="orientation">vertical</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow">
+            <property name="hscrollbar-policy">never</property>
+            <property name="child">
+              <object class="GtkListView" id="pattern_list">
+              </object>
+            </property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

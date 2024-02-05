@@ -20,36 +20,16 @@
 
 #include <glib.h>
 #include <glib-object.h>
-
-#define BT_TYPE_MAIN_PAGES            (bt_main_pages_get_type ())
-#define BT_MAIN_PAGES(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_PAGES, BtMainPages))
-#define BT_MAIN_PAGES_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_PAGES, BtMainPagesClass))
-#define BT_IS_MAIN_PAGES(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MAIN_PAGES))
-#define BT_IS_MAIN_PAGES_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MAIN_PAGES))
-#define BT_MAIN_PAGES_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MAIN_PAGES, BtMainPagesClass))
-
-/* type macros */
-
-typedef struct _BtMainPages BtMainPages;
-typedef struct _BtMainPagesClass BtMainPagesClass;
-typedef struct _BtMainPagesPrivate BtMainPagesPrivate;
+#include <adwaita.h>
 
 /**
  * BtMainPages:
  *
  * the root window for the editor application
  */
-struct _BtMainPages {
-  GtkNotebook parent;
-  
-  /*< private >*/
-  BtMainPagesPrivate *priv;
-};
+G_DECLARE_FINAL_TYPE (BtMainPages, bt_main_pages, BT, MAIN_PAGES, GtkWidget);
 
-struct _BtMainPagesClass {
-  GtkNotebookClass parent;
-  
-};
+#define BT_TYPE_MAIN_PAGES            (bt_main_pages_get_type ())
 
 enum {
   BT_MAIN_PAGES_MACHINES_PAGE=0,

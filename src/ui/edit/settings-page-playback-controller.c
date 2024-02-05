@@ -464,11 +464,9 @@ bt_settings_page_playback_controller_init_ui (const
   gtk_grid_attach (GTK_GRID (self), gtk_label_new ("    "), 0, 1, 1, 3);
 
   // add a list of playback controllers
-  scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+  scrolled_window = gtk_scrolled_window_new ();
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled_window),
-      GTK_SHADOW_ETCHED_IN);
   self->priv->controller_list = GTK_TREE_VIEW (gtk_tree_view_new ());
   g_signal_connect (self->priv->controller_list, "cursor-changed",
       G_CALLBACK (on_controller_list_cursor_changed), (gpointer) self);
@@ -493,7 +491,7 @@ bt_settings_page_playback_controller_init_ui (const
 
   selection = gtk_tree_view_get_selection (self->priv->controller_list);
   gtk_tree_selection_set_mode (selection, GTK_SELECTION_SINGLE);
-  gtk_container_add (GTK_CONTAINER (scrolled_window),
+  gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (scrolled_window),
       GTK_WIDGET (self->priv->controller_list));
   g_object_set (GTK_WIDGET (scrolled_window), "hexpand", TRUE, "vexpand", TRUE,
       "margin-left", LABEL_PADDING, NULL);
@@ -546,7 +544,7 @@ bt_settings_page_playback_controller_init_ui (const
   // coherence upnp tab
   widget = gtk_grid_new ();
   table = GTK_GRID (widget);
-  gtk_container_add (GTK_CONTAINER (self->priv->controller_pages), widget);
+  gtk_notebook_append_page (self->priv->controller_pages, widget, NULL);
 
   // local network port number for socket communication
   label = gtk_label_new (_("Port number"));
@@ -580,7 +578,7 @@ bt_settings_page_playback_controller_init_ui (const
       (element_name ? element_name : _("none")));
   label = gtk_label_new (str);
   g_object_set (label, "hexpand", TRUE, "wrap", TRUE, "selectable", TRUE, NULL);
-  gtk_container_add (GTK_CONTAINER (self->priv->controller_pages), label);
+  gtk_notebook_append_page (self->priv->controller_pages, label, NULL);
   g_free (element_name);
   g_free (str);
 
@@ -588,7 +586,7 @@ bt_settings_page_playback_controller_init_ui (const
   // ic tab
   widget = gtk_grid_new ();
   table = GTK_GRID (widget);
-  gtk_container_add (GTK_CONTAINER (self->priv->controller_pages), widget);
+  gtk_notebook_append_page (self->priv->controller_pages, widget, NULL);
 
   label = gtk_label_new (_("Device"));
   g_object_set (label, "xalign", 1.0, "margin-bottom", LABEL_PADDING, NULL);
@@ -644,7 +642,6 @@ bt_settings_page_playback_controller_new (GtkWidget * pages)
       BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER (g_object_new
       (BT_TYPE_SETTINGS_PAGE_PLAYBACK_CONTROLLER, NULL));
   bt_settings_page_playback_controller_init_ui (self, pages);
-  gtk_widget_show_all (GTK_WIDGET (self));
   return self;
 }
 

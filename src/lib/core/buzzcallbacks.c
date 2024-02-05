@@ -159,14 +159,18 @@ GetNearestWaveLevel (CHostCallbacks * self, int const i, int const note)
   if (G_UNLIKELY (!wavetable))
     return NULL;
   if ((wave = bt_wavetable_get_wave_by_index (wavetable, i))) {
-    GList *list, *node;
+    GListModel *list;
     BtWavelevel *wavelevel, *best = NULL;
     gint max_diff = /*NOTE_MAX */ 200 + 1;
     GstBtNote root_note;
 
     g_object_get (wave, "wavelevels", &list, NULL);
-    for (node = list; node; node = g_list_next (node)) {
-      wavelevel = BT_WAVELEVEL (node->data);
+    for (guint i = 0; ; ++i) {
+      GObject* data = g_list_model_get_item (list, i);
+      if (!data)
+        break;
+      
+      wavelevel = BT_WAVELEVEL (data);
       g_object_get (wavelevel, "root-note", &root_note, NULL);
       GST_DEBUG ("  note=%d, diff=%d, max_diff=%d",
           (gint) root_note, abs (note - (gint) root_note), max_diff);
@@ -175,6 +179,8 @@ GetNearestWaveLevel (CHostCallbacks * self, int const i, int const note)
         best = wavelevel;
         max_diff = abs (note - (gint) root_note);
       }
+
+      g_object_unref (data);
     }
     if (best) {
       gulong length, rate;
@@ -194,7 +200,7 @@ GetNearestWaveLevel (CHostCallbacks * self, int const i, int const note)
     } else {
       GST_WARNING ("no nearest wavelevel");
     }
-    g_list_free (list);
+    g_object_unref (list);
     g_object_unref (wave);
   } else {
     GST_WARNING ("no wave for index %d", i);

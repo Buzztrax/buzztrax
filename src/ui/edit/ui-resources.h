@@ -20,6 +20,8 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <gdk/gdk.h>
+#include <gtk/gtk.h>
 
 #define BT_TYPE_UI_RESOURCES            (bt_ui_resources_get_type ())
 #define BT_UI_RESOURCES(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_UI_RESOURCES, BtUIResources))
@@ -68,17 +70,24 @@ typedef enum {
   BT_UI_RES_COLOR_MACHINE_DARK2       /* --- */
 } BtUIResourcesMachineColors;
 
+
 GType bt_ui_resources_get_type(void) G_GNUC_CONST;
 
-BtUIResources *bt_ui_resources_new(void);
+//-- forward declarations
+typedef struct _BtMachine BtMachine;
+typedef struct _BtWire BtWire;
 
-GdkPixbuf *bt_ui_resources_get_icon_pixbuf_by_machine(const BtMachine *machine);
-GdkPixbuf *bt_ui_resources_get_machine_graphics_pixbuf_by_machine(const BtMachine *machine, gdouble zoom);
+//-- methods
+
+BtUIResources *bt_ui_resources_new(GdkDisplay *display);
+
+GdkPaintable *bt_ui_resources_get_icon_paintable_by_machine(const BtMachine *machine);
+GdkPaintable *bt_ui_resources_get_machine_graphics_texture_by_machine(const BtMachine *machine, gdouble zoom);
 GtkWidget *bt_ui_resources_get_icon_image_by_machine(const BtMachine *machine);
 GtkWidget *bt_ui_resources_get_icon_image_by_machine_type(GType machine_type);
 
-GdkPixbuf *bt_ui_resources_get_wire_graphics_pixbuf_by_wire(const BtWire *wire, gdouble zoom);
+GdkPaintable *bt_ui_resources_get_wire_graphics_paintable_by_wire(const BtWire *wire, gdouble zoom);
 
-GtkAccelGroup *bt_ui_resources_get_accel_group(void);
+/// GTK4 GtkAccelGroup *bt_ui_resources_get_accel_group(void);
 
 #endif // BT_UI_RESOURCES_H

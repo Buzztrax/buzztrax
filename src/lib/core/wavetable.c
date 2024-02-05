@@ -56,8 +56,10 @@ enum
   WAVETABLE_MISSING_WAVES
 };
 
-struct _BtWavetablePrivate
+struct _BtWavetable
 {
+  GObject parent;
+  
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
@@ -77,9 +79,12 @@ static guint signals[LAST_SIGNAL] = { 0, };
 
 static void bt_wavetable_persistence_interface_init (gpointer const g_iface,
     gpointer const iface_data);
+static void bt_wavetable_g_list_model_init (gpointer const g_iface,
+    gpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtWavetable, bt_wavetable, G_TYPE_OBJECT,
-    G_ADD_PRIVATE(BtWavetable)
+    G_IMPLEMENT_INTERFACE (G_TYPE_LIST_MODEL,
+        bt_wavetable_g_list_model_init)
     G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
         bt_wavetable_persistence_interface_init));
 
@@ -135,7 +140,7 @@ update_wave_index_enum (gulong index, gchar * new_name)
  * Returns: %TRUE for success, %FALSE otheriwse
  */
 gboolean
-bt_wavetable_add_wave (const BtWavetable * const self,
+bt_wavetable_add_wave (BtWavetable * const self,
     const BtWave * const wave)
 {
   gboolean ret = FALSE;
@@ -143,28 +148,29 @@ bt_wavetable_add_wave (const BtWavetable * const self,
   g_assert (BT_IS_WAVETABLE (self));
   g_assert (BT_IS_WAVE (wave));
 
-  if (!g_list_find (self->priv->waves, wave)) {
+  if (!g_list_find (self->waves, wave)) {
     gulong index;
     gchar *name;
     BtWave *other_wave;
+    guint removed = 0;
 
     // check if there is already a wave with this id ad remove if so
     g_object_get ((gpointer) wave, "index", &index, "name", &name, NULL);
     if ((other_wave = bt_wavetable_get_wave_by_index (self, index))) {
       GST_DEBUG ("replacing old wave with same id");
-      self->priv->waves = g_list_remove (self->priv->waves, other_wave);
-      //g_signal_emit((gpointer)self,signals[WAVE_REMOVED_EVENT], 0, wave);
-      /* TODO(ensonic): if song::is-playing==TRUE add this to a  self->priv->old_waves
-       * and wait for song::is-playing==FALSE and free then */
+      self->waves = g_list_remove (self->waves, other_wave);
       g_object_unref (other_wave);
+      removed = 1;
     }
 
-    self->priv->waves =
-        g_list_append (self->priv->waves, g_object_ref ((gpointer) wave));
+    self->waves =
+        g_list_append (self->waves, g_object_ref ((gpointer) wave));
     g_signal_emit ((gpointer) self, signals[WAVE_ADDED_EVENT], 0, wave);
 
     update_wave_index_enum (index, name);
     ret = TRUE;
+    
+    g_list_model_items_changed (G_LIST_MODEL (self), index, removed, 1);
   } else {
     GST_WARNING ("trying to add wave again");
   }
@@ -181,7 +187,7 @@ bt_wavetable_add_wave (const BtWavetable * const self,
  * Returns: %TRUE for success, %FALSE otheriwse
  */
 gboolean
-bt_wavetable_remove_wave (const BtWavetable * const self,
+bt_wavetable_remove_wave (BtWavetable * const self,
     const BtWave * const wave)
 {
   gboolean ret = FALSE;
@@ -189,16 +195,17 @@ bt_wavetable_remove_wave (const BtWavetable * const self,
   g_assert (BT_IS_WAVETABLE (self));
   g_assert (BT_IS_WAVE (wave));
 
-  if (g_list_find (self->priv->waves, wave)) {
+  if (g_list_find (self->waves, wave)) {
     gulong index;
 
     g_object_get ((gpointer) wave, "index", &index, NULL);
     update_wave_index_enum (index, g_strdup ("---"));
 
-    self->priv->waves = g_list_remove (self->priv->waves, wave);
+    self->waves = g_list_remove (self->waves, wave);
     g_signal_emit ((gpointer) self, signals[WAVE_REMOVED_EVENT], 0, wave);
     g_object_unref ((gpointer) wave);
     ret = TRUE;
+    g_list_model_items_changed (G_LIST_MODEL (self), index, 1, 0);
   } else {
     GST_WARNING ("trying to remove wave that is not in the list");
   }
@@ -224,9 +231,9 @@ bt_wavetable_get_wave_by_index (const BtWavetable * const self,
   const GList *node;
   gulong wave_index;
 
-  g_assert (BT_IS_WAVETABLE (self));
+  g_assert (BT_IS_WAVETABLE ((BtWavetable*)self));
 
-  for (node = self->priv->waves; node; node = g_list_next (node)) {
+  for (node = self->waves; node; node = g_list_next (node)) {
     BtWave *const wave = BT_WAVE (node->data);
     g_object_get (wave, "index", &wave_index, NULL);
     if (index == wave_index)
@@ -246,12 +253,12 @@ bt_wavetable_get_wave_by_index (const BtWavetable * const self,
  * property.
  */
 void
-bt_wavetable_remember_missing_wave (const BtWavetable * const self,
+bt_wavetable_remember_missing_wave (BtWavetable * const self,
     const gchar * const str)
 {
   GST_INFO ("missing wave %s", str);
-  self->priv->missing_waves =
-      g_list_prepend (self->priv->missing_waves, (gpointer) str);
+  self->missing_waves =
+      g_list_prepend (self->missing_waves, (gpointer) str);
 }
 
 //-- io interface
@@ -260,24 +267,24 @@ static xmlNodePtr
 bt_wavetable_persistence_save (const BtPersistence * const persistence,
     xmlNodePtr const parent_node, gpointer const userdata)
 {
-  const BtWavetable *const self = BT_WAVETABLE (persistence);
+  const BtWavetable *const self = BT_WAVETABLE ((BtPersistence*)persistence);
   xmlNodePtr node = NULL;
 
   GST_DEBUG ("PERSISTENCE::wavetable");
 
   if ((node =
           xmlNewChild (parent_node, NULL, XML_CHAR_PTR ("wavetable"), NULL))) {
-    bt_persistence_save_list (self->priv->waves, node, NULL);
+    bt_persistence_save_list (self->waves, node, NULL);
   }
   return node;
 }
 
 static BtPersistence *
 bt_wavetable_persistence_load (const GType type,
-    const BtPersistence * const persistence, xmlNodePtr node, GError ** err,
+    BtPersistence * const persistence, xmlNodePtr node, GError ** err,
     va_list var_args)
 {
-  const BtWavetable *const self = BT_WAVETABLE (persistence);
+  BtWavetable *const self = BT_WAVETABLE (persistence);
   xmlNodePtr child_node;
 
   GST_DEBUG ("PERSISTENCE::wavetable");
@@ -290,7 +297,7 @@ bt_wavetable_persistence_load (const GType type,
 
       BtWave *const wave =
           BT_WAVE (bt_persistence_load (BT_TYPE_WAVE, NULL, child_node, &err,
-              "song", self->priv->song, NULL));
+              "song", self->song, NULL));
       if (err != NULL) {
         // collect failed waves
         gchar *const name, *const uri;
@@ -328,16 +335,16 @@ bt_wavetable_get_property (GObject * const object, const guint property_id,
     GValue * const value, GParamSpec * const pspec)
 {
   const BtWavetable *const self = BT_WAVETABLE (object);
-  return_if_disposed ();
+  return_if_disposed_self ();
   switch (property_id) {
     case WAVETABLE_SONG:
-      g_value_set_object (value, self->priv->song);
+      g_value_set_object (value, self->song);
       break;
     case WAVETABLE_WAVES:
-      g_value_set_pointer (value, g_list_copy (self->priv->waves));
+      g_value_set_pointer (value, g_list_copy (self->waves));
       break;
     case WAVETABLE_MISSING_WAVES:
-      g_value_set_pointer (value, self->priv->missing_waves);
+      g_value_set_pointer (value, self->missing_waves);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -349,13 +356,13 @@ static void
 bt_wavetable_set_property (GObject * const object, const guint property_id,
     const GValue * const value, GParamSpec * const pspec)
 {
-  const BtWavetable *const self = BT_WAVETABLE (object);
-  return_if_disposed ();
+  BtWavetable *const self = BT_WAVETABLE (object);
+  return_if_disposed_self ();
   switch (property_id) {
     case WAVETABLE_SONG:
-      self->priv->song = BT_SONG (g_value_get_object (value));
-      g_object_try_weak_ref (self->priv->song);
-      //GST_DEBUG("set the song for wavetable: %p",self->priv->song);
+      self->song = BT_SONG (g_value_get_object (value));
+      g_object_try_weak_ref (self->song);
+      //GST_DEBUG("set the song for wavetable: %p",self->song);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -366,18 +373,18 @@ bt_wavetable_set_property (GObject * const object, const guint property_id,
 static void
 bt_wavetable_dispose (GObject * const object)
 {
-  const BtWavetable *const self = BT_WAVETABLE (object);
+  BtWavetable *const self = BT_WAVETABLE (object);
   GList *node;
 
-  return_if_disposed ();
-  self->priv->dispose_has_run = TRUE;
+  return_if_disposed_self ();
+  self->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  g_object_try_weak_unref (self->priv->song);
+  g_object_try_weak_unref (self->song);
   // unref list of waves
-  if (self->priv->waves) {
-    for (node = self->priv->waves; node; node = g_list_next (node)) {
+  if (self->waves) {
+    for (node = self->waves; node; node = g_list_next (node)) {
       GST_DEBUG ("  free wave : %" G_OBJECT_REF_COUNT_FMT,
           G_OBJECT_LOG_REF_COUNT (node->data));
       g_object_try_unref (node->data);
@@ -391,26 +398,59 @@ bt_wavetable_dispose (GObject * const object)
 static void
 bt_wavetable_finalize (GObject * const object)
 {
-  const BtWavetable *const self = BT_WAVETABLE (object);
+  BtWavetable *const self = BT_WAVETABLE (object);
 
   GST_DEBUG ("!!!! self=%p", self);
 
   // free list of waves
-  if (self->priv->waves) {
-    g_list_free (self->priv->waves);
-    self->priv->waves = NULL;
+  if (self->waves) {
+    g_list_free (self->waves);
+    self->waves = NULL;
   }
   // free list of missing_waves
-  if (self->priv->missing_waves) {
+  if (self->missing_waves) {
     const GList *node;
-    for (node = self->priv->missing_waves; node; node = g_list_next (node)) {
+    for (node = self->missing_waves; node; node = g_list_next (node)) {
       g_free (node->data);
     }
-    g_list_free (self->priv->missing_waves);
-    self->priv->missing_waves = NULL;
+    g_list_free (self->missing_waves);
+    self->missing_waves = NULL;
   }
 
   G_OBJECT_CLASS (bt_wavetable_parent_class)->finalize (object);
+}
+
+//-- GListModel interface
+
+static gpointer
+bt_wavetable_list_model_get_item (GListModel* list, guint position)
+{
+  BtWavetable *self = BT_WAVETABLE (list);
+  return bt_wavetable_get_wave_by_index (self, position);
+}
+
+static GType
+bt_wavetable_list_model_get_item_type (GListModel* list)
+{
+  return BT_TYPE_WAVE;
+}
+
+static guint
+bt_wavetable_list_model_get_n_items (GListModel* list)
+{
+  BtWavetable *self = BT_WAVETABLE (list);
+  return g_list_length (self->waves);
+}
+  
+static void
+bt_wavetable_g_list_model_init (gpointer const g_iface,
+    gpointer const iface_data)
+{
+  GListModelInterface *const iface = g_iface;
+
+  iface->get_item = bt_wavetable_list_model_get_item;
+  iface->get_item_type = bt_wavetable_list_model_get_item_type;
+  iface->get_n_items = bt_wavetable_list_model_get_n_items;
 }
 
 //-- class internals
@@ -418,7 +458,6 @@ bt_wavetable_finalize (GObject * const object)
 static void
 bt_wavetable_init (BtWavetable * self)
 {
-  self->priv = bt_wavetable_get_instance_private(self);
 }
 
 static void

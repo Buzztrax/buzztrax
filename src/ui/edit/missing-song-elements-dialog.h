@@ -21,37 +21,10 @@
 #include <glib.h>
 #include <glib-object.h>
 
+G_DECLARE_FINAL_TYPE(BtMissingSongElementsDialog, bt_missing_song_elements_dialog,
+    BT, MISSING_SONG_ELEMENTS_DIALOG, AdwMessageDialog);
+
 #define BT_TYPE_MISSING_SONG_ELEMENTS_DIALOG            (bt_missing_song_elements_dialog_get_type ())
-#define BT_MISSING_SONG_ELEMENTS_DIALOG(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MISSING_SONG_ELEMENTS_DIALOG, BtMissingSongElementsDialog))
-#define BT_MISSING_SONG_ELEMENTS_DIALOG_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MISSING_SONG_ELEMENTS_DIALOG, BtMissingSongElementsDialogClass))
-#define BT_IS_MISSING_SONG_ELEMENTS_DIALOG(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MISSING_SONG_ELEMENTS_DIALOG))
-#define BT_IS_MISSING_SONG_ELEMENTS_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MISSING_SONG_ELEMENTS_DIALOG))
-#define BT_MISSING_SONG_ELEMENTS_DIALOG_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MISSING_SONG_ELEMENTS_DIALOG, BtMissingSongElementsDialogClass))
-
-/* type macros */
-
-typedef struct _BtMissingSongElementsDialog BtMissingSongElementsDialog;
-typedef struct _BtMissingSongElementsDialogClass BtMissingSongElementsDialogClass;
-typedef struct _BtMissingSongElementsDialogPrivate BtMissingSongElementsDialogPrivate;
-
-/**
- * BtMissingSongElementsDialog:
- *
- * the root window for the editor application
- */
-struct _BtMissingSongElementsDialog {
-  GtkDialog parent;
-
-  /*< private >*/
-  BtMissingSongElementsDialogPrivate *priv;
-};
-
-struct _BtMissingSongElementsDialogClass {
-  GtkDialogClass parent;
-
-};
-
-GType bt_missing_song_elements_dialog_get_type(void) G_GNUC_CONST;
 
 BtMissingSongElementsDialog *bt_missing_song_elements_dialog_new(GList *machines,GList *waves);
 

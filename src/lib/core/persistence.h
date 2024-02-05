@@ -53,13 +53,14 @@ struct _BtPersistenceInterface {
   /*< public >*/
   /* virtual methods */
   xmlNodePtr (*save)(const BtPersistence * const self, xmlNodePtr const node, gpointer const userdata);
-  BtPersistence* (*load)(const GType type, const BtPersistence * const self, xmlNodePtr node, GError **err, va_list var_args);
+  BtPersistence* (*load)(const GType type, BtPersistence * const self, xmlNodePtr node, GError **err, va_list var_args);
 };
 
 GType bt_persistence_get_type(void) G_GNUC_CONST;
 
 // list helper
 gboolean bt_persistence_save_list(const GList *list, xmlNodePtr const node, gpointer const userdata);
+gboolean bt_persistence_save_list_model(GListModel *list, xmlNodePtr const node, gpointer const userdata);
 
 // hashtable helper
 void bt_persistence_collect_hashtable_entries(gpointer const key, gpointer const value, gpointer const user_data);
@@ -68,6 +69,6 @@ gboolean bt_persistence_load_hashtable(GHashTable *hashtable, xmlNodePtr node);
 
 // wrapper
 xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr const parent_node, gpointer const userdata);
-BtPersistence *bt_persistence_load(const GType type, const BtPersistence * const self, xmlNodePtr node, GError **err, ...);
+BtPersistence *bt_persistence_load(const GType type, BtPersistence * const self, xmlNodePtr node, GError **err, ...);
 
 #endif // BT_PERSISTENCE_H

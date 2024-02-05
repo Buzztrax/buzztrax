@@ -108,7 +108,7 @@ bt_processor_machine_persistence_save (const BtPersistence * const persistence,
 
 static BtPersistence *
 bt_processor_machine_persistence_load (const GType type,
-    const BtPersistence * const persistence, xmlNodePtr node, GError ** err,
+    BtPersistence * const persistence, xmlNodePtr node, GError ** err,
     va_list var_args)
 {
   BtProcessorMachine *self;

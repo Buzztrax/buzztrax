@@ -1,0 +1,74 @@
+<interface>
+  <template class="BtMainPagePatterns" parent="GtkBox">
+    <property name="orientation">vertical</property>
+    
+    <!-- Toolbar -->
+    <child>
+      <object class="GtkBox">
+        <style>
+          <class name="toolbar"/>
+        </style>
+      
+        <child><object class="GtkDropDown" id="machine_menu" /></child>
+        <child><object class="GtkDropDown" id="pattern_menu" /></child>
+        <child><object class="GtkDropDown" id="wavetable_menu" /></child>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkSpinButton" id="base_octave_menu">
+                <signal name="value-changed" handler="on_base_octave_menu_changed" swapped="no" />
+                
+                <property name="digits">1</property>
+                <property name="adjustment">
+                  <object class="GtkAdjustment">
+                    <property name="lower">0</property>
+                    <property name="upper">0</property>
+                    <property name="step-increment">1</property>
+                    <property name="page-increment">1</property>
+                    <property name="page-increment">0</property>
+                  </object>
+                </property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes">Octave</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkToggleButton">
+            <signal name="toggled" handler="on_play_live_toggled" swapped="no"/>
+        
+            <property name="label" translatable="yes">Play live</property>
+            <property name="icon-name">audio-speakers</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSeparator">
+            <property name="orientation">vertical</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkMenuButton" id="pattern_view_menu">
+            <property name="icon-name">emblem-system-symbolic</property>
+            <!-- tbd: connect main_page_patterns_context_menu.ui model to this widget in code. Possible to do here? -->
+          </object>
+        </child>
+      </object>
+    </child>
+
+    <!-- Pattern editor -->
+    <child>
+      <object class="GtkScrolledWindow">
+        <child>
+          <object class="BtPatternEditor" id="pattern_table">
+            <property name="name">pattern editor</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

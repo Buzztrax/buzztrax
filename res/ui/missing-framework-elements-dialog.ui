@@ -1,0 +1,39 @@
+<interface>
+  <template class="BtMissingFrameworkElementsDialog" parent="AdwMessageDialog">
+    <property name="title" translatable="yes">Missing GStreamer elements</property>
+      
+    <property name="content">
+      <object class="GtkBox">
+        <child>
+          <object class="GtkBox" id="vbox">
+            <property name="orientation">vertical</property>
+            
+            <child>
+              <object class="GtkImage" id="icon">
+                <property name="icon-name">dialog</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="use-markup">true</property>
+                <property name="label" translatable="yes">&lt;big&gt;&lt;b&gt;Missing GStreamer elements&lt;/b&gt;&lt;/big&gt;</property>
+              </object>
+            </child>
+
+            <!-- code will move this around -->
+            <child>
+              <object class="GtkCheckButton" id="ignore_button">
+                <property name="label" translatable="yes">don't warn again</property>
+                <property name="visible">false</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </property>
+
+    <responses>
+      <response id="ok" translatable="yes">_OK</response>
+    </responses>
+  </template>
+</interface>
