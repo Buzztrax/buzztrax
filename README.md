@@ -7,10 +7,10 @@ Please turn you browser to http://www.buzztrax.org to learn what this project
 is about. Buzztrax is free software and distributed under the LGPL.
 
 ## build status
-We are running continuous integration on travis-ci, get coverage from codecov
+We are running continuous integration on github actions, get coverage from codecov
 and have the codebase checked by coverity:
 
-[![Build Status](https://travis-ci.org/Buzztrax/buzztrax.svg?branch=master)](https://travis-ci.org/Buzztrax/buzztrax/builds)
+[![Build Status](https://github.com/Buzztrax/buzztrax/actions/workflows/build/badge.svg)](https://github.com/Buzztrax/buzztrax/actions/workflows/build.yml)
 [![Test Coverage](https://codecov.io/gh/Buzztrax/buzztrax/branch/master/graph/badge.svg)](https://codecov.io/gh/Buzztrax/buzztrax)
 [![Coverity Defects](https://scan.coverity.com/projects/533/badge.svg)](https://scan.coverity.com/projects/buzztrax)
 
