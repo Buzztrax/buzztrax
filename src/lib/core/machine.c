@@ -2613,8 +2613,7 @@ on_enum_control_notify(const BtIcControl *control,
  * control-value are mapped into a change of the parameter.
  */
 void bt_machine_bind_parameter_control(const BtMachine *const self,
-                                       GstObject *object, const gchar *property_name, BtIcControl *control,
-                                       BtParameterGroup *pg)
+    const gchar *property_name, BtIcControl *control)
 {
   BtControlData *data;
   GParamSpec *pspec;

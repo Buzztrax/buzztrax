@@ -61,6 +61,8 @@ struct _BtMainPages
   BtMainPageWaves *waves_page;
   /* the information tab */
   BtMainPageInfo *info_page;
+
+  GtkWidget *toolbar_view;
 };
 
 //-- the class
@@ -203,9 +205,6 @@ bt_main_pages_dispose (GObject * object)
 {
   BtMainPages *self = BT_MAIN_PAGES (object);
 
-  // Note: widgets are not disposed correctly if this is placed after
-  // return_if_disposed_self. Possibly, multiple "dispose" calls are required
-  // to break ref cycles.
   gtk_widget_dispose_template (GTK_WIDGET (self), BT_TYPE_MAIN_PAGES);
   
   return_if_disposed_self ();

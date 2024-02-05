@@ -15,6 +15,16 @@
     <property name="vexpand">yes</property>
     
     <child>
+      <!-- Note: currently I'm getting this on exit:
+
+        (buzztrax-edit:169572): Gtk-WARNING **: 21:48:18.546: Finalizing BtMainPages 0x555555c7af10, but it still has children left:
+       - AdwToolbarView 0x555555c62d50
+
+       This likely means this isn't the right way to use AdwToolbarView, i.e. it maybe should
+       only be used within an AdwWindow. Or maybe it needs to be parented in some other Adw widget
+       type rather than a plain GtkWidget.
+      -->
+   
       <object class="AdwToolbarView">
         <child type="top">
           <object class="GtkBox" id="header_bar">

@@ -98,7 +98,9 @@ gchar *
 make_menu_label_unique (const gchar *label, GHashTable *labelset)
 {
   if (g_hash_table_contains (labelset, label)) {
-    gchar *newlabel = g_strdup_printf ("%s new", label);
+    // Just pop a space on the end so it's "different", even if it doesn't
+    // look it.
+    gchar *newlabel = g_strdup_printf ("%s ", label);
     gchar *result = make_menu_label_unique (newlabel, labelset);
     g_free (newlabel);
     return result;
