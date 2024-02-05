@@ -34,8 +34,8 @@ modelled after the windows only, closed source application called Buzz.
 ## building from git
 To build use autogen.sh instead of configure. This accept the same options like
 configure. Later one can use autoregen.sh to rerun the bootstrapping.
-To build from git one needs to have gtk-doc and cvs (for autopoint from gettext)
-installed.
+To build from git one needs to have gtk-doc, yelp-tools and cvs (for autopoint
+from gettext) installed.
 
 ## directories
 * docs : design ideas and API reference
