@@ -10,7 +10,7 @@ is about. Buzztrax is free software and distributed under the LGPL.
 We are running continuous integration on github actions, get coverage from codecov
 and have the codebase checked by coverity:
 
-[![Build Status](https://github.com/Buzztrax/buzztrax/actions/workflows/build/badge.svg)](https://github.com/Buzztrax/buzztrax/actions/workflows/build.yml)
+[![Build Status](https://github.com/Buzztrax/buzztrax/actions/workflows/build.yml/badge.svg)](https://github.com/Buzztrax/buzztrax/actions/workflows/build.yml)
 [![Test Coverage](https://codecov.io/gh/Buzztrax/buzztrax/branch/master/graph/badge.svg)](https://codecov.io/gh/Buzztrax/buzztrax)
 [![Coverity Defects](https://scan.coverity.com/projects/533/badge.svg)](https://scan.coverity.com/projects/buzztrax)
 
