@@ -52,7 +52,9 @@ jobs:
       if: always() && steps.check.outcome == 'failure' && steps.rerun_tests.outcome == 'success'
       with:
         path: |
-          test-suite.log
+          *.log
+          !config.log
+          tests/*.log
           bml.tar.bz2
           bt_cmd.tar.bz2
           bt_core.tar.bz2
