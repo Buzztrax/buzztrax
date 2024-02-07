@@ -48,6 +48,12 @@ jobs:
         cat ./bt_edit.log ./test-suite.log
         scripts/gdbtests.sh ./test-suite.log
 
+    - uses: test-summary/action@v2
+      if: always()
+      with:
+        paths: |
+          /tmp/*.log.xml
+
     - uses: actions/upload-artifact@v4
       if: always() && steps.check.outcome == 'failure' && steps.rerun_tests.outcome == 'success'
       with:
