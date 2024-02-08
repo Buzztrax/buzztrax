@@ -265,7 +265,7 @@ START_TEST (test_bt_sequence_length_reduce_no_truncate)
      values are correctly updated and that no sequence data has been lost. */
   GST_INFO ("-- act --");
   g_object_set (sequence, "length", 4L, NULL);
-  g_object_set (sequence, "len-patterns", 8L, NULL);
+  bt_sequence_resize_data_length (sequence, 8L);
 
   GST_INFO ("-- assert --");
 
@@ -306,7 +306,7 @@ START_TEST (test_bt_sequence_length_reduce_and_persist)
   GST_INFO ("-- act --");
   
   g_object_set (sequence, "length", 4L, NULL);
-  g_object_set (sequence, "len-patterns", 8L, NULL);
+  bt_sequence_resize_data_length (sequence, 8L);
   
   xmlDocPtr const doc = xmlNewDoc (XML_CHAR_PTR ("1.0"));
   xmlNodePtr node = bt_persistence_save (BT_PERSISTENCE (song), NULL, NULL);

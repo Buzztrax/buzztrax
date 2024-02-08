@@ -370,20 +370,63 @@ bt_sequence_get_nonnull_length (const BtSequence * const self) {
 }
 
 /*
+ * bt_sequence_update_post_length_change:
+ * @length: the new value requested for length
+ *
+ * Handles making sure that loop-end doesn't extend past song length, and also
+ * makes sure that if loop-end is set to the song length, then the loop-end is
+ * updated to match the new length. This is to prevent annoying song authors
+ * when their song length changes, so the previous loop-end doesn't hang around
+ * floating somewhere in the middle of the song.
+ *
+ * Also sets play-end appropriately when length is to change.
+ *
+ * Should be called after self->length changes.
+ */
+static void
+bt_sequence_post_length_change (const BtSequence * const self,
+    gulong old_length)
+{
+  if (self->priv->loop_end != -1) {
+    // clip loopend to length or extend loop-end as well if loop_end was
+    // old length
+    if ((self->priv->loop_end > self->priv->length) ||
+        (self->priv->loop_end == old_length)) {
+      self->priv->play_end = self->priv->loop_end = self->priv->length;
+      g_object_notify ((GObject *) self, "loop-end");
+      if (self->priv->loop_end <= self->priv->loop_start) {
+        self->priv->loop_start = self->priv->loop_end = -1;
+        self->priv->loop = FALSE;
+        g_object_notify ((GObject *) self, "loop-start");
+        g_object_notify ((GObject *) self, "loop");
+      }
+    }
+  } else {
+    self->priv->play_end = self->priv->length;
+  }
+
+  bt_sequence_limit_play_pos_internal (self);
+}
+    
+/*
  * bt_sequence_resize_data_length:
  * @self: the sequence to resize the length
  * @length: the length to which the data will be resized
  *
  * Resizes the pattern data grid to the new length. Keeps previous values.
  */
-static void
+void
 bt_sequence_resize_data_length (const BtSequence * const self, const gulong length)
 {
   const gulong tracks = self->priv->tracks;
 
   const gulong old_length = self->priv->len_patterns;
   
-  // try to shrink the pattern up to the row having the final non-empty pattern cell
+  /* Try to shrink the pattern up to the row having the final non-empty sequence
+   * cell if possible, but if the song end has been requested to be set to a
+   * point before that, then make sure pattern data isn't resized away and
+   * lost.
+   */
   const gulong new_length =
       MAX(length, bt_sequence_get_nonnull_length (self));
   
@@ -441,27 +484,11 @@ bt_sequence_resize_data_length (const BtSequence * const self, const gulong leng
   }
 
   self->priv->len_patterns = new_length;
-  self->priv->length = MIN (self->priv->length, self->priv->len_patterns);
 
-  if (self->priv->loop_end != -1) {
-    // clip loopend to length or extend loop-end as well if loop_end was
-    // old length
-    if ((self->priv->loop_end > self->priv->length) ||
-        (self->priv->loop_end == length)) {
-      self->priv->play_end = self->priv->loop_end = self->priv->length;
-      g_object_notify ((GObject *) self, "loop-end");
-      if (self->priv->loop_end <= self->priv->loop_start) {
-        self->priv->loop_start = self->priv->loop_end = -1;
-        self->priv->loop = FALSE;
-        g_object_notify ((GObject *) self, "loop-start");
-        g_object_notify ((GObject *) self, "loop");
-      }
-    }
-  } else {
-    self->priv->play_end = self->priv->length;
-  }
-  
-  bt_sequence_limit_play_pos_internal (self);
+  // len_patterns should never be smaller than length, which is the song end.
+  // If this happened, there would be OOB memory reads.
+  g_assert (self->priv->len_patterns >= self->priv->length);
+  bt_sequence_post_length_change (self, length);
   
   g_object_notify ((GObject *) self, "len-patterns");
 }
@@ -1710,6 +1737,7 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
         GST_DEBUG ("set the length for sequence: %lu", self->priv->length);
         bt_sequence_resize_data_length (self, self->priv->length);
       }
+      bt_sequence_post_length_change (self, length);
       break;
     }
     case SEQUENCE_TRACKS:{
@@ -1786,17 +1814,6 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
           -1) ? self->priv->loop_end : self->priv->length;
       bt_sequence_limit_play_pos_internal (self);
       break;
-    case SEQUENCE_LEN_PATTERNS:{
-      // TODO(ensonic): remove or better stop the song
-      // if(self->priv->is_playing) bt_sequence_stop(self);
-      // prepare new data
-      const gulong len_patterns_in = g_value_get_ulong (value);
-      if (len_patterns_in != self->priv->len_patterns) {
-        GST_DEBUG ("set the pattern length for sequence: %lu", len_patterns_in);
-        bt_sequence_resize_data_length (self, len_patterns_in);
-      }
-      break;
-    }
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -2002,7 +2019,7 @@ bt_sequence_class_init (BtSequenceClass * const klass)
   g_object_class_install_property (gobject_class, SEQUENCE_LEN_PATTERNS,
       g_param_spec_ulong ("len-patterns", "patterns length prop",
           "total length of sequence in timeline bars", 0, G_MAXLONG, 0,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
   
   g_object_class_install_property (gobject_class, SEQUENCE_TRACKS,
       g_param_spec_ulong ("tracks",
