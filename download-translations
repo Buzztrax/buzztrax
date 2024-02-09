@@ -2,17 +2,17 @@
 # Shell script to download the latest translations from translationproject.org
 
 
-# DOMAINS based on http://translationproject.org/extra/matrix.html
-# We need to check all domains, not only po/LINGUAS, since there might be
+# LANGUAGES based on http://translationproject.org/extra/matrix.html
+# We need to check all languages, not only po/LINGUAS, since there might be
 # new translations
-DOMAINS=\
+LANGUAGES=\
 "af am ar az be bg pt_BR bs ca zh_CN cs cy da de el eo es et eu fa fi fr "\
 "ga en_GB gl gu he hi zh_HK hr hu id is it ja ko ku ky lg lt lv mk mn ms "\
 "mt nb ne nl nn or pa pl pt rm ro ru rw sk sl sq sr sv ta tq th tk "\
 "tr zh_TW uk ven vi wa xh zu"
 
 # for testing/debugging:
-#DOMAINS="es fr hu sv pl xx"
+#LANGUAGES="es fr hu sv pl xx"
 
 # check for 'diff' program
 diff --version 2>/dev/null >/dev/null
@@ -34,19 +34,19 @@ if [ ! -d ./po ]; then
   exit 1
 fi
 
-PACKAGE="buzztrax"
+DOMAIN="buzztrax"
 
-DOMAINS_TO_ADD=""
-DOMAINS_UPDATED=""
+LANGUAGES_TO_ADD=""
+LANGUAGES_UPDATED=""
 
-echo "Downloading latest translation files for package $PACKAGE ..."
+echo "Downloading latest translation files for domain $DOMAIN ..."
 echo
 
-for d in $DOMAINS
+for l in $LANGUAGES
 do
-  PACKAGE_PO_URL_BASE="http://translationproject.org/latest/$PACKAGE"
-  PO_URL="$PACKAGE_PO_URL_BASE/$d.po"
-  PO_FILENAME="$PACKAGE.$d.po"
+  DOMAIN_PO_URL_BASE="http://translationproject.org/latest/$DOMAIN"
+  PO_URL="$DOMAIN_PO_URL_BASE/$l.po"
+  PO_FILENAME="$DOMAIN.$l.po"
   if wget -q -nc -O $PO_FILENAME $PO_URL; then
     # we want all .po files in UTF-8 format really, so convert if needed..
     CHARSET=`grep Content-Type $PO_FILENAME | sed -e 's/.*charset=\(.*\)\\\\n.*/\1/'`
@@ -57,63 +57,63 @@ do
                               --to-code=UTF-8; then
         mv $PO_FILENAME.utf8 $PO_FILENAME
       else
-        echo "**** $d: conversion from $CHARSET to UTF-8 failed ****"
+        echo "**** $l: conversion from $CHARSET to UTF-8 failed ****"
       fi
     fi
-    if [ -f "po/$d.po" ]; then
+    if [ -f "po/$l.po" ]; then
       # ./po/foo.po exists, so let's check if ours matches the latest from the
       # translation project website
       REVDATE_NEW=`grep PO-Revision-Date $PO_FILENAME`;
-      REVDATE_OLD=`grep PO-Revision-Date po/$d.po`;
-      CHARSET_OLD=`grep Content-Type po/$d.po | sed -e 's/.*charset=\(.*\)\\\\n.*/\1/'`
+      REVDATE_OLD=`grep PO-Revision-Date po/$l.po`;
+      CHARSET_OLD=`grep Content-Type po/$l.po | sed -e 's/.*charset=\(.*\)\\\\n.*/\1/'`
       if test "x$REVDATE_NEW" = "x$REVDATE_OLD" -a "x$CHARSET_OLD" = "xUTF-8"; then
         # note: source code line markers will be removed later by make upload-po
-        echo "$d.po: up-to-date"
+        echo "$l.po: up-to-date"
         rm -f $PO_FILENAME
       else
-        mv $PO_FILENAME "po/$d.po"
+        mv $PO_FILENAME "po/$l.po"
         if test "x$CHARSET_OLD" != "xUTF-8" -a "x$CHARSET_OLD" != "xutf-8"; then
-          echo "$d.po: update (and charset converted from $CHARSET_OLD to UTF-8)"
+          echo "$l.po: update (and charset converted from $CHARSET_OLD to UTF-8)"
         else
-          echo "$d.po: updated"
+          echo "$l.po: updated"
         fi
-        DOMAINS_UPDATED="$DOMAINS_UPDATED $d"
+        LANGUAGES_UPDATED="$LANGUAGES_UPDATED $l"
       fi
     else
       # ./po/foo.po doesn't exist, but foo.po exists on the translation project
       # website, so it's probably a new translation
-      echo "$d.po: new language"
-      mv $PO_FILENAME "po/$d.po"
-      DOMAINS_UPDATED="$DOMAINS_UPDATED $d"
-      DOMAINS_TO_ADD="$DOMAINS_TO_ADD $d"
+      echo "$l.po: new language"
+      mv $PO_FILENAME "po/$l.po"
+      LANGUAGES_UPDATED="$LANGUAGES_UPDATED $l"
+      LANGUAGES_TO_ADD="$LANGUAGES_TO_ADD $l"
     fi
   else
     rm -f $PO_FILENAME
-    echo "$d.po: failure (does probably not exist)"
+    echo "$l.po: failure (does probably not exist)"
   fi
 done
 
-if [ -n "$DOMAINS_UPDATED" ]; then
+if [ -n "LANGUAGES_UPDATED" ]; then
   echo "===================================================================="
   echo
-  echo "Language domains updated    :$DOMAINS_UPDATED"
-  echo "Language domains to git add :$DOMAINS_TO_ADD"
+  echo "Language codes updated    :$LANGUAGES_UPDATED"
+  echo "Language codes to git add :$LANGUAGES_TO_ADD"
   echo
-  echo "Source: http://translationproject.org/latest/$PACKAGE/"
+  echo "Source: http://translationproject.org/latest/$DOMAIN/"
   echo
-  if [ -n "$DOMAINS_TO_ADD" ]; then
+  if [ -n "$LANGUAGES_TO_ADD" ]; then
     CMD_STRING="git add"
-    for d in $DOMAINS_TO_ADD; do
-      CMD_STRING="$CMD_STRING po/$d.po"
+    for d in $LANGUAGES_TO_ADD; do
+      CMD_STRING="$CMD_STRING po/$l.po"
     done
     CMD_STRING="$CMD_STRING; git commit -m \"add new translations\""
     echo "Please run"
     echo
     echo "  $CMD_STRING"
     echo
-    echo "now and add the following domains to the po/LINGUAS file:"
+    echo "now and add the following language codes to the po/LINGUAS file:"
     echo
-    echo "  $DOMAINS_TO_ADD"
+    echo "  $LANGUAGES_TO_ADD"
     echo
     echo
   fi
