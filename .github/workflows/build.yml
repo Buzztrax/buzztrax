@@ -51,7 +51,7 @@ jobs:
     - uses: pcolby/tap-summary@v1
       if: always()
       with:
-        paths: |
+        path: |
           /tmp/*.log.tap
         summary-file: tap_summary.md
 
