@@ -544,11 +544,11 @@ get_suite_log_base (void)
 }
 
 const gchar *
-get_suite_log_filename (void)
+get_suite_log_filename (const gchar *ext)
 {
   static gchar suite_log_fn[PATH_MAX];
 
-  sprintf (suite_log_fn, "%s.log.xml", __log_suite);
+  sprintf (suite_log_fn, "%s.log.%s", __log_suite, ext);
   return suite_log_fn;
 }
 

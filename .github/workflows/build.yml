@@ -48,11 +48,12 @@ jobs:
         cat ./bt_edit.log ./test-suite.log
         scripts/gdbtests.sh ./test-suite.log
 
-    - uses: test-summary/action@v2
+    - uses: pcolby/tap-summary@v1
       if: always()
       with:
         paths: |
-          /tmp/*.log.xml
+          /tmp/*.log.tap
+        summary-file: tap_summary.md
 
     - uses: actions/upload-artifact@v4
       if: always() && steps.check.outcome == 'failure' && steps.rerun_tests.outcome == 'success'
@@ -61,6 +62,7 @@ jobs:
           *.log
           !config.log
           tests/*.log
+          tap_summary.md
           bml.tar.bz2
           bt_cmd.tar.bz2
           bt_core.tar.bz2

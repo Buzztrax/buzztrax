@@ -62,7 +62,8 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, gst_buzztrax_osc_wave_suite ());
   srunner_add_suite (sr, gst_buzztrax_tempo_suite ());
   srunner_add_suite (sr, gst_buzztrax_toneconversion_suite ());
-  srunner_set_xml (sr, get_suite_log_filename ());
+  // srunner_set_xml (sr, get_suite_log_filename ("xml"));
+  srunner_set_tap (sr, get_suite_log_filename ("tap"));
   srunner_run_all (sr, CK_NORMAL);
   nf = srunner_ntests_failed (sr);
   srunner_free (sr);
