@@ -54,7 +54,7 @@ jobs:
       if: always()
       with:
         paths: /tmp/*.tap
-        summary-file: test_summary.md
+        output: test_summary.md
 
     # https://github.com/pcolby/tap-summary/issues
     #- uses: pcolby/tap-summary@v1
