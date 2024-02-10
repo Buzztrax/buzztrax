@@ -108,20 +108,19 @@ START_TEST (test_launch_bt_dec)
 END_TEST
 
 static gchar *launch_pipelines[] = {
-  // synthesizers
-  "ebeats num-buffers=10 volume=100 ! fakesink sync=false",
+    // synthesizers
+    "ebeats num-buffers=10 volume=100 ! fakesink sync=false",
 #ifdef HAVE_FLUIDSYNTH
-  "fluidsynth num-buffers=10 note=\"c-4\" ! fakesink sync=false",
+    "fluidsynth num-buffers=10 note=\"c-4\" ! fakesink sync=false",
 #endif
-  "sidsyn num-buffers=10 voice0::note=\"c-4\" ! fakesink sync=false",
-  "simsyn num-buffers=10 note=\"c-4\" ! fakesink sync=false",
-  "wavetabsyn num-buffers=10 note=\"c-4\" ! fakesink sync=false",
-  "wavereplay num-buffers=10 note=\"c-4\" ! fakesink sync=false",
-  "bml-libTestBmGenerator num-buffers=10 ! fakesink sync=false",
-  // effects
-  "audiotestsrc num-buffers=10 wave=4 ! audiodelay ! fakesink sync=false",
-  "audiotestsrc num-buffers=10 wave=4 ! bml-libTestBmEffect ! fakesink sync=false"
-};
+    "sidsyn num-buffers=10 voice0::note=\"c-4\" ! fakesink sync=false",
+    "simsyn num-buffers=10 note=\"c-4\" ! fakesink sync=false",
+    "wavetabsyn num-buffers=10 note=\"c-4\" ! fakesink sync=false",
+    "wavereplay num-buffers=10 ! fakesink sync=false",
+    "bml-libTestBmGenerator num-buffers=10 ! fakesink sync=false",
+    // effects
+    "audiotestsrc num-buffers=10 wave=4 ! audiodelay ! fakesink sync=false",
+    "audiotestsrc num-buffers=10 wave=4 ! bml-libTestBmEffect ! fakesink sync=false"};
 
 START_TEST (test_launch_elements)
 {
