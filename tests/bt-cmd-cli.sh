@@ -59,8 +59,9 @@ testPlayCommandWithQuietOption()
 
 testConvertCommand() {
   tmpfile=$SHUNIT_TMPDIR/simple2.out.xml
-  $LIBTOOL $BUZZTRAX_CMD >/dev/null 2>&1 --command=convert -q --input-file=$TESTSONGDIR/simple2.xml --output-file=$tmpfile
+  $LIBTOOL $BUZZTRAX_CMD >$SHUNIT_TMPDIR/out.log 2>&1 --command=convert -q --input-file=$TESTSONGDIR/simple2.xml --output-file=$tmpfile
   if [ ! -r $tmpfile ]; then
+    cat $SHUNIT_TMPDIR/out.log
     fail "output $tmpfile file missing, have: $(ls -al $SHUNIT_TMPDIR/simple2*)"
   fi
   rm -f $tmpfile
@@ -68,16 +69,19 @@ testConvertCommand() {
 
 testEncodeCommand() {
   tmpfile=$SHUNIT_TMPDIR/simple2.wav
-  $LIBTOOL $BUZZTRAX_CMD >/dev/null 2>&1 --command=encode -q --input-file=$TESTSONGDIR/simple2.xml --output-file=$tmpfile
+  $LIBTOOL $BUZZTRAX_CMD >$SHUNIT_TMPDIR/out.log 2>&1 --command=encode -q --input-file=$TESTSONGDIR/simple2.xml --output-file=$tmpfile
   if [ ! -r $tmpfile ]; then
+    cat $SHUNIT_TMPDIR/out.log
     fail "output $tmpfile file missing, have: $(ls -al $SHUNIT_TMPDIR/simple2*)"
   fi
   rm -f $tmpfile
+
 }
 testEncodeCommandGuessFormat() {
   tmpfile=$SHUNIT_TMPDIR/simple2.vorbis.ogg
-  $LIBTOOL $BUZZTRAX_CMD >/dev/null 2>&1 --command=encode -q --input-file=$TESTSONGDIR/simple2.xml --output-file=$SHUNIT_TMPDIR/simple2
+  $LIBTOOL $BUZZTRAX_CMD >$SHUNIT_TMPDIR/out.log 2>&1 --command=encode -q --input-file=$TESTSONGDIR/simple2.xml --output-file=$SHUNIT_TMPDIR/simple2
   if [ ! -r $tmpfile ]; then
+    cat $SHUNIT_TMPDIR/out.log
     fail "output $tmpfile file missing, have: $(ls -al $SHUNIT_TMPDIR/simple2*)"
   fi
   rm -f $tmpfile
