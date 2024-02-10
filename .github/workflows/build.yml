@@ -52,7 +52,7 @@ jobs:
       if: always()
       with:
         path: |
-          /tmp/*.log.tap
+          /tmp/*.tap
         summary-file: tap_summary.md
 
     - uses: actions/upload-artifact@v4
@@ -69,4 +69,5 @@ jobs:
           bt_edit.tar.bz2
           bt_gst.tar.bz2
           bt_ic.tar.bz2
+          /tmp/*.tap
           /tmp/record.*

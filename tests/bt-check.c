@@ -527,7 +527,8 @@ collect_logs (gboolean no_failures)
     return;
 
   if (no_failures) {
-    cmd = g_strdup_printf ("tar cpjf ./%s.tar.bz2 %s/%s/log.xml", __log_base,
+    // TODO: handle all of the log formats, or don't collect any archive on failure?
+    cmd = g_strdup_printf ("tar cpjf ./%s.tar.bz2 %s/%s.log.tap", __log_base,
         __log_root, __log_base);
   } else {
     cmd = g_strdup_printf ("tar cpjf ./%s.tar.bz2 %s/%s", __log_base,
