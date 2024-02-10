@@ -49,12 +49,19 @@ jobs:
         cat ./bt_edit.log ./test-suite.log
         scripts/gdbtests.sh ./test-suite.log
 
-    - uses: pcolby/tap-summary@v1
+    - name: Test Summary
+      uses: test-summary/action@98d5ecd2de9823412dd12a2d1e02fb954284f4c3
       if: always()
       with:
-        path: |
-          /tmp/*.tap
-        summary-file: tap_summary.md
+        paths: /tmp/*.tap
+        summary-file: test_summary.md
+
+    # https://github.com/pcolby/tap-summary/issues
+    #- uses: pcolby/tap-summary@v1
+    #  if: always()
+    #  with:
+    #    path: /tmp/*.tap
+    #    summary-file: test_summary.md
 
     - uses: actions/upload-artifact@v4
       if: always() && steps.check.outcome == 'failure' && steps.rerun_tests.outcome == 'success'
@@ -63,7 +70,7 @@ jobs:
           *.log
           !config.log
           tests/*.log
-          tap_summary.md
+          test_summary.md
           bml.tar.bz2
           bt_cmd.tar.bz2
           bt_core.tar.bz2
