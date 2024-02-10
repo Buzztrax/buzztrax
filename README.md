@@ -130,3 +130,18 @@ The Valgrind log file will be found at /tmp/<test_name>.valgrind.<pid>. Logs wit
 You may find that you need to tweak the location of the Valgrind suppression files for your OS (the 'default.supp' file is found there.) If you have that issue, try this:
 
     VALSUPP=/usr/libexec/valgrind BT_CHECKS="test_bt_edit_app*" make -e bt_edit.valgrind
+
+## reporting issues
+
+Run the application from a terminal like e.g.:
+
+    GST_DEBUG=4 GST_DEBUG_FILE=./debug.log buzztrax-edit
+
+and attach the log file to a bug report at https://github.com/Buzztrax/buzztrax/issues.
+
+If there is a reproducible crash, run:
+
+    gdb $(which buzztrax-edit)
+
+and in gdb type `r` for run and when the application crashed `bt` to get a backtrace.
+Share that text in the bugreport.
