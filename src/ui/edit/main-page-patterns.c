@@ -1819,12 +1819,22 @@ pattern_table_refresh (const BtMainPagePatterns * self)
             pid, j);
         group->num_columns = self->priv->voice_params;
         group->columns =
+#if GLIB_CHECK_VERSION(2, 68, 0)
+            g_memdup2 (stamp->columns,
+                sizeof (BtPatternEditorColumn) * group->num_columns);
+#else
             g_memdup (stamp->columns,
-            sizeof (BtPatternEditorColumn) * group->num_columns);
+                sizeof (BtPatternEditorColumn) * group->num_columns);
+#endif
         for (i = 0; i < group->num_columns; i++) {
           group->columns[i].user_data =
+#if GLIB_CHECK_VERSION(2, 68, 0)
+              g_memdup2 (group->columns[i].user_data,
+                  sizeof (BtPatternEditorColumnConverters));
+#else
               g_memdup (group->columns[i].user_data,
-              sizeof (BtPatternEditorColumnConverters));
+                  sizeof (BtPatternEditorColumnConverters));
+#endif
         }
         group->width = 0;
         group++;

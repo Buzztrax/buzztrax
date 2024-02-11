@@ -396,7 +396,11 @@ bt_song_io_native_bzt_save (gconstpointer const _self,
             gsf_off_t len = gsf_output_size (self->priv->output);
             const guint8 *mem = gsf_output_memory_get_bytes (
                 (GsfOutputMemory *) self->priv->output);
+#if GLIB_CHECK_VERSION(2, 68, 0)
+            gpointer data = g_memdup2 (mem, (gsize) len);
+#else
             gpointer data = g_memdup (mem, (guint) len);
+#endif
             g_object_set ((gpointer) self, "data", data, "data-len",
                 (guint) len, NULL);
           }
