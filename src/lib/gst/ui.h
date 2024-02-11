@@ -25,12 +25,14 @@
 G_BEGIN_DECLS
 
 /**
- * GstBtUiCustomGfxResponse: returned by GstBtUiCustomGfxInterface::request
+ * GstBtUiCustomGfxResponse:
  *
  * @version: set to 0
  * @width: width of returned image in pixels
  * @height: height of returned image in pixels
  * @data: ABGR data, width*height guints
+ *
+ * Data returned by GstBtUiCustomGfxInterface::request
  */
 typedef struct GstBtUiCustomGfxResponse {
   guint version; // set to 0
@@ -45,7 +47,7 @@ G_DECLARE_INTERFACE (GstBtUiCustomGfx, gstbt_ui_custom_gfx, GSTBT_UI, CUSTOM_GFX
                      GObject)
 
 /**
- * GstBtUiCustomGfxInterface
+ * GstBtUiCustomGfxInterface:
  *
  * @request: Return the machine's current custom gfx image.
  *           Ownership of the returned object isn't transferred, so cached data
@@ -54,7 +56,7 @@ G_DECLARE_INTERFACE (GstBtUiCustomGfx, gstbt_ui_custom_gfx, GSTBT_UI, CUSTOM_GFX
  *           The actual rendering of the image may be done here.
  *
  *           May return NULL; in that case, Buzztrax's standard gfx are used.
-*/
+ */
 struct _GstBtUiCustomGfxInterface {
   GTypeInterface parent;
 
