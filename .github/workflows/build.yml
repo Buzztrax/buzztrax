@@ -49,19 +49,19 @@ jobs:
         cat ./bt_edit.log ./test-suite.log
         scripts/gdbtests.sh ./test-suite.log
 
-    - name: Test Summary
-      uses: test-summary/action@98d5ecd2de9823412dd12a2d1e02fb954284f4c3
-      if: always()
-      with:
-        paths: /tmp/*.tap
-        output: test_summary.md
-
-    # https://github.com/pcolby/tap-summary/issues
-    #- uses: pcolby/tap-summary@v1
+    # File not found: '/home/runner/work/_actions/test-summary/action/<...>/index.js'
+    #- name: Test Summary
+    #  uses: test-summary/action@98d5ecd2de9823412dd12a2d1e02fb954284f4c3
     #  if: always()
     #  with:
-    #    path: /tmp/*.tap
-    #    summary-file: test_summary.md
+    #    paths: /tmp/*.tap
+    #    output: test_summary.md
+
+    - uses: pcolby/tap-summary@v1.1
+      if: always()
+      with:
+        path: /tmp/*.tap
+        summary-file: test_summary.md
 
     - uses: actions/upload-artifact@v4
       if: always() && steps.check.outcome == 'failure' && steps.rerun_tests.outcome == 'success'
