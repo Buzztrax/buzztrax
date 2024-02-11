@@ -59,6 +59,7 @@
     <xi:include href="xml/childbin.xml"/>
     <xi:include href="xml/propertymeta.xml"/>
     <xi:include href="xml/tempo.xml"/>
+    <xi:include href="xml/ui.xml"/>
   </chapter>
 
   <chapter>
