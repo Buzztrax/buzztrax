@@ -44,11 +44,11 @@
             </child>
               
             <child>
-              <object class="GtkButton">
+              <object class="GtkMenuButton" id="popover_menu">
                 <property name="label" translatable="yes">Grid</property>
                 <property name="icon-name">view-grid-symbolic</property>
                 <property name="tooltip-text" translatable="yes">Show background grid</property>
-                <property name="action-name">main-page-machines.grid-show</property>
+                <property name="menu-model">grid_menu</property>
               </object>
             </child>
 
@@ -60,7 +60,6 @@
                 
                 <child>
                   <object class="GtkMenuButton" id="machine_menu_button">
-                    <property name="label" translatable="yes">Grid</property>
                     <property name="icon-name">emblem-system-symbolic</property>
                     <property name="tooltip-text" translatable="yes">Menu actions for machine view below</property>
                   </object>
@@ -71,43 +70,7 @@
         </child> <!-- /headerbar top child -->
 
         <child>
-          <object class="GtkGrid">
-            <child>
-              <object class="GtkScrollbar">
-                <property name="orientation">vertical</property>
-                
-                <property name="adjustment">
-                  <object class="GtkAdjustment" id="vadjustment">
-                    <signal name="value-changed" handler="on_vadjustment_changed" swapped="no" />
-                  </object>
-                </property>
-                <layout>
-                  <property name="column">1</property>
-                  <property name="row">0</property>
-                  <property name="column-span">1</property>
-                  <property name="row-span">1</property>
-                </layout>
-              </object>
-            </child>
-            
-            <child>
-              <object class="GtkScrollbar">
-                <property name="orientation">horizontal</property>
-                
-                <property name="adjustment">
-                  <object class="GtkAdjustment" id="hadjustment">
-                    <signal name="value-changed" handler="on_hadjustment_changed" swapped="no" />
-                  </object>
-                </property>
-                <layout>
-                  <property name="column">0</property>
-                  <property name="row">1</property>
-                  <property name="column-span">1</property>
-                  <property name="row-span">1</property>
-                </layout>
-              </object>
-            </child>
-
+          <object class="GtkScrolledWindow">
             <child>
               <object class="GtkFixed" id="canvas">
                 <signal name="query-tooltip" handler="on_canvas_query_tooltip" swapped="no" />
@@ -124,6 +87,8 @@
                     <signal name="resize" handler="on_canvas_size_changed" swapped="no" />
                     <property name="vexpand">yes</property>
                     <property name="hexpand">yes</property>
+                    <property name="width-request">3000</property>
+                    <property name="height-request">2250</property>
                   </object>
                 </child>
               </object>
@@ -133,4 +98,29 @@
       </object>
     </child>
   </template>
+
+  <menu id="grid_menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="true">Off</attribute>
+        <attribute name="action">main-page-machines.grid-density</attribute>
+        <attribute name="target">off</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Low</attribute>
+        <attribute name="action">main-page-machines.grid-density</attribute>
+        <attribute name="target">low</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Medium</attribute>
+        <attribute name="action">main-page-machines.grid-density</attribute>
+        <attribute name="target">medium</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">High</attribute>
+        <attribute name="action">main-page-machines.grid-density</attribute>
+        <attribute name="target">high</attribute>
+      </item>
+    </section>
+  </menu>
 </interface>

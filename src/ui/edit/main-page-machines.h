@@ -55,9 +55,19 @@ G_DECLARE_FINAL_TYPE(BtMainPageMachines, bt_main_page_machines, BT,
 #define WIRE_PAD_METER_VOL (4.0*ICON_UPSAMPLING)
 #define WIRE_PAD_METER_PAN (10.0*ICON_UPSAMPLING)
 
-GType bt_main_page_machines_get_type(void) G_GNUC_CONST;
+//-- enums
 
 #include "main-pages.h"
+
+typedef enum {
+  BT_MAIN_PAGE_MACHINES_GRID_DENSITY_OFF=0,
+  BT_MAIN_PAGE_MACHINES_GRID_DENSITY_LOW,
+  BT_MAIN_PAGE_MACHINES_GRID_DENSITY_MEDIUM,
+  BT_MAIN_PAGE_MACHINES_GRID_DENSITY_HIGH,
+} BtMainPageMachinesGridDensity;
+
+GType bt_main_page_machines_grid_density_get_type(void) G_GNUC_CONST;
+
 
 typedef struct _BtMachine BtMachine;
 typedef struct _BtWire BtWire;

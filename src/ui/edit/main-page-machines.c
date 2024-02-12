@@ -82,7 +82,8 @@
 
 enum
 {
-  MAIN_PAGE_MACHINES_CANVAS = 1
+  MAIN_PAGE_MACHINES_CANVAS = 1,
+  MAIN_PAGE_MACHINES_GRID_DENSITY
 };
 
 // machine view area
@@ -109,9 +110,6 @@ struct _BtMainPageMachines
   /* the setup of machines and wires */
   BtSetup *setup;
 
-  /* canvas for machine view, owner of the clutter stage */
-  GtkAdjustment *hadjustment, *vadjustment;
-
   /* the zoomration in pixels/per unit */
   gdouble zoom;
   /* zomm in/out widgets */
@@ -120,11 +118,8 @@ struct _BtMainPageMachines
   /* canvas context_menu */
   GMenu *context_menu;
 
-  /* grid density menu */
-  GMenu *grid_density_menu;
-  GSList *grid_density_group;
   /* grid density */
-  gulong grid_density;
+  BtMainPageMachinesGridDensity grid_density;
 
   /* we probably need a list of canvas items that we have drawn, so that we can
    * easily clear them later
@@ -218,26 +213,41 @@ static void on_machine_item_position_changed (BtMachineCanvasItem *
     machine_item, ClutterEventType ev_type, gpointer user_data);
 #endif
 
+//-- enums
+
+G_DEFINE_ENUM_TYPE (BtMainPageMachinesGridDensity,
+    bt_main_page_machines_grid_density,
+    G_DEFINE_ENUM_VALUE (BT_MAIN_PAGE_MACHINES_GRID_DENSITY_OFF, "off"),
+    G_DEFINE_ENUM_VALUE (BT_MAIN_PAGE_MACHINES_GRID_DENSITY_LOW, "low"),
+    G_DEFINE_ENUM_VALUE (BT_MAIN_PAGE_MACHINES_GRID_DENSITY_MEDIUM, "medium"),
+    G_DEFINE_ENUM_VALUE (BT_MAIN_PAGE_MACHINES_GRID_DENSITY_HIGH, "high")
+);
+
+
 //-- converters for coordinate systems
 
 static void
 widget_to_canvas_pos (BtMainPageMachines * self, gfloat wx, gfloat wy,
     gfloat * cx, gfloat * cy)
 {
+#if 0 /// GTK4 no longer relevant, should use GTK coord translate functions
   gdouble ox = gtk_adjustment_get_value (self->hadjustment);
   gdouble oy = gtk_adjustment_get_value (self->vadjustment);
   *cx = (wx + ox) / self->zoom;
   *cy = (wy + oy) / self->zoom;
+#endif
 }
 
 static void
 canvas_to_widget_pos (BtMainPageMachines * self, gfloat cx, gfloat cy,
     gfloat * wx, gfloat * wy)
 {
+#if 0 /// GTK4 no longer relevant, should use GTK coord translate functions
   gdouble ox = gtk_adjustment_get_value (self->hadjustment);
   gdouble oy = gtk_adjustment_get_value (self->vadjustment);
   *wx = (cx * self->zoom) - ox;
   *wy = (cy * self->zoom) - oy;
+#endif
 }
 
 //-- drawing handlers
@@ -291,7 +301,7 @@ on_grid_draw (GtkDrawingArea* drawing_area, cairo_t* cr, int width, int height,
   gdouble i, step, c, r1, r2, rx, ry;
   gfloat gray[4] = { 0.5, 0.85, 0.7, 0.85 };
 
-  GST_INFO ("redrawing grid: density=%lu  canvas: %4d,%4d",
+  GST_INFO ("redrawing grid: density=%d  canvas: %4d,%4d",
       self->grid_density, width, height);
 
   /* clear the contents of the canvas, to not paint over the previous frame */
@@ -608,10 +618,12 @@ update_scrolled_window (BtMainPageMachines * self)
   GST_DEBUG ("adj.y");
   update_adjustment (self->vadjustment, self->mi_y, self->ma_y, self->view_h);
 #else
+#if 0 /// GTK4 set scrolled window position by normal means
   GST_DEBUG ("adj.x");
   update_adjustment (self->hadjustment, 0.0, self->canvas_w * self->zoom, self->view_w);
   GST_DEBUG ("adj.y");
   update_adjustment (self->vadjustment, 0.0, self->canvas_h * self->zoom, self->view_h);
+#endif
 #endif
 }
 
@@ -711,28 +723,36 @@ machine_view_refresh (BtMainPageMachines * self)
     GST_INFO ("set zoom to %6.4lf", self->zoom);
   }
   if ((prop = (gchar *) g_hash_table_lookup (self->properties, "xpos"))) {
+#if 0 /// GTK4 set scrolled window pos by normal means
     gtk_adjustment_set_value (self->hadjustment, g_ascii_strtod (prop,
             NULL));
     GST_INFO ("set xpos to %s", prop);
+#endif
   } else {
+#if 0 /// GTK4 set scrolled window pos by normal means
     gdouble xs, xe, xp;
     // center
     g_object_get (self->hadjustment, "lower", &xs, "upper", &xe,
         "page-size", &xp, NULL);
     gtk_adjustment_set_value (self->hadjustment,
         xs + ((xe - xs - xp) * 0.5));
+#endif
   }
   if ((prop = (gchar *) g_hash_table_lookup (self->properties, "ypos"))) {
+#if 0 /// GTK4 set scrolled window pos by normal means
     gtk_adjustment_set_value (self->vadjustment, g_ascii_strtod (prop,
             NULL));
     GST_INFO ("set ypos to %s", prop);
+#endif
   } else {
+#if 0 /// GTK4 set scrolled window pos by normal means
     gdouble ys, ye, yp;
     // center
     g_object_get (self->vadjustment, "lower", &ys, "upper", &ye,
         "page-size", &yp, NULL);
     gtk_adjustment_set_value (self->vadjustment,
         ys + ((ye - ys - yp) * 0.5));
+#endif
   }
 
   GST_INFO ("creating machine canvas items");
@@ -1153,8 +1173,10 @@ on_toolbar_zoom_fit_clicked (GtkWidget* widget, const char* action_name, GVarian
 #endif
     update_scrolled_window_zoom (self);
   }
+#if 0 /// GTK4 set scrolled window pos by normal means
   gtk_adjustment_set_value (self->hadjustment, c_x);
   gtk_adjustment_set_value (self->vadjustment, c_y);
+#endif
 
   gtk_widget_grab_focus_savely (GTK_WIDGET (self->canvas));
 }
@@ -1195,6 +1217,17 @@ on_toolbar_zoom_out_clicked (GtkWidget* widget, const char* action_name, GVarian
 
 static void
 on_toolbar_grid_clicked (GtkWidget* widget, const char* action_name, GVariant* parameter)
+{
+  BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (widget);
+  
+  GtkPopover *popover = GTK_POPOVER (gtk_popover_menu_new_from_model (
+      G_MENU_MODEL (self->context_menu)));
+  gtk_widget_set_parent (GTK_WIDGET (popover), GTK_WIDGET (self));
+  gtk_popover_popup (popover);
+}
+
+static void
+on_toolbar_menu_show_clicked (GtkWidget* widget, const char* action_name, GVariant* parameter)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (widget);
   
@@ -1348,30 +1381,6 @@ store_scroll_pos (BtMainPageMachines * self, gchar * name, gdouble val)
   }
 }
 
-static void
-on_vadjustment_changed (GtkAdjustment * adj, gpointer user_data)
-{
-  BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  gdouble val = gtk_adjustment_get_value (adj);
-
-#if 0 /// GTK 4
-  clutter_actor_set_y (self->canvas, -val);
-#endif
-  store_scroll_pos (self, "ypos", val);
-}
-
-static void
-on_hadjustment_changed (GtkAdjustment * adj, gpointer user_data)
-{
-  BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  gdouble val = gtk_adjustment_get_value (adj);
-
-#if 0 /// GTK 4
-  clutter_actor_set_x (self->canvas, -val);
-#endif
-  store_scroll_pos (self, "xpos", val);
-}
-
 static gboolean
 idle_redraw (gpointer user_data)
 {
@@ -1494,6 +1503,7 @@ on_canvas_motion (GtkEventControllerMotion* motion, gdouble x, gdouble y,
     update_connect (self);
   } else if (self->dragging) {
     gfloat x = self->mouse_x, y = self->mouse_y;
+#if 0 /// GTK4 set scrolled window pos by normal means
     gdouble ox = gtk_adjustment_get_value (self->hadjustment);
     gdouble oy = gtk_adjustment_get_value (self->vadjustment);
     // snapshot current mousepos and calculate delta
@@ -1505,6 +1515,7 @@ on_canvas_motion (GtkEventControllerMotion* motion, gdouble x, gdouble y,
     gtk_adjustment_set_value (self->vadjustment, oy + dy);
     self->mouse_x += dx;
     self->mouse_y += dy;
+#endif
   }
 }
 
@@ -1580,66 +1591,6 @@ bt_main_page_machines_init_main_context_menu (BtMainPageMachines * self)
   g_object_unref (builder);
 }
 
-static void
-bt_main_page_machines_init_grid_density_menu (BtMainPageMachines * self)
-{
-#if 0 /// GTK4
-  GtkWidget *menu_item;
-  // create grid-density menu with grid-density={off,low,mid,high}
-  self->grid_density_menu =
-      GTK_MENU (g_object_ref_sink (gtk_menu_new ()));
-  // background grid density
-  menu_item =
-      gtk_radio_menu_item_new_with_label (self->grid_density_group,
-      _("Off"));
-  self->grid_density_group =
-      gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menu_item));
-  if (self->grid_density == 0)
-    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menu_item), TRUE);
-  gtk_menu_shell_append (GTK_MENU_SHELL (self->grid_density_menu),
-      menu_item);
-  gtk_widget_show (menu_item);
-  g_signal_connect (menu_item, "activate",
-      G_CALLBACK (on_toolbar_grid_densitoff_y_activated), (gpointer) self);
-  menu_item =
-      gtk_radio_menu_item_new_with_label (self->grid_density_group,
-      _("Low"));
-  self->grid_density_group =
-      gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menu_item));
-  if (self->grid_density == 1)
-    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menu_item), TRUE);
-  gtk_menu_shell_append (GTK_MENU_SHELL (self->grid_density_menu),
-      menu_item);
-  gtk_widget_show (menu_item);
-  g_signal_connect (menu_item, "activate",
-      G_CALLBACK (on_toolbar_grid_density_low_activated), (gpointer) self);
-  menu_item =
-      gtk_radio_menu_item_new_with_label (self->grid_density_group,
-      _("Medium"));
-  self->grid_density_group =
-      gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menu_item));
-  if (self->grid_density == 2)
-    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menu_item), TRUE);
-  gtk_menu_shell_append (GTK_MENU_SHELL (self->grid_density_menu),
-      menu_item);
-  gtk_widget_show (menu_item);
-  g_signal_connect (menu_item, "activate",
-      G_CALLBACK (on_toolbar_grid_density_mid_activated), (gpointer) self);
-  menu_item =
-      gtk_radio_menu_item_new_with_label (self->grid_density_group,
-      _("High"));
-  self->grid_density_group =
-      gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menu_item));
-  if (self->grid_density == 3)
-    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menu_item), TRUE);
-  gtk_menu_shell_append (GTK_MENU_SHELL (self->grid_density_menu),
-      menu_item);
-  gtk_widget_show (menu_item);
-  g_signal_connect (menu_item, "activate",
-      G_CALLBACK (on_toolbar_grid_density_high_activated), (gpointer) self);
-#endif
-}
-
 void
 bt_main_page_machines_set_pages_parent (BtMainPageMachines * self, BtMainPages* pages)
 {
@@ -1664,18 +1615,15 @@ bt_main_page_machines_init_ui (BtMainPageMachines * self)
   gtk_widget_set_name (GTK_WIDGET (self), "machine view");
   g_object_get (self->app, "settings", &settings, NULL);
   g_object_get (settings, "grid-density", &density, NULL);
-  if (!strcmp (density, "off"))
-    self->grid_density = 0;
-  else if (!strcmp (density, "low"))
-    self->grid_density = 1;
-  else if (!strcmp (density, "medium"))
-    self->grid_density = 2;
-  else if (!strcmp (density, "high"))
-    self->grid_density = 3;
-  g_free (density);
 
-  // create grid-density menu
-  bt_main_page_machines_init_grid_density_menu (self);
+  GEnumClass *enum_class = g_type_class_ref (
+      bt_main_page_machines_grid_density_get_type ());
+  
+  GEnumValue *value = g_enum_get_value_by_nick (enum_class,  density);
+  self->grid_density =
+    value ? value->value : BT_MAIN_PAGE_MACHINES_GRID_DENSITY_LOW;
+  
+  g_free (density);
 
   // create the context menu
   bt_main_page_machines_init_main_context_menu (self);
@@ -2318,6 +2266,26 @@ bt_main_page_machines_get_property (GObject * object, guint property_id,
     case MAIN_PAGE_MACHINES_CANVAS:
       /// GTK4 g_value_set_object (value, self->canvas);
       break;
+    case MAIN_PAGE_MACHINES_GRID_DENSITY:
+      g_value_set_enum (value, self->grid_density);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+  }
+}
+
+static void
+bt_main_page_machines_set_property (GObject * object, guint property_id,
+    const GValue * value, GParamSpec * pspec)
+{
+  BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (object);
+  return_if_disposed_self ();
+  switch (property_id) {
+    case MAIN_PAGE_MACHINES_GRID_DENSITY:
+      self->grid_density = g_value_get_enum (value);
+      gtk_widget_queue_draw (GTK_WIDGET (self->grid_canvas));
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -2398,6 +2366,7 @@ bt_main_page_machines_class_init (BtMainPageMachinesClass * klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
   gobject_class->get_property = bt_main_page_machines_get_property;
+  gobject_class->set_property = bt_main_page_machines_set_property;
   gobject_class->dispose = bt_main_page_machines_dispose;
   gobject_class->finalize = bt_main_page_machines_finalize;
   widget_class->focus = bt_main_page_machines_focus;
@@ -2408,7 +2377,13 @@ bt_main_page_machines_class_init (BtMainPageMachinesClass * klass)
           "canvas prop", "Get the machine canvas", CLUTTER_TYPE_ACTOR,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 #endif
-
+  g_object_class_install_property (gobject_class,
+      MAIN_PAGE_MACHINES_GRID_DENSITY, g_param_spec_enum ("grid-density",
+          "grid density", "Modify the grid density view setting",
+          bt_main_page_machines_grid_density_get_type (),
+          BT_MAIN_PAGE_MACHINES_GRID_DENSITY_LOW,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  
   gtk_widget_class_set_template_from_resource (widget_class,
       "/org/buzztrax/ui/main-page-machines.ui");
 
@@ -2417,11 +2392,7 @@ bt_main_page_machines_class_init (BtMainPageMachinesClass * klass)
   gtk_widget_class_bind_template_child (widget_class, BtMainPageMachines,
       grid_canvas);
   gtk_widget_class_bind_template_child (widget_class, BtMainPageMachines,
-      hadjustment);
-  gtk_widget_class_bind_template_child (widget_class, BtMainPageMachines,
       machine_menu_button);
-  gtk_widget_class_bind_template_child (widget_class, BtMainPageMachines,
-      vadjustment);
   gtk_widget_class_bind_template_child (widget_class, BtMainPageMachines,
       zoom_in);
   gtk_widget_class_bind_template_child (widget_class, BtMainPageMachines,
@@ -2431,17 +2402,16 @@ bt_main_page_machines_class_init (BtMainPageMachinesClass * klass)
       on_canvas_size_changed);
   gtk_widget_class_bind_template_callback (widget_class,
       on_canvas_query_tooltip);
-  gtk_widget_class_bind_template_callback (widget_class,
-      on_hadjustment_changed);
-  gtk_widget_class_bind_template_callback (widget_class,
-      on_vadjustment_changed);
   
   gtk_widget_class_install_action (widget_class, "main-page-machines.best-fit",
       NULL, on_toolbar_zoom_fit_clicked);
-  gtk_widget_class_install_action(widget_class, "main-page-machines.zoom-in",
+  gtk_widget_class_install_action (widget_class, "main-page-machines.zoom-in",
       NULL, on_toolbar_zoom_in_clicked);
-  gtk_widget_class_install_action(widget_class, "main-page-machines.zoom-out",
+  gtk_widget_class_install_action (widget_class, "main-page-machines.zoom-out",
       NULL, on_toolbar_zoom_out_clicked);
-  gtk_widget_class_install_action(widget_class, "main-page-machines.grid-show",
-      NULL, on_toolbar_grid_clicked);
+  gtk_widget_class_install_action (widget_class, "main-page-machines.menu-show",
+      NULL, on_toolbar_menu_show_clicked);
+  
+  gtk_widget_class_install_property_action (widget_class,
+      "main-page-machines.grid-density", "grid-density");
 }
