@@ -48,6 +48,7 @@ aclocal.m4
 Makefile.in
 Makefile
 ABOUT-NLS
+AUTHORS
 INSTALL
 COPYING
 GSYMS

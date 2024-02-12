@@ -386,7 +386,11 @@ setup_log_base (gint argc, gchar ** argv)
   // get basename from argv[0]; -> lt-bt_edit
   if ((log = g_path_get_basename (argv[0]))) {
     // cut libtool prefix
-    __log_base = g_strdup (&log[3]);
+    if (!strncmp (log, "lt-", 3)) {
+      __log_base = g_strdup (&log[3]);
+    } else {
+      __log_base = g_strdup (log);
+    }
     g_free (log);
   } else {
     fprintf (stderr, "can't get basename from: '%s'\n", argv[0]);
@@ -523,7 +527,8 @@ collect_logs (gboolean no_failures)
     return;
 
   if (no_failures) {
-    cmd = g_strdup_printf ("tar cpjf ./%s.tar.bz2 %s/%s/log.xml", __log_base,
+    // TODO: handle all of the log formats, or don't collect any archive on failure?
+    cmd = g_strdup_printf ("tar cpjf ./%s.tar.bz2 %s/%s.log.tap", __log_base,
         __log_root, __log_base);
   } else {
     cmd = g_strdup_printf ("tar cpjf ./%s.tar.bz2 %s/%s", __log_base,
@@ -540,11 +545,11 @@ get_suite_log_base (void)
 }
 
 const gchar *
-get_suite_log_filename (void)
+get_suite_log_filename (const gchar *ext)
 {
   static gchar suite_log_fn[PATH_MAX];
 
-  sprintf (suite_log_fn, "%s" G_DIR_SEPARATOR_S "log.xml", __log_suite);
+  sprintf (suite_log_fn, "%s.log.%s", __log_suite, ext);
   return suite_log_fn;
 }
 

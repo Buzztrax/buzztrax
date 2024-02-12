@@ -472,6 +472,17 @@ gstbt_tone_conversion_tuning_get_type
 </SECTION>
 
 <SECTION>
+<FILE>ui</FILE>
+<TITLE>GstBtUi</TITLE>
+GstBtUiCustomGfxInterface
+GstBtUiCustomGfxResponse
+gstbt_ui_custom_gfx_request
+GstBtUiCustomGfx
+<SUBSECTION Standard>
+GSTBT_UI_TYPE_CUSTOM_GFX
+</SECTION>
+
+<SECTION>
 <FILE>wavereplay</FILE>
 <TITLE>GstBtWaveReplay</TITLE>
 GstBtWaveReplay

@@ -52,7 +52,8 @@ main (gint argc, gchar ** argv)
       "music production environment / command ui");
 
   sr = srunner_create (bt_cmd_application_suite ());
-  srunner_set_xml (sr, get_suite_log_filename ());
+  // srunner_set_xml (sr, get_suite_log_filename ("xml"));
+  srunner_set_tap (sr, get_suite_log_filename ("tap"));
   srunner_run_all (sr, CK_NORMAL);
   nf = srunner_ntests_failed (sr);
   srunner_free (sr);

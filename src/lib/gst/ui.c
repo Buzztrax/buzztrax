@@ -29,14 +29,6 @@
  *
  * Allows a machine to supply its own graphics to be drawn over the machine in
  * the Machine View.
- *
- * SIGNALS:
- *
- * gstbt-ui-gfx-invalidated() [G_SIGNAL_ACTION]
- * 
- * Machines generally don't have to do anything in response to this signal, but
- * they should emit it when something happens that should change the image,
- * i.e. by the machine on a parameter change.
  */
 
 #include "ui.h"
@@ -44,6 +36,13 @@
 G_DEFINE_INTERFACE(GstBtUiCustomGfx, gstbt_ui_custom_gfx, G_TYPE_OBJECT)
 
 static void gstbt_ui_custom_gfx_default_init (GstBtUiCustomGfxInterface *iface) {
+  /**
+   * GstBtUiCustomGfx::gstbt-ui-custom-gfx-invalidated:
+   *
+   * Machines generally don't have to do anything in response to this signal, but
+   * they should emit it when something happens that should change the image,
+   * i.e. by the machine on a parameter change.
+   */
   g_signal_new (
     "gstbt-ui-custom-gfx-invalidated",
     G_OBJECT_CLASS_TYPE(iface),

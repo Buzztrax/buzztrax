@@ -128,6 +128,45 @@ version_check ()
   return 1;
 }
 
+path_check ()
+{
+  PACKAGE=$1
+  COMMAND=$2
+  URL=$3
+
+  test -z "$NOCHECK" && {
+    echo -n "  checking for $PACKAGE ... "
+  } || {
+    # we set a var with the same name as the package, but stripped of
+    # unwanted chars
+    VAR=`echo $PACKAGE | sed 's/-//g'`
+    debug "setting $VAR"
+    eval $VAR="$COMMAND"
+    return 0
+  }
+
+  LOC=$(which 2>/dev/null $COMMAND)
+  if test ! -z "$LOC"; then
+    echo "ok."
+    # we set a var with the same name as the package, but stripped of
+    # unwanted chars
+    VAR=`echo $PACKAGE | sed 's/-//g'`
+    debug "setting $VAR"
+    eval $VAR="$COMMAND"
+    return 0
+  else
+    echo "not ok !"
+  fi
+
+  if test ! -z "$URL"; then
+    echo "not found !"
+    echo "You must have $PACKAGE installed to compile $package."
+    echo "Download the appropriate package for your distribution,"
+    echo "or get the source tarball at $URL"
+  fi
+  return 1;
+}
+
 aclocal_check ()
 {
   # normally aclocal is part of automake
@@ -320,6 +359,9 @@ version_check "libtoolize" "libtoolize glibtoolize" \
               "ftp://ftp.gnu.org/pub/gnu/libtool/" 2 2 0 || DIE=1
 version_check "pkg-config" "" \
               "ftp://ftp.gnome.org/pub/gnome/sources/pkgconfig/" 0 8 0 || DIE=1
+
+path_check "yelp-tools" "yelp-check" \
+           "ftp://ftp.gnome.org/pub/gnome/sources/yelp-tools" || DIE=1
 
 die_check $DIE
 

@@ -65,4 +65,8 @@ void bt_sequence_insert_full_rows(BtSequence * const self, const gulong time, co
 void bt_sequence_delete_rows(BtSequence * const self, const gulong time, const glong track, const gulong rows);
 void bt_sequence_delete_full_rows(BtSequence * const self, const gulong time, const gulong rows);
 
+// This should only be needed by functions such as sequence data paste.
+// It should ideally not be exposed at all, but this will do for now.
+void bt_sequence_resize_data_length (const BtSequence * const self, const gulong length);
+
 #endif // BT_SEQUENCE_H

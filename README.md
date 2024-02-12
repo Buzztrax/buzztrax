@@ -7,10 +7,10 @@ Please turn you browser to http://www.buzztrax.org to learn what this project
 is about. Buzztrax is free software and distributed under the LGPL.
 
 ## build status
-We are running continuous integration on travis-ci, get coverage from codecov
+We are running continuous integration on github actions, get coverage from codecov
 and have the codebase checked by coverity:
 
-[![Build Status](https://travis-ci.org/Buzztrax/buzztrax.svg?branch=master)](https://travis-ci.org/Buzztrax/buzztrax/builds)
+[![Build Status](https://github.com/Buzztrax/buzztrax/actions/workflows/build.yml/badge.svg)](https://github.com/Buzztrax/buzztrax/actions/workflows/build.yml)
 [![Test Coverage](https://codecov.io/gh/Buzztrax/buzztrax/branch/master/graph/badge.svg)](https://codecov.io/gh/Buzztrax/buzztrax)
 [![Coverity Defects](https://scan.coverity.com/projects/533/badge.svg)](https://scan.coverity.com/projects/buzztrax)
 
@@ -35,8 +35,8 @@ modelled after the windows only, closed source application called Buzz.
 ## building from git
 To build use autogen.sh instead of configure. This accept the same options like
 configure. Later one can use autoregen.sh to rerun the bootstrapping.
-To build from git one needs to have gtk-doc and cvs (for autopoint from gettext)
-installed.
+To build from git one needs to have gtk-doc, yelp-tools and cvs (for autopoint
+from gettext) installed.
 
 ## directories
 * docs : design ideas and API reference
@@ -180,3 +180,18 @@ The Valgrind log file will be found at /tmp/<test_name>.valgrind.<pid>. Logs wit
 You may find that you need to tweak the location of the Valgrind suppression files for your OS (the 'default.supp' file is found there.) If you have that issue, try this:
 
     VALSUPP=/usr/libexec/valgrind BT_CHECKS="test_bt_edit_app*" make -e bt_edit.valgrind
+
+## reporting issues
+
+Run the application from a terminal like e.g.:
+
+    GST_DEBUG=4 GST_DEBUG_FILE=./debug.log buzztrax-edit
+
+and attach the log file to a bug report at https://github.com/Buzztrax/buzztrax/issues.
+
+If there is a reproducible crash, run:
+
+    gdb $(which buzztrax-edit)
+
+and in gdb type `r` for run and when the application crashed `bt` to get a backtrace.
+Share that text in the bugreport.

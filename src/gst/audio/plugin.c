@@ -57,7 +57,11 @@ bt_g_param_spec_clone (GObjectClass * src_class, const gchar * src_name)
 
   g_type_query (G_PARAM_SPEC_TYPE (src), &query);
   /* this is pretty lame, we have no idea if we copy e.g. pointer fields */
+#if GLIB_CHECK_VERSION(2, 68, 0)
+  pspec = g_memdup2 (src, (gsize) query.instance_size);
+#else
   pspec = g_memdup (src, query.instance_size);
+#endif
   /* reset known fields, see g_param_spec_init() */
   pspec->owner_type = 0;
   pspec->qdata = NULL;

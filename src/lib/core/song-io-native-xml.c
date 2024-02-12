@@ -122,7 +122,11 @@ bt_song_io_native_xml_save (gconstpointer const _self,
         gpointer data;
 
         xmlDocDumpMemory (song_doc, &mem, (int *) &len);
+#if GLIB_CHECK_VERSION(2, 68, 0)
         data = g_memdup2 (mem, len);
+#else
+        data = g_memdup (mem, len);
+#endif
         xmlFree (mem);
         g_object_set ((gpointer) self, "data", data, "data-len", len, NULL);
       }

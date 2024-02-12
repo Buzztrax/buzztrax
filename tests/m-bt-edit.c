@@ -216,7 +216,8 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, bt_wave_list_model_suite ());
   srunner_add_suite (sr, bt_wavelevel_list_model_suite ());
   srunner_add_suite (sr, bt_wire_canvas_item_suite ());
-  srunner_set_xml (sr, get_suite_log_filename ());
+  // srunner_set_xml (sr, get_suite_log_filename ("xml"));
+  srunner_set_tap (sr, get_suite_log_filename ("tap"));
   srunner_run_all (sr, CK_NORMAL);
   nf = srunner_ntests_failed (sr);
   srunner_free (sr);

@@ -1675,11 +1675,11 @@ pattern_table_refresh (BtMainPagePatterns * self)
         group->num_columns = self->voice_params;
         group->columns =
             g_memdup2 (stamp->columns,
-            sizeof (BtPatternEditorColumn) * group->num_columns);
+                sizeof (BtPatternEditorColumn) * group->num_columns);
         for (i = 0; i < group->num_columns; i++) {
           group->columns[i].user_data =
               g_memdup2 (group->columns[i].user_data,
-              sizeof (BtPatternEditorColumnConverters));
+                  sizeof (BtPatternEditorColumnConverters));
         }
         group->width = 0;
         group++;

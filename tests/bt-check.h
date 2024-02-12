@@ -227,7 +227,7 @@ void setup_log_test(const gchar * func_name, gint i);
 void setup_log_capture(void);
 void collect_logs(gboolean no_failures);
 const gchar *get_suite_log_base(void);
-const gchar *get_suite_log_filename(void);
+const gchar *get_suite_log_filename (const gchar *ext);
 
 void check_run_main_loop_for_usec(gulong usec);
 gboolean check_run_main_loop_until_msg_or_error(BtSong * song, const gchar * msg);

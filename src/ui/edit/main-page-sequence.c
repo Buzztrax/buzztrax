@@ -686,7 +686,7 @@ on_sequence_label_edited (GtkCellRendererText * cellrenderertext,
 
         if (pos >= old_length) {
           new_length = pos + self->bars;
-          g_object_set (self->sequence, "len-patterns", new_length, NULL);
+          bt_sequence_resize_data_length (self->sequence, new_length);
           sequence_calculate_visible_lines (self);
           sequence_update_model_length (self);
 
@@ -2138,7 +2138,7 @@ sequence_clipboard_received_func (GtkClipboard * clipboard,
     end = beg + ticks;
 
     if (end > sequence_length)
-      g_object_set (self->priv->sequence, "len-patterns", end, NULL);
+      bt_sequence_resize_data_length (self->priv->sequence, end);
     
     GST_INFO ("pasting from row %d to %d", beg, end);
 
