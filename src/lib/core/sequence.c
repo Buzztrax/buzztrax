@@ -387,25 +387,25 @@ bt_sequence_get_nonnull_length (BtSequence * const self) {
  * Should be called after self->length changes.
  */
 static void
-bt_sequence_post_length_change (const BtSequence * const self,
+bt_sequence_post_length_change (BtSequence * const self,
     gulong old_length)
 {
-  if (self->priv->loop_end != -1) {
+  if (self->loop_end != -1) {
     // clip loopend to length or extend loop-end as well if loop_end was
     // old length
-    if ((self->priv->loop_end > self->priv->length) ||
-        (self->priv->loop_end == old_length)) {
-      self->priv->play_end = self->priv->loop_end = self->priv->length;
+    if ((self->loop_end > self->length) ||
+        (self->loop_end == old_length)) {
+      self->play_end = self->loop_end = self->length;
       g_object_notify ((GObject *) self, "loop-end");
-      if (self->priv->loop_end <= self->priv->loop_start) {
-        self->priv->loop_start = self->priv->loop_end = -1;
-        self->priv->loop = FALSE;
+      if (self->loop_end <= self->loop_start) {
+        self->loop_start = self->loop_end = -1;
+        self->loop = FALSE;
         g_object_notify ((GObject *) self, "loop-start");
         g_object_notify ((GObject *) self, "loop");
       }
     }
   } else {
-    self->priv->play_end = self->priv->length;
+    self->play_end = self->length;
   }
 
   bt_sequence_limit_play_pos_internal (self);
@@ -419,7 +419,7 @@ bt_sequence_post_length_change (const BtSequence * const self,
  * Resizes the pattern data grid to the new length. Keeps previous values.
  */
 void
-bt_sequence_resize_data_length (const BtSequence * const self, const gulong length)
+bt_sequence_resize_data_length (BtSequence * const self, const gulong length)
 {
   const gulong tracks = self->tracks;
 
