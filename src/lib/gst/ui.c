@@ -55,7 +55,17 @@ static void gstbt_ui_custom_gfx_default_init (GstBtUiCustomGfxInterface *iface) 
     0     /* n_params */);
 }
 
-const GstBtUiCustomGfxResponse* gstbt_ui_custom_gfx_request (GstBtUiCustomGfx *self) {
+/**
+ * gstbt_ui_custom_gfx_request:
+ * @self: an object that implements custom graphics
+ *
+ * Request a graphics update.
+ *
+ * Returns: the graphics.
+ */
+const GstBtUiCustomGfxResponse *
+gstbt_ui_custom_gfx_request (GstBtUiCustomGfx *self)
+{
   GstBtUiCustomGfxInterface *iface;
 
   g_return_val_if_fail (GSTBT_UI_IS_CUSTOM_GFX (self), 0);
