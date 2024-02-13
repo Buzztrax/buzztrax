@@ -225,7 +225,8 @@ on_machine_removed (BtSetup * setup, BtMachine * machine, gpointer user_data)
 }
 
 static void
-update_geometry (BtWireCanvasItem *self, BtMachineCanvasItem * src, BtMachineCanvasItem * dst)
+update_geometry (BtMachineCanvasItem * src, BtMachineCanvasItem * dst,
+    gfloat * x, gfloat * y, gfloat * w, gfloat * h, gfloat * a)
 {
   gfloat xs, ys, xe, ye, xd, yd;
 
@@ -234,59 +235,60 @@ update_geometry (BtWireCanvasItem *self, BtMachineCanvasItem * src, BtMachineCan
   xd = xe - xs;
   yd = ye - ys;
 
-  gfloat w = sqrt (xd * xd + yd * yd);
-  gfloat h = WIRE_PAD_H;
-  gfloat x = xs + (xd / 2.0);
-  gfloat y = ys + (yd / 2.0);
-  gfloat a = atan2 (yd, xd) * 180.0 / M_PI;
+  *w = sqrt (xd * xd + yd * yd);
+  *h = WIRE_PAD_H;
+  *x = xs + (xd / 2.0);
+  *y = ys + (yd / 2.0);
+  *a = atan2 (yd, xd) * 180.0 / M_PI;
   GST_DEBUG ("src: %f, %f, dst: %f, %f, size: %f, %f, angle: %f",
-      xs, ys, xe, ye, w, h, a);
+      xs, ys, xe, ye, *w, *h, *a);
+}
 
-  GtkLayoutManager *layout = gtk_widget_get_layout_manager (GTK_WIDGET (self));
-  GtkFixedLayoutChild *child = GTK_FIXED_LAYOUT_CHILD (
-      gtk_layout_manager_get_layout_child (layout, GTK_WIDGET (self)));
+static void
+bt_wire_canvas_item_update_xform (BtWireCanvasItem *self, gdouble x,
+    gdouble y, gdouble w, gdouble h, gdouble a)
+{
+  /// GTK4 TBD: remove assumption parent is GtkFixed
+  GtkFixed *fixed = GTK_FIXED (gtk_widget_get_parent (GTK_WIDGET (self)));
 
-  GskTransform *xform, *xform2;
-  xform = gsk_transform_new ();
+  GskTransform *xform2;
+  GskTransform *xform = gsk_transform_new ();
   
   xform2 = gsk_transform_rotate (xform, a);
   gsk_transform_unref (xform); xform = xform2;
-  
   xform2 = gsk_transform_translate (xform, &GRAPHENE_POINT_INIT (x, y));
   gsk_transform_unref (xform); xform = xform2;
   
-  gtk_fixed_layout_child_set_transform (child, xform);
+  gtk_fixed_set_child_transform (fixed, GTK_WIDGET (self), xform);
+
   gsk_transform_unref (xform);
+  
+  gtk_widget_set_size_request (GTK_WIDGET (self), w, h);
+  
+  gtk_fixed_move (fixed, GTK_WIDGET (self->pad), w / 2.0, h / 2.0);
 }
 
-#if 0 /// GTK4 still needed? Just set the pad to always be halfway along the wire and rely on parent xforms.
 static void
 on_wire_src_position_changed (BtMachineCanvasItem * src,
-    ClutterEventType ev_type, gpointer user_data)
+    guint ev_type, gpointer user_data)
 {
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (user_data);
+  gfloat x, y, w, h, a;
 
-  GtkLayoutManager *layout = gtk_widget_get_layout_manager (GTK_WIDGET (self));
-  GtkFixedLayoutChild *child = GTK_FIXED_LAYOUT_CHILD (
-      gtk_layout_manager_get_layout_child (layout, self->pad));
-  g_object_set (self, "x", x, "y", y, "width", w, "height", h,
-      "rotation-angle-z", a, NULL);
-  clutter_actor_set_position (self->pad, w / 2.0, h / 2.0);
+  update_geometry (src, self->dst, &x, &y, &w, &h, &a);
+  bt_wire_canvas_item_update_xform (self, x, y, w, h, a);
 }
 
 static void
 on_wire_dst_position_changed (BtMachineCanvasItem * dst,
-    ClutterEventType ev_type, gpointer user_data)
+    guint ev_type, gpointer user_data)
 {
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (user_data);
   gfloat x, y, w, h, a;
 
   update_geometry (self->src, dst, &x, &y, &w, &h, &a);
-  g_object_set (self, "x", x, "y", y, "width", w, "height", h,
-      "rotation-angle-z", a, NULL);
-  clutter_actor_set_position (self->pad, w / 2.0, h / 2.0);
+  bt_wire_canvas_item_update_xform (self, x, y, w, h, a);
 }
-#endif
 
 static void
 on_context_menu_disconnect_activate (GSimpleAction* action, GVariant* parameter,
@@ -431,13 +433,15 @@ bt_wire_canvas_item_new (const BtMainPageMachines * main_page_machines,
 {
   BtWireCanvasItem *self;
   BtSetup *setup;
+  gfloat x, y, w, h, a;
 
   self = BT_WIRE_CANVAS_ITEM (g_object_new (BT_TYPE_WIRE_CANVAS_ITEM,
           "machines-page", main_page_machines, "wire", wire,
           "src", src_machine_item, "dst", dst_machine_item,
           NULL));
 
-  update_geometry (self, src_machine_item, dst_machine_item);
+  update_geometry (src_machine_item, dst_machine_item, &x, &y, &w, &h, &a);
+  bt_wire_canvas_item_update_xform (self, x, y, w, h, a);
 
   bt_child_proxy_get (self->app, "song::setup", &setup, NULL);
   g_signal_connect_object (setup, "machine-removed",
@@ -480,6 +484,8 @@ bt_wire_canvas_item_constructed (GObject * object)
   if (G_OBJECT_CLASS (bt_wire_canvas_item_parent_class)->constructed)
     G_OBJECT_CLASS (bt_wire_canvas_item_parent_class)->constructed (object);
 
+  gtk_widget_set_layout_manager (GTK_WIDGET (self), gtk_fixed_layout_new ());
+  
   // volume and panorama handling
   g_object_get (self->wire, "gain", &self->wire_gain, "pan",
       &self->wire_pan, NULL);
@@ -620,20 +626,16 @@ bt_wire_canvas_item_set_property (GObject * object, guint property_id,
     case WIRE_CANVAS_ITEM_SRC:
       self->src = BT_MACHINE_CANVAS_ITEM (g_value_dup_object (value));
       if (self->src) {
-#if 0 /// GTK4 still needed?
         g_signal_connect_object (self->src, "position-changed",
             G_CALLBACK (on_wire_src_position_changed), (gpointer) self, 0);
-#endif
         GST_DEBUG ("set the src for wire_canvas_item: %p", self->src);
       }
       break;
     case WIRE_CANVAS_ITEM_DST:
       self->dst = BT_MACHINE_CANVAS_ITEM (g_value_dup_object (value));
       if (self->dst) {
-#if 0 /// GTK4 still needed?
         g_signal_connect_object (self->dst, "position-changed",
             G_CALLBACK (on_wire_dst_position_changed), (gpointer) self, 0);
-#endif
         GST_DEBUG ("set the dst for wire_canvas_item: %p", self->dst);
       }
       break;
@@ -661,6 +663,12 @@ bt_wire_canvas_item_dispose (GObject * object)
 
   GST_DEBUG ("!!!! self=%p", self);
 
+  g_clear_pointer ((GtkWidget**)&self->vol_level, gtk_widget_unparent);
+  g_clear_pointer ((GtkWidget**)&self->pad, gtk_widget_unparent);
+  g_clear_pointer ((GtkWidget**)&self->pad_image, gtk_widget_unparent);
+  g_clear_pointer ((GtkWidget**)&self->pan_pos, gtk_widget_unparent);
+  g_clear_pointer ((GtkWidget**)&self->canvas, gtk_widget_unparent);
+
   g_object_try_unref (self->wire_gain);
   g_object_try_unref (self->wire_pan);
   g_object_unref (self->pad_image);
@@ -672,7 +680,7 @@ bt_wire_canvas_item_dispose (GObject * object)
 
   g_clear_object (&self->analysis_dialog);
   g_clear_object (&self->context_menu);
-
+  
   GST_DEBUG ("  chaining up");
   G_OBJECT_CLASS (bt_wire_canvas_item_parent_class)->dispose (object);
   GST_DEBUG ("  done");

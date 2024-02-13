@@ -39,23 +39,23 @@
  *
  * Returns: a new texture, g_object_unref() when done.
  */
-GdkPaintable *
-gdk_paintable_new_from_theme (const gchar * name, gint size, GdkDisplay* display)
+GdkPaintable *gdk_paintable_new_from_theme (const gchar *name, gint size,
+    GdkDisplay *display)
 {
   GtkIconTheme *it = gtk_icon_theme_get_for_display (display);
 
-  /* TODO(ensonic): docs recommend to listen to GtkWidget::style-set and update icon or
-   * do gdk_pixbuf_copy() to avoid gtk keeping icon-theme loaded if it changes
+  /* TODO(ensonic): docs recommend to listen to GtkWidget::style-set and update
+   * icon or do gdk_pixbuf_copy() to avoid gtk keeping icon-theme loaded if it
+   * changes
    */
   if (!gtk_icon_theme_has_icon (it, name))
-    GST_WARNING ("Theme doesn't have icon %s", name);
-  
+    GST_ERROR ("Theme doesn't have icon %s", name);
+
   GtkIconPaintable *icon =
-    gtk_icon_theme_lookup_icon (it, name, NULL, size, 1, GTK_TEXT_DIR_NONE, 0);
-  
+      gtk_icon_theme_lookup_icon (it, name, NULL, size, 1, GTK_TEXT_DIR_NONE, 0);
+
   return GDK_PAINTABLE (icon);
 }
-
 
 // gtk toolbar helper
 

@@ -3463,6 +3463,8 @@ bt_main_page_patterns_class_init (BtMainPagePatternsClass * klass)
   gobject_class->finalize = bt_main_page_patterns_finalize;
 
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
+  
+  widget_class->focus = bt_main_page_patterns_focus;
 
   gtk_widget_class_set_template_from_resource (widget_class,
       "/org/buzztrax/ui/main-page-patterns.ui");
@@ -3483,6 +3485,4 @@ bt_main_page_patterns_class_init (BtMainPagePatternsClass * klass)
   gtk_widget_class_install_action (widget_class, "machine.pattern.copy", NULL, on_pattern_copy_activate);
   gtk_widget_class_install_action (widget_class, "machine.properties.show", NULL, on_machine_properties_activate);
   gtk_widget_class_install_action (widget_class, "machine.preferences.show", NULL, on_machine_preferences_activate);
-  
-  widget_class->focus = bt_main_page_patterns_focus;
 }

@@ -1236,91 +1236,6 @@ bt_adw_app_edit_open (GApplication * app, GFile ** files, int n_files, const cha
   bt_main_window_open_song (self->bt_edit_app->priv->main_window);
 }
 
-static gboolean
-bt_main_page_machines_add_machine (BtAdwAppEdit * self,
-    guint type, const gchar * id, const gchar * plugin_name,
-    gdouble x, gdouble y)
-{
-  BtMachine *machine = NULL;
-  gchar *uid;
-  GError *err = NULL;
-  
-  BtSong *song;
-  g_object_get (self->bt_edit_app, "song", &song, NULL);
-  g_assert (song);
-
-  BtSetup *setup;
-  g_object_get (song, "setup", &setup, NULL);
-  
-  uid = bt_setup_get_unique_machine_id (setup, id);
-  
-  BtMachineConstructorParams cparams;
-  cparams.id = uid;
-  cparams.song = song;
-  
-  // try with 1 voice, if monophonic, voices will be reset to 0 in
-  // bt_machine_init_voice_params()
-  switch (type) {
-    case 0:
-      machine = BT_MACHINE (bt_source_machine_new (&cparams, plugin_name,
-              /*voices= */ 1, &err));
-      break;
-    case 1:
-      machine = BT_MACHINE (bt_processor_machine_new (&cparams, plugin_name,
-              /*voices= */ 1, &err));
-      break;
-  }
-  if (err == NULL) {
-    gchar *undo_str, *redo_str;
-    GHashTable *properties;
-
-    GST_INFO_OBJECT (machine, "created machine %" G_OBJECT_REF_COUNT_FMT,
-        G_OBJECT_LOG_REF_COUNT (machine));
-    bt_change_log_start_group (self->bt_edit_app->priv->change_log);
-
-    g_object_get (machine, "properties", &properties, NULL);
-    if (properties) {
-      gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-      g_hash_table_insert (properties, g_strdup ("xpos"),
-          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, x)));
-      g_hash_table_insert (properties, g_strdup ("ypos"),
-          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, y)));
-    }
-
-    undo_str = g_strdup_printf ("rem_machine \"%s\"", uid);
-    redo_str =
-        g_strdup_printf ("add_machine %u,\"%s\",\"%s\"", type, uid,
-        plugin_name);
-
-    /// GTK4 need to make "app" a change logger
-    bt_change_log_add (self->bt_edit_app->priv->change_log, BT_CHANGE_LOGGER (self->bt_edit_app),
-        undo_str, redo_str);
-    bt_change_log_end_group (self->bt_edit_app->priv->change_log);
-  } else {
-    GST_WARNING ("Can't create machine %s: %s", plugin_name, err->message);
-    g_error_free (err);
-    gst_object_unref (machine);
-  }
-  g_free (uid);
-  g_object_unref (setup);
-  g_object_unref (song);
-  return (err == NULL);
-}
-
-static void
-bt_adw_app_edit_on_machine_add (GSimpleAction* action, GVariant* parameter, gpointer user_data)
-{
-  BtAdwAppEdit *self = BT_ADW_APP_EDIT (user_data);
-  
-  gchar *factory_name;
-  gint machine_type;
-  gdouble x, y;
-  g_variant_get(parameter, "(&sidd)", &factory_name, &machine_type, &x, &y);
-
-  bt_main_page_machines_add_machine (self, machine_type, factory_name,
-      factory_name, x, y);
-}
-
 static void
 bt_adw_app_edit_startup (GApplication *app)
 {
@@ -1372,8 +1287,6 @@ bt_adw_app_edit_startup (GApplication *app)
   BtAdwAppEdit *self = BT_ADW_APP_EDIT (app);
 
   static GActionEntry actions[] = {
-    { "machine.add", bt_adw_app_edit_on_machine_add, "(sidd)", NULL, NULL },
-    { "machine.clone", NULL, "(sdd)", NULL, NULL },
     { "paramgroup.copy", NULL, "(ss)", NULL, NULL },
     { "paramgroup.paste", NULL, "s", NULL, NULL },
     { "ic.param.bind", action_ic_param_bind, "(sisss)", NULL, NULL },

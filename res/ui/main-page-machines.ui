@@ -70,7 +70,7 @@
         </child> <!-- /headerbar top child -->
 
         <child>
-          <object class="GtkScrolledWindow">
+          <object class="GtkScrolledWindow" id="scrolled_window">
             <child>
               <object class="GtkFixed" id="canvas">
                 <signal name="query-tooltip" handler="on_canvas_query_tooltip" swapped="no" />
@@ -85,10 +85,6 @@
                 <child>
                   <object class="GtkDrawingArea" id="grid_canvas">
                     <signal name="resize" handler="on_canvas_size_changed" swapped="no" />
-                    <property name="vexpand">yes</property>
-                    <property name="hexpand">yes</property>
-                    <property name="width-request">3000</property>
-                    <property name="height-request">2250</property>
                   </object>
                 </child>
               </object>

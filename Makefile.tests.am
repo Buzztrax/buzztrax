@@ -330,7 +330,7 @@ bmltest_process_CFLAGS = $(PTHREAD_CFLAGS) $(BML_CFLAGS)
 bmltest_process_LDADD = $(LIBM) $(PTHREAD_LIBS) $(BML_LIBS) libbml.la
 
 
-songdatadir = $(datadir)/$(PACKAGE)/songs
+songdatadir = $(datadir)/org.buzztrax.Buzztrax/songs
 songdata_DATA = \
 	tests/songs/buzz1.xml \
 	tests/songs/buzz2.xml \

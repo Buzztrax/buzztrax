@@ -105,6 +105,11 @@ bt_ui_resources_init_icons (GdkDisplay* display)
 
   g_free (icon_theme_name);
 
+  // https://developer.gnome.org/documentation/tutorials/themed-icons.html
+  gtk_icon_theme_add_search_path (
+      gtk_icon_theme_get_for_display (display),
+      DATADIR "/org.buzztrax.Buzztrax/icons");
+  
 #if 0
   // TODO: needs to be top_srcdir for out-of-srcdir builds
   // TODO: don't show any effect :/

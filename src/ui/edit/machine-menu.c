@@ -337,7 +337,7 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GMenu * submenu,
     /// optional?
     g_menu_item_set_action_and_target (
         item,
-        "app.machine.add",
+        "machine.add",
         "(sidd)",
         factory_name,
         is_source ? 0 : 1,

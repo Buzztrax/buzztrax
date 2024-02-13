@@ -1,6 +1,7 @@
 # -- icons
 
-hicolor_iconthemedir=$(datadir)/icons/hicolor
+hicolor_iconthemedir=$(datadir)/org.buzztrax.Buzztrax/icons/hicolor
+
 hicolor_icon16dir = $(hicolor_iconthemedir)/16x16/apps
 hicolor_icon16_DATA = \
 	icons/hicolor/16x16/apps/buzztrax.png \
@@ -10,128 +11,97 @@ hicolor_icon16_DATA = \
 	icons/hicolor/16x16/apps/buzztrax_tab_machines.png \
 	icons/hicolor/16x16/apps/buzztrax_tab_patterns.png \
 	icons/hicolor/16x16/apps/buzztrax_tab_sequence.png \
-	icons/hicolor/16x16/apps/buzztrax_tab_waves.png \
-	icons/hicolor/16x16/apps/buzztrax_tab_info.png
+	icons/hicolor/16x16/apps/buzztrax_tab_waves.png
+##	icons/hicolor/16x16/apps/buzztrax_tab_info.png
+
+hicolor_icon22dir = $(hicolor_iconthemedir)/22x22/apps
+hicolor_icon22_DATA = \
+	icons/hicolor/22x22/apps/buzztrax.png
 
 hicolor_icon24dir = $(hicolor_iconthemedir)/24x24/apps
 hicolor_icon24_DATA = \
+	icons/hicolor/24x24/apps/buzztrax.png \
 	icons/hicolor/24x24/apps/buzztrax_menu_processor_machine.png \
 	icons/hicolor/24x24/apps/buzztrax_menu_sink_machine.png \
 	icons/hicolor/24x24/apps/buzztrax_menu_source_machine.png
 
+hicolor_icon32dir = $(hicolor_iconthemedir)/32x32/apps
+hicolor_icon32_DATA = \
+	icons/hicolor/32x32/apps/buzztrax.png \
+  icons/hicolor/32x32/apps/buzztrax_effect_bypass.png \
+  icons/hicolor/32x32/apps/buzztrax_effect_mute.png \
+  icons/hicolor/32x32/apps/buzztrax_effect.png \
+  icons/hicolor/32x32/apps/buzztrax_generator_mute.png \
+  icons/hicolor/32x32/apps/buzztrax_generator_solo.png \
+  icons/hicolor/32x32/apps/buzztrax_generator.png \
+  icons/hicolor/32x32/apps/buzztrax_master_mute.png \
+  icons/hicolor/32x32/apps/buzztrax_master.png \
+  icons/hicolor/32x32/apps/buzztrax_wire.png \
+  icons/hicolor/32x32/apps/buzztrax_wire_nopan.png
+
 hicolor_icon48dir = $(hicolor_iconthemedir)/48x48/apps
 hicolor_icon48_DATA = \
-	icons/hicolor/48x48/apps/buzztrax.png
+	icons/hicolor/48x48/apps/buzztrax.png \
+  icons/hicolor/48x48/apps/buzztrax_effect_bypass.png \
+  icons/hicolor/48x48/apps/buzztrax_effect_mute.png \
+  icons/hicolor/48x48/apps/buzztrax_effect.png \
+  icons/hicolor/48x48/apps/buzztrax_generator_mute.png \
+  icons/hicolor/48x48/apps/buzztrax_generator_solo.png \
+  icons/hicolor/48x48/apps/buzztrax_generator.png \
+  icons/hicolor/48x48/apps/buzztrax_master_mute.png \
+  icons/hicolor/48x48/apps/buzztrax_master.png \
+  icons/hicolor/48x48/apps/buzztrax_wire.png \
+  icons/hicolor/48x48/apps/buzztrax_wire_nopan.png
+
+hicolor_icon64dir = $(hicolor_iconthemedir)/64x64/apps
+hicolor_icon64_DATA = \
+	icons/hicolor/64x64/apps/buzztrax.png \
+  icons/hicolor/64x64/apps/buzztrax_effect_bypass.png \
+  icons/hicolor/64x64/apps/buzztrax_effect_mute.png \
+  icons/hicolor/64x64/apps/buzztrax_effect.png \
+  icons/hicolor/64x64/apps/buzztrax_generator_mute.png \
+  icons/hicolor/64x64/apps/buzztrax_generator_solo.png \
+  icons/hicolor/64x64/apps/buzztrax_generator.png \
+  icons/hicolor/64x64/apps/buzztrax_master_mute.png \
+  icons/hicolor/64x64/apps/buzztrax_master.png \
+  icons/hicolor/64x64/apps/buzztrax_wire.png \
+  icons/hicolor/64x64/apps/buzztrax_wire_nopan.png
+
+MACHINE_ICONS = \
+  icons/hicolor/scalable/apps/buzztrax_effect_bypass.svg \
+  icons/hicolor/scalable/apps/buzztrax_effect_mute.svg \
+  icons/hicolor/scalable/apps/buzztrax_effect.svg \
+  icons/hicolor/scalable/apps/buzztrax_generator_mute.svg \
+  icons/hicolor/scalable/apps/buzztrax_generator_solo.svg \
+  icons/hicolor/scalable/apps/buzztrax_generator.svg \
+  icons/hicolor/scalable/apps/buzztrax_master_mute.svg \
+  icons/hicolor/scalable/apps/buzztrax_master.svg \
+  icons/hicolor/scalable/apps/buzztrax_wire.svg \
+  icons/hicolor/scalable/apps/buzztrax_wire_nopan.svg
 
 hicolor_svgicondir = $(hicolor_iconthemedir)/scalable/apps
 hicolor_svgicon_DATA = \
-	icons/hicolor/scalable/apps/buzztrax.svg
-
-gnome_iconthemedir=$(datadir)/icons/gnome
-
-gnome_icon16dir = $(gnome_iconthemedir)/16x16/apps
-gnome_icon16_DATA = \
-	icons/gnome/16x16/apps/buzztrax.png \
-	icons/gnome/16x16/apps/buzztrax_menu_processor_machine.png \
-	icons/gnome/16x16/apps/buzztrax_menu_sink_machine.png \
-	icons/gnome/16x16/apps/buzztrax_menu_source_machine.png \
-	icons/gnome/16x16/apps/buzztrax_tab_machines.png \
-	icons/gnome/16x16/apps/buzztrax_tab_patterns.png \
-	icons/gnome/16x16/apps/buzztrax_tab_sequence.png \
-	icons/gnome/16x16/apps/buzztrax_tab_waves.png
-##	icons/gnome/16x16/apps/buzztrax_tab_info.png
-
-gnome_icon22dir = $(gnome_iconthemedir)/22x22/apps
-gnome_icon22_DATA = \
-	icons/gnome/22x22/apps/buzztrax.png
-
-gnome_icon24dir = $(gnome_iconthemedir)/24x24/apps
-gnome_icon24_DATA = \
-	icons/gnome/24x24/apps/buzztrax.png \
-	icons/gnome/24x24/apps/buzztrax_menu_processor_machine.png \
-	icons/gnome/24x24/apps/buzztrax_menu_sink_machine.png \
-	icons/gnome/24x24/apps/buzztrax_menu_source_machine.png
-
-gnome_icon32dir = $(gnome_iconthemedir)/32x32/apps
-gnome_icon32_DATA = \
-	icons/gnome/32x32/apps/buzztrax.png \
-  icons/gnome/32x32/apps/buzztrax_effect_bypass.png \
-  icons/gnome/32x32/apps/buzztrax_effect_mute.png \
-  icons/gnome/32x32/apps/buzztrax_effect.png \
-  icons/gnome/32x32/apps/buzztrax_generator_mute.png \
-  icons/gnome/32x32/apps/buzztrax_generator_solo.png \
-  icons/gnome/32x32/apps/buzztrax_generator.png \
-  icons/gnome/32x32/apps/buzztrax_master_mute.png \
-  icons/gnome/32x32/apps/buzztrax_master.png \
-  icons/gnome/32x32/apps/buzztrax_wire.png \
-  icons/gnome/32x32/apps/buzztrax_wire_nopan.png
-
-gnome_icon48dir = $(gnome_iconthemedir)/48x48/apps
-gnome_icon48_DATA = \
-	icons/gnome/48x48/apps/buzztrax.png \
-  icons/gnome/48x48/apps/buzztrax_effect_bypass.png \
-  icons/gnome/48x48/apps/buzztrax_effect_mute.png \
-  icons/gnome/48x48/apps/buzztrax_effect.png \
-  icons/gnome/48x48/apps/buzztrax_generator_mute.png \
-  icons/gnome/48x48/apps/buzztrax_generator_solo.png \
-  icons/gnome/48x48/apps/buzztrax_generator.png \
-  icons/gnome/48x48/apps/buzztrax_master_mute.png \
-  icons/gnome/48x48/apps/buzztrax_master.png \
-  icons/gnome/48x48/apps/buzztrax_wire.png \
-  icons/gnome/48x48/apps/buzztrax_wire_nopan.png
-
-gnome_icon64dir = $(gnome_iconthemedir)/64x64/apps
-gnome_icon64_DATA = \
-	icons/gnome/64x64/apps/buzztrax.png \
-  icons/gnome/64x64/apps/buzztrax_effect_bypass.png \
-  icons/gnome/64x64/apps/buzztrax_effect_mute.png \
-  icons/gnome/64x64/apps/buzztrax_effect.png \
-  icons/gnome/64x64/apps/buzztrax_generator_mute.png \
-  icons/gnome/64x64/apps/buzztrax_generator_solo.png \
-  icons/gnome/64x64/apps/buzztrax_generator.png \
-  icons/gnome/64x64/apps/buzztrax_master_mute.png \
-  icons/gnome/64x64/apps/buzztrax_master.png \
-  icons/gnome/64x64/apps/buzztrax_wire.png \
-  icons/gnome/64x64/apps/buzztrax_wire_nopan.png
-
-MACHINE_ICONS = \
-  icons/gnome/scalable/apps/buzztrax_effect_bypass.svg \
-  icons/gnome/scalable/apps/buzztrax_effect_mute.svg \
-  icons/gnome/scalable/apps/buzztrax_effect.svg \
-  icons/gnome/scalable/apps/buzztrax_generator_mute.svg \
-  icons/gnome/scalable/apps/buzztrax_generator_solo.svg \
-  icons/gnome/scalable/apps/buzztrax_generator.svg \
-  icons/gnome/scalable/apps/buzztrax_master_mute.svg \
-  icons/gnome/scalable/apps/buzztrax_master.svg \
-  icons/gnome/scalable/apps/buzztrax_wire.svg \
-  icons/gnome/scalable/apps/buzztrax_wire_nopan.svg
-
-gnome_svgicondir = $(gnome_iconthemedir)/scalable/apps
-gnome_svgicon_DATA = \
-	icons/gnome/scalable/apps/buzztrax.svg \
+	icons/hicolor/scalable/apps/buzztrax.svg \
 	$(MACHINE_ICONS)
 
 prescale-svg:
 	for size in 32 48 64; do \
 		for icon in $(MACHINE_ICONS); do \
-			rsvg-convert "$$icon" -w $$size -h $$size -f png -o "icons/gnome/$${size}x$${size}/apps/`basename $$icon .svg`.png"; \
+			rsvg-convert "$$icon" -w $$size -h $$size -f png -o "icons/hicolor/$${size}x$${size}/apps/`basename $$icon .svg`.png"; \
 		done; \
 	done
 
 EXTRA_DIST += \
-	$(gnome_icon16_DATA) $(gnome_icon22_DATA) $(gnome_icon24_DATA) \
-	$(gnome_icon32_DATA) $(gnome_icon48_DATA) $(gnome_icon64_DATA) $(gnome_svgicon_DATA) \
-  $(hicolor_icon16_DATA) $(hicolor_icon24_DATA) $(hicolor_icon48_DATA) $(hicolor_svgicon_DATA)
+	$(hicolor_icon16_DATA) $(hicolor_icon22_DATA) $(hicolor_icon24_DATA) \
+	$(hicolor_icon32_DATA) $(hicolor_icon48_DATA) $(hicolor_icon64_DATA) $(hicolor_svgicon_DATA)
 
 update-icon-cache:
 if WITH_UPDATE_ICON_CACHE
 	@-if test -z "$(DESTDIR)"; then \
 		echo "Updating Gtk icon cache."; \
 		$(UPDATE_ICON_CACHE) -f -t $(hicolor_iconthemedir); \
-		$(UPDATE_ICON_CACHE) -f -t $(gnome_iconthemedir); \
 	else \
 		echo "*** Icon cache not updated.  After install, run this:"; \
 		echo "***   $(UPDATE_ICON_CACHE) -f -t $(hicolor_iconthemedir)"; \
-		echo "***   $(UPDATE_ICON_CACHE) -f -t $(gnome_iconthemedir)"; \
 	fi
 endif

@@ -125,6 +125,7 @@ struct _BtMachineCanvasItemPrivate
   GtkWidget *analysis_dialog;
 
   /* the graphical components */
+  GtkWidget *image;
   GtkWidget *label;
   GtkWidget *output_meter, *input_meter;
   GstElement *output_level;
@@ -178,23 +179,6 @@ static void on_signal_analysis_dialog_destroy (GtkWidget * widget,
     gpointer user_data);
 
 //-- helper methods
-
-void
-bt_machine_canvas_item_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
-{
-  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (widget);
-  
-  GdkPaintable *paintable =
-      bt_ui_resources_get_machine_graphics_texture_by_machine (self->priv->machine, self->priv->zoom);
-  
-  gdk_paintable_snapshot (
-      paintable,
-      GDK_SNAPSHOT (snapshot),
-      gtk_widget_get_width (widget),
-      gtk_widget_get_height (widget));
-
-  g_object_unref (paintable);
-}
 
 static void
 update_custom_graphics (BtMachineCanvasItem * self, guint width, guint height, guint32 * data) {
@@ -1105,6 +1089,18 @@ bt_machine_canvas_item_constructed (GObject * object)
   if (G_OBJECT_CLASS (bt_machine_canvas_item_parent_class)->constructed)
     G_OBJECT_CLASS (bt_machine_canvas_item_parent_class)->constructed (object);
 
+  gtk_widget_set_layout_manager (GTK_WIDGET (self), gtk_fixed_layout_new ());
+
+  GdkPaintable *paintable =
+      bt_ui_resources_get_machine_graphics_texture_by_machine (
+          self->priv->machine, self->priv->zoom);
+
+  self->priv->image = gtk_image_new_from_paintable (paintable);
+  gtk_widget_set_size_request (self->priv->image, MACHINE_W, MACHINE_H);
+  gtk_widget_set_parent (self->priv->image, GTK_WIDGET (self));
+  
+  g_object_unref (paintable);
+  
   g_object_get (self->priv->machine, "id", &id, NULL);
 
   // a child actor allowing display of additional gfx by the machine element
@@ -1120,6 +1116,7 @@ bt_machine_canvas_item_constructed (GObject * object)
   // TODO(ensonic): use MACHINE_LABEL_HEIGHT (7)
   // TODO(ensonic): when zooming, the font gets blurry :/
   self->priv->label = gtk_label_new (id);
+  gtk_widget_set_parent (self->priv->label, GTK_WIDGET (self));
   // machine is set via CONSTRUCT_ONLY prop
   g_assert (self->priv->machine);
   g_object_bind_property (self->priv->machine, "id", self->priv->label,
@@ -1302,6 +1299,11 @@ bt_machine_canvas_item_dispose (GObject * object)
   GST_DEBUG ("machine: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (self->priv->machine));
 
+  g_clear_pointer (&self->priv->input_meter, gtk_widget_unparent);
+  g_clear_pointer (&self->priv->output_meter, gtk_widget_unparent);
+  g_clear_pointer (&self->priv->image, gtk_widget_unparent);
+  g_clear_pointer (&self->priv->label, gtk_widget_unparent);
+  
   if (self->priv->machine) {
     GstElement *element_old;
     g_object_get (self->priv->machine, "machine", &element_old, NULL);
@@ -1611,7 +1613,6 @@ bt_machine_canvas_item_class_init (BtMachineCanvasItemClass * klass)
   gobject_class->dispose = bt_machine_canvas_item_dispose;
   gobject_class->finalize = bt_machine_canvas_item_finalize;
 
-#if 0 /// GTK4
   /**
    * BtMachineCanvasItem::position-changed:
    * @self: the machine-canvas-item object that emitted the signal
@@ -1623,9 +1624,9 @@ bt_machine_canvas_item_class_init (BtMachineCanvasItemClass * klass)
   signals[POSITION_CHANGED] =
       g_signal_new ("position-changed", G_TYPE_FROM_CLASS (klass),
       G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
-      NULL, g_cclosure_marshal_VOID__ENUM, G_TYPE_NONE, 1,
-      CLUTTER_TYPE_EVENT_TYPE);
-#endif
+      NULL, g_cclosure_marshal_VOID__UINT, G_TYPE_NONE, 1,
+      G_TYPE_UINT);
+  
   /**
    * BtMachineCanvasItem::start-connect:
    * @self: the machine-canvas-item object that emitted the signal

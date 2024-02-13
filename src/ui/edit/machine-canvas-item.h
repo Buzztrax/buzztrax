@@ -20,6 +20,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <gtk/gtk.h>
 
 #define BT_TYPE_MACHINE_CANVAS_ITEM             (bt_machine_canvas_item_get_type ())
 #define BT_MACHINE_CANVAS_ITEM(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MACHINE_CANVAS_ITEM, BtMachineCanvasItem))
