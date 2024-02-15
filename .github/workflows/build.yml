@@ -79,3 +79,6 @@ jobs:
           bt_ic.tar.bz2
           /tmp/*.tap
           /tmp/record.*
+
+    - name: Output test results
+      run: cat test_summary.md >> $GITHUB_STEP_SUMMARY
