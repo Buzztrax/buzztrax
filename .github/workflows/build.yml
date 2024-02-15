@@ -81,4 +81,5 @@ jobs:
           /tmp/record.*
 
     - name: Output test results
+      if: always()
       run: cat test_summary.md >> $GITHUB_STEP_SUMMARY
