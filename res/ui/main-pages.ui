@@ -1,12 +1,5 @@
 <interface>
   <template class="BtMainPages" parent="GtkWidget">
-    <!--
-        These are minimum sizes.
-        https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1-latest/class.BreakpointBin.html#minimum-size
-    <property name="width-request">360</property>
-    <property name="height-request">200</property>
-    -->
-
     <property name="layout-manager">
       <object class="GtkBinLayout" />
     </property>
@@ -23,6 +16,9 @@
        This likely means this isn't the right way to use AdwToolbarView, i.e. it maybe should
        only be used within an AdwWindow. Or maybe it needs to be parented in some other Adw widget
        type rather than a plain GtkWidget.
+
+       Or maybe I just need to explicitly unparent it, like any other use of gtk_widget_set_parent
+       in a custom widget class. Or maybe GtkWidget is not the right parent class to use.
       -->
    
       <object class="AdwToolbarView">

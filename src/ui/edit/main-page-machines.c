@@ -229,11 +229,14 @@ static void
 widget_to_canvas_pos (BtMainPageMachines * self, gfloat wx, gfloat wy,
     gfloat * cx, gfloat * cy)
 {
-#if 0 /// GTK4 no longer relevant, should use GTK coord translate functions
+#if 0 /// GTK4 no longer relevant? Use GTK coord translate functions?
   gdouble ox = gtk_adjustment_get_value (self->hadjustment);
   gdouble oy = gtk_adjustment_get_value (self->vadjustment);
   *cx = (wx + ox) / self->zoom;
   *cy = (wy + oy) / self->zoom;
+#else
+  *cx = wx;
+  *cy = wy;
 #endif
 }
 
@@ -241,11 +244,14 @@ static void
 canvas_to_widget_pos (BtMainPageMachines * self, gfloat cx, gfloat cy,
     gfloat * wx, gfloat * wy)
 {
-#if 0 /// GTK4 no longer relevant, should use GTK coord translate functions
+#if 0 /// GTK4 no longer relevant? Use GTK coord translate functions?
   gdouble ox = gtk_adjustment_get_value (self->hadjustment);
   gdouble oy = gtk_adjustment_get_value (self->vadjustment);
   *wx = (cx * self->zoom) - ox;
   *wy = (cy * self->zoom) - oy;
+#else
+  *wx = cx;
+  *wy = cy;
 #endif
 }
 
@@ -826,10 +832,11 @@ bt_main_page_machines_add_wire (BtMainPageMachines * self)
   g_object_unref (song);
 }
 
+/// GTK4 remove this
 static BtMachineCanvasItem *
 get_machine_canvas_item_under_cursor (BtMainPageMachines * self)
 {
-#if 0 /// GTK 4
+#if 0
   ClutterActor *ci;
   gfloat x, y;
 
@@ -1412,7 +1419,7 @@ on_canvas_button_press (GtkGestureClick* click, gint n_press, gdouble x,
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
   BtMachineCanvasItem *ci;
-  guint button = gtk_gesture_single_get_button (GTK_GESTURE_SINGLE (click));
+  guint button = gtk_gesture_single_get_current_button (GTK_GESTURE_SINGLE (click));
   GdkModifierType state = gtk_event_controller_get_current_event_state (
       GTK_EVENT_CONTROLLER (click));
  
@@ -1425,17 +1432,19 @@ on_canvas_button_press (GtkGestureClick* click, gint n_press, gdouble x,
   }
 
   if (!(ci = get_machine_canvas_item_under_cursor (self))) {
-    if (button == 1) {
+    if (button == GDK_BUTTON_PRIMARY) {
       // start dragging the canvas
       self->dragging = TRUE;
-    } else if (button == 3) {
+    } else if (button == GDK_BUTTON_SECONDARY) {
       GtkPopover *popover = GTK_POPOVER (gtk_popover_menu_new_from_model (
           G_MENU_MODEL (self->context_menu)));
       gtk_widget_set_parent (GTK_WIDGET (popover), GTK_WIDGET (self));
+      GdkRectangle rect = { x, y, 0, 0 };
+      gtk_popover_set_pointing_to (popover, &rect);
       gtk_popover_popup (popover);
     }
   } else {
-    if (button == 1) {
+    if (button == GDK_BUTTON_PRIMARY) {
       if (state & GDK_SHIFT_MASK) {
         BtMachine *machine;
         self->new_wire_src = BT_MACHINE_CANVAS_ITEM (g_object_ref (ci));
@@ -1457,7 +1466,8 @@ on_canvas_button_release (GtkGestureClick* click, gint n_press, gdouble x,
     gdouble y, gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  guint button = gtk_gesture_single_get_button (GTK_GESTURE_SINGLE (click));
+  guint button = gtk_gesture_single_get_current_button (
+      GTK_GESTURE_SINGLE (click));
 
   GST_DEBUG ("button-release: %d", button);
   if (self->connecting) {
@@ -1665,22 +1675,23 @@ bt_main_page_machines_init_ui (BtMainPageMachines * self)
   
   /// GTK4 replace with drag gesture?
   GtkGesture *gesture = gtk_gesture_click_new ();
+  gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (gesture), 0);
   gtk_widget_add_controller (GTK_WIDGET (self->canvas), GTK_EVENT_CONTROLLER (gesture));
-  g_signal_connect (gesture, "pressed",
-      G_CALLBACK (on_canvas_button_press), (gpointer) self);
-  g_signal_connect (gesture, "released",
-      G_CALLBACK (on_canvas_button_release), (gpointer) self);
+  g_signal_connect_object (gesture, "pressed",
+      G_CALLBACK (on_canvas_button_press), (gpointer) self, 0);
+  g_signal_connect_object (gesture, "released",
+      G_CALLBACK (on_canvas_button_release), (gpointer) self, 0);
 
   GtkEventController *ctrl;
   ctrl = gtk_event_controller_motion_new ();
   gtk_widget_add_controller (GTK_WIDGET (self->canvas), ctrl);
-  g_signal_connect (ctrl, "motion",
-      G_CALLBACK (on_canvas_motion), (gpointer) self);
+  g_signal_connect_object (ctrl, "motion",
+      G_CALLBACK (on_canvas_motion), (gpointer) self, 0);
   
   ctrl = gtk_event_controller_key_new ();
   gtk_widget_add_controller (GTK_WIDGET (self->canvas), ctrl);
-  g_signal_connect (ctrl, "key-released",
-      G_CALLBACK (on_canvas_key_release), (gpointer) self);
+  g_signal_connect_object (ctrl, "key-released",
+      G_CALLBACK (on_canvas_key_release), (gpointer) self, 0);
 
 #if 0 /// GTK4
   // let settings control toolbar style

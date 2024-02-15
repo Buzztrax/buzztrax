@@ -143,7 +143,7 @@ struct _BtMachineCanvasItemPrivate
 
   /* interaction state */
   gboolean dragging, moved /*,switching */ ;
-  gfloat offx, offy, dragx, dragy;
+  gdouble offx, offy, dragx, dragy;
   gulong capture_id;
 
   /* playback state */
@@ -1360,203 +1360,106 @@ bt_machine_canvas_item_finalize (GObject * object)
   GST_DEBUG ("  done");
 }
 
-/// GTK4 static gboolean on_captured_event (ClutterActor * citem, ClutterEvent * event,
-//    gpointer user_data);
-
-#if 0 ///GTK4
-static gboolean
-bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
+static void
+bt_machine_canvas_item_on_drag_update (GtkGestureDrag *drag, gdouble offset_x,
+    gdouble offset_y, gpointer user_data)
 {
-
-  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (citem);
-  gboolean res = FALSE;
-
-  //GST_INFO("event for machine occurred");
-
-  switch (clutter_event_type (event)) {
-    case CLUTTER_BUTTON_PRESS:{
-      ClutterButtonEvent *button_event = (ClutterButtonEvent *) event;
-      GST_DEBUG ("CLUTTER_BUTTON_PRESS: button=%d, clicks=%d, mod=0x%x",
-          button_event->button, button_event->click_count,
-          button_event->modifier_state);
-      switch (button_event->button) {
-        case 1:
-          switch (button_event->click_count) {
-            case 1:
-              // we're connecting when shift is pressed
-              if (!(button_event->modifier_state & CLUTTER_SHIFT_MASK)) {
-                // dragx/y coords are world coords of button press
-                self->priv->dragx = button_event->x;
-                self->priv->dragy = button_event->y;
-                // set some flags
-                self->priv->dragging = TRUE;
-                self->priv->moved = FALSE;
-                self->priv->capture_id =
-                    g_signal_connect_after (clutter_actor_get_stage (citem),
-                    "captured-event", G_CALLBACK (on_captured_event), self);
-                res = TRUE;
-              }
-              break;
-            case 2:
-              show_machine_properties_dialog (self);
-              res = TRUE;
-              break;
-            default:
-              break;
-          }
-          break;
-        case 3:{
-          gtk_popover_popup (self->priv->context_menu);
-          res = TRUE;
-          break;
-        }
-        default:
-          break;
-      }
-      break;
-    }
-    case CLUTTER_MOTION:
-      //GST_DEBUG("CLUTTER_MOTION: %f,%f",event->button.x,event->button.y);
-      if (self->priv->dragging) {
-        ClutterMotionEvent *motion_event = (ClutterMotionEvent *) event;
-        gfloat dx, dy;
-        if (!self->priv->moved) {
-          ClutterActor *canvas;
-
-          g_object_get (self->priv->main_page_machines, "canvas", &canvas,
-              NULL);
-          clutter_actor_set_opacity (citem, 160);
-          clutter_actor_set_child_above_sibling (canvas, citem, NULL);
-          g_object_unref (canvas);
-
-          g_signal_emit (citem, signals[POSITION_CHANGED], 0,
-              CLUTTER_BUTTON_PRESS);
-        }
-        dx = (motion_event->x - self->priv->dragx) / self->priv->zoom;
-        dy = (motion_event->y - self->priv->dragy) / self->priv->zoom;
-        clutter_actor_move_by (citem, dx, dy);
-        g_signal_emit (citem, signals[POSITION_CHANGED], 0, CLUTTER_MOTION);
-        self->priv->dragx = motion_event->x;
-        self->priv->dragy = motion_event->y;
-
-        GtkLayoutManager *layout = gtk_widget_get_layout_manager (self->canvas);
-        GtkFixedLayoutChild *fixed = GTK_FIXED_LAYOUT_CHILD (
-            gtk_layout_manager_get_layout_child (layout, GTK_WIDGET (item)));
-        GskTransform *xform = gsk_transform_new ();
-        gsk_transform_translate (xform, GRAPHENE_POINT_INIT (motion_event->x, motion_event->y));
-        gtk_fixed_layout_child_set_transform (xform);
-        gsk_transform_unref (xform);
-
-        self->priv->moved = TRUE;
-        res = TRUE;
-      }
-      break;
-    case CLUTTER_BUTTON_RELEASE:
-      GST_DEBUG ("CLUTTER_BUTTON_RELEASE: %d", event->button.button);
-      if (self->priv->dragging) {
-        self->priv->dragging = FALSE;
-        if (self->priv->capture_id) {
-          g_signal_handler_disconnect (clutter_actor_get_stage (citem),
-              self->priv->capture_id);
-          self->priv->capture_id = 0;
-        }
-        if (self->priv->moved) {
-          gfloat xc, yc;
-          gdouble xr, yr;
-          gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-
-          // change position properties of the machines
-          g_object_get (citem, "x", &xc, "y", &yc, NULL);
-          bt_main_page_machines_canvas_coords_to_relative (self->priv->
-              main_page_machines, xc, yc, &xr, &yr);
-          g_hash_table_insert (self->priv->properties, g_strdup ("xpos"),
-              g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, xr)));
-          g_hash_table_insert (self->priv->properties, g_strdup ("ypos"),
-              g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, yr)));
-          g_signal_emit (citem, signals[POSITION_CHANGED], 0,
-              CLUTTER_BUTTON_RELEASE);
-          clutter_actor_set_opacity (citem, 255);
-          res = TRUE;
-        }
-        // if not moved, let event fall through to make
-        // [context menu > connect] work
-      } else {
-#if 0
-        if (self->priv->switching) {
-          self->priv->switching = FALSE;
-          // still over mode switch
-          if (bt_machine_canvas_item_is_over_state_switch (self, event)) {
-            guint modifier =
-                (gulong) event->
-                button.state & gtk_accelerator_get_default_mod_mask ();
-            //gulong modifier=(gulong)event->button.state&(GDK_CONTROL_MASK|GDK_MOD4_MASK);
-            GST_DEBUG
-                ("  mode quad state switch, key_modifier is: 0x%x + mask: 0x%x -> 0x%x",
-                event->button.state, (GDK_CONTROL_MASK | GDK_MOD4_MASK),
-                modifier);
-            switch (modifier) {
-              case 0:
-                g_object_set (self->priv->machine, "state",
-                    BT_MACHINE_STATE_NORMAL, NULL);
-                break;
-              case GDK_CONTROL_MASK:
-                g_object_set (self->priv->machine, "state",
-                    BT_MACHINE_STATE_MUTE, NULL);
-                break;
-              case GDK_MOD4_MASK:
-                g_object_set (self->priv->machine, "state",
-                    BT_MACHINE_STATE_SOLO, NULL);
-                break;
-              case GDK_CONTROL_MASK | GDK_MOD4_MASK:
-                g_object_set (self->priv->machine, "state",
-                    BT_MACHINE_STATE_BYPASS, NULL);
-                break;
-            }
-          }
-        }
+  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (user_data);
+  gfloat dx, dy;
+  self->priv->dragging = TRUE; /// GTK4 still needed?
+  if (!self->priv->moved) {
+#if 0 /// GTK4 find best way to do this, i.e. bring child to top of draw order
+      /// while dragging
+    g_object_get(self->priv->main_page_machines, "canvas", &canvas, NULL);
+    clutter_actor_set_opacity(citem, 160);
+    clutter_actor_set_child_above_sibling(canvas, citem, NULL);
+    g_object_unref(canvas);
 #endif
+
+    g_signal_emit( self, signals[POSITION_CHANGED], 0, 0);
+  }
+  
+  dx = offset_x / self->priv->zoom;
+  dy = offset_y / self->priv->zoom;
+  gtk_gesture_drag_get_start_point (
+      drag, &self->priv->dragx, &self->priv->dragy);
+  self->priv->dragx += offset_x; /// GTK4 dragx/y still needed?
+  self->priv->dragy += offset_y;
+
+  GtkFixed *fixed = GTK_FIXED (gtk_widget_get_parent (GTK_WIDGET (self)));
+  gdouble x, y;
+  gtk_fixed_get_child_position (fixed, GTK_WIDGET (self), &x, &y);
+  gtk_fixed_move (fixed, GTK_WIDGET (self), x + dx, y + dy);
+
+  self->priv->moved = TRUE;
+  g_signal_emit(self, signals[POSITION_CHANGED], 0, 1);
+}
+
+static void
+bt_machine_canvas_item_on_drag_end (GtkGestureDrag *drag, gdouble offset_x,
+    gdouble offset_y, gpointer user_data)
+{
+  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (user_data);
+  self->priv->dragging = FALSE;
+  if (self->priv->moved) {
+    gdouble xc, yc;
+    gdouble xr, yr;
+    gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+
+    // change position properties of the machines
+    GtkFixed *fixed = GTK_FIXED (gtk_widget_get_parent (GTK_WIDGET (self)));
+    gtk_fixed_get_child_position (fixed, GTK_WIDGET (self), &xc, &yc);
+    bt_main_page_machines_canvas_coords_to_relative(
+        self->priv->main_page_machines, xc, yc, &xr, &yr);
+    g_hash_table_insert(
+        self->priv->properties, g_strdup("xpos"),
+        g_strdup(g_ascii_dtostr(str, G_ASCII_DTOSTR_BUF_SIZE, xr)));
+    g_hash_table_insert(
+        self->priv->properties, g_strdup("ypos"),
+        g_strdup(g_ascii_dtostr(str, G_ASCII_DTOSTR_BUF_SIZE, yr)));
+    g_signal_emit(self, signals[POSITION_CHANGED], 0, 2);
+    /// GTK4 clutter_actor_set_opacity(citem, 255);
+  }
+}
+
+static void
+bt_machine_canvas_item_on_pressed (GtkGestureClick* click, gint n_press,
+    gdouble x, gdouble y, gpointer user_data)
+{
+  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (user_data);
+  guint button = gtk_gesture_single_get_current_button (
+      GTK_GESTURE_SINGLE (click));
+  
+  switch (button) {
+    case GDK_BUTTON_PRIMARY:
+      if (n_press == 2) {
+        show_machine_properties_dialog (self);
       }
-      break;
-    case CLUTTER_KEY_RELEASE:{
-      ClutterKeyEvent *key_event = (ClutterKeyEvent *) event;
-      GST_DEBUG ("CLUTTER_KEY_RELEASE: %d", key_event->keyval);
-      switch (key_event->keyval) {
-        case GDK_KEY_Menu:{
-          BtEventIdleData *data;
-          MAKE_EVENT_IDLE_DATA (data, self, event);
-          g_idle_add (popup_helper, data);
-          res = TRUE;
-          break;
-        }
-        default:
-          break;
-      }
+    break;
+    case GDK_BUTTON_SECONDARY: {
+      GtkPopover *popover = GTK_POPOVER (gtk_popover_menu_new_from_model (
+          G_MENU_MODEL (self->priv->context_menu)));
+      gtk_widget_set_parent (GTK_WIDGET (popover), GTK_WIDGET (self));
+      gtk_popover_popup (popover);
       break;
     }
     default:
       break;
   }
-  /* we don't want the click falling through to the parent canvas item, if we have handled it */
-  if (!res) {
-    if (CLUTTER_ACTOR_CLASS (bt_machine_canvas_item_parent_class)->event) {
-      res = CLUTTER_ACTOR_CLASS (bt_machine_canvas_item_parent_class)->event
-          (citem, event);
-    }
-  }
-  //GST_INFO("event for machine occurred : %d",res);
-  return res;
 }
-#endif
 
-#if 0 /// GTK4
-static gboolean
-on_captured_event (ClutterActor * citem, ClutterEvent * event,
-    gpointer user_data)
+void
+bt_machine_canvas_item_on_key_released (GtkEventControllerKey *key,
+    guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
 {
-  return bt_machine_canvas_item_event ((ClutterActor *) user_data, event);
+  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (user_data);
+  if (keyval == GDK_KEY_Menu) {
+    GtkPopover *popover = GTK_POPOVER (gtk_popover_menu_new_from_model (
+        G_MENU_MODEL (self->priv->context_menu)));
+    gtk_widget_set_parent (GTK_WIDGET (popover), GTK_WIDGET (self));
+    gtk_popover_popup (popover);
+  }
 }
-#endif
-
 
 static void
 bt_machine_canvas_item_init (BtMachineCanvasItem * self)
@@ -1593,6 +1496,27 @@ bt_machine_canvas_item_init (BtMachineCanvasItem * self)
   g_mutex_init (&self->priv->lock);
   g_mutex_init (&self->priv->custom_gfx_lock);
 
+  GtkGesture *gesture;
+  gesture = gtk_gesture_click_new ();
+  gtk_widget_add_controller (GTK_WIDGET (self),
+      GTK_EVENT_CONTROLLER (gesture));
+  gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (gesture), 0);
+  g_signal_connect_object (gesture, "pressed",
+      G_CALLBACK (bt_machine_canvas_item_on_pressed), (gpointer) self, 0);
+  
+  gesture = gtk_gesture_drag_new ();
+  gtk_widget_add_controller (GTK_WIDGET (self),
+      GTK_EVENT_CONTROLLER (gesture));
+  g_signal_connect_object (gesture, "drag-update",
+      G_CALLBACK (bt_machine_canvas_item_on_drag_update), (gpointer) self, 0);
+  g_signal_connect_object (gesture, "drag-end",
+      G_CALLBACK (bt_machine_canvas_item_on_drag_end), (gpointer) self, 0);
+
+  GtkEventController *key = gtk_event_controller_key_new ();
+  gtk_widget_add_controller (GTK_WIDGET (self), key);
+  g_signal_connect_object (key, "key-released",
+      G_CALLBACK (bt_machine_canvas_item_on_key_released), (gpointer) self, 0);
+  
   /// GTK4 self->priv->image_custom_gfx = clutter_image_new ();
 
   /// GTK4 update_custom_graphics (self, 0, 0, NULL);
@@ -1621,6 +1545,11 @@ bt_machine_canvas_item_class_init (BtMachineCanvasItemClass * klass)
    * Signals that item has been moved around. The new position can be read from
    * the canvas item.
    */
+  /// GTK4
+  /// 0 = CLUTTER_BUTTON_PRESS
+  /// 1 = CLUTTER_MOTION
+  /// 2 = CLUTTER_BUTTON_RELEASE
+
   signals[POSITION_CHANGED] =
       g_signal_new ("position-changed", G_TYPE_FROM_CLASS (klass),
       G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,

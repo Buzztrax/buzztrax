@@ -359,7 +359,8 @@ on_wire_pad_button_press (GtkGestureClick* click, gint n_press, gdouble x,
     gdouble y, gpointer user_data)
 {
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (user_data);
-  guint button = gtk_gesture_single_get_button (GTK_GESTURE_SINGLE (click));
+  guint button = gtk_gesture_single_get_current_button (
+      GTK_GESTURE_SINGLE (click));
   GdkModifierType state = gtk_event_controller_get_current_event_state (
       GTK_EVENT_CONTROLLER (click));
 
