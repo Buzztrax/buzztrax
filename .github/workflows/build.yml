@@ -40,7 +40,7 @@ jobs:
     - name: make check
       id: check
       run: |
-        xvfb-run -- make -k check
+        xvfb-run -- make -k check BT_ARCHIVE_LOGS=1
 
     - name: Rerun failed tests under gdb and get backtraces
       id: rerun_tests
