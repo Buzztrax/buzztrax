@@ -251,21 +251,20 @@ on_table_realize (GtkWidget * widget, gpointer user_data)
   gint height, max_heigth, width, max_width, border;
 
   gtk_widget_get_preferred_size (widget, &minimum, &natural);
-  /// GTK4 border = gtk_container_get_border_width (GTK_CONTAINER (widget));
 
-  /// GTK4 requisition.width = MAX (minimum.width, natural.width) + border;
-  /// GTK4 requisition.height = MAX (minimum.height, natural.height) + border;
-  /// GTK4 bt_gtk_workarea_size (&max_width, &max_heigth);
+  requisition.width = MAX (minimum.width, natural.width) + border;
+  requisition.height = MAX (minimum.height, natural.height) + border;
+  bt_gtk_workarea_size (widget, &max_width, &max_heigth);
 
-  /// GTK4 GST_DEBUG ("#### table size req %d x %d (max %d x %d)", requisition.width,
-  /// GTK4     requisition.height, max_width, max_heigth);
+  GST_DEBUG ("#### table size req %d x %d (max %d x %d)", requisition.width,
+      requisition.height, max_width, max_heigth);
 
   // constrain the size by screen size minus some space for panels and deco
-  /// GTK4 height = MIN (requisition.height, max_heigth);
-  /// GTK4 width = MIN (requisition.width, max_width);
+  height = MIN (requisition.height, max_heigth);
+  width = MIN (requisition.width, max_width);
 
-  /// GTK4 gtk_scrolled_window_set_min_content_height (parent, height);
-  /// GTK4 gtk_scrolled_window_set_min_content_width (parent, width);
+  gtk_scrolled_window_set_min_content_height (parent, height);
+  gtk_scrolled_window_set_min_content_width (parent, width);
 }
 
 //-- helper methods

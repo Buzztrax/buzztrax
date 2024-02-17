@@ -369,6 +369,34 @@ bt_notify_idle_dispatch (GObject * object, GParamSpec * pspec,
   g_idle_add (on_idle_notify, data);
 }
 
+/* gtk compat helper */
+
+/**
+ * bt_gtk_workarea_size:
+ * @widget: the monitor that this widget is on will be queried
+ * @max_width: destination for the width or %NULL
+ * @max_height: destination for the heigth or %NULL
+ *
+ * Gets the potitial max size the window could occupy. This can be used to
+ * hint the content size for #GtkScrelledWindow.
+ */
+void
+bt_gtk_workarea_size (GtkWidget * widget, gint * max_width, gint * max_height)
+{
+  GdkRectangle area;
+
+  GdkMonitor *monitor = gdk_display_get_monitor_at_surface (
+      gtk_widget_get_display (widget),
+      gtk_native_get_surface (GTK_NATIVE (gtk_widget_get_root (widget))));
+  
+  gdk_monitor_get_geometry (monitor, &area);
+  
+  if (max_width)
+    *max_width = area.width;
+  if (max_height)
+    *max_height = area.height;
+}
+
 /**
  * bt_strjoin_list:
  * @list: a list of test nodes

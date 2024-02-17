@@ -1,5 +1,6 @@
 <interface>
   <template class="BtMachinePropertiesDialog" parent="AdwWindow">
+    <property name="width-request">480</property>
     <property name="content">
       <object class="AdwToolbarView">
         <child type="top">  <!-- top view -->

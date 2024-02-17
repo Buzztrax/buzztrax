@@ -248,7 +248,7 @@ show_machine_properties_dialog (BtMachineCanvasItem * self)
         GTK_WIDGET (bt_machine_properties_dialog_new (self->priv->machine));
     bt_edit_application_attach_child_window (self->priv->app,
         GTK_WINDOW (self->priv->properties_dialog));
-    gtk_widget_set_visible (self->priv->properties_dialog, TRUE);
+    gtk_window_present (GTK_WINDOW (self->priv->properties_dialog));
     GST_INFO ("machine properties dialog opened");
     // remember open/closed state
     g_hash_table_insert (self->priv->properties, g_strdup ("properties-shown"),

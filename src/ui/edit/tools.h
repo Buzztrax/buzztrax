@@ -69,6 +69,9 @@ GtkWidget *gtk_toggle_tool_button_new_from_icon_name(const gchar *icon_name, con
 typedef void (*BtNotifyFunc)(GObject *object, GParamSpec *pspec, gpointer user_data);
 void bt_notify_idle_dispatch (GObject *object, GParamSpec *pspec, gpointer user_data, BtNotifyFunc func);
 
+/* gtk compat helper */
+void bt_gtk_workarea_size (GtkWidget * widget, gint * max_width, gint * max_height);
+
 
 char *bt_strjoin_list (GList *list);
 

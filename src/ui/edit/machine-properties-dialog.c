@@ -1528,41 +1528,24 @@ on_preset_list_selection_changed (GtkSelectionModel * model, gpointer user_data)
  * property widgets
  */
 static void
-on_box_realize (GtkWidget * widget, gpointer user_data)
+on_box_realize (GtkWidget * box, gpointer user_data)
 {
-#if 0 /// GTK4
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG (user_data);
 
-  GtkScrolledWindow *parent =
-      GTK_SCROLLED_WINDOW (gtk_widget_get_parent (gtk_widget_get_parent
-          (widget)));
-  GtkRequisition minimum, natural, requisition, natural_scrollwin;
-  GtkAllocation tb_alloc;
-  gint width, max_width, max_height, border, win_default_width;
-
-  gtk_widget_get_preferred_size (widget, &minimum, &natural);
-  gtk_widget_get_allocation (GTK_WIDGET (self->main_toolbar), &tb_alloc);
-  border = gtk_container_get_border_width (GTK_CONTAINER (widget));
-
-  requisition.width = MAX (minimum.width, natural.width) + border;
-  bt_gtk_workarea_size (&max_width, &max_height);
-
-  GST_DEBUG ("#### box width req %d (max %d)", requisition.width, max_width);
-
-  // constrain the size by screen size minus some space for panels, deco and toolbar
-  width = MIN (requisition.width, max_width);
-
-  gtk_scrolled_window_set_min_content_width (parent, width);
+  gint workarea_height;
+  bt_gtk_workarea_size (box, NULL, &workarea_height);
 
   // size the properties window to the height of all property widgets, but don't
   // exceed 3/4 of the screen height.
-  gtk_widget_get_preferred_size (GTK_WIDGET (parent), NULL, &natural_scrollwin);
-  gtk_window_get_default_size(GTK_WINDOW (self), &win_default_width, NULL);
-  gtk_window_resize(
-      GTK_WINDOW (self),
-      win_default_width,
-      MIN(max_height * 0.75, natural.height + tb_alloc.height));
-#endif
+  gint default_width;
+  g_object_get (self, "width-request", &default_width, NULL);
+
+  GtkRequisition minimum, natural;
+  gtk_widget_get_preferred_size (box, &minimum, &natural);
+  
+  gtk_window_set_default_size (
+    GTK_WINDOW(self), default_width,
+    MIN(workarea_height * 0.75, natural.height));
 }
 
 static void
