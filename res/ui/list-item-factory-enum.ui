@@ -1,4 +1,4 @@
-<!-- A simple builder for GtkBuilderListItemFactory that displays string data -->
+<!-- A simple builder for GtkBuilderListItemFactory that works with an AdwEnumListModel -->
 <!-- https://docs.gtk.org/gtk4/class.BuilderListItemFactory.html -->
 <interface>
   <template class="GtkListItem">
@@ -6,7 +6,7 @@
       <object class="GtkLabel">
         <property name="xalign">0</property>
         <binding name="label">
-          <lookup name="string" type="GtkStringObject">
+          <lookup name="nick" type="AdwEnumListItem">
             <lookup name="item">GtkListItem</lookup>
           </lookup>
         </binding>

@@ -574,7 +574,7 @@ static void on_uint64_entry_property_changed (GtkEditable * editable,
 static void on_checkbox_property_toggled (GtkToggleButton * togglebutton,
     gpointer user_data);
 static void on_combobox_property_changed_enum (GtkDropDown * combobox,
-    gpointer user_data);
+    GParamSpec * param, gpointer user_data);
 
 static gchar *
 on_int_range_property_format_value (GtkScale * scale, gdouble value,
@@ -719,9 +719,16 @@ on_button_press_event (GtkGestureClick* click, gchar *property_name,
     GtkPopover* popover = GTK_POPOVER (bt_interaction_controller_menu_get_popover (self->param_menu[ix]));
     gtk_widget_set_parent (GTK_WIDGET (popover), GTK_WIDGET (self));
     gtk_popover_popup (popover);
-  } else if (gtk_gesture_single_get_current_button (GTK_GESTURE_SINGLE (self)) == 1) {
+  } else if (gtk_gesture_single_get_current_button (
+        GTK_GESTURE_SINGLE (click)) == 1) {
+
+    /// GTK4 this is causing problems with dropdowns.
+    /// When we reach here (or shortly after, not sure) the dropdown should
+    /// be popped up.
+    /// However, I'm guessing that this call ends up making the widget insensitive,
+    /// and so the popup immediately goes away.
     gst_object_set_control_binding_disabled (param_parent, property_name,
-                                             TRUE);
+        TRUE);
   }
 }
 
@@ -759,53 +766,43 @@ on_trigger_button_press_event (GtkGestureClick* self, gint n_press, gdouble x, g
   on_button_press_event (self, "prop_name", NULL/*!!*/, BT_INTERACTION_CONTROLLER_RANGE_MENU, TRUE);
 }
 
-static gboolean
+static void
 on_label_button_press_event (GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
 {
   if (gtk_gesture_single_get_current_button (GTK_GESTURE_SINGLE (self)) == 1) {
     gtk_widget_grab_focus ((GtkWidget *) user_data);
   }
-  return FALSE;
 }
 
-static gboolean
+static void
 on_group_button_press_event (GtkGestureClick* click, gint n_press, gdouble x, gdouble y, gpointer user_data)
 {
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG (user_data);
-  gboolean res = FALSE;
 
   GST_INFO ("button_press : button 0x%x", gtk_gesture_single_get_current_button (GTK_GESTURE_SINGLE (click)));
-  
-  if (gtk_gesture_single_get_current_button (GTK_GESTURE_SINGLE (click)) == 2) {
-    GMenu *menu;
-    BtParameterGroup *pg =
-      g_hash_table_lookup (self->param_groups, NULL /*/// GTK4 widget*/);
 
-    // create context menu
-    if (!self->group_menu) {
-      self->group_menu = menu = g_menu_new ();
+  GMenu *menu;
+  BtParameterGroup *pg =
+      g_hash_table_lookup(self->param_groups, NULL /*/// GTK4 widget*/);
 
-      // add copy/paste item
-      g_menu_append (menu, _("Copy group"), "clipboard.copy");
-      g_menu_append (menu, _("Paste"), "clipboard.paste");
-    } else {
-      menu = self->group_menu;
-    }
-    g_object_set_qdata (G_OBJECT (menu), widget_param_group_quark,
-                        (gpointer) pg);
-    g_object_set_qdata (G_OBJECT (menu), widget_param_num_quark,
-                        GINT_TO_POINTER (-1));
+  // create context menu
+  if (!self->group_menu) {
+    self->group_menu = menu = g_menu_new();
 
-    GtkWidget* popup = gtk_popover_menu_new_from_model (G_MENU_MODEL (menu));
-    gtk_widget_set_parent (popup, GTK_WIDGET (self));
-    gtk_popover_popup (GTK_POPOVER (popup));
-      
-    res = TRUE;
+    // add copy/paste item
+    g_menu_append(menu, _("Copy group"), "clipboard.copy");
+    g_menu_append(menu, _("Paste"), "clipboard.paste");
+  } else {
+    menu = self->group_menu;
   }
-  
-  return res;
-}
+  g_object_set_qdata(G_OBJECT(menu), widget_param_group_quark, (gpointer)pg);
+  g_object_set_qdata(G_OBJECT(menu), widget_param_num_quark,
+                     GINT_TO_POINTER(-1));
 
+  GtkWidget *popup = gtk_popover_menu_new_from_model(G_MENU_MODEL(menu));
+  gtk_widget_set_parent(popup, GTK_WIDGET(self));
+  gtk_popover_popup(GTK_POPOVER(popup));
+}
 
 static void
 update_double_range_label (GtkLabel * label, gdouble value)
@@ -1241,7 +1238,8 @@ on_combobox_property_notify (GObject * object, GParamSpec * property,
 }
 
 static void
-on_combobox_property_changed_enum (GtkDropDown * combobox, gpointer user_data)
+on_combobox_property_changed_enum (GtkDropDown * combobox,
+    GParamSpec * property, gpointer user_data)
 {
   GObject *param_parent = G_OBJECT (user_data);
   const gchar *name = gtk_widget_get_name (GTK_WIDGET (combobox));
@@ -1648,13 +1646,13 @@ make_uint_range_widget (BtMachinePropertiesDialog * self,
   GtkGesture* click = gtk_gesture_click_new ();
   gtk_widget_add_controller (widget, GTK_EVENT_CONTROLLER (click));
   
-  g_signal_connect (click, "button-press-event",
+  g_signal_connect (click, "pressed",
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
 
   GtkEventController* key = gtk_event_controller_key_new ();
   gtk_widget_add_controller (widget, key);
   
-  g_signal_connect (key, "key-release-event",
+  g_signal_connect (key, "key-released",
       G_CALLBACK (on_key_release_event), (gpointer) machine);
   return widget;
 }
@@ -1686,13 +1684,13 @@ make_uint64_range_widget (BtMachinePropertiesDialog * self,
   GtkGesture* click = gtk_gesture_click_new ();
   gtk_widget_add_controller (widget, GTK_EVENT_CONTROLLER (click));
   
-  g_signal_connect (click, "button-press-event",
+  g_signal_connect (click, "pressed",
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
 
   GtkEventController* key = gtk_event_controller_key_new ();
   gtk_widget_add_controller (widget, key);
   
-  g_signal_connect (key, "key-release-event",
+  g_signal_connect (key, "key-released",
       G_CALLBACK (on_key_release_event), (gpointer) machine);
   
   g_signal_connect (entry, "changed",
@@ -1730,13 +1728,13 @@ make_float_range_widget (BtMachinePropertiesDialog * self,
   GtkGesture* click = gtk_gesture_click_new ();
   gtk_widget_add_controller (widget, GTK_EVENT_CONTROLLER (click));
   
-  g_signal_connect (click, "button-press-event",
+  g_signal_connect (click, "pressed",
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
 
   GtkEventController* key = gtk_event_controller_key_new ();
   gtk_widget_add_controller (widget, key);
   
-  g_signal_connect (key, "key-release-event",
+  g_signal_connect (key, "key-released",
       G_CALLBACK (on_key_release_event), (gpointer) machine);
   
   return widget;
@@ -1772,13 +1770,13 @@ make_double_range_widget (BtMachinePropertiesDialog * self,
   GtkGesture* click = gtk_gesture_click_new ();
   gtk_widget_add_controller (widget, GTK_EVENT_CONTROLLER (click));
   
-  g_signal_connect (click, "button-press-event",
+  g_signal_connect (click, "pressed",
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
 
   GtkEventController* key = gtk_event_controller_key_new ();
   gtk_widget_add_controller (widget, key);
   
-  g_signal_connect (key, "key-release-event",
+  g_signal_connect (key, "key-released",
       G_CALLBACK (on_key_release_event), (gpointer) machine);
   
   return widget;
@@ -1797,15 +1795,10 @@ make_combobox_widget_enum (BtMachinePropertiesDialog * self, GObject * machine,
   AdwEnumListModel* model = adw_enum_list_model_new (G_ENUM_CLASS_TYPE (enum_class));
   widget = gtk_drop_down_new (G_LIST_MODEL (model), NULL);
 
-  gtk_drop_down_set_header_factory (
+  gtk_drop_down_set_factory (
     GTK_DROP_DOWN (widget),
     gtk_builder_list_item_factory_new_from_resource (NULL,
-        "/org/buzztrax/ui/list-item-factory-string.ui"));
-  
-  gtk_drop_down_set_list_factory (
-    GTK_DROP_DOWN (widget),
-    gtk_builder_list_item_factory_new_from_resource (NULL,
-        "/org/buzztrax/ui/list-item-factory-string.ui"));
+        "/org/buzztrax/ui/list-item-factory-enum.ui"));
   
   g_object_get (machine, property->name, &value, NULL);
 
@@ -1822,21 +1815,22 @@ make_combobox_widget_enum (BtMachinePropertiesDialog * self, GObject * machine,
   g_sprintf (signal_name, "notify::%s", property->name);
   g_signal_connect (machine, signal_name,
       G_CALLBACK (on_combobox_property_notify), (gpointer) widget);
-  g_signal_connect (widget, "changed",
+  g_signal_connect (widget, "notify::selected",
       G_CALLBACK (on_combobox_property_changed_enum), (gpointer) machine);
-  g_signal_connect (widget, "button-press-event",
-      G_CALLBACK (on_range_button_press_event), (gpointer) machine);
 
+#if 0
+  /// GTK4 please note the comment in on_button_press_event as to why this is disabled.
   GtkGesture* click = gtk_gesture_click_new ();
   gtk_widget_add_controller (widget, GTK_EVENT_CONTROLLER (click));
-  
-  g_signal_connect (click, "button-press-event",
+  gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (click), 0);
+  g_signal_connect (click, "pressed",
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
-
+#endif
+  
   GtkEventController* key = gtk_event_controller_key_new ();
   gtk_widget_add_controller (widget, key);
   
-  g_signal_connect (key, "key-release-event",
+  g_signal_connect (key, "key-released",
       G_CALLBACK (on_key_release_event), (gpointer) machine);
   
   return widget;
@@ -1853,7 +1847,7 @@ make_checkbox_widget (BtMachinePropertiesDialog * self, GObject * machine,
   g_object_get (machine, property->name, &value, NULL);
 
   widget = gtk_check_button_new ();
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
+  gtk_check_button_set_active (GTK_CHECK_BUTTON (widget), value);
 
   signal_name = g_alloca (9 + strlen (property->name));
   g_sprintf (signal_name, "notify::%s", property->name);
@@ -1865,13 +1859,13 @@ make_checkbox_widget (BtMachinePropertiesDialog * self, GObject * machine,
   GtkGesture* click = gtk_gesture_click_new ();
   gtk_widget_add_controller (widget, GTK_EVENT_CONTROLLER (click));
   
-  g_signal_connect (click, "button-press-event",
+  g_signal_connect (click, "pressed",
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
 
   GtkEventController* key = gtk_event_controller_key_new ();
   gtk_widget_add_controller (widget, key);
   
-  g_signal_connect (key, "key-release-event",
+  g_signal_connect (key, "key-released",
       G_CALLBACK (on_key_release_event), (gpointer) machine);
   
   return widget;
@@ -1890,9 +1884,7 @@ make_param_control (BtMachinePropertiesDialog * self, GObject * object,
 
   // label for parameter name
   evb = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-  gtk_box_append (self->param_group_box, evb);
   
-  g_object_set (evb, "visible-window", FALSE, NULL);
   label = gtk_label_new (g_param_spec_get_nick (property));
   g_object_set (label, "single-line-mode", TRUE, "xalign", 1.0, "tooltip-text",
       tool_tip_text, NULL);
@@ -2055,24 +2047,25 @@ make_param_control (BtMachinePropertiesDialog * self, GObject * object,
   
   gtk_widget_set_tooltip_text (widget1, tool_tip_text);
   if (!widget2) {
-    g_object_set (widget1, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
+    g_object_set (widget1, "hexpand", TRUE, "margin-start", LABEL_PADDING, NULL);
     gtk_grid_attach (GTK_GRID (table), widget1, 1, row, 2, 1);
   } else {
     gtk_widget_set_tooltip_text (widget2, tool_tip_text);
-    g_object_set (widget1, "hexpand", TRUE, "margin-left", LABEL_PADDING,
-        "margin-right", LABEL_PADDING, NULL);
+    g_object_set (widget1, "hexpand", TRUE, "margin-start", LABEL_PADDING,
+        "margin-end", LABEL_PADDING, NULL);
     gtk_grid_attach (GTK_GRID (table), widget1, 1, row, 1, 1);
     if (GTK_IS_LABEL (widget2)) {
       evb = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-      gtk_box_append (self->param_group_box, evb);
       
-      g_object_set (evb, "visible-window", FALSE, NULL);
       gtk_box_append (GTK_BOX (evb), widget2);
       /* float/double formatting uses 8-9 chars, some machine with custom
        * descriptions use more, but ideally text is detected as enums */
       g_object_set (widget2, "ellipsize", PANGO_ELLIPSIZE_END,
           "single-line-mode", TRUE, "xalign", 0.0, "width-chars", 10, NULL);
-      g_signal_connect (evb, "button-press-event",
+
+      GtkGesture *gesture = gtk_gesture_click_new ();
+      gtk_widget_add_controller (evb, GTK_EVENT_CONTROLLER (gesture));
+      g_signal_connect (gesture, "pressed",
           G_CALLBACK (on_label_button_press_event), (gpointer) widget1);
     } else {
       evb = widget2;
@@ -2091,9 +2084,6 @@ make_param_control (BtMachinePropertiesDialog * self, GObject * object,
   if (!self->first_widget) {
     self->first_widget = widget1;
   }
-  
-  g_object_unref (evb);
-  g_object_unref (click);
 }
 
 static GtkWidget *
@@ -2122,7 +2112,10 @@ make_global_param_box (BtMachinePropertiesDialog * self,
     g_hash_table_insert (self->param_groups, expander, pg);
     self->num_global = 1;
 
-    g_signal_connect (expander, "button-press-event",
+    GtkGesture *gesture = gtk_gesture_click_new ();
+    gtk_widget_add_controller (expander, GTK_EVENT_CONTROLLER (gesture));
+    gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (gesture), 2);
+    g_signal_connect (gesture, "pressed",
         G_CALLBACK (on_group_button_press_event), (gpointer) self);
 
     // add global machine controls into the table
@@ -2172,7 +2165,10 @@ make_voice_param_box (BtMachinePropertiesDialog * self,
 
     g_hash_table_insert (self->param_groups, expander, pg);
 
-    g_signal_connect (expander, "button-press-event",
+    GtkGesture *gesture = gtk_gesture_click_new ();
+    gtk_widget_add_controller (expander, GTK_EVENT_CONTROLLER (gesture));
+    gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (gesture), 2);
+    g_signal_connect (gesture, "pressed",
         G_CALLBACK (on_group_button_press_event), (gpointer) self);
 
     // add voice machine controls into the table
@@ -2275,7 +2271,10 @@ make_wire_param_box (BtMachinePropertiesDialog * self, BtWire * wire)
     g_hash_table_insert (self->group_to_object, wire, expander);
     self->num_wires++;
 
-    g_signal_connect (expander, "button-press-event",
+    GtkGesture *gesture = gtk_gesture_click_new ();
+    gtk_widget_add_controller (expander, GTK_EVENT_CONTROLLER (gesture));
+    gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (gesture), 2);
+    g_signal_connect (gesture, "pressed",
         G_CALLBACK (on_group_button_press_event), (gpointer) self);
 
     // add wire controls into the table
@@ -2434,7 +2433,6 @@ make_trigger_control (BtMachinePropertiesDialog * self, GObject * object,
 
   // label for parameter name
   evb = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
-  g_object_set (evb, "visible-window", FALSE, NULL);
   label = gtk_label_new (g_param_spec_get_nick (property));
   g_object_set (label, "single-line-mode", TRUE, "xalign", 1.0, "tooltip-text",
       tool_tip_text, NULL);
@@ -2516,22 +2514,28 @@ make_trigger_control (BtMachinePropertiesDialog * self, GObject * object,
   g_object_set_qdata (G_OBJECT (widget), widget_param_num_quark,
       GINT_TO_POINTER (row));
 
-  g_signal_connect (evb, "button-press-event",
+  GtkGesture *gesture;
+  gesture = gtk_gesture_click_new ();
+  gtk_widget_add_controller (evb, GTK_EVENT_CONTROLLER (gesture));
+  gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (gesture), 0);
+  g_signal_connect (gesture, "pressed",
       G_CALLBACK (on_label_button_press_event), (gpointer) widget);
-  g_signal_connect (widget, "button-press-event",
+  g_signal_connect (gesture, "pressed",
       G_CALLBACK (on_trigger_button_press_event), (gpointer) object);
-  g_signal_connect (widget, "button-release-event",
+  
+  gesture = gtk_gesture_click_new ();
+  gtk_widget_add_controller (widget, GTK_EVENT_CONTROLLER (gesture));
+  gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (gesture), 0);
+  g_signal_connect (gesture, "pressed",
+      G_CALLBACK (on_trigger_button_press_event), (gpointer) object);
+  g_signal_connect (gesture, "released",
       G_CALLBACK (on_button_release_event), (gpointer) object);
-  g_signal_connect (evb, "button-press-event",
-      G_CALLBACK (on_trigger_button_press_event), (gpointer) object);
-  g_signal_connect (evb, "button-press-event",
-      G_CALLBACK (on_label_button_press_event), (gpointer) widget);
-
+  
   gtk_widget_set_tooltip_text (widget, tool_tip_text);
   if (scrolled_window) {
     widget = scrolled_window;
   }
-  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
+  g_object_set (widget, "hexpand", TRUE, "margin-start", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), widget, 1, row, 1, 1);
 }
 
@@ -2647,7 +2651,6 @@ bt_machine_properties_dialog_init_ui (BtMachinePropertiesDialog * self)
   if ((window_icon =
           bt_ui_resources_get_icon_paintable_by_machine (self->machine))) {
     /// GTK4 gtk_window_set_icon (GTK_WINDOW (self), window_icon);
-    g_object_unref (window_icon);
   }
   // get machine data
   g_object_get (self->machine,
@@ -2671,6 +2674,8 @@ bt_machine_properties_dialog_init_ui (BtMachinePropertiesDialog * self)
 
   if (!GST_IS_PRESET (machine)) {
     gtk_widget_set_sensitive (GTK_WIDGET (self->presets_toggle), FALSE);
+    g_object_set (self->presets_toggle, "tooltip-text",
+        _("This machine doesn't support presets"), NULL);
   } else {
     GHashTable *properties;
     gchar *prop;

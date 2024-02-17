@@ -445,11 +445,6 @@ bt_machine_preferences_dialog_init_ui (BtMachinePreferencesDialog * self)
 
         widget1 = gtk_drop_down_new (G_LIST_MODEL (adw_enum_list_model_new (G_ENUM_CLASS_TYPE (enum_class))), NULL);
         
-        gtk_drop_down_set_header_factory (
-          GTK_DROP_DOWN (widget1),
-          gtk_builder_list_item_factory_new_from_resource (NULL,
-              "/org/buzztrax/ui/list-item-factory-string.ui"));
-  
         gtk_drop_down_set_list_factory (
           GTK_DROP_DOWN (widget1),
           gtk_builder_list_item_factory_new_from_resource (NULL,

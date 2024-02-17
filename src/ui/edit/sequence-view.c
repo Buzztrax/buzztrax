@@ -825,7 +825,7 @@ static void sequence_pos_table_on_setup(GtkSignalListItemFactory *factory, GObje
   GtkGesture* click = gtk_gesture_click_new ();
   gtk_widget_add_controller (GTK_WIDGET (label), GTK_EVENT_CONTROLLER (click));
   
-  g_signal_connect_object (click, "button-press-event",
+  g_signal_connect_object (click, "pressed",
       G_CALLBACK (on_sequence_pos_table_button_press_event), user_data, 0);
 }
 
@@ -1710,7 +1710,7 @@ bt_sequence_view_init (BtSequenceView * self)
 #if 0 /// GTK4
   GtkEventController* key = gtk_event_controller_key_new ();
   gtk_widget_add_controller (GTK_WIDGET (self->sequence_table), key);
-  g_signal_connect (key, "key-press-event",
+  g_signal_connect (key, "key-pressed",
       G_CALLBACK (on_sequence_table_key_press_event), (gpointer) self);
 #endif
 
@@ -1723,7 +1723,7 @@ bt_sequence_view_init (BtSequenceView * self)
   GtkGesture* click = gtk_gesture_click_new ();
   gtk_widget_add_controller (GTK_WIDGET (self->sequence_table), GTK_EVENT_CONTROLLER (click));
 
-  g_signal_connect (click, "button-press-event",
+  g_signal_connect (click, "pressed",
       G_CALLBACK (on_sequence_table_button_press_event), (gpointer) self);
 #endif
   
