@@ -1,3 +1,6 @@
+/* /// GTK4 this file has been converted from an autotools template to a regular file
+   /// because no templating seemed to be being done */
+
 /* custom styles for buzztrax-edit */
 
 /* coloring for sequence view */
@@ -12,10 +15,6 @@ BtSequenceView row:nth-child(odd) {
 /* less spacious treeview */
 
 BtSequenceView, #sequence-pattern-list, #wave-level-list, #wave-list {
-  -GtkTreeView-horizontal-separator: 0;
-  -GtkTreeView-vertical-separator: 1;
-  -GtkWidget-focus-line-width: 0;/* deprecated 3.14 */
-  -GtkWidget-focus-padding: 0;/* deprecated 3.14 */
   outline-width: 0;
   outline-offset: 0;
 }
@@ -35,24 +34,35 @@ BtSequenceView, #sequence-pattern-list, #wave-level-list, #wave-list {
 @define-color mute-bg #f0a0a0;
 .mute:hover, .mute:active {
   background-color: @mute-bg;
-  background-image:
-       -gtk-gradient(linear, 0 0, 0 1, from(darker(@mute-bg)), to(lighter(@mute-bg)));
+  background-image: linear-gradient(to top, darker(@mute-bg), lighter(@mute-bg));
 }
 
 @define-color solo-bg #a0a0f0;
 .solo:hover, .solo:active {
   background-color: @solo-bg;
   background-image:
-      -gtk-gradient(linear, 0 0, 0 1, from(darker(@solo-bg)), to(lighter(@solo-bg)));
+      linear-gradient(to top, darker(@solo-bg), lighter(@solo-bg));
 }
 
 @define-color bypass-bg #f0d090;
 .bypass:hover, .bypass:active {
   background-color: @bypass-bg;
   background-image:
-      -gtk-gradient(linear, 0 0, 0 1, from(darker(@bypass-bg)), to(lighter(@bypass-bg)));
+      linear-gradient(to top, darker(@bypass-bg), lighter(@bypass-bg));
 }
 
-GtkClutterEmbed, #machine-and-wire-editor {
+#machine-and-wire-editor {
     background-color: @machine_view_bg_color;
+}
+
+.wire {
+    color: @wire_line;
+}
+
+.bad {
+    color: @new_wire_bad;
+}
+
+.good {
+    color: @new_wire_good;
 }

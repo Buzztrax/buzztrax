@@ -221,8 +221,11 @@ bt_main_pages_dispose (GObject * object)
 static void
 bt_main_pages_init (BtMainPages * self)
 {
-  // Refer to https://developer.gnome.org/documentation/tutorials/widget-templates.html
-  // regarding need for g_type_ensure when using custom widget types in UI builder template files.
+  /* Refer to
+   * https://developer.gnome.org/documentation/tutorials/widget-templates.html
+   * regarding need for g_type_ensure when using custom widget types in UI
+   * builder template files.
+   */
   g_type_ensure (BT_TYPE_MAIN_PAGE_INFO);
   g_type_ensure (BT_TYPE_MAIN_PAGE_MACHINES);
   g_type_ensure (BT_TYPE_MAIN_PAGE_PATTERNS);

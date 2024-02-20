@@ -133,13 +133,12 @@ struct _BtMainPageMachines
   /* used when interactivly adding a new wire */
   GtkDrawingArea *new_wire;
   BtMachineCanvasItem *new_wire_src, *new_wire_dst;
-  GdkRGBA wire_good_color, wire_bad_color;
 
   /* cached setup properties */
   GHashTable *properties;
 
   /* mouse coodinates on context menu invokation (used for placing new machines) */
-  gfloat mouse_x, mouse_y;
+  gdouble mouse_x, mouse_y;
   /* relative machine coordinates before/after draging (needed for undo) */
   gdouble machine_xo, machine_yo;
   gdouble machine_xn, machine_yn;
@@ -227,7 +226,7 @@ G_DEFINE_ENUM_TYPE (BtMainPageMachinesGridDensity,
 
 static void
 widget_to_canvas_pos (BtMainPageMachines * self, gfloat wx, gfloat wy,
-    gfloat * cx, gfloat * cy)
+    gdouble * cx, gdouble * cy)
 {
 #if 0 /// GTK4 no longer relevant? Use GTK coord translate functions?
   gdouble ox = gtk_adjustment_get_value (self->hadjustment);
@@ -262,9 +261,11 @@ on_wire_draw (GtkDrawingArea* drawing_area, cairo_t* cr, int width, int height,
     gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  gfloat mx, my, x1, x2, y1, y2;
+  gdouble mx, my, x1, x2, y1, y2;
 
-  mx = 0; my = 0; /// GTK4 clutter_actor_get_position ((ClutterActor *) self->new_wire_src, &mx, &my);
+  gtk_fixed_get_child_position (self->canvas, GTK_WIDGET (self->new_wire_src),
+      &mx, &my);
+  
   if (mx < self->mouse_x) {
     x1 = 0.0;
     x2 = width;
@@ -280,18 +281,13 @@ on_wire_draw (GtkDrawingArea* drawing_area, cairo_t* cr, int width, int height,
     y2 = 0.0;
   }
 
-  /* clear the contents of the canvas, to not paint over the previous frame */
-  cairo_set_operator (cr, CAIRO_OPERATOR_CLEAR);
-  cairo_paint (cr);
-  cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
-
   cairo_set_line_cap (cr, CAIRO_LINE_CAP_ROUND);
   cairo_set_line_width (cr, 1.0);
-  if (self->new_wire_dst && bt_main_page_machines_check_wire (self)) {
-    gdk_cairo_set_source_rgba (cr, &self->wire_good_color);
-  } else {
-    gdk_cairo_set_source_rgba (cr, &self->wire_bad_color);
-  }
+
+  GdkRGBA color;
+  gtk_widget_get_color (GTK_WIDGET (drawing_area), &color);
+  
+  gdk_cairo_set_source_rgba (cr, &color);
 
   cairo_move_to (cr, x1, y1);
   cairo_line_to (cr, x2, y2);
@@ -375,7 +371,8 @@ update_connect (BtMainPageMachines * self)
   gfloat mm_x, mm_y, w, h, x, y;
 
   graphene_rect_t rect;
-  if (gtk_widget_compute_bounds (GTK_WIDGET (self->new_wire_src), GTK_WIDGET (self), &rect)) {
+  if (gtk_widget_compute_bounds (GTK_WIDGET (self->new_wire_src),
+      GTK_WIDGET (self), &rect)) {
     mm_x = self->mouse_x;
     mm_y = self->mouse_y;
     w = 1.0 + fabs(mm_x - rect.origin.x);
@@ -392,6 +389,13 @@ update_connect (BtMainPageMachines * self)
   } else {
     GST_WARNING ("Error trying to get new wire widget bounds");
   }
+
+  gtk_widget_remove_css_class (GTK_WIDGET (self->new_wire), "good");
+  gtk_widget_remove_css_class (GTK_WIDGET (self->new_wire), "bad");
+  if (self->new_wire_dst) {
+    gtk_widget_add_css_class (GTK_WIDGET (self->new_wire),
+        bt_main_page_machines_check_wire (self) ? "good" : "bad");
+  }
 }
 
 static void
@@ -400,8 +404,11 @@ start_connect (BtMainPageMachines * self)
   // handle drawing a new wire
   g_assert (!self->new_wire);
   self->new_wire = GTK_DRAWING_AREA (gtk_drawing_area_new ());
+  gtk_widget_add_css_class (GTK_WIDGET (self->new_wire), "wire");
+  g_object_ref (self->new_wire);
   gtk_drawing_area_set_draw_func (self->new_wire, on_wire_draw, self, NULL);
-  gtk_widget_set_parent (GTK_WIDGET (self->new_wire), GTK_WIDGET (self->canvas));
+  gtk_fixed_put (self->canvas, GTK_WIDGET (self->new_wire), self->mouse_x,
+      self->mouse_y);
   update_connect (self);
 
   self->connecting = TRUE;
@@ -832,25 +839,27 @@ bt_main_page_machines_add_wire (BtMainPageMachines * self)
   g_object_unref (song);
 }
 
-/// GTK4 remove this
 static BtMachineCanvasItem *
 get_machine_canvas_item_under_cursor (BtMainPageMachines * self)
 {
-#if 0
-  ClutterActor *ci;
-  gfloat x, y;
-
-  canvas_to_widget_pos (self, self->mouse_x, self->mouse_y, &x, &y);
-
-  //GST_DEBUG ("is there a machine at pos?");
-  if ((ci = clutter_stage_get_actor_at_pos ((ClutterStage *) self->stage,
-              CLUTTER_PICK_REACTIVE, x, y))) {
-    if (BT_IS_MACHINE_CANVAS_ITEM (ci)) {
-      //GST_DEBUG("  yes!");
-      return BT_MACHINE_CANVAS_ITEM (g_object_ref (ci));
+  graphene_point_t mouse = GRAPHENE_POINT_INIT (self->mouse_x, self->mouse_y);
+  
+  GtkWidget *child = gtk_widget_get_first_child (GTK_WIDGET (self->canvas));
+  while (child) {
+    if (BT_IS_MACHINE_CANVAS_ITEM (child)) {
+      graphene_rect_t bounds;
+      
+      if (gtk_widget_compute_bounds (child,
+          GTK_WIDGET (self->canvas), &bounds)) {
+        
+        if (graphene_rect_contains_point (&bounds, &mouse)) {
+          return (BtMachineCanvasItem*) child;
+        }
+      }
     }
+    
+    child = gtk_widget_get_next_sibling (child);
   }
-#endif
   
   return NULL;
 }
@@ -891,22 +900,19 @@ on_machine_item_start_connect (BtMachineCanvasItem * machine_item,
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
 
   self->new_wire_src = g_object_ref (machine_item);
-  g_object_get (machine_item, "x", &self->mouse_x, "y",
-      &self->mouse_y, NULL);
-#if 0 /// GTK 4
+  gtk_fixed_get_child_position (self->canvas, GTK_WIDGET (machine_item),
+      &self->mouse_x, &self->mouse_y);
   start_connect (self);
-#endif
 }
 
 static void
 machine_actor_update_bb (gpointer key, gpointer value, gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  gfloat px, py;
+  gdouble px, py;
 
-#if 0 /// GTK 4
-  clutter_actor_get_position ((ClutterActor *) value, &px, &py);
-#endif
+  gtk_fixed_get_child_position (self->canvas, GTK_WIDGET (value),
+      &self->mouse_x, &self->mouse_y);
   
   if (px < self->mi_x)
     self->mi_x = px;
@@ -1028,7 +1034,7 @@ static void
 on_wire_removed (BtSetup * setup, BtWire * wire, gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  ///GTK4 ClutterActor *item;
+  GtkWidget *item;
 
   if (!wire) {
     return;
@@ -1076,14 +1082,12 @@ on_wire_removed (BtSetup * setup, BtWire * wire, gpointer user_data)
     g_object_unref (src_machine);
   }
 
-#if 0 /// GTK 4
   if ((item = g_hash_table_lookup (self->wires, wire))) {
     GST_INFO ("now removing wire-item : %" G_OBJECT_REF_COUNT_FMT,
         G_OBJECT_LOG_REF_COUNT (item));
     g_hash_table_remove (self->wires, wire);
-    clutter_actor_destroy (item);
+    gtk_widget_unparent (item);
   }
-#endif
 
   GST_INFO_OBJECT (wire, "... wire removed: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (wire));
@@ -1337,7 +1341,6 @@ on_canvas_query_tooltip (GtkWidget * widget, gint x, gint y,
   bt_child_proxy_get (ci, "machine::pretty_name", &name, NULL);
   gtk_tooltip_set_text (tooltip, name);
   g_free (name);
-  g_object_unref (ci);
   return TRUE;
 }
 
@@ -1381,16 +1384,6 @@ store_scroll_pos (BtMainPageMachines * self, gchar * name, gdouble val)
         bt_edit_application_set_song_unsaved (self->app);
     }
   }
-}
-
-static gboolean
-idle_redraw (gpointer user_data)
-{
-#if 0 /// GTK 4
-  BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  clutter_content_invalidate (self->grid_canvas);
-#endif
-  return FALSE;
 }
 
 static void
@@ -1457,7 +1450,6 @@ on_canvas_button_press (GtkGestureClick* click, gint n_press, gdouble x,
         g_object_unref (machine);
       }
     }
-    g_object_unref (ci);
   }
 }
 
@@ -1478,13 +1470,12 @@ on_canvas_button_release (GtkGestureClick* click, gint n_press, gdouble x,
       if (bt_main_page_machines_check_wire (self)) {
         bt_main_page_machines_add_wire (self);
       }
-      g_object_unref (self->new_wire_dst);
       self->new_wire_dst = NULL;
     }
     g_object_unref (self->new_wire_src);
     self->new_wire_src = NULL;
     
-    gtk_widget_set_parent (GTK_WIDGET (self->new_wire), NULL);
+    gtk_widget_unparent (GTK_WIDGET (self->new_wire));
 
     g_clear_object (&self->new_wire);
     self->connecting = FALSE;
@@ -1505,22 +1496,26 @@ on_canvas_motion (GtkEventControllerMotion* motion, gdouble x, gdouble y,
     clutter_event_get_cursor_pos (self, x, y);
     g_object_try_unref (self->new_wire_dst);
     self->new_wire_dst = get_machine_canvas_item_under_cursor (self);
+    if (self->new_wire_dst)
+      g_object_ref (self->new_wire_dst);
     update_connect (self);
   } else if (self->dragging) {
     gfloat x = self->mouse_x, y = self->mouse_y;
-#if 0 /// GTK4 set scrolled window pos by normal means
-    gdouble ox = gtk_adjustment_get_value (self->hadjustment);
-    gdouble oy = gtk_adjustment_get_value (self->vadjustment);
+    gdouble ox = gtk_adjustment_get_value (
+        gtk_scrolled_window_get_hadjustment (self->scrolled_window));
+    gdouble oy = gtk_adjustment_get_value (
+        gtk_scrolled_window_get_vadjustment (self->scrolled_window));
     // snapshot current mousepos and calculate delta
     clutter_event_get_cursor_pos (self, x, y);
     gfloat dx = x - self->mouse_x;
     gfloat dy = y - self->mouse_y;
     // scroll canvas
-    gtk_adjustment_set_value (self->hadjustment, ox + dx);
-    gtk_adjustment_set_value (self->vadjustment, oy + dy);
+    gtk_adjustment_set_value (
+        gtk_scrolled_window_get_hadjustment (self->scrolled_window), ox + dx);
+    gtk_adjustment_set_value (
+        gtk_scrolled_window_get_vadjustment (self->scrolled_window), oy + dy);
     self->mouse_x += dx;
     self->mouse_y += dy;
-#endif
   }
 }
 
@@ -1530,7 +1525,6 @@ on_canvas_key_release (GtkEventControllerKey* key, guint keyval,
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
 
-  /// GTK4 clutter_event_get_cursor_pos (self, event);
   GST_DEBUG ("GDK_KEY_RELEASE: %d", keyval);
   switch (keyval) {
     case GDK_KEY_Menu:
@@ -1557,23 +1551,6 @@ on_panorama_popup_changed (GtkAdjustment * adj, gpointer user_data)
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
   gfloat pan = (gfloat) gtk_adjustment_get_value (adj) / 100.0;
   g_object_set (self->wire_pan, "panorama", pan, NULL);
-}
-
-static void
-on_canvas_style_updated (GtkStyleContext * style_ctx, gconstpointer user_data)
-{
-#if 0 /// GTK4
-  BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-
-  gtk_style_context_lookup_color (style_ctx, "new_wire_good",
-      &self->wire_good_color);
-  gtk_style_context_lookup_color (style_ctx, "new_wire_bad",
-      &self->wire_bad_color);
-
-  if (self->grid_canvas) {
-    clutter_content_invalidate (self->grid_canvas);
-  }
-#endif
 }
 
 //-- helper methods
@@ -2409,10 +2386,6 @@ bt_main_page_machines_dispose (GObject * object)
   g_object_unref (self->change_log);
   g_object_unref (self->app);
   g_object_unref (self->context_menu);
-#if 0 /// GTK4
-  gtk_widget_destroy (GTK_WIDGET (self->grid_density_menu));
-  g_object_unref (self->grid_density_menu);
-#endif
 
   g_clear_object (&self->machine_menu);
   
@@ -2462,12 +2435,6 @@ bt_main_page_machines_class_init (BtMainPageMachinesClass * klass)
   gobject_class->finalize = bt_main_page_machines_finalize;
   widget_class->focus = bt_main_page_machines_focus;
 
-#if 0 /// GTK4
-  g_object_class_install_property (gobject_class,
-      MAIN_PAGE_MACHINES_CANVAS, g_param_spec_object ("canvas",
-          "canvas prop", "Get the machine canvas", CLUTTER_TYPE_ACTOR,
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-#endif
   g_object_class_install_property (gobject_class,
       MAIN_PAGE_MACHINES_GRID_DENSITY, g_param_spec_enum ("grid-density",
           "grid density", "Modify the grid density view setting",

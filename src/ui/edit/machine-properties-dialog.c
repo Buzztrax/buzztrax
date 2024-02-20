@@ -2393,14 +2393,11 @@ static GtkWidget *
 make_mini_button (void)
 {
   GtkWidget *button;
-  /// GtkStyleContext *context;
 
   // TODO(ensonic): a drum icon? trigger indicator, 'note' is not good
   // we can put the icons into ./icons/hicolor/24x24/
   button = gtk_button_new_from_icon_name ("media-playback-stop");
-  /// GTK4 gtk_container_set_border_width (GTK_CONTAINER (button), 0);
-  /// GTK4 context = gtk_widget_get_style_context (button);
-  /// gtk_style_context_add_class (context, "mini");
+  gtk_widget_add_css_class (button, "mini");
 
   return button;
 }

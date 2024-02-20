@@ -1361,6 +1361,20 @@ bt_machine_canvas_item_finalize (GObject * object)
 }
 
 static void
+bt_machine_canvas_item_on_drag_begin (GtkGestureDrag *drag, gdouble start_x,
+    gdouble start_y, gpointer user_data)
+{
+  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (user_data);
+  GdkModifierType mod = 
+    gtk_event_controller_get_current_event_state (GTK_EVENT_CONTROLLER (drag));
+
+  if (mod & GDK_SHIFT_MASK) {
+    gtk_gesture_set_state (GTK_GESTURE (drag), GTK_EVENT_SEQUENCE_DENIED);
+    g_signal_emit (self, signals[START_CONNECT], 0);
+  }
+}
+
+static void
 bt_machine_canvas_item_on_drag_update (GtkGestureDrag *drag, gdouble offset_x,
     gdouble offset_y, gpointer user_data)
 {
@@ -1507,6 +1521,8 @@ bt_machine_canvas_item_init (BtMachineCanvasItem * self)
   gesture = gtk_gesture_drag_new ();
   gtk_widget_add_controller (GTK_WIDGET (self),
       GTK_EVENT_CONTROLLER (gesture));
+  g_signal_connect_object (gesture, "drag-begin",
+      G_CALLBACK (bt_machine_canvas_item_on_drag_begin), (gpointer) self, 0);
   g_signal_connect_object (gesture, "drag-update",
       G_CALLBACK (bt_machine_canvas_item_on_drag_update), (gpointer) self, 0);
   g_signal_connect_object (gesture, "drag-end",

@@ -75,13 +75,14 @@ on_theme_notify (BtSettings * const settings, GParamSpec * const arg,
   /* TODO(ensonic): compact:
    * - changes to the separators do not apply automatically right now
    */
-  g_object_set (gtk_settings_get_default (),
-      "gtk-application-prefer-dark-theme", use_dark, NULL);
+  adw_style_manager_set_color_scheme(
+      adw_style_manager_get_default (),
+      use_dark ? ADW_COLOR_SCHEME_PREFER_DARK : ADW_COLOR_SCHEME_DEFAULT);
 
   /// GTK4 do authors still want to load files not compiled into resources?
   // also load from $srcdir (when uninstalled)
   // TODO: needs to be top_srcdir for out-of-srcdir builds
-  style = g_strdup_printf ("css/bt-edit.%s.%s.css",
+  style = g_strdup_printf ("/org/buzztrax/css/bt-edit.%s.%s.css",
       (use_dark ? "dark" : "light"), (use_compact ? "compact" : "normal"));
 
   gtk_css_provider_load_from_resource (
@@ -393,10 +394,8 @@ bt_ui_resources_constructor (GType type, guint n_construct_params,
 
     singleton->priv->provider = (GtkStyleProvider *) gtk_css_provider_new ();
 
-#if 0 /// GTK4
-    gtk_style_context_add_provider_for_screen (gdk_screen_get_default (),
+    gtk_style_context_add_provider_for_display (gdk_display_get_default (),
         singleton->priv->provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-#endif
 
     app = bt_edit_application_new ();
     g_object_get (app, "settings", &settings, NULL);

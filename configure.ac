@@ -686,8 +686,7 @@ AC_CONFIG_FILES(Makefile \
   src/lib/ic/libbuzztrax-ic.pc \
   src/lib/ic/version.h \
   tests/bt-cfg.sh \
-  tests/lib/core/songio/bsl/bt-cfg.sh \
-  res/css/bt-edit.css \
+  tests/lib/core/songio/bsl/bt-cfg.sh
 )
 AC_OUTPUT
 

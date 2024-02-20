@@ -2,7 +2,7 @@
 <gresources>
   <gresource prefix="/org/buzztrax">
     <file>css/bt-edit.compact.css</file>
-    <file>css/bt-edit.css</file> <!-- note: generated from css/bt-edit.css.in -->
+    <file>css/bt-edit.css</file>
     <file>css/bt-edit.dark.compact.css</file>
     <file>css/bt-edit.dark.css</file>
     <file>css/bt-edit.dark.normal.css</file>
