@@ -93,7 +93,7 @@ do
   fi
 done
 
-if [ -n "LANGUAGES_UPDATED" ]; then
+if [ -n "$LANGUAGES_UPDATED" ]; then
   echo "===================================================================="
   echo
   echo "Language codes updated    :$LANGUAGES_UPDATED"
@@ -103,7 +103,7 @@ if [ -n "LANGUAGES_UPDATED" ]; then
   echo
   if [ -n "$LANGUAGES_TO_ADD" ]; then
     CMD_STRING="git add"
-    for d in $LANGUAGES_TO_ADD; do
+    for l in $LANGUAGES_TO_ADD; do
       CMD_STRING="$CMD_STRING po/$l.po"
     done
     CMD_STRING="$CMD_STRING; git commit -m \"add new translations\""
