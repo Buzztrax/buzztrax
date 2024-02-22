@@ -6,10 +6,10 @@
 # We need to check all languages, not only po/LINGUAS, since there might be
 # new translations
 LANGUAGES=\
-"af am ar az be bg pt_BR bs ca zh_CN cs cy da de el eo es et eu fa fi fr "\
-"ga en_GB gl gu he hi zh_HK hr hu id is it ja ko ku ky lg lt lv mk mn ms "\
-"mt nb ne nl nn or pa pl pt rm ro ru rw sk sl sq sr sv ta tq th tk "\
-"tr zh_TW uk ven vi wa xh zu"
+"ab af an ar ast be bg bn bn_IN ca ckb crh cs da de el en_GB eo es et eu "\
+"fa fi fr fur ga gd gl gu he hi hr hu hy id is it ja ka kk kn ko ku ky lg "\
+"lt lv mk ml mn mr ms mt nb ne nl nn or pa pl pt pt_BR ro ru rw sk sl sq "\
+"sr sv sw ta te tg th tr uk ur vi wa wo zh_CN zh_HK zh_TW"
 
 # for testing/debugging:
 #LANGUAGES="es fr hu sv pl xx"
