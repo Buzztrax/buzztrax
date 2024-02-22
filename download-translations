@@ -91,16 +91,15 @@ do
       # website, so it's probably a new translation
       echo "$l.po: new language"
       mv $PO_FILENAME "po/$l.po"
-      LANGUAGES_UPDATED="$LANGUAGES_UPDATED $l"
       LANGUAGES_TO_ADD="$LANGUAGES_TO_ADD $l"
     fi
   else
     rm -f $PO_FILENAME
-    echo "$l.po: failure (does probably not exist)"
+    echo "$l.po: failure (probably does not exist yet)"
   fi
 done
 
-if [ -n "$LANGUAGES_UPDATED" ]; then
+if [ -n "$LANGUAGES_UPDATED" ] || [ -n "$LANGUAGES_TO_ADD" ]; then
   echo "===================================================================="
   echo
   echo "Language codes updated    :$LANGUAGES_UPDATED"
@@ -108,19 +107,31 @@ if [ -n "$LANGUAGES_UPDATED" ]; then
   echo
   echo "Source: http://translationproject.org/latest/$DOMAIN/"
   echo
+  if [ -n "$LANGUAGES_UPDATED" ]; then
+    CMD_STRING="git add"
+    for l in $LANGUAGES_UPDATED; do
+      CMD_STRING="$CMD_STRING po/$l.po"
+    done
+    CMD_STRING="$CMD_STRING; git commit -m 'po: update translations'"
+    echo "To commit the updated translations, please run:"
+    echo
+    echo "  $CMD_STRING"
+    echo
+    echo
+  fi
   if [ -n "$LANGUAGES_TO_ADD" ]; then
+    echo "Edit 'po/LINGUAS' adding the following new language codes:"
+    echo
+    echo "  $LANGUAGES_TO_ADD"
+    echo
     CMD_STRING="git add"
     for l in $LANGUAGES_TO_ADD; do
       CMD_STRING="$CMD_STRING po/$l.po"
     done
-    CMD_STRING="$CMD_STRING; git commit -m \"add new translations\""
-    echo "Please run"
+    CMD_STRING="$CMD_STRING po/LINGUAS; git commit -m 'po: add new translations'"
+    echo "and now add the new translations, please run:"
     echo
     echo "  $CMD_STRING"
-    echo
-    echo "now and add the following language codes to the po/LINGUAS file:"
-    echo
-    echo "  $LANGUAGES_TO_ADD"
     echo
     echo
   fi
