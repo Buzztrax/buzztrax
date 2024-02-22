@@ -16,15 +16,22 @@ LANGUAGES=\
 
 # check for 'diff' program
 diff --version 2>/dev/null >/dev/null
-if [ ! $? ]; then
+if [ $? -ne 0 ]; then
   echo "==== You must have the 'diff' program installed for this script ===="
   exit 1
 fi
 
 # check for 'wget' program
 wget --version 2>/dev/null >/dev/null
-if [ ! $? ]; then
+if [ $? -ne 0 ]; then
   echo "==== You must have the 'wget' program installed for this script ===="
+  exit 1
+fi
+
+# check for 'msguniq' program
+msguniq --version 2>/dev/null >/dev/null
+if [ $? -ne 0 ]; then
+  echo "==== You must have the 'gettext' package installed for this script ===="
   exit 1
 fi
 
