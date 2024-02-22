@@ -14,31 +14,42 @@ LANGUAGES=\
 # for testing/debugging:
 #LANGUAGES="es fr hu sv pl xx"
 
+# print error message and exit; prefix problem matcher when in GitHub Actions
+err_msg() {
+  local prefix
+  [ -n "$CI" ] && prefix="::error::"
+  echo $prefix"$*" >&2
+  exit 1
+}
+
+# print warning message; prefix problem matcher when in GitHub Actions
+warn_msg() {
+  local prefix
+  [ -n "$CI" ] && prefix="::warning::"
+  echo $prefix"$*" >&2
+}
+
 # check for 'diff' program
 diff --version 2>/dev/null >/dev/null
 if [ $? -ne 0 ]; then
-  echo "==== You must have the 'diff' program installed for this script ===="
-  exit 1
+  err_msg "==== You must have the 'diff' program installed for this script ===="
 fi
 
 # check for 'wget' program
 wget --version 2>/dev/null >/dev/null
 if [ $? -ne 0 ]; then
-  echo "==== You must have the 'wget' program installed for this script ===="
-  exit 1
+  err_msg "==== You must have the 'wget' program installed for this script ===="
 fi
 
 # check for 'msguniq' program
 msguniq --version 2>/dev/null >/dev/null
 if [ $? -ne 0 ]; then
-  echo "==== You must have the 'gettext' package installed for this script ===="
-  exit 1
+  err_msg "==== You must have the 'gettext' package installed for this script ===="
 fi
 
 # make sure we're in the top-level directory
 if [ ! -d ./po ]; then
-  echo "==== No ./po directory in the current working directory ===="
-  exit 1
+  err_msg "==== No ./po directory in the current working directory ===="
 fi
 
 DOMAIN="buzztrax"
@@ -64,7 +75,7 @@ do
                               --to-code=UTF-8; then
         mv $PO_FILENAME.utf8 $PO_FILENAME
       else
-        echo "**** $l: conversion from $CHARSET to UTF-8 failed ****"
+        warn_msg "**** $l: conversion from $CHARSET to UTF-8 failed ****"
       fi
     fi
     if [ -f "po/$l.po" ]; then
