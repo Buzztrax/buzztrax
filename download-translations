@@ -30,27 +30,20 @@ warn_msg() {
 }
 
 # check for 'diff' program
-diff --version 2>/dev/null >/dev/null
-if [ $? -ne 0 ]; then
-  err_msg "==== You must have the 'diff' program installed for this script ===="
-fi
+diff --version 2>/dev/null >/dev/null || \
+  err_msg "You must have the 'diff' program installed for this script."
 
 # check for 'wget' program
-wget --version 2>/dev/null >/dev/null
-if [ $? -ne 0 ]; then
-  err_msg "==== You must have the 'wget' program installed for this script ===="
-fi
+wget --version 2>/dev/null >/dev/null || \
+  err_msg "You must have the 'wget' program installed for this script."
 
 # check for 'msguniq' program
-msguniq --version 2>/dev/null >/dev/null
-if [ $? -ne 0 ]; then
-  err_msg "==== You must have the 'gettext' package installed for this script ===="
-fi
+msguniq --version 2>/dev/null >/dev/null || \
+  err_msg "You must have the 'gettext' package installed for this script."
 
 # make sure we're in the top-level directory
-if [ ! -d ./po ]; then
-  err_msg "==== No ./po directory in the current working directory ===="
-fi
+[ -d ./po ] || \
+  err_msg "No ./po directory in the current working directory."
 
 DOMAIN="buzztrax"
 
