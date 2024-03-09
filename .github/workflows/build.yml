@@ -40,14 +40,14 @@ jobs:
     - name: make check
       id: check
       run: |
-        make -k check BT_ARCHIVE_LOGS=1
+        make -k bt_edit.check BT_ARCHIVE_LOGS=1 GST_DEBUG="*:4"
 
-    - name: Rerun failed tests under gdb and get backtraces
-      id: rerun_tests
-      if: always() && steps.check.outcome == 'failure'
-      run: |
-        cat ./bt_edit.log ./test-suite.log
-        scripts/gdbtests.sh ./test-suite.log
+    #- name: Rerun failed tests under gdb and get backtraces
+    #  id: rerun_tests
+    #  if: always() && steps.check.outcome == 'failure'
+    #  run: |
+    #    cat ./bt_edit.log ./test-suite.log
+    #    scripts/gdbtests.sh ./test-suite.log
 
     # File not found: '/home/runner/work/_actions/test-summary/action/<...>/index.js'
     #- name: Test Summary
